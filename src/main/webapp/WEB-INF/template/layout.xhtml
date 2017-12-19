@@ -28,7 +28,7 @@
 	<header>
 		<div style="float: left">
 			<h:link outcome="/home.xhtml">
-				<h:graphicImage library="images" name="fmn.png" height="40px" />
+				<h:graphicImage library="images" name="FMenu.png" height="35px" />
 			</h:link>
 		</div>
 
@@ -42,8 +42,8 @@
 						<p:submenu label="Usuários">
 							<p:menuitem value="Grupo de Usuário"
 								outcome="/pages/cadastro/grupoUsuario/grupoUsuario" />
-							<p:menuitem value="Permisões do Grupo"
-								outcome="/pages/cadastro/grupoUsuario/grupoUsuario" />
+							<p:menuitem value="Permissões do Grupo"
+								outcome="/pages/cadastro/permissaoGrupoUser/permissaoGrupoUser" />
 						</p:submenu>
 						<p:separator />
 						<p:submenu label="Produtos">
@@ -54,7 +54,9 @@
 						</p:submenu>
 						<p:submenu label="Outros">
 							<p:menuitem value="Cidades" />
-							<p:menuitem value="Config E-mail" />
+							<p:menuitem value="Configuração E-mail" />
+							<p:menuitem value="Configuração Menu"
+								outcome="/pages/cadastro/menu/menu" />
 						</p:submenu>
 					</p:submenu>
 					<p:submenu label="Pedidos">
