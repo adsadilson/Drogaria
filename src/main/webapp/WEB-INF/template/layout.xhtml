@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title><ui:insert name="titulo">Sistema de Drogaria</ui:insert></title>
+	<h:outputStylesheet library="css" name="sistema.css" />
+	<h:outputScript library="js" name="jquery.maskMoney.js" />
+	<h:outputScript library="js" name="initScript.js" />
+
+</h:head>
+
+<h:body>
+	<p:ajaxStatus styleClass="ajax-status">
+		<f:facet name="start">
+			<h:graphicImage library="images" name="loading.gif" />
+		</f:facet>
+		<f:facet name="complete">
+			<h:outputText value="" />
+		</f:facet>
+	</p:ajaxStatus>
+
+	<header >
+		<div style="float: left">
+			<h:link outcome="/home.xhtml">
+				<h:graphicImage library="images" name="fmn.png" height="40px" />
+			</h:link>
+		</div>
+
+		<div style="float: left; margin-right: 110px; margin-top: 20px;">
+
+			<h:form style="display: inline-block">
+				<p:menubar styleClass="menu-sistema">
+					<p:submenu label="Cadastros">
+						<p:menuitem value="Clientes" />
+						<p:menuitem value="Fornecedores" />
+						<p:menuitem value="Usuários" />
+						<p:separator />
+						<p:submenu label="Produtos">
+							<p:menuitem value="Produto" />
+							<p:menuitem value="Categorias" />
+							<p:menuitem value="SubCategorias" />
+							<p:menuitem value="Unidade de Medida" />
+						</p:submenu>
+						<p:submenu label="Outros">
+							<p:menuitem value="Cidades" />
+							<p:menuitem value="Grupo de Usuário"
+								outcome="/pages/cadastro/grupoUsuario/listaGrupoUsuario" />
+							<p:menuitem value="Plano de Conta" />
+							<p:menuitem value="Config E-mail" />
+						</p:submenu>
+					</p:submenu>
+					<p:submenu label="Pedidos">
+						<p:menuitem value="Novo pedido" />
+						<p:menuitem value="Pesquisa" />
+					</p:submenu>
+					<p:menuitem value="Sair" />
+				</p:menubar>
+			</h:form>
+
+			<span
+				style="float: right; height: 30px; line-height: 30px; margin-left: 90px">
+				Olá #{seguranca.usuarioLogado.nome}! </span>
+
+		</div>
+		<div style="clear: both"></div>
+	</header>
+
+	<div id="conteudo" style="height: 550px;">
+		<ui:insert name="corpo" />
+	</div>
+
+	<p:separator style="margin-top: 20px" />
+
+	<footer>
+		Sistema desenvolvido por Adilson Paraguai (77) 99857-9024 - utilizando
+		com base o curso de <a href="https://www.youtube.com/user/srdelfino/playlists" target="_blank">www.sergiodelfino.com</a>
+	</footer>
+
+
+</h:body>
+
+</html>

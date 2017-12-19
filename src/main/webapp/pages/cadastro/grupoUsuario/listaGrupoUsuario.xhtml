@@ -1,0 +1,155 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Grupo de Usuário</ui:define>
+
+	<ui:define name="corpo">
+
+		<h:form prependId="false">
+
+			<h1>Pesquisa Grupo de Usuário</h1>
+
+			<p:growl autoUpdate="true" showDetail="3000" />
+
+			<p:focus for="txtPesquisar" />
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:button value="Novo" icon="fa fa-file-o" />
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						update="dgFiltro" action="#{listaGrupoUsuarioBean.novoFiltro}"
+						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblGrupoUsuario"
+							fileName="grupoUsuarios" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:inputText size="30" placeholder="digite o texto"
+						title="Pesquisa pelo campo descrição"
+						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
+						value="#{listaGrupoUsuarioBean.filtro.nome}" />
+
+
+					<p:commandButton icon="fa fa-search" value="Pesquisar"
+						update="tblGrupoUsuario" id="btnPesquisar"
+						action="#{listaGrupoUsuarioBean.pesquisar()}">
+						<f:setPropertyActionListener value="principal"
+							target="#{listaGrupoUsuarioBean.filtro.origem}" />
+					</p:commandButton>
+
+					<p:defaultCommand target="btnPesquisar" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="tblGrupoUsuario"
+				value="#{listaGrupoUsuarioBean.grupoUsuarios}" var="grupoUsuario"
+				style="margin-top: 20px" emptyMessage="Nenhum registro encontrado."
+				rows="11" paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:button icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento">
+						<f:param name="codigo" value="#{grupoUsuario.id}" />
+					</p:button>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{listaGrupoUsuarioBean.grupoUsuarioSelecionada}"
+							value="#{grupoUsuario}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="Código" sortBy="#{grupoUsuario.id}"
+					style="text-align:center; width:70px;">
+					<h:outputText value="#{grupoUsuario.id}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{grupoUsuario.nome}">
+					<h:outputText value="#{grupoUsuario.nome}" />
+				</p:column>
+
+				<p:column headerText="Status" sortBy="#{grupoUsuario.status}"
+					style="text-align: center; width: 100px">
+					<h:outputText value="#{grupoUsuario.status ? 'ATIVO' : 'INATIVO'}" />
+				</p:column>
+
+				<p:column headerText="">
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText
+						value="#{listaGrupoUsuarioBean.grupoUsuarioSelecionada.nome} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusao').hide();"
+					update="tblGrupoUsuario"
+					action="#{listaGrupoUsuarioBean.excluir()}" process="@this" />
+			</p:confirmDialog>
+
+		</h:form>
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			width="280" height="110" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
+			<h:form prependId="false">
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro">
+
+					<p:outputLabel value="Descrição" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{listaGrupoUsuarioBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{listaGrupoUsuarioBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{listaGrupoUsuarioBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblGrupoUsuario panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>
