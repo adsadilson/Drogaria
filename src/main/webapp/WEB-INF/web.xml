@@ -19,6 +19,12 @@
 		<url-pattern>*.xhtml</url-pattern>
 	</servlet-mapping>
 
+	<!-- Configuração do tema primefaces cupertino humanity-->
+	<context-param>
+		<param-name>primefaces.THEME</param-name>
+		<param-value>humanity</param-value>
+	</context-param>
+
 	<!-- Configuração para utilização dos icons -->
 	<context-param>
 		<param-name>primefaces.FONT_AWESOME</param-name>

@@ -37,7 +37,7 @@ public class GrupoUsuarioRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("GrupoUsuario de Produto n�o pode ser exclu�da");
+			throw new NegocioException("Grupo de Usuario de Produto não pode ser excluído");
 		}
 	}
 
