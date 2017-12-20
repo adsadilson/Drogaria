@@ -1,0 +1,123 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Permissão do Grupo</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo {
+	width: 100px;
+}
+
+.campo {
+	width: 250px;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{permissaoGrupoBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Permissão do Grupo</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Salvar" icon="fa fa-save">
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						style="margin-left:5px;" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:panel style="margin-top: 20px">
+
+				<h:panelGrid columns="2" id="painel" style="width: 100%;"
+					columnClasses="rotulo">
+
+
+					<p:outputLabel value="Grupo" />
+					<p:selectOneMenu autoWidth="true" style="width:20%;" id="grupo"
+						filter="true" filterMatchMode="contains" required="true"
+						requiredMessage="Selecione um GRUPO."
+						value="#{permissaoGrupoBean.permissaoGrupo.grupoUsuario}"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{permissaoGrupoBean.grupos}" var="gp"
+							itemLabel="#{gp.nome}" itemValue="#{gp}" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:dataTable id="tblFuncoes" widgetVar="grupoUsuarioTable"
+					styleClass="testeFabri" rows="10" style="margin-top: 10px"
+					emptyMessage="Nenhum registro encontrado."
+					value="#{permissaoGrupoBean.funcoes}" var="func"
+					rowKey="#{func.id}" paginatorPosition="bottom" paginator="true"
+					paginatorAlwaysVisible="false"
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
+					currentPageReportTemplate="">
+
+					<p:column headerText="Função" width="350" sortBy="#{func.funcao}">
+						<h:outputLabel value="#{func.funcao}" />
+					</p:column>
+
+					<p:column headerText="Incluir" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.inclusao}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Alterar" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.inclusao}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+
+					<p:column headerText="Excluir" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.inclusao}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Visualizar" width="7%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.inclusao}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Imprimir" width="7%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.inclusao}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column />
+
+				</p:dataTable>
+
+			</p:panel>
+
+		</h:form>
+
+
+	</ui:define>
+</ui:composition>

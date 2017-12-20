@@ -177,8 +177,8 @@
 
 		<p:dialog
 			header="#{grupoUsuarioBean.grupoUsuario.inclusao ?'Grupo de Usuário - Inclusão' :'Grupo de Usuário - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="350" height="110"
-			resizable="false" draggable="true" id="dgCadastro" visible="false"
+			widgetVar="dialogCadastro" modal="true" width="850" height="464"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 			<h:form prependId="false">
 
@@ -197,6 +197,48 @@
 						value="#{grupoUsuarioBean.grupoUsuario.status}" />
 
 				</h:panelGrid>
+				
+				<p:dataTable id="tblFuncoes" widgetVar="grupoUsuarioTable"
+					styleClass="testeFabri" rows="10" style="margin-top: 10px"
+					emptyMessage="Nenhum registro encontrado."
+					value="#{grupoUsuarioBean.funcoes}" var="func"
+					rowKey="#{func.id}" paginatorPosition="bottom" paginator="true"
+					paginatorAlwaysVisible="false"
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
+					currentPageReportTemplate="">
+
+					<p:column headerText="Função" width="350" sortBy="#{func.funcao}">
+						<h:outputLabel value="#{func.funcao}" />
+					</p:column>
+
+					<p:column headerText="Incluir" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.inclusao}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Alterar" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.alterar}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+
+					<p:column headerText="Excluir" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.excluir}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Visualizar" width="8%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.visualizar}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+					<p:column headerText="Imprimir" width="8%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.imprimir}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+					
+
+				</p:dataTable>
 
 				<p:toolbar style="margin-top: 5px; margin-button:5px"
 					styleClass="semPreenchimento">

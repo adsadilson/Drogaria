@@ -10,27 +10,27 @@ import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
 
-import com.br.apss.drogaria.model.Menu;
-import com.br.apss.drogaria.model.filter.MenuFilter;
-import com.br.apss.drogaria.service.MenuService;
+import com.br.apss.drogaria.model.ControleMenu;
+import com.br.apss.drogaria.model.filter.ControleMenuFilter;
+import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
 @ViewScoped
-public class MenuBean implements Serializable {
+public class ControleMenuBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Menu menu = new Menu();
+	private ControleMenu menu = new ControleMenu();
 
-	private Menu menuSelecionado;
+	private ControleMenu menuSelecionado;
 
-	private MenuFilter filtro = new MenuFilter();
+	private ControleMenuFilter filtro = new ControleMenuFilter();
 
-	private List<Menu> menus = new ArrayList<Menu>();
+	private List<ControleMenu> menus = new ArrayList<ControleMenu>();
 
 	@Inject
-	private MenuService menuService;
+	private ControleMenuService menuService;
 
 	public void inicializar() {
 		if (this.menu == null) {
@@ -41,9 +41,9 @@ public class MenuBean implements Serializable {
 
 	public void salvar() {
 
-		Menu menuExistente = menuService.porNome(menu.getFormulario());
+		ControleMenu menuExistente = menuService.porNome(menu.getFormulario());
 		if (menuExistente != null && !menuExistente.equals(menu)) {
-			throw new NegocioException("Já existe um Menu com esse nome informado.");
+			throw new NegocioException("Jï¿½ existe um Menu com esse nome informado.");
 		}
 
 		menuService.salvar(menu);
@@ -53,11 +53,11 @@ public class MenuBean implements Serializable {
 	}
 
 	public void novo() {
-		this.menu = new Menu();
+		this.menu = new ControleMenu();
 	}
 
 	public void novoFiltro() {
-		this.filtro = new MenuFilter();
+		this.filtro = new ControleMenuFilter();
 	}
 
 	public void pesquisar() {
@@ -74,35 +74,35 @@ public class MenuBean implements Serializable {
 		pesquisar();
 	}
 
-	public Menu getMenu() {
+	public ControleMenu getControleMenu() {
 		return menu;
 	}
 
-	public void setMenu(Menu menu) {
+	public void setControleMenu(ControleMenu menu) {
 		this.menu = menu;
 	}
 
-	public MenuFilter getFiltro() {
+	public ControleMenuFilter getFiltro() {
 		return filtro;
 	}
 
-	public void setFiltro(MenuFilter filtro) {
+	public void setFiltro(ControleMenuFilter filtro) {
 		this.filtro = filtro;
 	}
 
-	public List<Menu> getMenus() {
+	public List<ControleMenu> getControleMenus() {
 		return menus;
 	}
 
-	public void setMenus(List<Menu> menus) {
+	public void setControleMenus(List<ControleMenu> menus) {
 		this.menus = menus;
 	}
 
-	public Menu getMenuSelecionado() {
+	public ControleMenu getControleMenuSelecionado() {
 		return menuSelecionado;
 	}
 
-	public void setMenuSelecionado(Menu menuSelecionado) {
+	public void setControleMenuSelecionado(ControleMenu menuSelecionado) {
 		this.menuSelecionado = menuSelecionado;
 	}
 

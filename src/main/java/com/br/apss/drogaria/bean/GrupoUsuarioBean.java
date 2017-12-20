@@ -10,8 +10,10 @@ import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
 
+import com.br.apss.drogaria.model.ControleMenu;
 import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.filter.GrupoUsuarioFilter;
+import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.service.GrupoUsuarioService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -31,12 +33,19 @@ public class GrupoUsuarioBean implements Serializable {
 
 	@Inject
 	private GrupoUsuarioService grupoUsuarioService;
+	
+	@Inject
+	private ControleMenuService controleMenuService;
 
 	public void inicializar() {
 		if (this.grupoUsuario == null) {
 			novo();
 		}
 		pesquisar();
+	}
+	
+	public List<ControleMenu> getFuncoes(){
+		return controleMenuService.listarTodos();
 	}
 
 	public void salvar() {
@@ -45,7 +54,7 @@ public class GrupoUsuarioBean implements Serializable {
 		if (grupoUsuarioExistente != null && !grupoUsuarioExistente.equals(grupoUsuario)) {
 			throw new NegocioException("Já existe um Grupo de Usuário com esse nome informado.");
 		}
-
+		this.grupoUsuario.setControleMenus(getFuncoes());
 		grupoUsuarioService.salvar(grupoUsuario);
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
 		novo();

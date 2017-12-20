@@ -2,7 +2,7 @@ package com.br.apss.drogaria.model.filter;
 
 import java.io.Serializable;
 
-public class MenuFilter implements Serializable {
+public class ControleMenuFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

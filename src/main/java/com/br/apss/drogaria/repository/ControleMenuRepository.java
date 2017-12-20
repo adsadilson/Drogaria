@@ -15,43 +15,43 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.br.apss.drogaria.model.Menu;
-import com.br.apss.drogaria.model.filter.MenuFilter;
+import com.br.apss.drogaria.model.ControleMenu;
+import com.br.apss.drogaria.model.filter.ControleMenuFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
-public class MenuRepository implements Serializable {
+public class ControleMenuRepository implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Inject
 	private EntityManager manager;
 
-	public Menu salvar(Menu obj) {
+	public ControleMenu salvar(ControleMenu obj) {
 		return manager.merge(obj);
 	}
 
-	public void excluir(Menu obj) {
+	public void excluir(ControleMenu obj) {
 		try {
 			obj = porId(obj.getId());
 			manager.remove(obj);
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Menu n„o pode ser excluÌdo.");
+			throw new NegocioException("Controle de Menu n√£o pode ser exclu√≠do.");
 		}
 	}
 
-	public Menu porId(Long id) {
-		return manager.find(Menu.class, id);
+	public ControleMenu porId(Long id) {
+		return manager.find(ControleMenu.class, id);
 	}
 
-	public List<Menu> listarTodos() {
-		return manager.createQuery("from Menu order by funcao", Menu.class).getResultList();
+	public List<ControleMenu> listarTodos() {
+		return manager.createQuery("from ControleMenu order by funcao", ControleMenu.class).getResultList();
 	}
 
-	public Menu porNome(String funcao) {
+	public ControleMenu porNome(String funcao) {
 		try {
-			return manager.createQuery("from Menu where upper(funcao) = :funcao", Menu.class)
+			return manager.createQuery("from ControleMenu where upper(funcao) = :funcao", ControleMenu.class)
 					.setParameter("funcao", funcao.toUpperCase()).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
@@ -59,10 +59,10 @@ public class MenuRepository implements Serializable {
 	}
 
 	@SuppressWarnings({ "deprecation" })
-	private Criteria criarCriteriaParaFiltro(MenuFilter filtro) {
+	private Criteria criarCriteriaParaFiltro(ControleMenuFilter filtro) {
 
 		Session session = manager.unwrap(Session.class);
-		Criteria criteria = session.createCriteria(Menu.class);
+		Criteria criteria = session.createCriteria(ControleMenu.class);
 
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			criteria.add(Restrictions.ilike("funcao", filtro.getNome(), MatchMode.ANYWHERE));
@@ -76,12 +76,12 @@ public class MenuRepository implements Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Menu> filtrados(MenuFilter filtro) {
+	public List<ControleMenu> filtrados(ControleMenuFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
 		return criteria.addOrder(Order.asc("funcao")).list();
 	}
 
-	public int quantidadeFiltrados(MenuFilter filtro) {
+	public int quantidadeFiltrados(ControleMenuFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
 		criteria.setProjection(Projections.rowCount());
 		return ((Number) criteria.uniqueResult()).intValue();

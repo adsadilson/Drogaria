@@ -5,7 +5,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
-	<ui:define name="titulo">Pesquisa Permissão do Grupo</ui:define>
+	<ui:define name="titulo">Pesquisa Controle Menu</ui:define>
 
 	<ui:define name="corpo">
 
@@ -15,17 +15,17 @@
 }
 
 .campo {
-	width: 250px;
+	width: 98%;
 }
 </style>
 
 		<f:metadata>
-			<o:viewAction action="#{permissaoGrupoBean.inicializar}" />
+			<o:viewAction action="#{controleMenuBean.inicializar}" />
 		</f:metadata>
 
 		<h:form prependId="false">
 
-			<h1>Pesquisa Permissão do Grupo</h1>
+			<h1>Listagem de Controle Menu</h1>
 
 			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
 
@@ -34,19 +34,18 @@
 			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 					<p:commandButton value="Novo" icon="fa fa-file-o"
-						update="dgCadastro" action="#{permissaoGrupoBean.novo()}"
+						update="dgCadastro" action="#{controleMenuBean.novo()}"
 						oncomplete="PF('dialogCadastro').show()">
 						<p:resetInput target="panelCadastro" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
-						update="dgFiltro" action="#{permissaoGrupoBean.novoFiltro}"
+						update="dgFiltro" action="#{controleMenuBean.novoFiltro}"
 						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
 
 					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
 						ajax="false" immediate="true">
-						<p:dataExporter type="xls" target="tblGrupoUsuario"
-							fileName="permissaoGrupos" />
+						<p:dataExporter type="xls" target="tblMenu" fileName="menus" />
 					</p:commandButton>
 
 					<span class="ui-separator"> <span
@@ -56,14 +55,14 @@
 					<p:inputText size="30" placeholder="digite o nome"
 						title="Pesquisa pelo campo nome do grupo"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
-						value="#{permissaoGrupoBean.filtro.nome}" />
+						value="#{controleMenuBean.filtro.nome}" />
 
 
 					<p:commandButton icon="fa fa-search" value="Pesquisar"
-						update="tblGrupoUsuario" id="btnPesquisar"
-						action="#{permissaoGrupoBean.pesquisar()}">
+						update="tblMenu" id="btnPesquisar"
+						action="#{controleMenuBean.pesquisar()}">
 						<f:setPropertyActionListener value="principal"
-							target="#{permissaoGrupoBean.filtro.origem}" />
+							target="#{controleMenuBean.filtro.origem}" />
 					</p:commandButton>
 
 					<p:defaultCommand target="btnPesquisar" />
@@ -74,8 +73,7 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
-			<p:dataTable id="tblGrupoUsuario"
-				value="#{permissaoGrupoBean.permissaoGrupos}" var="permissaoGrupo"
+			<p:dataTable id="tblMenu" value="#{controleMenuBean.controleMenus}" var="menu"
 				style="margin-top: 20px" emptyMessage="Nenhum registro encontrado."
 				rows="11" paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
@@ -85,41 +83,42 @@
 				<p:column headerText="Ação" style="width: 70px; text-align: center"
 					exportable="false">
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
-						styleClass="semPreenchimento"
-						action="#{permissaoGrupoBean.preparEdicao()}"
+						styleClass="semPreenchimento" action="#{controleMenuBean.preparEdicao()}"
 						oncomplete="PF('dialogCadastro').show()" process="@this"
 						update="dgCadastro">
-						<f:setPropertyActionListener
-							target="#{permissaoGrupoBean.permissaoGrupoSelecionado}"
-							value="#{permissaoGrupo}" />
-							<p:resetInput target="panelCadastro" />
+						<f:setPropertyActionListener target="#{controleMenuBean.controleMenuSelecionado}"
+							value="#{menu}" />
+						<p:resetInput target="panelCadastro" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
-						<f:setPropertyActionListener
-							target="#{permissaoGrupoBean.permissaoGrupoSelecionado}"
-							value="#{permissaoGrupo}" />
+						<f:setPropertyActionListener target="#{controleMenuBean.controleMenuSelecionado}"
+							value="#{menu}" />
 					</p:commandButton>
 				</p:column>
 
-				<p:column headerText="Código" sortBy="#{permissaoGrupo.id}"
+				<p:column headerText="Código" sortBy="#{menu.id}"
 					style="text-align:center; width:70px;">
-					<h:outputText value="#{permissaoGrupo.id}" />
+					<h:outputText value="#{menu.id}" />
 				</p:column>
 
-				<p:column headerText="Nome do Grupo" sortBy="#{permissaoGrupo.tela}">
-					<h:outputText value="#{permissaoGrupo.tela}" />
+				<p:column headerText="Função" sortBy="#{menu.funcao}"
+					style="width:270px;">
+					<h:outputText value="#{menu.funcao}" />
 				</p:column>
-				
-				<p:column headerText="Descrição" sortBy="#{permissaoGrupo.descricao}">
-					<h:outputText value="#{permissaoGrupo.descricao}" />
+
+				<p:column headerText="Formulario" sortBy="#{menu.formulario}"
+					style="width:270px;">
+					<h:outputText value="#{menu.formulario}" />
+				</p:column>
+
+				<p:column headerText="URL" sortBy="#{menu.url}">
+					<h:outputText value="#{menu.url}" />
 				</p:column>
 
 
-				<p:column headerText="">
-				</p:column>
 			</p:dataTable>
 
 			<p:confirmDialog header="Confirmação de Exclusão"
@@ -127,15 +126,13 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText
-						value="#{permissaoGrupoBean.permissaoGrupoSelecionado.tela} ?" />
+					<h:outputText value="#{controleMenuBean.controleMenuSelecionado.formulario} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					oncomplete="PF('confirmacaoExclusao').hide();"
-					update="tblGrupoUsuario" action="#{permissaoGrupoBean.excluir()}"
-					process="@this" />
+					oncomplete="PF('confirmacaoExclusao').hide();" update="tblMenu"
+					action="#{controleMenuBean.excluir()}" process="@this" />
 			</p:confirmDialog>
 
 		</h:form>
@@ -150,11 +147,11 @@
 
 					<p:outputLabel value="Descrição" />
 					<p:inputText id="txtFilterDescricao"
-						value="#{permissaoGrupoBean.filtro.nome}" style="width:98%;" />
+						value="#{controleMenuBean.filtro.nome}" style="width:98%;" />
 
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
-						value="#{permissaoGrupoBean.filtro.status}">
+						value="#{controleMenuBean.filtro.status}">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
 						<f:selectItem itemLabel="ATIVO" itemValue="true" />
 						<f:selectItem itemLabel="INATIVO" itemValue="false" />
@@ -167,34 +164,41 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Pesquisar" icon="fa fa-search"
 							id="btnPesquisarFiltro" process="@this panelFiltro"
-							action="#{permissaoGrupoBean.pesquisar}"
+							action="#{controleMenuBean.pesquisar}"
 							oncomplete="PF('dialogFiltro').hide()"
-							update="tblGrupoUsuario panelFiltro" />
+							update="tblMenu panelFiltro" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>
 		</p:dialog>
 
 		<p:dialog
-			header="Permissão Grupo de Usuário"
-			widgetVar="dialogCadastro" modal="true" width="350" height="110"
-			resizable="false" draggable="true" id="dgCadastro" visible="false"
+			header="#{controleMenuBean.controleMenu.inclusao ?'Controle de Menu - Inclusão' :'Controle de Menu - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="490" height="145"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
+
 			<h:form prependId="false">
 
 				<p:focus for="txtNome" />
 
 				<h:panelGrid columns="2" id="panelCadastro"
-					columnClasses="rotulo,campo">
+					columnClasses="rotulo,campo" style="margin-top:10px;">
 
-					<p:outputLabel value="Nome" for="txtNome" />
-					<p:inputText id="txtNome"
-						value="#{permissaoGrupoBean.permissaoGrupo.tela}" style="width:98%;"
-						required="true" requiredMessage="Preencher o campo nome!" />
+					<p:outputLabel value="Função" for="txtNome" />
+					<p:inputText id="txtNome" value="#{controleMenuBean.controleMenu.funcao}"
+						style="width:98%;" required="true"
+						requiredMessage="Preencher o campo função!" />
 
-					<p:outputLabel value="Ativo" />
-					<p:selectBooleanCheckbox
-						value="#{permissaoGrupoBean.permissaoGrupo.alterar}" />
+					<p:outputLabel value="Formulario" for="txtForm" />
+					<p:inputText id="txtForm" value="#{controleMenuBean.controleMenu.formulario}"
+						style="width:98%; text-transform: none;" required="true"
+						requiredMessage="Preencher o campo formulario" />
+
+					<p:outputLabel value="URL" for="txtURL" />
+					<p:inputText id="txtURL" value="#{controleMenuBean.controleMenu.url}"
+						style="width:98%; text-transform: none;" required="true"
+						requiredMessage="Preencher o campo URL!" />
 
 				</h:panelGrid>
 
@@ -202,10 +206,9 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
-							process="@this panelCadastro"
-							action="#{permissaoGrupoBean.salvar()}"
+							process="@this panelCadastro" action="#{controleMenuBean.salvar()}"
 							oncomplete="PF('dialogFiltro').hide()"
-							update="tblGrupoUsuario growl panelCadastro" />
+							update="tblMenu dgCadastro" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>
