@@ -136,6 +136,10 @@ h1 {
     color: #ffffff !important;
 }
 
+.menu-sistema>.ui-menu-list>.ui-menuitem-active>a>.ui-menuitem-text {
+    color: #000 !important;
+}
+
 .menu-sistema .ui-icon-triangle-1-s {
     background: url(#{resource['images:seta-para-baixo.png']}) no-repeat;
 }

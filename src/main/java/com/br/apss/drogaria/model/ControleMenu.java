@@ -36,21 +36,6 @@ public class ControleMenu implements Serializable {
 	@Column(length = 150)
 	private String submenu;
 
-	@Column(nullable = false, length = 1)
-	private Boolean incluir = false;
-
-	@Column(nullable = false, length = 1)
-	private Boolean alterar = false;
-
-	@Column(nullable = false, length = 1)
-	private Boolean excluir = false;
-
-	@Column(nullable = false, length = 1)
-	private Boolean visualizar = false;
-
-	@Column(nullable = false, length = 1)
-	private Boolean imprimir = false;
-
 	public Long getId() {
 		return id;
 	}
@@ -97,50 +82,6 @@ public class ControleMenu implements Serializable {
 
 	public void setSubmenu(String submenu) {
 		this.submenu = submenu;
-	}
-
-	public boolean isInclusao() {
-		return this.getId() == null;
-	}
-
-	public Boolean getIncluir() {
-		return incluir;
-	}
-
-	public void setIncluir(Boolean incluir) {
-		this.incluir = incluir;
-	}
-
-	public Boolean getAlterar() {
-		return alterar;
-	}
-
-	public void setAlterar(Boolean alterar) {
-		this.alterar = alterar;
-	}
-
-	public Boolean getExcluir() {
-		return excluir;
-	}
-
-	public void setExcluir(Boolean excluir) {
-		this.excluir = excluir;
-	}
-
-	public Boolean getVisualizar() {
-		return visualizar;
-	}
-
-	public void setVisualizar(Boolean visualizar) {
-		this.visualizar = visualizar;
-	}
-
-	public Boolean getImprimir() {
-		return imprimir;
-	}
-
-	public void setImprimir(Boolean imprimir) {
-		this.imprimir = imprimir;
 	}
 
 	@Override

@@ -4,17 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 
 @Entity
 @Table(name = "grupo_usuario")
@@ -36,9 +35,8 @@ public class GrupoUsuario implements Serializable {
 	@Column(name = "status", nullable = true, length = 1)
 	private Boolean status = true;
 
-	@ManyToMany
-	@JoinTable(name = "permissao_grupo", joinColumns = @JoinColumn(name = "controle_menu_id"), inverseJoinColumns = @JoinColumn(name = "grupo_usuario_id"))
-	private List<ControleMenu> controleMenus = new ArrayList<ControleMenu>();
+	@OneToMany(mappedBy = "grupoUsuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+	private List<Permissao> permissoes = new ArrayList<Permissao>();
 
 	public Long getId() {
 		return id;
@@ -72,13 +70,12 @@ public class GrupoUsuario implements Serializable {
 		this.status = status;
 	}
 
-
-	public List<ControleMenu> getControleMenus() {
-		return controleMenus;
+	public List<Permissao> getPermissoes() {
+		return permissoes;
 	}
 
-	public void setControleMenus(List<ControleMenu> controleMenus) {
-		this.controleMenus = controleMenus;
+	public void setPermissoes(List<Permissao> permissoes) {
+		this.permissoes = permissoes;
 	}
 
 	public boolean isInclusao() {

@@ -12,6 +12,7 @@ import org.omnifaces.util.Messages;
 
 import com.br.apss.drogaria.model.ControleMenu;
 import com.br.apss.drogaria.model.GrupoUsuario;
+import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.filter.GrupoUsuarioFilter;
 import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.service.GrupoUsuarioService;
@@ -31,9 +32,13 @@ public class GrupoUsuarioBean implements Serializable {
 
 	private List<GrupoUsuario> grupoUsuarios = new ArrayList<GrupoUsuario>();
 
+	private List<Permissao> permisoes = new ArrayList<Permissao>();
+
+	private List<ControleMenu> controleMenus = new ArrayList<ControleMenu>();
+
 	@Inject
 	private GrupoUsuarioService grupoUsuarioService;
-	
+
 	@Inject
 	private ControleMenuService controleMenuService;
 
@@ -41,10 +46,11 @@ public class GrupoUsuarioBean implements Serializable {
 		if (this.grupoUsuario == null) {
 			novo();
 		}
+		this.controleMenus = controleMenuService.listarTodos();
 		pesquisar();
 	}
-	
-	public List<ControleMenu> getFuncoes(){
+
+	public List<ControleMenu> getFuncoes() {
 		return controleMenuService.listarTodos();
 	}
 
@@ -52,14 +58,16 @@ public class GrupoUsuarioBean implements Serializable {
 
 		GrupoUsuario grupoUsuarioExistente = grupoUsuarioService.porNome(grupoUsuario.getNome());
 		if (grupoUsuarioExistente != null && !grupoUsuarioExistente.equals(grupoUsuario)) {
-			throw new NegocioException("J√° existe um Grupo de Usu√°rio com esse nome informado.");
+			throw new NegocioException("J· existe um Grupo de Usu·rio com esse nome informado.");
 		}
-		this.grupoUsuario.setControleMenus(getFuncoes());
+		
 		grupoUsuarioService.salvar(grupoUsuario);
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
+		
 		novo();
 		pesquisar();
 	}
+
 
 	public void novo() {
 		this.grupoUsuario = new GrupoUsuario();
@@ -113,6 +121,22 @@ public class GrupoUsuarioBean implements Serializable {
 
 	public void setGrupoUsuarioSelecionado(GrupoUsuario grupoUsuarioSelecionado) {
 		this.grupoUsuarioSelecionado = grupoUsuarioSelecionado;
+	}
+
+	public List<Permissao> getPermisoes() {
+		return permisoes;
+	}
+
+	public void setPermisoes(List<Permissao> permisoes) {
+		this.permisoes = permisoes;
+	}
+
+	public List<ControleMenu> getControleMenus() {
+		return controleMenus;
+	}
+
+	public void setControleMenus(List<ControleMenu> controleMenus) {
+		this.controleMenus = controleMenus;
 	}
 
 }
