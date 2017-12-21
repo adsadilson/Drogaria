@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "permissao")
 @SequenceGenerator(name = "PERMISSAO_ID", sequenceName = "PERMISSAO_SEQ", allocationSize = 1)
-public class Permissao implements Serializable {
+public class Permissao implements Serializable, Comparable<Permissao> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -138,6 +138,17 @@ public class Permissao implements Serializable {
 	@Override
 	public String toString() {
 		return String.format("%s[id=%d]", getClass().getSimpleName(), getId());
+	}
+
+	@Override
+	public int compareTo(Permissao o) {
+		 if (this.getControleMenu().getId() < o.id) {
+	            return -1;
+	        }
+	        if (this.getControleMenu().getId() > o.id) {
+	            return 1;
+	        }
+	        return 0;
 	}
 
 }

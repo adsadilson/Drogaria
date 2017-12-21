@@ -37,7 +37,7 @@ public class ControleMenuRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Controle de Menu não pode ser excluído.");
+			throw new NegocioException("Controle de Menu n�o pode ser excluído.");
 		}
 	}
 

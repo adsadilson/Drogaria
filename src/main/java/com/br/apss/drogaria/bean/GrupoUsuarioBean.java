@@ -95,6 +95,20 @@ public class GrupoUsuarioBean implements Serializable {
 
 	}
 
+	public void preencherListaVazia() {
+		for (ControleMenu cm : controleMenus) {
+			Permissao p = new Permissao();
+			p.setAlterar(false);
+			p.setExcluir(false);
+			p.setImprimir(false);
+			p.setIncluir(false);
+			p.setVisualizar(false);
+			p.setControleMenu(cm);
+			this.permisoes.add(p);
+			
+		}
+	}
+
 	public void novoFiltro() {
 		this.filtro = new GrupoUsuarioFilter();
 	}

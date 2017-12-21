@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "controle_menu")
@@ -35,6 +36,11 @@ public class ControleMenu implements Serializable {
 
 	@Column(length = 150)
 	private String submenu;
+
+	@Transient
+	public boolean isInclusao() {
+		return this.getId() == null;
+	}
 
 	public Long getId() {
 		return id;

@@ -208,8 +208,8 @@
 						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
 					currentPageReportTemplate="">
 
-					<p:column headerText="Função" width="350" sortBy="#{func.controleMenu.funcao}">
-						<h:outputLabel value="#{func.controleMenu.funcao}" />
+					<p:column headerText="Função" width="350" sortBy="#{func.controleMenu.id}">
+						<h:outputLabel value="#{func.controleMenu.id} - #{func.controleMenu.funcao}" />
 					</p:column>
 
 					<p:column headerText="Incluir" width="6%" style="text-align:center">
@@ -232,7 +232,7 @@
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
 							process="@this panelCadastro tblFuncoes"
 							action="#{grupoUsuarioBean.salvar()}"
-							oncomplete="PF('dialogFiltro').hide()"
+							oncomplete="PF('dialogCadastro').hide()"
 							update="tblGrupoUsuario growl panelCadastro" />
 					</p:toolbarGroup>
 				</p:toolbar>

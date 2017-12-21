@@ -15,7 +15,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.filter.PermissaoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -38,7 +37,7 @@ public class PermissaoRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Permissao de Produto não pode ser excluída");
+			throw new NegocioException("Permissao de n�o pode ser excluída");
 		}
 	}
 
@@ -47,7 +46,7 @@ public class PermissaoRepository implements Serializable {
 	}
 
 	public List<Permissao> listarTodos() {
-		return manager.createQuery("from Permissao order by nome", Permissao.class).getResultList();
+		return manager.createQuery("from Permissao order by id", Permissao.class).getResultList();
 	}
 
 	public List<Permissao> buscarPermissaoPorGrupo() {
