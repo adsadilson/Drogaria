@@ -201,27 +201,27 @@
 				<p:dataTable id="tblFuncoes" widgetVar="grupoUsuarioTable"
 					styleClass="testeFabri" rows="10" style="margin-top: 10px"
 					emptyMessage="Nenhum registro encontrado."
-					value="#{grupoUsuarioBean.controleMenus}" var="func"
+					value="#{grupoUsuarioBean.grupoUsuario.permissoes}" var="func"
 					rowKey="#{func.id}" paginatorPosition="bottom" paginator="true"
 					paginatorAlwaysVisible="false"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
 						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
 					currentPageReportTemplate="">
 
-					<p:column headerText="Função" width="350" sortBy="#{func.funcao}">
-						<h:outputLabel value="#{func.funcao}" />
+					<p:column headerText="Função" width="350" sortBy="#{func.controleMenu.funcao}">
+						<h:outputLabel value="#{func.controleMenu.funcao}" />
 					</p:column>
 
 					<p:column headerText="Incluir" width="6%" style="text-align:center">
-						<p:selectBooleanCheckbox />
+						<p:selectBooleanCheckbox value="#{func.incluir}"/>
 					</p:column>
 
 					<p:column headerText="Alterar" width="6%" style="text-align:center">
-						<p:selectBooleanCheckbox />
+						<p:selectBooleanCheckbox value="#{func.alterar}" />
 					</p:column>
 
 					<p:column headerText="Excluir" width="6%" style="text-align:center">
-						<p:selectBooleanCheckbox />
+						<p:selectBooleanCheckbox value="#{func.excluir}"/>
 					</p:column>
 
 				</p:dataTable>
@@ -230,7 +230,7 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
-							process="@this panelCadastro"
+							process="@this panelCadastro tblFuncoes"
 							action="#{grupoUsuarioBean.salvar()}"
 							oncomplete="PF('dialogFiltro').hide()"
 							update="tblGrupoUsuario growl panelCadastro" />

@@ -16,6 +16,7 @@ import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.filter.GrupoUsuarioFilter;
 import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.service.GrupoUsuarioService;
+import com.br.apss.drogaria.service.PermissaoService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
@@ -42,6 +43,9 @@ public class GrupoUsuarioBean implements Serializable {
 	@Inject
 	private ControleMenuService controleMenuService;
 
+	@Inject
+	private PermissaoService permissaoService;
+
 	public void inicializar() {
 		if (this.grupoUsuario == null) {
 			novo();
@@ -58,19 +62,37 @@ public class GrupoUsuarioBean implements Serializable {
 
 		GrupoUsuario grupoUsuarioExistente = grupoUsuarioService.porNome(grupoUsuario.getNome());
 		if (grupoUsuarioExistente != null && !grupoUsuarioExistente.equals(grupoUsuario)) {
-			throw new NegocioException("Já existe um Grupo de Usuário com esse nome informado.");
+			throw new NegocioException("Jï¿½ existe um Grupo de Usuï¿½rio com esse nome informado.");
 		}
-		
+
 		grupoUsuarioService.salvar(grupoUsuario);
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
-		
+
 		novo();
 		pesquisar();
 	}
 
+	public void teste() {
+		List<Permissao> lista = permissaoService.buscarPermissaoPorGrupo();
+		for (Permissao permissao : lista) {
+			System.out.println(permissao.getControleMenu().getId());
+		}
+	}
 
 	public void novo() {
-		this.grupoUsuario = new GrupoUsuario();
+		grupoUsuario = new GrupoUsuario();
+		for (ControleMenu cm : controleMenus) {
+			Permissao p = new Permissao();
+			p.setAlterar(false);
+			p.setExcluir(false);
+			p.setImprimir(false);
+			p.setIncluir(false);
+			p.setVisualizar(false);
+			p.setControleMenu(cm);
+			p.setGrupoUsuario(grupoUsuario);
+			this.grupoUsuario.getPermissoes().add(p);
+		}
+
 	}
 
 	public void novoFiltro() {
@@ -82,7 +104,7 @@ public class GrupoUsuarioBean implements Serializable {
 	}
 
 	public void preparEdicao() {
-		this.grupoUsuario = this.grupoUsuarioSelecionado;
+		this.grupoUsuario = grupoUsuarioService.porId(this.grupoUsuarioSelecionado.getId());
 	}
 
 	public void excluir() {
