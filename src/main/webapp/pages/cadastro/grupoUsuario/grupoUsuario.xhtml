@@ -208,12 +208,16 @@
 						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
 					currentPageReportTemplate="">
 
-					<p:column headerText="Função" width="350" sortBy="#{func.controleMenu.id}">
-						<h:outputLabel value="#{func.controleMenu.id} - #{func.controleMenu.funcao}" />
+					<p:column headerText="Função" width="350"
+						sortBy="#{func.controleMenu.id}">
+						<h:outputLabel
+							value="#{func.controleMenu.id} - #{func.controleMenu.funcao}" />
 					</p:column>
 
 					<p:column headerText="Incluir" width="6%" style="text-align:center">
-						<p:selectBooleanCheckbox value="#{func.incluir}"/>
+						<p:selectBooleanCheckbox value="#{func.incluir}">
+							<p:ajax listener="#{grupoUsuarioBean.teste()}" />
+						</p:selectBooleanCheckbox>
 					</p:column>
 
 					<p:column headerText="Alterar" width="6%" style="text-align:center">
@@ -221,7 +225,7 @@
 					</p:column>
 
 					<p:column headerText="Excluir" width="6%" style="text-align:center">
-						<p:selectBooleanCheckbox value="#{func.excluir}"/>
+						<p:selectBooleanCheckbox value="#{func.excluir}" />
 					</p:column>
 
 				</p:dataTable>

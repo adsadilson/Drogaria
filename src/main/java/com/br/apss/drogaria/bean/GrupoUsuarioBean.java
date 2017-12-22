@@ -2,7 +2,6 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.view.ViewScoped;
@@ -17,7 +16,6 @@ import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.filter.GrupoUsuarioFilter;
 import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.service.GrupoUsuarioService;
-import com.br.apss.drogaria.service.PermissaoService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
@@ -44,8 +42,6 @@ public class GrupoUsuarioBean implements Serializable {
 	@Inject
 	private ControleMenuService controleMenuService;
 
-	@Inject
-	private PermissaoService permissaoService;
 
 	public void inicializar() {
 		if (this.grupoUsuario == null) {
@@ -72,13 +68,12 @@ public class GrupoUsuarioBean implements Serializable {
 		novo();
 		pesquisar();
 	}
-
+	
 	public void teste() {
-		List<Permissao> lista = permissaoService.buscarPermissaoPorGrupo();
-		for (Permissao permissao : lista) {
-			System.out.println(permissao.getControleMenu().getId());
-		}
+		grupoUsuarioService.salvar(grupoUsuario);
+		pesquisar();
 	}
+
 
 	public void novo() {
 		grupoUsuario = new GrupoUsuario();

@@ -10,8 +10,10 @@ import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
 
+import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.UsuarioFilter;
+import com.br.apss.drogaria.service.GrupoUsuarioService;
 import com.br.apss.drogaria.service.UsuarioService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -29,6 +31,15 @@ public class UsuarioBean implements Serializable {
 
 	private List<Usuario> usuarios = new ArrayList<Usuario>();
 
+	private List<GrupoUsuario> listaGrupos = new ArrayList<GrupoUsuario>();
+
+	private GrupoUsuario grupo = new GrupoUsuario();
+
+	private GrupoUsuario grupoSelecionado = new GrupoUsuario();
+
+	@Inject
+	private GrupoUsuarioService grupoUsuarioService;
+
 	@Inject
 	private UsuarioService usuarioService;
 
@@ -39,6 +50,7 @@ public class UsuarioBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+		this.listaGrupos = grupoUsuarioService.listarTodos();
 	}
 
 	public void salvar() {
@@ -57,6 +69,7 @@ public class UsuarioBean implements Serializable {
 
 	public void novo() {
 		usuario = new Usuario();
+		grupo = new GrupoUsuario();
 	}
 
 	public void novoFiltro() {
@@ -75,6 +88,22 @@ public class UsuarioBean implements Serializable {
 		usuarioService.excluir(usuarioSelecionado);
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
+	}
+
+	public void adicionarGrupo() {
+		if (this.grupo != null) {
+			if (this.usuario.getGrupos().contains(this.grupo)) {
+				throw new NegocioException("Grupo já cadastrado.");
+			}
+			this.usuario.getGrupos().add(this.grupo);
+			this.grupo = null;
+		} else {
+			Messages.addGlobalWarn("Selecione um grupo primeiro.");
+		}
+	}
+
+	public void removeGrupo() {
+		this.usuario.getGrupos().remove(this.grupoSelecionado);
 	}
 
 	/******************** Getters e Setters ***************************/
@@ -109,6 +138,30 @@ public class UsuarioBean implements Serializable {
 
 	public void setUsuarioSelecionado(Usuario usuarioSelecionado) {
 		this.usuarioSelecionado = usuarioSelecionado;
+	}
+
+	public List<GrupoUsuario> getListaGrupos() {
+		return listaGrupos;
+	}
+
+	public void setListaGrupos(List<GrupoUsuario> listaGrupos) {
+		this.listaGrupos = listaGrupos;
+	}
+
+	public GrupoUsuario getGrupo() {
+		return grupo;
+	}
+
+	public void setGrupo(GrupoUsuario grupo) {
+		this.grupo = grupo;
+	}
+
+	public GrupoUsuario getGrupoSelecionado() {
+		return grupoSelecionado;
+	}
+
+	public void setGrupoSelecionado(GrupoUsuario grupoSelecionado) {
+		this.grupoSelecionado = grupoSelecionado;
 	}
 
 }
