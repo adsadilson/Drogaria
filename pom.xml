@@ -179,6 +179,14 @@
 			<version>1.2</version>
 		</dependency>
 
+		<!-- Shiro para criptografia de senha -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+
+
 	</dependencies>
 
 </project>

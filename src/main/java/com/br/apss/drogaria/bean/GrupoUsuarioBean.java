@@ -2,6 +2,7 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.view.ViewScoped;
@@ -33,7 +34,7 @@ public class GrupoUsuarioBean implements Serializable {
 
 	private List<GrupoUsuario> grupoUsuarios = new ArrayList<GrupoUsuario>();
 
-	private List<Permissao> permisoes = new ArrayList<Permissao>();
+	private List<Permissao> permissoes = new ArrayList<Permissao>();
 
 	private List<ControleMenu> controleMenus = new ArrayList<ControleMenu>();
 
@@ -62,7 +63,7 @@ public class GrupoUsuarioBean implements Serializable {
 
 		GrupoUsuario grupoUsuarioExistente = grupoUsuarioService.porNome(grupoUsuario.getNome());
 		if (grupoUsuarioExistente != null && !grupoUsuarioExistente.equals(grupoUsuario)) {
-			throw new NegocioException("J� existe um Grupo de Usu�rio com esse nome informado.");
+			throw new NegocioException("Já existe um Grupo de Usu�rio com esse nome informado.");
 		}
 
 		grupoUsuarioService.salvar(grupoUsuario);
@@ -104,7 +105,7 @@ public class GrupoUsuarioBean implements Serializable {
 			p.setIncluir(false);
 			p.setVisualizar(false);
 			p.setControleMenu(cm);
-			this.permisoes.add(p);
+			this.permissoes.add(p);
 			
 		}
 	}
@@ -118,7 +119,31 @@ public class GrupoUsuarioBean implements Serializable {
 	}
 
 	public void preparEdicao() {
+		//listar as controle menu
+		this.controleMenus = controleMenuService.listarTodos();
+				
+		//listar as permissões do usuario
 		this.grupoUsuario = grupoUsuarioService.porId(this.grupoUsuarioSelecionado.getId());
+		
+		//verificar se o usuario possui todas as permissões
+		for (ControleMenu controleMenu : controleMenus) {
+			boolean possui = false;
+			permissoes = grupoUsuario.getPermissoes();
+			
+			for (Permissao permissao : permissoes) {
+				if(controleMenu.equals(permissao.getControleMenu())){
+					possui = true;
+					break;
+				}
+			}
+			if(!possui){
+				Permissao p = new Permissao();
+				p.setGrupoUsuario(this.grupoUsuario);
+				p.setControleMenu(controleMenu);
+				
+				permissoes.add(p);
+			}
+		}
 	}
 
 	public void excluir() {
@@ -159,12 +184,12 @@ public class GrupoUsuarioBean implements Serializable {
 		this.grupoUsuarioSelecionado = grupoUsuarioSelecionado;
 	}
 
-	public List<Permissao> getPermisoes() {
-		return permisoes;
+	public List<Permissao> getPermissoes() {
+		return permissoes;
 	}
 
-	public void setPermisoes(List<Permissao> permisoes) {
-		this.permisoes = permisoes;
+	public void setPermissoes(List<Permissao> permisoes) {
+		this.permissoes = permisoes;
 	}
 
 	public List<ControleMenu> getControleMenus() {
