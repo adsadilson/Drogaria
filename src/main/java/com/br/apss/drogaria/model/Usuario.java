@@ -17,6 +17,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.validator.constraints.Email;
 
 @Entity
 @Table(name = "usuario")
@@ -33,10 +36,14 @@ public class Usuario implements Serializable {
 	private String nome;
 
 	@Column(name = "email", nullable = false, unique = true, length = 80)
+	@Email(message = "Formato de e-mail inválido.")
 	private String email;
 
 	@Column(name = "senha", nullable = false, length = 32)
 	private String senha;
+
+	@Transient
+	private String novaSenha;
 
 	@ManyToMany
 	@JoinTable(name = "usuario_grupo", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "grupo_id"))
@@ -103,6 +110,14 @@ public class Usuario implements Serializable {
 
 	public void setStatus(Boolean status) {
 		this.status = status;
+	}
+
+	public String getNovaSenha() {
+		return novaSenha;
+	}
+
+	public void setNovaSenha(String novaSenha) {
+		this.novaSenha = novaSenha;
 	}
 
 	public boolean isInclusao() {

@@ -1,0 +1,88 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Troca Senha</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo {
+	width: 100px;
+}
+
+.campo {
+	width: 250px;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{usuarioBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Troca Senha</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+			<p:toolbar style="margin-top:20px;" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Salvar" icon="fa fa-save"
+						process="@this panelCadastro"
+						action="#{usuarioBean.trocaSenha()}"
+						update="growl panelCadastro">
+					</p:commandButton>
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<h:panelGrid columns="2" id="panelCadastro"
+				style="width: 100%;margin-top:20px" columnClasses="rotulo">
+
+				<p:outputLabel value="E-mail" for="email" />
+				<p:selectOneMenu id="email" value="#{usuarioBean.usuario}"
+					converter="omnifaces.SelectItemsConverter" autoWidth="false"
+					style="width:320px;" required="true" requiredMessage="Selecione o e-mail.">
+					<f:selectItem itemLabel="Selecione" value="#{null}" />
+					<f:selectItems value="#{usuarioBean.usuarios}" var="user"
+						itemValue="#{user}" itemLabel="#{user.email}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Nova Senha" for="password"
+					rendered="#{usuarioBean.usuario.inclusao}" />
+				<p:password id="password" required="true" redisplay="true"
+					value="#{usuarioBean.usuario.novaSenha}" feedback="true"
+					weakLabel="Fraca" goodLabel="Boa" strongLabel="Forte"
+					promptLabel="Informe uma senha" inline="true"
+					match="confirmacaoSenha" rendered="#{usuarioBean.usuario.inclusao}"
+					validatorMessage="Os campos 'SENHA' não são iguais."
+					requiredMessage="O campo 'SENHA' é obrigatório." style="width: 15%"
+					maxlength="12" />
+
+				<p:outputLabel value="Confirmação" for="confirmacaoSenha"
+					rendered="#{usuarioBean.usuario.inclusao}" />
+				<p:password id="confirmacaoSenha" required="true"
+					requiredMessage="O campo 'CONFIRMAÇÃO' é obrigatório."
+					style="width: 15%" maxlength="12" />
+
+				<p:outputLabel value="Senha Atual" for="password1" />
+				<p:password id="password1" required="true"
+					value="#{usuarioBean.usuario.senha}"
+					rendered="#{usuarioBean.usuario.inclusao}"
+					requiredMessage="O campo 'SENHA' é obrigatório." style="width: 15%"
+					maxlength="12" />
+
+
+			</h:panelGrid>
+
+
+		</h:form>
+
+
+	</ui:define>
+</ui:composition>

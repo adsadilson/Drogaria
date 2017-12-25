@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.shiro.crypto.hash.SimpleHash;
+
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.UsuarioFilter;
 import com.br.apss.drogaria.repository.UsuarioRepository;
@@ -23,6 +25,8 @@ public class UsuarioService implements Serializable {
 		if (null == obj.getId()) {
 			obj.setCadastro(new Date());
 		}
+		SimpleHash hash = new SimpleHash("md5",obj.getSenha());
+		obj.setSenha(hash.toHex());
 		dao.salvar(obj);
 	}
 

@@ -6,6 +6,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 
+import org.primefaces.context.RequestContext;
+
 public class FacesProducer {
 
 	@Produces
@@ -26,5 +28,12 @@ public class FacesProducer {
 	public HttpServletResponse getHttpServletResponse() {
 		return ((HttpServletResponse) getExternalContext().getResponse());
 	}
+	
+	@Produces
+	@RequestScoped
+	public RequestContext getRequestContet(){
+		return RequestContext.getCurrentInstance();
+	}
+	 
 
 }

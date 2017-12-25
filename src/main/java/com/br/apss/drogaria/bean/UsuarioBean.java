@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
+import org.primefaces.context.RequestContext;
 
 import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Usuario;
@@ -33,7 +34,7 @@ public class UsuarioBean implements Serializable {
 
 	private List<GrupoUsuario> listaGrupos = new ArrayList<GrupoUsuario>();
 
-	private GrupoUsuario grupo = new GrupoUsuario();
+	private GrupoUsuario grupoUsuario = new GrupoUsuario();
 
 	private GrupoUsuario grupoSelecionado = new GrupoUsuario();
 
@@ -42,6 +43,8 @@ public class UsuarioBean implements Serializable {
 
 	@Inject
 	private UsuarioService usuarioService;
+
+	private boolean aprovado = true;
 
 	/******************** Metodos ***********************/
 
@@ -57,19 +60,51 @@ public class UsuarioBean implements Serializable {
 
 		Usuario usuarioExistente = usuarioService.porEmail(usuario.getEmail());
 		if (usuarioExistente != null && !usuarioExistente.equals(usuario)) {
-			throw new NegocioException("J� existe um Usu�rio com esse e-mail informado.");
+			this.aprovado = false;
+			throw new NegocioException("Já existe um Usuário com esse e-mail informado.");
 		}
 
-		usuarioService.salvar(usuario);
-		Messages.addGlobalInfo("Registro salvor com sucesso.");
+		if (this.usuario.getGrupos().size() < 1) {
+			this.aprovado = false;
+			throw new NegocioException("Selecione pelo menos um grupo de usuário.");
 
-		novo();
-		pesquisar();
+		}
+
+		if (aprovado) {
+			RequestContext request = RequestContext.getCurrentInstance();
+			request.addCallbackParam("sucesso", true);
+			usuarioService.salvar(usuario);
+			Messages.addGlobalInfo("Registro salvor com sucesso.");
+			novo();
+			pesquisar();
+		}
+	}
+	
+	public void trocaSenha() {
+
+		Usuario usuarioExistente = usuarioService.porEmail(usuario.getEmail());
+		if (this.usuario.getSenha().equals(usuarioExistente.getSenha())) {
+			this.aprovado = false;
+			throw new NegocioException("Senha atual inválida.");
+
+		}
+
+		if (aprovado) {
+			RequestContext request = RequestContext.getCurrentInstance();
+			request.addCallbackParam("sucesso", true);
+			usuarioService.salvar(usuario);
+			Messages.addGlobalInfo("Registro salvor com sucesso.");
+			novo();
+			pesquisar();
+		}
+	}
+
+	public void editar() {
+		this.usuario = usuarioService.porId(this.usuarioSelecionado.getId());
 	}
 
 	public void novo() {
 		usuario = new Usuario();
-		grupo = new GrupoUsuario();
 	}
 
 	public void novoFiltro() {
@@ -91,12 +126,12 @@ public class UsuarioBean implements Serializable {
 	}
 
 	public void adicionarGrupo() {
-		if (this.grupo != null) {
-			if (this.usuario.getGrupos().contains(this.grupo)) {
-				throw new NegocioException("Grupo j� cadastrado.");
+		if (this.grupoUsuario != null) {
+			if (this.usuario.getGrupos().contains(this.grupoUsuario)) {
+				throw new NegocioException("Grupo já cadastrado.");
 			}
-			this.usuario.getGrupos().add(this.grupo);
-			this.grupo = null;
+			this.usuario.getGrupos().add(this.grupoUsuario);
+			this.grupoUsuario = null;
 		} else {
 			Messages.addGlobalWarn("Selecione um grupo primeiro.");
 		}
@@ -148,20 +183,20 @@ public class UsuarioBean implements Serializable {
 		this.listaGrupos = listaGrupos;
 	}
 
-	public GrupoUsuario getGrupo() {
-		return grupo;
-	}
-
-	public void setGrupo(GrupoUsuario grupo) {
-		this.grupo = grupo;
-	}
-
 	public GrupoUsuario getGrupoSelecionado() {
 		return grupoSelecionado;
 	}
 
 	public void setGrupoSelecionado(GrupoUsuario grupoSelecionado) {
 		this.grupoSelecionado = grupoSelecionado;
+	}
+
+	public GrupoUsuario getGrupoUsuario() {
+		return grupoUsuario;
+	}
+
+	public void setGrupoUsuario(GrupoUsuario grupoUsuario) {
+		this.grupoUsuario = grupoUsuario;
 	}
 
 }
