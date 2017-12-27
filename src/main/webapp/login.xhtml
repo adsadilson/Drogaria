@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title><ui:insert name="titulo">Sistema de Drogaria</ui:insert></title>
+	<h:outputStylesheet library="css" name="sistema.css" />
+	<h:outputScript library="js" name="jquery.maskMoney.js" />
+	<h:outputScript library="js" name="initScript.js" />
+
+	<style>
+<!--
+.rotulo {
+	width: 80px;
+}
+-->
+</style>
+
+</h:head>
+
+<h:body>
+	<p:dialog header="Login" closable="false" draggable="false"
+		resizable="false" modal="true" visible="true">
+		<h:form prependId="false">
+			<p:messages autoUpdate="true" />
+			<h:panelGrid id="panelEdit" columns="2" columnClasses="rotulo">
+				<p:outputLabel for="email" value="E-mail:" />
+				<p:inputText id="email" size="30" required="true"
+					style="text-transform: lowercase;"
+					value="#{loginBean.usuario.email}"
+					requiredMessage="O campo 'E-MAIL' é obrigatório." />
+
+				<p:outputLabel for="password" value="Senha:" />
+				<p:password id="password" size="15" required="true"
+					value="#{loginBean.usuario.senha}"
+					requiredMessage="O campo 'SENHA' é obrigatório." />
+			</h:panelGrid>
+			<h:panelGrid columns="2" columnClasses="rotulo">
+				<p:spacer />
+				<p:commandButton value="Entrar" action="#{loginBean.autenticar()}"
+					process="@this panelEdit" update="panelEdit" />
+			</h:panelGrid>
+		</h:form>
+
+
+	</p:dialog>
+
+</h:body>
+
+</html>

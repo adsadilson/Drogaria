@@ -8,6 +8,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
 
@@ -79,21 +80,23 @@ public class UsuarioBean implements Serializable {
 			pesquisar();
 		}
 	}
-	
+
 	public void trocaSenha() {
-
-		Usuario usuarioExistente = usuarioService.porEmail(usuario.getEmail());
-		if (this.usuario.getSenha().equals(usuarioExistente.getSenha())) {
+		SimpleHash hash = new SimpleHash("md5", this.usuario.getSenha());
+		Usuario usuarioExistente = usuarioService.porEmail(this.usuario.getEmail());
+		if (!hash.toHex().equals(usuarioExistente.getSenha())) {
 			this.aprovado = false;
-			throw new NegocioException("Senha atual inv√°lida.");
-
+			throw new NegocioException("Senha atual inv·lida.");
+		} else {
+			this.aprovado = true;
 		}
 
 		if (aprovado) {
 			RequestContext request = RequestContext.getCurrentInstance();
 			request.addCallbackParam("sucesso", true);
+			this.usuario.setSenha(this.usuario.getNovaSenha());
 			usuarioService.salvar(usuario);
-			Messages.addGlobalInfo("Registro salvor com sucesso.");
+			Messages.addGlobalInfo("Senha alterada com sucesso.");
 			novo();
 			pesquisar();
 		}
