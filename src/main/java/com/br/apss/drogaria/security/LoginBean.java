@@ -14,6 +14,8 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.omnifaces.util.Faces;
 import org.omnifaces.util.Messages;
 
+import com.br.apss.drogaria.model.GrupoUsuario;
+import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.service.UsuarioService;
 
@@ -37,6 +39,12 @@ public class LoginBean implements Serializable {
 
 		SimpleHash hash = new SimpleHash("md5", this.usuario.getSenha());
 		usuarioLogado = usuarioService.autenticacao(this.usuario.getEmail(), hash.toHex());
+		
+		for (GrupoUsuario g : usuarioLogado.getGrupos()) {
+			for (Permissao p : g.getPermissoes()) {
+				System.out.println(p.getControleMenu().getFuncao());
+			}
+		}
 
 		if (null != usuarioLogado) {
 			try {

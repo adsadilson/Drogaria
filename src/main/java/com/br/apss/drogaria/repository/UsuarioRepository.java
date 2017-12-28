@@ -75,7 +75,7 @@ public class UsuarioRepository implements Serializable {
 
 	public Usuario autenticacao(String email, String senha) {
 		try {
-			return manager.createQuery("from Usuario u left join fetch u.grupos g left join fetch g.permissoes where email = :email and senha = :senha", Usuario.class)
+			return manager.createQuery("from Usuario u where email = :email and senha = :senha", Usuario.class)
 					.setParameter("email", email.toLowerCase())
 					.setParameter("senha", senha)
 					.getSingleResult();

@@ -37,6 +37,7 @@ public class AutenticacaoListener implements PhaseListener {
 		if (!ehPageDeAutenticacao) {
 
 			Usuario userLogado = Faces.getSessionAttribute("usuarioAutenticado");
+			
 
 			if (null == userLogado) {
 				try {
@@ -49,13 +50,13 @@ public class AutenticacaoListener implements PhaseListener {
 			}else{
 				boolean possui = false;
 				
-				for(GrupoUsuario g : userLogado.getGrupos()){
+				/*for(GrupoUsuario g : userLogado.getGrupos()){
 					for(Permissao p : g.getPermissoes()){
 						if(p.getControleMenu().getFormulario().equals(pageAtual)){
 							possui = p.getMenu();
 						}
 					}
-				}
+				}*/
 				if(!possui){
 					try {
 						Faces.redirect("./acessoNegado.xhtml");
