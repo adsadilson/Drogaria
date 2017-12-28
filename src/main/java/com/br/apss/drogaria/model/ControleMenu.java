@@ -31,12 +31,6 @@ public class ControleMenu implements Serializable {
 	@Column(length = 150)
 	private String funcao;
 
-	@Column(length = 150)
-	private String menu;
-
-	@Column(length = 150)
-	private String submenu;
-
 	@Transient
 	public boolean isInclusao() {
 		return this.getId() == null;
@@ -74,21 +68,7 @@ public class ControleMenu implements Serializable {
 		this.funcao = funcao.toUpperCase();
 	}
 
-	public String getMenu() {
-		return menu;
-	}
-
-	public void setMenu(String menu) {
-		this.menu = menu;
-	}
-
-	public String getSubmenu() {
-		return submenu;
-	}
-
-	public void setSubmenu(String submenu) {
-		this.submenu = submenu;
-	}
+	
 
 	@Override
 	public int hashCode() {

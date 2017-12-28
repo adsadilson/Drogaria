@@ -37,7 +37,7 @@
 			<h:form style="display: inline-block">
 				<p:menubar styleClass="menu-sistema">
 					<p:submenu label="Cadastros">
-						<p:menuitem value="Clientes" />
+						<p:menuitem value="Clientes" outcome="/pages/cadastro/cliente/cliente"  />
 						<p:menuitem value="Fornecedores" />
 						<p:submenu label="Usuários">
 							<p:menuitem value="Cadastro de Usuário"
@@ -65,7 +65,7 @@
 						<p:menuitem value="Novo pedido" />
 						<p:menuitem value="Pesquisa" />
 					</p:submenu>
-					<p:menuitem value="Sair" />
+					<p:menuitem value="Sair" action="#{loginBean.logout()}"/>
 				</p:menubar>
 			</h:form>
 

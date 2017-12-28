@@ -24,6 +24,12 @@ public class Permissao implements Serializable, Comparable<Permissao> {
 	private Long id;
 
 	@Column(nullable = false, length = 1)
+	private Boolean menu = false;
+
+	@Column(name = "sub_menu", nullable = false, length = 1)
+	private Boolean subMenu = false;
+
+	@Column(nullable = false, length = 1)
 	private Boolean incluir = false;
 
 	@Column(nullable = false, length = 1)
@@ -110,6 +116,22 @@ public class Permissao implements Serializable, Comparable<Permissao> {
 		this.controleMenu = controleMenu;
 	}
 
+	public Boolean getMenu() {
+		return menu;
+	}
+
+	public void setMenu(Boolean menu) {
+		this.menu = menu;
+	}
+
+	public Boolean getSubMenu() {
+		return subMenu;
+	}
+
+	public void setSubMenu(Boolean subMenu) {
+		this.subMenu = subMenu;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -142,13 +164,13 @@ public class Permissao implements Serializable, Comparable<Permissao> {
 
 	@Override
 	public int compareTo(Permissao o) {
-		 if (this.getControleMenu().getId() < o.id) {
-	            return -1;
-	        }
-	        if (this.getControleMenu().getId() > o.id) {
-	            return 1;
-	        }
-	        return 0;
+		if (this.getControleMenu().getId() < o.id) {
+			return -1;
+		}
+		if (this.getControleMenu().getId() > o.id) {
+			return 1;
+		}
+		return 0;
 	}
 
 }

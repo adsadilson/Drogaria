@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="corpo">
+
+		<style>
+<!--
+.text-aqua {
+	color: #00c0ef !important;
+}
+
+a {
+	color: #3c8dbc;
+}
+
+.small {
+	font-weight: normal;
+	line-height: 1;
+	color: #777;
+	font-size: 65%;
+}
+
+h2, .h2 {
+	font-size: 30px;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: inherit;
+	text-align: center;
+}
+-->
+</style>
+
+		<br />
+		<div style="margin-left: 150px; width: 550px;">
+			<h2>
+				Bem vindo ao sistema <span class="text-aqua"> <i>Drogaria</i></span>! <br /> <span class="small">Utilizando <p:link
+						value="CDI"
+						href="http://blog.caelum.com.br/use-cdi-no-seu-proximo-projeto-java/"
+						target="_blank" />, <p:link value="JPA"
+						href="https://www.dfilitto.com.br/java/jpa-o-que-e-para-que-serve-como-implementar-um-sistema/"
+						target="_blank" />, e <p:link value="Primefaces"
+						href="http://primefaces.org" target="_blank" />, com <p:link
+						value="JSF" href="https://javaserverfaces.java.net/"
+						target="_blank" />.
+				</span>
+			</h2>
+			<ui:remove>
+				<h:form>
+					<p:commandButton value="Error"
+						action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
+				</h:form>
+			</ui:remove>
+		</div>
+
+
+	</ui:define>
+
+</ui:composition>

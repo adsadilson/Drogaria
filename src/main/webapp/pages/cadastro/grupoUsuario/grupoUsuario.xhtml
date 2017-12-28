@@ -208,15 +208,22 @@
 						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
 					currentPageReportTemplate="">
 
-					<p:column headerText="Função" width="350"
+					<p:column headerText="Função" width="250"
 						sortBy="#{func.controleMenu.id}">
 						<h:outputLabel
 							value="#{func.controleMenu.id} - #{func.controleMenu.funcao}" />
 					</p:column>
 
+					<p:column headerText="Menu" width="6%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.menu}"/>
+					</p:column>
+					
+					<p:column headerText="SubMenu" width="8%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.subMenu}"/>
+					</p:column>
+					
 					<p:column headerText="Incluir" width="6%" style="text-align:center">
-						<p:selectBooleanCheckbox value="#{func.incluir}">
-						</p:selectBooleanCheckbox>
+						<p:selectBooleanCheckbox value="#{func.incluir}"/>
 					</p:column>
 
 					<p:column headerText="Alterar" width="6%" style="text-align:center">
@@ -225,6 +232,14 @@
 
 					<p:column headerText="Excluir" width="6%" style="text-align:center">
 						<p:selectBooleanCheckbox value="#{func.excluir}" />
+					</p:column>
+					
+					<p:column headerText="Imprimir" width="8%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.imprimir}" />
+					</p:column>
+					
+					<p:column headerText="Visualizar" width="8%" style="text-align:center">
+						<p:selectBooleanCheckbox value="#{func.visualizar}" />
 					</p:column>
 
 				</p:dataTable>
