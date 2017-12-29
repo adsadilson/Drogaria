@@ -17,6 +17,18 @@
 .campo {
 	width: 250px;
 }
+
+.campo400 {
+	width: 400px !important;
+}
+
+.campo180 {
+	width: 180px !important;
+}
+
+.rotulo70 {
+	width: 70px !important;
+}
 </style>
 
 		<f:metadata>
@@ -171,35 +183,71 @@
 
 		<p:dialog
 			header="#{clienteBean.cliente.inclusao ?'Cliente - Inclusão' :'Cliente - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="650" height="370"
+			widgetVar="dialogCadastro" modal="true" width="600" height="370"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false">
 
-				<h:panelGrid columns="2" id="panelCadastro" style="width: 100%;"
-					columnClasses="rotulo">
+				<p:tabView prependId="false" style="width: 98%; height: 320px; ">
+					<p:tab title="Principal">
+						<p:panel styleClass="semPreenchimento">
+							<h:panelGrid columns="2" id="panelCadastro"
+								columnClasses="rotulo,campo400">
 
-					<p:outputLabel value="Nome" for="nome" />
-					<p:inputText id="nome" style="width:70%" maxlength="80"
-						required="true" requiredMessage="O campo 'NOME' é obrigatório."
-						value="#{clienteBean.cliente.nome}" />
+								<p:outputLabel value="Nome" for="nome" />
+								<p:inputText id="nome" style="width:99%" maxlength="80"
+									required="true" requiredMessage="O campo 'NOME' é obrigatório."
+									value="#{clienteBean.cliente.nome}" />
 
-					<p:outputLabel value="E-mail" for="email" />
-					<p:inputText id="email" required="true"
-						requiredMessage="O campo 'E-MAIL' é obrigatório."
-						style="text-transform: lowercase; width:70%"
-						value="#{clienteBean.cliente.email}">
-					</p:inputText>
+							</h:panelGrid>
+							<h:panelGrid columns="4"
+								columnClasses="rotulo,campo180,rotulo70,campo165">
+								<p:outputLabel value="Nascimento" />
+								<p:calendar size="17" />
+								<p:outputLabel value="Sexo" />
+								<p:selectOneMenu autoWidth="false" style="width:120px;">
+									<f:selectItem itemLabel="Masculuno" />
+								</p:selectOneMenu>
+
+								<p:outputLabel value="Telefone" />
+								<p:inputMask mask="(99)?9999-9999" size="17" />
+								<p:outputLabel value="Celular" />
+								<p:inputMask mask="(99)?9999-9999" size="15" />
+
+								<p:outputLabel value="CPF/CNPJ" />
+								<p:inputText size="17" />
+								<p:outputLabel value="RG/INSC." />
+								<p:inputText size="15" />
+
+							</h:panelGrid>
+
+							<h:panelGrid columns="2" columnClasses="rotulo,campo400">
+								<p:outputLabel value="Endereço" />
+								<p:inputTextarea style="width:99%" rows="6" />
+								<p:outputLabel value="Ativo" />
+								<p:selectBooleanCheckbox value="#{clienteBean.cliente.status}" />
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+					<p:tab title="Outros">
+						<p:panel styleClass="semPreenchimento">
+							<h:panelGrid columns="2" columnClasses="rotulo,campo400">
+								<p:outputLabel value="Filiação" />
+								<p:inputText style="width:99%" />
+								<p:spacer />
+								<p:inputText style="width:99%" />
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+					<p:tab title="Obs">
+
+					</p:tab>
+				</p:tabView>
 
 
-					<p:outputLabel value="Ativo" />
-					<p:selectBooleanCheckbox value="#{clienteBean.cliente.status}" />
 
-				</h:panelGrid>
-
-
-				<p:toolbar style="margin-top: 5px; margin-button:5px"
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"

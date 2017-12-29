@@ -37,26 +37,16 @@ h2, .h2 {
 </style>
 
 		<br />
+		<h:graphicImage library="images" name="seguranca.png"
+			style="margin-left: 150px" height="100px" />
 		<div style="margin-left: 150px; width: 550px;">
 			<h2>
-				Bem vindo ao sistema <span class="text-aqua"> <i>Drogaria</i></span>! <br /> <span class="small">Utilizando <p:link
-						value="CDI"
-						href="http://blog.caelum.com.br/use-cdi-no-seu-proximo-projeto-java/"
-						target="_blank" />, <p:link value="JPA"
-						href="https://www.dfilitto.com.br/java/jpa-o-que-e-para-que-serve-como-implementar-um-sistema/"
-						target="_blank" />, e <p:link value="Primefaces"
-						href="http://primefaces.org" target="_blank" />, com <p:link
-						value="JSF" href="https://javaserverfaces.java.net/"
-						target="_blank" />.
-				</span>
+				Acesso negado verifique se o usuário possui permissão para acessar
+				esta funcionalidade. <br />
 			</h2>
-			<ui:remove>
-				<h:form>
-					<p:commandButton value="Error"
-						action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
-				</h:form>
-			</ui:remove>
 		</div>
+		<h:graphicImage library="images" name="password.png"
+			style="margin-left: 150px;margin-left:40%" height="100px" />
 
 
 	</ui:define>

@@ -2,13 +2,9 @@ package com.br.apss.drogaria.security;
 
 import java.io.IOException;
 
-import javax.faces.application.NavigationHandler;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
-import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Faces;
 import org.omnifaces.util.Messages;
@@ -30,14 +26,12 @@ public class AutenticacaoListener implements PhaseListener {
 	public void afterPhase(PhaseEvent event) {
 
 		String pageAtual = Faces.getViewId();
-		System.out.println("Pagina atual: " + pageAtual);
 
 		boolean ehPageDeAutenticacao = pageAtual.contains("login.xhtml") || 
 			pageAtual.contains("acessoNegado.xhtml");
 		if (!ehPageDeAutenticacao) {
 
 			Usuario userLogado = Faces.getSessionAttribute("usuarioAutenticado");
-			
 
 			if (null == userLogado) {
 				try {
@@ -50,13 +44,16 @@ public class AutenticacaoListener implements PhaseListener {
 			}else{
 				boolean possui = false;
 				
-				/*for(GrupoUsuario g : userLogado.getGrupos()){
+				for(GrupoUsuario g : userLogado.getGrupos()){
 					for(Permissao p : g.getPermissoes()){
-						if(p.getControleMenu().getFormulario().equals(pageAtual)){
-							possui = p.getMenu();
+						/*System.out.println("AutenticacaoListern frm: "+p.getControleMenu().getFormulario());
+						System.out.println("AutenticacaoListern url: "+p.getControleMenu().getUrl());*/
+						if(p.getControleMenu().getUrl().equals(pageAtual)){
+							possui = p.getFormulario();
+							break;
 						}
 					}
-				}*/
+				}
 				if(!possui){
 					try {
 						Faces.redirect("./acessoNegado.xhtml");

@@ -24,10 +24,7 @@ public class Permissao implements Serializable, Comparable<Permissao> {
 	private Long id;
 
 	@Column(nullable = false, length = 1)
-	private Boolean menu = false;
-
-	@Column(name = "sub_menu", nullable = false, length = 1)
-	private Boolean subMenu = false;
+	private Boolean formulario = false;
 
 	@Column(nullable = false, length = 1)
 	private Boolean incluir = false;
@@ -116,20 +113,12 @@ public class Permissao implements Serializable, Comparable<Permissao> {
 		this.controleMenu = controleMenu;
 	}
 
-	public Boolean getMenu() {
-		return menu;
+	public Boolean getFormulario() {
+		return formulario;
 	}
 
-	public void setMenu(Boolean menu) {
-		this.menu = menu;
-	}
-
-	public Boolean getSubMenu() {
-		return subMenu;
-	}
-
-	public void setSubMenu(Boolean subMenu) {
-		this.subMenu = subMenu;
+	public void setFormulario(Boolean formulario) {
+		this.formulario = formulario;
 	}
 
 	@Override
