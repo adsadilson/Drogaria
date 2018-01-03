@@ -16,6 +16,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.br.apss.drogaria.enums.Sexo;
+import com.br.apss.drogaria.enums.TipoPessoa;
 
 @Entity
 @Table(name = "pessoa")
@@ -54,14 +55,15 @@ public class Pessoa implements Serializable {
 	private String telefone;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "sexo", nullable = true, length = 1)
+	@Column(name = "sexo", length = 1)
 	private Sexo sexo;
 
 	@Column(name = "endereco", columnDefinition = "text")
 	private String endereco;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_pessoa", length = 1)
-	private String tipoPessoa = "F";
+	private TipoPessoa tipoPessoa = TipoPessoa.F;
 
 	@Column(name = "status", length = 1)
 	private Boolean status = true;
@@ -158,11 +160,11 @@ public class Pessoa implements Serializable {
 		this.endereco = endereco;
 	}
 
-	public String getTipoPessoa() {
+	public TipoPessoa getTipoPessoa() {
 		return tipoPessoa;
 	}
 
-	public void setTipoPessoa(String tipoPessoa) {
+	public void setTipoPessoa(TipoPessoa tipoPessoa) {
 		this.tipoPessoa = tipoPessoa;
 	}
 

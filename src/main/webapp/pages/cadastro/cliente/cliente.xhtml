@@ -203,35 +203,81 @@
 							</h:panelGrid>
 							<h:panelGrid columns="4"
 								columnClasses="rotulo,campo180,rotulo70,campo165">
-								<p:outputLabel value="Nascimento" />
-								<p:calendar size="17" />
-								<p:outputLabel value="Sexo" />
-								<p:selectOneMenu autoWidth="false" style="width:120px;">
-									<f:selectItem itemLabel="Masculuno" />
+
+								<p:outputLabel value="Tipo" />
+								<p:selectOneMenu autoWidth="false" style="width:135px;"
+									value="#{clienteBean.cliente.tipoPessoa}">
+									<f:selectItem itemLabel="Selecione..." value="#{null}" />
+									<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
+										itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+									<p:ajax event="change" process="@this"
+										update="textTipo labelNasc labelSexo" />
 								</p:selectOneMenu>
+								<p:spacer />
+								<p:spacer />
+
+								<p:outputLabel value="CPF/CNPJ" />
+								<h:panelGroup id="textTipo">
+									<p:inputMask id="textCpf"
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+										mask="999.999.999-99" value="#{clienteBean.cliente.cpfCnpj}"
+										required="true" requiredMessage="Informe o CPF:"
+										style="width: 155px;" />
+									<p:inputMask id="textCnpj"
+										rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+										mask="99.999.999/9999-99"
+										value="#{clienteBean.cliente.cpfCnpj}" required="true"
+										requiredMessage="Informe o CNPJ:" style="width: 155px;" />
+								</h:panelGroup>
+
+								<p:outputLabel value="RG/INSC." />
+								<p:inputText size="15" />
 
 								<p:outputLabel value="Telefone" />
 								<p:inputMask mask="(99)?9999-9999" size="17" />
 								<p:outputLabel value="Celular" />
 								<p:inputMask mask="(99)?9999-9999" size="15" />
 
-								<p:outputLabel value="CPF/CNPJ" />
-								<p:inputText size="17" />
-								<p:outputLabel value="RG/INSC." />
-								<p:inputText size="15" />
-
 							</h:panelGrid>
 
 							<h:panelGrid columns="2" columnClasses="rotulo,campo400">
 								<p:outputLabel value="Endereço" />
 								<p:inputTextarea style="width:99%" rows="6" />
+
 								<p:outputLabel value="Ativo" />
-								<p:selectBooleanCheckbox value="#{clienteBean.cliente.status}" />
+								<h:panelGroup>
+									<p:selectBooleanCheckbox value="#{clienteBean.cliente.status}" />
+									<p:selectBooleanCheckbox itemLabel="Fornecedor"
+										style="margin-left:25px;" />
+									<p:selectBooleanCheckbox itemLabel="Funcionário"
+										style="margin-left:25px;" />
+								</h:panelGroup>
 							</h:panelGrid>
 						</p:panel>
 					</p:tab>
 					<p:tab title="Outros">
 						<p:panel styleClass="semPreenchimento">
+
+							<h:panelGrid columns="4"
+								columnClasses="rotulo,campo180,rotulo70,campo165">
+
+								<h:panelGroup id="labelNasc">
+									<p:outputLabel
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+										value="Nascimento" />
+									<p:outputLabel
+										rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+										value="Abertura" />
+								</h:panelGroup>
+								<p:calendar size="17" />
+								<p:outputLabel value="Sexo" id="labelSexo"
+									rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+								<p:selectOneMenu autoWidth="false" style="width:120px;"
+									id="txtSexo" rendered='#{clienteBean.cliente.tipoPessoa=="F"}'>
+									<f:selectItem itemLabel="Masculuno" />
+								</p:selectOneMenu>
+							</h:panelGrid>
+
 							<h:panelGrid columns="2" columnClasses="rotulo,campo400">
 								<p:outputLabel value="Filiação" />
 								<p:inputText style="width:99%" />

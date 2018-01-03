@@ -2,6 +2,7 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.faces.view.ViewScoped;
@@ -11,6 +12,7 @@ import javax.inject.Named;
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
 
+import com.br.apss.drogaria.enums.TipoPessoa;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.filter.PessoaFilter;
 import com.br.apss.drogaria.service.PessoaService;
@@ -81,6 +83,10 @@ public class ClienteBean implements Serializable {
 		clienteService.excluir(clienteSelecionado);
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
+	}
+	
+	public List<TipoPessoa> getlistaTipoPessoas(){
+		return Arrays.asList(TipoPessoa.values());
 	}
 
 	/******************** Getters e Setters ***************************/
