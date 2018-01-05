@@ -80,6 +80,12 @@ public class Pessoa implements Serializable {
 	@Column(name = "obs", columnDefinition = "text")
 	private String obs;
 
+	@Column(name = "mae", length = 80)
+	private String mae;
+
+	@Column(name = "pai", length = 80)
+	private String pai;
+
 	public Long getId() {
 		return id;
 	}
@@ -214,6 +220,22 @@ public class Pessoa implements Serializable {
 
 	public void setRgInsc(String rgInsc) {
 		this.rgInsc = rgInsc;
+	}
+
+	public String getMae() {
+		return mae;
+	}
+
+	public void setMae(String mae) {
+		this.mae = mae;
+	}
+
+	public String getPai() {
+		return pai;
+	}
+
+	public void setPai(String pai) {
+		this.pai = pai;
 	}
 
 	public boolean isInclusao() {

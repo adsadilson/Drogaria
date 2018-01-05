@@ -10,24 +10,24 @@
 	<ui:define name="corpo">
 
 		<style>
-.rotulo100 {
-	width: 85px !important;
+.rotulo {
+	width: 100px;
 }
 
 .campo {
 	width: 250px;
 }
 
-.campo415 {
-	width: 434px !important;
+.campo400 {
+	width: 400px !important;
 }
 
 .campo180 {
 	width: 180px !important;
 }
 
-.rotulo60 {
-	width: 85px !important;
+.rotulo70 {
+	width: 70px !important;
 }
 </style>
 
@@ -183,18 +183,134 @@
 
 		<p:dialog
 			header="#{clienteBean.cliente.inclusao ?'Cliente - Inclusão' :'Cliente - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="620" height="370"
+			widgetVar="dialogCadastro" modal="true" width="600" height="370"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form id="frm-cadastro" prependId="false">
 
-				<p:tabView prependId="false" style="width: 99%; height: 320px; ">
+				<p:tabView prependId="false" style="width: 98%; height: 320px; ">
 					<p:tab title="Principal">
-						<ui:include src="aba_principal.xhtml" />
+						<p:panel styleClass="semPreenchimento">
+							<h:panelGrid columns="2" id="panelCadastro"
+								columnClasses="rotulo,campo400">
+
+								<p:outputLabel value="Nome" for="nome" />
+								<p:inputText id="nome" style="width:99%" maxlength="80"
+									required="true" requiredMessage="O campo 'NOME' é obrigatório."
+									value="#{clienteBean.cliente.nome}" />
+
+							</h:panelGrid>
+							<h:panelGrid columns="4"
+								columnClasses="rotulo,campo180,rotulo70,campo165">
+
+								<p:outputLabel value="Tipo" />
+								<p:selectOneMenu autoWidth="false" style="width:135px;"
+									value="#{clienteBean.cliente.tipoPessoa}">
+									<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
+										itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+									<p:ajax event="change" process="@this"
+										update="textTipo labelTipo labelNasc lbs txtSexo" />
+								</p:selectOneMenu>
+								<p:spacer />
+								<p:spacer />
+
+								<h:panelGroup id="labelTipo">
+									<p:outputLabel value="CPF" for="textCpf"
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+									<p:outputLabel value="CNPJ" for="textCnpj"
+										rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+								</h:panelGroup>
+								<h:panelGroup id="textTipo">
+									<p:inputMask id="textCpf"
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+										mask="999.999.999-99" value="#{clienteBean.cliente.cpfCnpj}"
+										required="true" requiredMessage="O campo 'CPF' é obrigatório."
+										style="width: 155px;" />
+									<p:inputMask id="textCnpj"
+										rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+										mask="99.999.999/9999-99"
+										value="#{clienteBean.cliente.cpfCnpj}" required="true"
+										requiredMessage="O campo 'CNPJ' é obrigatório."
+										style="width: 155px;" />
+								</h:panelGroup>
+
+								<p:outputLabel value="RG/INSC." />
+								<p:inputText size="15" />
+
+								<p:outputLabel value="Telefone" />
+								<p:inputMask mask="(99)?9999-9999" size="17"
+									value="#{clienteBean.cliente.telefone}" />
+								<p:outputLabel value="Celular" />
+								<p:inputMask mask="(99)?9999-9999" size="15"
+									value="#{clienteBean.cliente.celular}" />
+
+							</h:panelGrid>
+
+							<h:panelGrid columns="2" columnClasses="rotulo,campo400">
+								<p:outputLabel value="Endereço" />
+								<p:inputTextarea style="width:99%" rows="6"
+									value="#{clienteBean.cliente.endereco}" />
+
+								<p:outputLabel value="Ativo" />
+								<h:panelGroup>
+									<p:selectBooleanCheckbox value="#{clienteBean.cliente.status}" />
+									<p:selectBooleanCheckbox itemLabel="Fornecedor"
+										value="#{clienteBean.cliente.fornecedor}"
+										style="margin-left:25px;" />
+									<p:selectBooleanCheckbox itemLabel="Funcionário"
+										style="margin-left:25px;"
+										value="#{clienteBean.cliente.funcionario}" />
+								</h:panelGroup>
+							</h:panelGrid>
+						</p:panel>
 					</p:tab>
-					<p:tab title="Endereço/Contato">
-						<ui:include src="aba_endereco.xhtml" />
+					<p:tab title="Outros">
+						<p:panel styleClass="semPreenchimento">
+
+							<h:panelGrid columns="4"
+								columnClasses="rotulo,campo180,rotulo70,campo165">
+
+								<h:panelGroup id="labelNasc">
+									<p:outputLabel
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+										value="Nascimento" />
+									<p:outputLabel
+										rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+										value="Abertura" />
+								</h:panelGroup>
+								<p:calendar size="17" value="#{clienteBean.cliente.nascimento}" />
+								<h:panelGroup id="lbs">
+									<p:outputLabel value="Sexo"
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+								</h:panelGroup>
+								<h:panelGroup id="txtSexo">
+									<p:selectOneMenu autoWidth="false" style="width:120px;"
+										value="#{clienteBean.cliente.sexo}"
+										rendered='#{clienteBean.cliente.tipoPessoa=="F"}'>
+										<f:selectItem itemLabel="Masculuno" />
+									</p:selectOneMenu>
+								</h:panelGroup>
+							</h:panelGrid>
+
+							<h:panelGrid columns="2" columnClasses="rotulo,campo400">
+
+								<p:outputLabel value="E-mail" />
+								<p:inputText style="width:99%"
+									value="#{clienteBean.cliente.email}" />
+
+								<p:outputLabel value="Site" />
+								<p:inputText style="width:99%"
+									value="#{clienteBean.cliente.site}" />
+
+								<p:outputLabel value="Filiação" />
+								<p:inputText style="width:99%"
+									value="#{clienteBean.cliente.mae}" />
+								<p:spacer />
+								<p:inputText style="width:99%"
+									value="#{clienteBean.cliente.pai}" />
+							</h:panelGrid>
+						</p:panel>
 					</p:tab>
 					<p:tab title="Obs">
 						<h:panelGroup layout="block" style="margin-top: 10px">

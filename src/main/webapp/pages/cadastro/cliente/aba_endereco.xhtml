@@ -1,0 +1,60 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<p:panel styleClass="semPreenchimento">
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+			<p:outputLabel value="Cep" />
+			<p:inputText style="width:132px;" />
+
+			<p:outputLabel value="Endereço" />
+			<h:panelGroup>
+				<p:inputText style="width:335px;" />
+				<p:inputText style="width:70px; margin-left:5px;" />
+			</h:panelGroup>
+
+			<p:outputLabel value="Cidade" />
+			<h:panelGroup>
+				<p:inputText style="width:232px;" />
+				<p:outputLabel value="Estado"
+					style="margin-left:15px; margin-right:10px;" />
+				<p:selectOneMenu autoWidth="false" style="width:90px;"
+					value="#{clienteBean.cliente.tipoPessoa}">
+					<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
+						itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+				</p:selectOneMenu>
+			</h:panelGroup>
+
+			<p:outputLabel value="Bairro" />
+			<h:panelGroup>
+				<p:inputText style="width:232px;" />
+				<p:outputLabel value="Compl."
+					style="margin-left:15px; margin-right:10px;" />
+				<p:inputText style="width:109px;" />
+			</h:panelGroup>
+			
+			<p:spacer/>
+			<p:spacer/>
+
+			<p:outputLabel value="Telefone(s)" />
+			<h:panelGroup>
+				<p:inputText style="width:130px;" />
+				<p:inputText style="width:130px; margin-left:5px; margin-right:5px;" />
+				<p:inputText style="width:133px;" />
+			</h:panelGroup>
+
+			<p:outputLabel value="E-mail" />
+			<p:inputText value="#{clienteBean.cliente.nome}" style="width:99%" />
+
+			<p:outputLabel value="Site" />
+			<p:inputText value="#{clienteBean.cliente.nome}" style="width:99%" />
+
+		</h:panelGrid>
+
+
+	</p:panel>
+
+</ui:composition>

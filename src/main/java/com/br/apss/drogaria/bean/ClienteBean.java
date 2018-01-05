@@ -12,6 +12,8 @@ import javax.inject.Named;
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
 
+import com.br.apss.drogaria.enums.EstadoCivil;
+import com.br.apss.drogaria.enums.Sexo;
 import com.br.apss.drogaria.enums.TipoPessoa;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.filter.PessoaFilter;
@@ -87,6 +89,14 @@ public class ClienteBean implements Serializable {
 	
 	public List<TipoPessoa> getlistaTipoPessoas(){
 		return Arrays.asList(TipoPessoa.values());
+	}
+	
+	public List<Sexo> getlistaSexos(){
+		return Arrays.asList(Sexo.values());
+	}
+	
+	public List<EstadoCivil> getlistaEstadoCivis(){
+		return Arrays.asList(EstadoCivil.values());
 	}
 
 	/******************** Getters e Setters ***************************/

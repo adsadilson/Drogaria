@@ -1,0 +1,129 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<p:panel styleClass="semPreenchimento">
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+			<p:outputLabel value="Tipo" for="tp" />
+
+			<p:selectOneMenu autoWidth="false" style="width:133px;"
+				value="#{clienteBean.cliente.tipoPessoa}" id="tp" required="true">
+				<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
+					itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+				<p:ajax event="change" process="@this"
+					update="textTipo labelTipo labelNasc" />
+			</p:selectOneMenu>
+
+			<h:panelGroup id="labelTipo">
+				<p:outputLabel value="CPF" for="textCpf"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+				<p:outputLabel value="CNPJ" for="textCnpj"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+			</h:panelGroup>
+
+			<h:panelGroup id="textTipo">
+				<p:inputMask id="textCpf"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					mask="999.999.999-99" value="#{clienteBean.cliente.cpfCnpj}"
+					required="true" requiredMessage="O campo 'CPF' é obrigatório."
+					style="width: 155px;" />
+				<p:inputMask id="textCnpj"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+					mask="99.999.999/9999-99" value="#{clienteBean.cliente.cpfCnpj}"
+					required="true" requiredMessage="O campo 'CNPJ' é obrigatório."
+					style="width: 155px;" />
+			</h:panelGroup>
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+
+			<p:outputLabel value="Nome" for="nome" />
+			<p:inputText id="nome" style="width:99%" maxlength="80"
+				required="true" requiredMessage="O campo 'NOME' é obrigatório."
+				value="#{clienteBean.cliente.nome}" />
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+			<p:outputLabel value="RG/INSC." />
+			<p:inputText style="width:85%;" />
+
+			<h:panelGroup id="labelNasc">
+				<p:outputLabel rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					value="Nascimento" />
+				<p:outputLabel rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+					value="Abertura" />
+			</h:panelGroup>
+			<p:calendar size="17" value="#{clienteBean.cliente.nascimento}"
+				locale="pt_BR" pattern="dd/MM/yyyy" />
+
+			<p:outputLabel value="Sexo" />
+			<p:selectOneMenu autoWidth="false" style="width:133px;"
+				value="#{clienteBean.cliente.sexo}">
+				<f:selectItems value="#{clienteBean.listaSexos}" var="sx"
+					itemLabel="#{sx.descricao}" itemValue="#{sx}" />
+			</p:selectOneMenu>
+
+			<p:outputLabel value="Estado Civil" />
+			<p:selectOneMenu autoWidth="false" style="width:133px;">
+				<f:selectItems value="#{clienteBean.listaEstadoCivis}" var="tc"
+					itemLabel="#{tc.descricao}" itemValue="#{tc}" />
+			</p:selectOneMenu>
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+			<p:outputLabel value="Conjuge" />
+			<p:inputText style="width:99%" maxlength="80"
+				value="#{clienteBean.cliente.nome}" />
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+			<p:outputLabel value="Filiação" />
+			<p:inputText style="width:99%" maxlength="80"
+				placeholder="Nome da mãe" value="#{clienteBean.cliente.mae}" />
+			<p:spacer />
+			<p:inputText style="width:99%" maxlength="80"
+				placeholder="Nome da pai" value="#{clienteBean.cliente.mae}" />
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+
+			<p:outputLabel value="Ativo" />
+			<h:panelGroup>
+				<p:selectBooleanCheckbox value="#{clienteBean.cliente.status}" />
+				<p:selectBooleanCheckbox itemLabel="Fornecedor"
+					value="#{clienteBean.cliente.fornecedor}" style="margin-left:25px;" />
+				<p:selectBooleanCheckbox itemLabel="Funcionário"
+					style="margin-left:25px;"
+					value="#{clienteBean.cliente.funcionario}" />
+			</h:panelGroup>
+		</h:panelGrid>
+
+
+		<ui:remove>
+			<h:panelGrid columns="4"
+				columnClasses="rotulo,campo180,rotulo70,campo165">
+
+
+				<p:outputLabel value="Telefone" />
+				<p:inputMask mask="(99)?9999-9999" size="17"
+					value="#{clienteBean.cliente.telefone}" />
+				<p:outputLabel value="Celular" />
+				<p:inputMask mask="(99)?9999-9999" size="15"
+					value="#{clienteBean.cliente.celular}" />
+
+			</h:panelGrid>
+
+
+		</ui:remove>
+	</p:panel>
+
+</ui:composition>
