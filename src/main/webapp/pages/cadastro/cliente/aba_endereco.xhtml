@@ -7,50 +7,65 @@
 	<p:panel styleClass="semPreenchimento">
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
-			<p:outputLabel value="Cep" />
-			<p:inputText style="width:132px;" />
+			<p:outputLabel value="Cep" for="cep" />
+			<p:inputText style="width:132px;" value="#{clienteBean.cliente.cep}"
+				id="cep" required="true"
+				requiredMessage="O campo 'CEP' é obrigatório." />
 
-			<p:outputLabel value="Endereço" />
+			<p:outputLabel for="end" value="Endereço" />
 			<h:panelGroup>
-				<p:inputText style="width:335px;" />
-				<p:inputText style="width:70px; margin-left:5px;" />
+				<p:inputText style="width:335px;" id="end" required="true"
+					requiredMessage="O campo 'ENDEREÇO' é obrigatório."
+					value="#{clienteBean.cliente.endereco}" />
+				<p:inputText style="width:75px; margin-left:5px;"
+					value="#{clienteBean.cliente.num}" />
 			</h:panelGroup>
 
-			<p:outputLabel value="Cidade" />
+			<p:outputLabel for="bai" value="Bairro" />
 			<h:panelGroup>
-				<p:inputText style="width:232px;" />
-				<p:outputLabel value="Estado"
+				<p:inputText style="width:232px;" id="bai"
+					value="#{clienteBean.cliente.bairro}" required="true"
+					requiredMessage="O campo 'BAIRRO' é obrigatório." />
+				<p:outputLabel value="Compl."
 					style="margin-left:15px; margin-right:10px;" />
-				<p:selectOneMenu autoWidth="false" style="width:90px;"
-					value="#{clienteBean.cliente.tipoPessoa}">
-					<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
-						itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+				<p:inputText style="width:109px;"
+					value="#{clienteBean.cliente.complemento}" />
+			</h:panelGroup>
+
+			<p:outputLabel for="cid" value="Cidade" />
+			<h:panelGroup>
+				<p:inputText style="width:232px;" id="cid" required="true"
+					value="#{clienteBean.cliente.cidade}"
+					requiredMessage="O campo 'CIDADE' é obrigatório." />
+				<p:outputLabel for="est" value="Estado"
+					style="margin-left:15px; margin-right:10px;" />
+				<p:selectOneMenu autoWidth="false" style="width:80px;" id="est"
+					required="true" requiredMessage="O campo 'ESTADO' é obrigatório."
+					value="#{clienteBean.cliente.estado}">
+					<f:selectItems value="#{clienteBean.listaEstados}" var="uf"
+						itemLabel="#{uf.sigla}" itemValue="#{uf}" />
 				</p:selectOneMenu>
 			</h:panelGroup>
 
-			<p:outputLabel value="Bairro" />
-			<h:panelGroup>
-				<p:inputText style="width:232px;" />
-				<p:outputLabel value="Compl."
-					style="margin-left:15px; margin-right:10px;" />
-				<p:inputText style="width:109px;" />
-			</h:panelGroup>
-			
-			<p:spacer/>
-			<p:spacer/>
+
+			<p:spacer />
+			<p:spacer />
 
 			<p:outputLabel value="Telefone(s)" />
 			<h:panelGroup>
-				<p:inputText style="width:130px;" />
-				<p:inputText style="width:130px; margin-left:5px; margin-right:5px;" />
-				<p:inputText style="width:133px;" />
+				<p:inputText style="width:135px;"
+					value="#{clienteBean.cliente.celular}" />
+				<p:inputText style="width:130px; margin-left:5px; margin-right:5px;"
+					value="#{clienteBean.cliente.telefone}" />
+				<p:inputText style="width:130px;"
+					value="#{clienteBean.cliente.telefone2}" />
 			</h:panelGroup>
 
 			<p:outputLabel value="E-mail" />
-			<p:inputText value="#{clienteBean.cliente.nome}" style="width:99%" />
+			<p:inputText value="#{clienteBean.cliente.email}" style="width:96%" />
 
 			<p:outputLabel value="Site" />
-			<p:inputText value="#{clienteBean.cliente.nome}" style="width:99%" />
+			<p:inputText value="#{clienteBean.cliente.site}" style="width:96%" />
 
 		</h:panelGrid>
 

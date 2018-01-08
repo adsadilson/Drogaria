@@ -43,7 +43,7 @@
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
 
 			<p:outputLabel value="Nome" for="nome" />
-			<p:inputText id="nome" style="width:99%" maxlength="80"
+			<p:inputText id="nome" style="width:96%" maxlength="80"
 				required="true" requiredMessage="O campo 'NOME' é obrigatório."
 				value="#{clienteBean.cliente.nome}" />
 
@@ -53,7 +53,7 @@
 			columnClasses="rotulo100,campo180,rotulo60,campo165">
 
 			<p:outputLabel value="RG/INSC." />
-			<p:inputText style="width:85%;" />
+			<p:inputText style="width:85%;" value="#{clienteBean.cliente.rgInsc}" />
 
 			<h:panelGroup id="labelNasc">
 				<p:outputLabel rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
@@ -72,7 +72,8 @@
 			</p:selectOneMenu>
 
 			<p:outputLabel value="Estado Civil" />
-			<p:selectOneMenu autoWidth="false" style="width:133px;">
+			<p:selectOneMenu autoWidth="false" style="width:133px;"
+				value="#{clienteBean.cliente.estadoCivil}">
 				<f:selectItems value="#{clienteBean.listaEstadoCivis}" var="tc"
 					itemLabel="#{tc.descricao}" itemValue="#{tc}" />
 			</p:selectOneMenu>
@@ -81,17 +82,17 @@
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
 			<p:outputLabel value="Conjuge" />
-			<p:inputText style="width:99%" maxlength="80"
-				value="#{clienteBean.cliente.nome}" />
+			<p:inputText style="width:96%" maxlength="80"
+				value="#{clienteBean.cliente.conjuge}" />
 		</h:panelGrid>
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
 			<p:outputLabel value="Filiação" />
-			<p:inputText style="width:99%" maxlength="80"
+			<p:inputText style="width:96%" maxlength="80"
 				placeholder="Nome da mãe" value="#{clienteBean.cliente.mae}" />
 			<p:spacer />
-			<p:inputText style="width:99%" maxlength="80"
-				placeholder="Nome da pai" value="#{clienteBean.cliente.mae}" />
+			<p:inputText style="width:96%" maxlength="80"
+				placeholder="Nome da pai" value="#{clienteBean.cliente.pai}" />
 		</h:panelGrid>
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
@@ -107,23 +108,6 @@
 			</h:panelGroup>
 		</h:panelGrid>
 
-
-		<ui:remove>
-			<h:panelGrid columns="4"
-				columnClasses="rotulo,campo180,rotulo70,campo165">
-
-
-				<p:outputLabel value="Telefone" />
-				<p:inputMask mask="(99)?9999-9999" size="17"
-					value="#{clienteBean.cliente.telefone}" />
-				<p:outputLabel value="Celular" />
-				<p:inputMask mask="(99)?9999-9999" size="15"
-					value="#{clienteBean.cliente.celular}" />
-
-			</h:panelGrid>
-
-
-		</ui:remove>
 	</p:panel>
 
 </ui:composition>

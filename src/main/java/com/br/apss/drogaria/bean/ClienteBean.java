@@ -12,6 +12,7 @@ import javax.inject.Named;
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
 
+import com.br.apss.drogaria.enums.Estado;
 import com.br.apss.drogaria.enums.EstadoCivil;
 import com.br.apss.drogaria.enums.Sexo;
 import com.br.apss.drogaria.enums.TipoPessoa;
@@ -48,16 +49,15 @@ public class ClienteBean implements Serializable {
 
 	public void salvar() {
 
-		Pessoa clienteExistente = clienteService.porCpf(cliente.getEmail());
+		Pessoa clienteExistente = clienteService.porCpf(cliente.getCpfCnpj());
 		if (clienteExistente != null && !clienteExistente.equals(cliente)) {
-			throw new NegocioException("JÃ¡ existe um Cliente com esse cpf informado.");
+			throw new NegocioException("Já existe um Cliente com esse cpf ou cnpj informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
 		clienteService.salvar(cliente);
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
-		novo();
 		pesquisar();
 	}
 
@@ -97,6 +97,10 @@ public class ClienteBean implements Serializable {
 	
 	public List<EstadoCivil> getlistaEstadoCivis(){
 		return Arrays.asList(EstadoCivil.values());
+	}
+	
+	public List<Estado> getlistaEstados(){
+		return Arrays.asList(Estado.values());
 	}
 
 	/******************** Getters e Setters ***************************/

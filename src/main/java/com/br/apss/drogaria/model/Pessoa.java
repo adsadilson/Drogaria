@@ -15,6 +15,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.br.apss.drogaria.enums.Estado;
+import com.br.apss.drogaria.enums.EstadoCivil;
 import com.br.apss.drogaria.enums.Sexo;
 import com.br.apss.drogaria.enums.TipoPessoa;
 
@@ -54,16 +56,42 @@ public class Pessoa implements Serializable {
 	@Column(name = "telefone", length = 20)
 	private String telefone;
 
+	@Column(name = "telefone_2", length = 20)
+	private String telefone2;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "sexo", length = 1)
 	private Sexo sexo;
 
-	@Column(name = "endereco", columnDefinition = "text")
+	@Column(name = "endereco", length = 80)
 	private String endereco;
+
+	@Column(name = "cep", length = 12)
+	private String cep;
+
+	@Column(name = "num", length = 10)
+	private String num;
+
+	@Column(name = "complemento", length = 80)
+	private String complemento;
+
+	@Column(name = "bairro", length = 80)
+	private String bairro;
+
+	@Column(name = "cidade", length = 80)
+	private String cidade;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "estado", length = 2)
+	private Estado estado;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_pessoa", length = 1)
 	private TipoPessoa tipoPessoa = TipoPessoa.F;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "estado_civil")
+	private EstadoCivil estadoCivil;
 
 	@Column(name = "status", length = 1)
 	private Boolean status = true;
@@ -79,6 +107,9 @@ public class Pessoa implements Serializable {
 
 	@Column(name = "obs", columnDefinition = "text")
 	private String obs;
+
+	@Column(name = "conjuge", length = 80)
+	private String conjuge;
 
 	@Column(name = "mae", length = 80)
 	private String mae;
@@ -99,7 +130,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setNome(String nome) {
-		this.nome = nome;
+		this.nome = nome.toUpperCase();
 	}
 
 	public String getCpfCnpj() {
@@ -163,7 +194,55 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setEndereco(String endereco) {
-		this.endereco = endereco;
+		this.endereco = endereco.toUpperCase();
+	}
+
+	public String getCep() {
+		return cep;
+	}
+
+	public void setCep(String cep) {
+		this.cep = cep;
+	}
+
+	public String getNum() {
+		return num;
+	}
+
+	public void setNum(String num) {
+		this.num = num;
+	}
+
+	public String getComplemento() {
+		return complemento;
+	}
+
+	public void setComplemento(String complemento) {
+		this.complemento = complemento == null ? null : complemento.toUpperCase();
+	}
+
+	public String getBairro() {
+		return bairro;
+	}
+
+	public void setBairro(String bairro) {
+		this.bairro = bairro.toUpperCase();
+	}
+
+	public String getCidade() {
+		return cidade;
+	}
+
+	public void setCidade(String cidade) {
+		this.cidade = cidade.toUpperCase();
+	}
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public void setEstado(Estado estado) {
+		this.estado = estado;
 	}
 
 	public TipoPessoa getTipoPessoa() {
@@ -227,7 +306,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setMae(String mae) {
-		this.mae = mae;
+		this.mae = mae == null ? null : mae.toUpperCase();
 	}
 
 	public String getPai() {
@@ -235,7 +314,31 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setPai(String pai) {
-		this.pai = pai;
+		this.pai = pai == null ? null : pai.toUpperCase();
+	}
+
+	public EstadoCivil getEstadoCivil() {
+		return estadoCivil;
+	}
+
+	public void setEstadoCivil(EstadoCivil estadoCivil) {
+		this.estadoCivil = estadoCivil;
+	}
+
+	public String getConjuge() {
+		return conjuge;
+	}
+
+	public void setConjuge(String conjuge) {
+		this.conjuge = conjuge == null ? null : conjuge.toUpperCase();
+	}
+
+	public String getTelefone2() {
+		return telefone2;
+	}
+
+	public void setTelefone2(String telefone2) {
+		this.telefone2 = telefone2;
 	}
 
 	public boolean isInclusao() {

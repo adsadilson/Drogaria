@@ -7,7 +7,7 @@ public enum EstadoCivil {
 	DESQUITADO("DESQUITADO(A)"),
 	DIVORCIADO("DIVORCIADO(A)"),
 	VIUVO("VIUVO(A)"),
-	UNIAO_ESTAVEL("UNIï¿½O ESTAVEL");
+	UNIAO_ESTAVEL("UNIÃO ESTAVEL");
 	
 	private String descricao;
 	
