@@ -40,6 +40,18 @@ public class Pessoa implements Serializable {
 	@Column(name = "rg_insc", length = 35)
 	private String rgInsc;
 
+	@Column(name = "insc_municipal", length = 35)
+	private String inscMunicipal;
+
+	@Column(name = "cnae", length = 85)
+	private String cnae;
+
+	@Column(name = "contato1", length = 85)
+	private String contato1;
+
+	@Column(name = "contato2", length = 85)
+	private String contato2;
+
 	@Column(name = "email", length = 200)
 	private String email;
 
@@ -339,6 +351,38 @@ public class Pessoa implements Serializable {
 
 	public void setTelefone2(String telefone2) {
 		this.telefone2 = telefone2;
+	}
+
+	public String getInscMunicipal() {
+		return inscMunicipal;
+	}
+
+	public void setInscMunicipal(String inscMunicipal) {
+		this.inscMunicipal = inscMunicipal;
+	}
+
+	public String getCnae() {
+		return cnae;
+	}
+
+	public void setCnae(String cnae) {
+		this.cnae = cnae == null ? null : cnae.toUpperCase();
+	}
+
+	public String getContato1() {
+		return contato1;
+	}
+
+	public void setContato1(String contato1) {
+		this.contato1 = contato1 == null ? null : contato1.toUpperCase();
+	}
+
+	public String getContato2() {
+		return contato2;
+	}
+
+	public void setContato2(String contato2) {
+		this.contato2 = contato2 == null ? null : contato2.toUpperCase();
 	}
 
 	public boolean isInclusao() {

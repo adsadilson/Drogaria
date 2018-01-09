@@ -1,0 +1,186 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Fornecedor</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo {
+	width: 100px;
+}
+
+.campo {
+	width: 250px;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{fornecedorBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Pesquisa Fornecedor</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+			<p:focus for="txtPesquisar" />
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Novo" icon="fa fa-file-o"
+						update="dgCadastro" action="#{fornecedorBean.novo()}"
+						oncomplete="PF('dialogCadastro').show()">
+						<p:resetInput target="dgCadastro" />
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						update="dgFiltro" action="#{fornecedorBean.novoFiltro}"
+						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblUsuario" fileName="fornecedors" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:inputText size="30" placeholder="digite o nome"
+						title="Pesquisa pelo campo nome do grupo"
+						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
+						value="#{fornecedorBean.filtro.nome}" />
+
+					<p:commandButton icon="fa fa-search" value="Pesquisar"
+						update="tblUsuario" id="btnPesquisar"
+						action="#{fornecedorBean.pesquisar()}">
+						<f:setPropertyActionListener value="principal"
+							target="#{fornecedorBean.filtro.origem}" />
+					</p:commandButton>
+
+					<p:defaultCommand target="btnPesquisar" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="tblUsuario" value="#{fornecedorBean.listaFornecedors}"
+				var="fornecedor" style="margin-top: 20px" lazy="true"
+				emptyMessage="Nenhum registro encontrado." rows="11"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogCadastro').show()" process="@this"
+						update="dgCadastro" action="#{fornecedorBean.editar}">
+						<f:setPropertyActionListener
+							target="#{fornecedorBean.fornecedorSelecionado}" value="#{fornecedor}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{fornecedorBean.fornecedorSelecionado}" value="#{fornecedor}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="Nome do Usuario" sortBy="#{fornecedor.nome}">
+					<h:outputText value="#{fornecedor.nome}" />
+				</p:column>
+
+				<p:column headerText="E-mail" sortBy="#{fornecedor.email}"
+					style="width: 250px">
+					<h:outputText value="#{fornecedor.email}" />
+				</p:column>
+
+
+				<p:column headerText="Status" sortBy="#{fornecedor.status}"
+					style="text-align: center; width: 100px">
+					<h:outputText value="#{fornecedor.status ? 'ATIVO' : 'INATIVO'}" />
+				</p:column>
+
+				<p:column headerText="">
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText value="#{fornecedorBean.fornecedorSelecionado.nome} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusao').hide();" update="tblUsuario"
+					action="#{fornecedorBean.excluir()}" process="@this" />
+			</p:confirmDialog>
+
+
+			<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+				width="280" height="110" resizable="false" draggable="true"
+				id="dgFiltro" visible="false" closeOnEscape="true"
+				appendTo="@(body)">
+
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro">
+
+					<p:outputLabel value="Descrição" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{fornecedorBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{fornecedorBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{fornecedorBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblUsuario panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</p:dialog>
+
+		</h:form>
+
+		<p:dialog
+			header="#{fornecedorBean.fornecedor.inclusao ?'Fornecedor - Inclusão' :'Fornecedor - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="650" height="370"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false">
+
+
+			</h:form>
+
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

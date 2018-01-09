@@ -2,8 +2,8 @@ package com.br.apss.drogaria.enums;
 
 public enum TipoPessoa {
 
-	F("FISÕCA","F"),
-	J("JURÕDICA","J");
+	F("FIS√çCA","F"),
+	J("JUR√çDICA","J");
 	
 	private String descricao;
 	private String sigla;

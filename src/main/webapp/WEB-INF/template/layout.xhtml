@@ -37,14 +37,16 @@
 			<h:form style="display: inline-block">
 				<p:menubar styleClass="menu-sistema">
 					<p:submenu label="Cadastros">
-						<p:menuitem value="Clientes" outcome="/pages/cadastro/cliente/cliente"  />
-						<p:menuitem value="Fornecedores" />
+						<p:menuitem value="Clientes"
+							outcome="/pages/cadastro/cliente/cliente" />
+						<p:menuitem value="Fornecedores"
+							outcome="/pages/cadastro/fornecedor/fornecedor" />
 						<p:submenu label="Usuários">
 							<p:menuitem value="Cadastro de Usuário"
 								outcome="/pages/cadastro/usuario/usuario" />
 							<p:menuitem value="Grupo de Usuário"
 								outcome="/pages/cadastro/grupoUsuario/grupoUsuario" />
-								<p:menuitem value="Troca senha"
+							<p:menuitem value="Troca senha"
 								outcome="/pages/cadastro/trocaSenha/trocaSenha" />
 						</p:submenu>
 						<p:separator />
@@ -65,7 +67,7 @@
 						<p:menuitem value="Novo pedido" />
 						<p:menuitem value="Pesquisa" />
 					</p:submenu>
-					<p:menuitem value="Sair" action="#{loginBean.logout()}"/>
+					<p:menuitem value="Sair" action="#{loginBean.logout()}" />
 				</p:menubar>
 			</h:form>
 

@@ -23,7 +23,7 @@ public class PessoaFilter implements Serializable {
 	}
 
 	public void setNome(String nome) {
-		this.nome = nome;
+		this.nome = nome == null ? null : nome.toUpperCase();
 	}
 
 	public Boolean getStatus() {

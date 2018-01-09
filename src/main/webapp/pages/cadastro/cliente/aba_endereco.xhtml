@@ -8,8 +8,8 @@
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
 			<p:outputLabel value="Cep" for="cep" />
-			<p:inputText style="width:132px;" value="#{clienteBean.cliente.cep}"
-				id="cep" required="true"
+			<p:inputMask mask="99999-999" style="width:132px;"
+				value="#{clienteBean.cliente.cep}" id="cep" required="true"
 				requiredMessage="O campo 'CEP' é obrigatório." />
 
 			<p:outputLabel for="end" value="Endereço" />
@@ -32,9 +32,9 @@
 					value="#{clienteBean.cliente.complemento}" />
 			</h:panelGroup>
 
-			<p:outputLabel for="cid" value="Cidade" />
+			<p:outputLabel for="cidade" value="Cidade" />
 			<h:panelGroup>
-				<p:inputText style="width:232px;" id="cid" required="true"
+				<p:inputText style="width:232px;" id="cidade" required="true"
 					value="#{clienteBean.cliente.cidade}"
 					requiredMessage="O campo 'CIDADE' é obrigatório." />
 				<p:outputLabel for="est" value="Estado"
@@ -62,7 +62,8 @@
 			</h:panelGroup>
 
 			<p:outputLabel value="E-mail" />
-			<p:inputText value="#{clienteBean.cliente.email}" style="width:96%" />
+			<p:inputText value="#{clienteBean.cliente.email}"
+				style="width:96%; text-transform: lowercase;" />
 
 			<p:outputLabel value="Site" />
 			<p:inputText value="#{clienteBean.cliente.site}" style="width:96%" />

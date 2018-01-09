@@ -16,7 +16,8 @@
 				<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
 					itemLabel="#{tp.descricao}" itemValue="#{tp}" />
 				<p:ajax event="change" process="@this"
-					update="textTipo labelTipo labelNasc" />
+					update="textTipo labelTipo labelNasc labelRG labelSexo txtSexo labelCivil txtCivil
+					 labelConjuge txtConjuge labelFiliacao txtFiliacao txtFiliacao2" />
 			</p:selectOneMenu>
 
 			<h:panelGroup id="labelTipo">
@@ -52,7 +53,12 @@
 		<h:panelGrid columns="4"
 			columnClasses="rotulo100,campo180,rotulo60,campo165">
 
-			<p:outputLabel value="RG/INSC." />
+			<h:panelGroup id="labelRG">
+				<p:outputLabel value="RG"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+				<p:outputLabel value="I.Estadual"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+			</h:panelGroup>
 			<p:inputText style="width:85%;" value="#{clienteBean.cliente.rgInsc}" />
 
 			<h:panelGroup id="labelNasc">
@@ -64,35 +70,83 @@
 			<p:calendar size="17" value="#{clienteBean.cliente.nascimento}"
 				locale="pt_BR" pattern="dd/MM/yyyy" />
 
-			<p:outputLabel value="Sexo" />
-			<p:selectOneMenu autoWidth="false" style="width:133px;"
-				value="#{clienteBean.cliente.sexo}">
-				<f:selectItems value="#{clienteBean.listaSexos}" var="sx"
-					itemLabel="#{sx.descricao}" itemValue="#{sx}" />
-			</p:selectOneMenu>
+			<h:panelGroup id="labelSexo">
+				<p:outputLabel value="Sexo"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+				<p:outputLabel value="I.Municipal"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtSexo">
+				<p:inputText style="width:85%;"
+					value="#{clienteBean.cliente.rgInsc}"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+				<p:selectOneMenu autoWidth="false" style="width:133px;"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					value="#{clienteBean.cliente.sexo}">
+					<f:selectItems value="#{clienteBean.listaSexos}" var="sx"
+						itemLabel="#{sx.descricao}" itemValue="#{sx}" />
+				</p:selectOneMenu>
+			</h:panelGroup>
 
-			<p:outputLabel value="Estado Civil" />
-			<p:selectOneMenu autoWidth="false" style="width:133px;"
-				value="#{clienteBean.cliente.estadoCivil}">
-				<f:selectItems value="#{clienteBean.listaEstadoCivis}" var="tc"
-					itemLabel="#{tc.descricao}" itemValue="#{tc}" />
-			</p:selectOneMenu>
+			<h:panelGroup id="labelCivil">
+				<p:outputLabel value="Estado Civil"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtCivil">
+				<p:selectOneMenu autoWidth="false" style="width:133px;"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					value="#{clienteBean.cliente.estadoCivil}">
+					<f:selectItems value="#{clienteBean.listaEstadoCivis}" var="tc"
+						itemLabel="#{tc.descricao}" itemValue="#{tc}" />
+				</p:selectOneMenu>
+			</h:panelGroup>
 
 		</h:panelGrid>
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
-			<p:outputLabel value="Conjuge" />
-			<p:inputText style="width:96%" maxlength="80"
-				value="#{clienteBean.cliente.conjuge}" />
+			<h:panelGroup id="labelConjuge">
+				<p:outputLabel value="Conjuge"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+				<p:outputLabel value="CNAE"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtConjuge">
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					value="#{clienteBean.cliente.conjuge}" />
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+					value="#{clienteBean.cliente.conjuge}" />
+			</h:panelGroup>
+
 		</h:panelGrid>
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
-			<p:outputLabel value="Filiação" />
-			<p:inputText style="width:96%" maxlength="80"
-				placeholder="Nome da mãe" value="#{clienteBean.cliente.mae}" />
+			<h:panelGroup id="labelFiliacao">
+				<p:outputLabel value="Filiação"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+				<p:outputLabel value="Contato"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtFiliacao">
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					placeholder="Nome da mãe" value="#{clienteBean.cliente.mae}" />
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+					placeholder="contato1" value="#{clienteBean.cliente.mae}" />
+			</h:panelGroup>
 			<p:spacer />
-			<p:inputText style="width:96%" maxlength="80"
-				placeholder="Nome da pai" value="#{clienteBean.cliente.pai}" />
+			<h:panelGroup id="txtFiliacao2">
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+					placeholder="Nome da pai" value="#{clienteBean.cliente.pai}" />
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+					placeholder="contato2" value="#{clienteBean.cliente.mae}" />
+
+			</h:panelGroup>
+
 		</h:panelGrid>
 
 		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">

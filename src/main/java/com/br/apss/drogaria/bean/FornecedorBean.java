@@ -23,25 +23,25 @@ import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
 @ViewScoped
-public class ClienteBean implements Serializable {
+public class FornecedorBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Pessoa cliente = new Pessoa();
+	private Pessoa fornecedor = new Pessoa();
 
-	private Pessoa clienteSelecionado;
+	private Pessoa fornecedorSelecionado;
 
 	private PessoaFilter filtro = new PessoaFilter();
 
-	private List<Pessoa> listaClientes = new ArrayList<Pessoa>();
+	private List<Pessoa> listaFornecedors = new ArrayList<Pessoa>();
 
 	@Inject
-	private PessoaService clienteService;
+	private PessoaService fornecedorService;
 
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
-		if (this.cliente == null) {
+		if (this.fornecedor == null) {
 			novo();
 		}
 		pesquisar();
@@ -49,24 +49,24 @@ public class ClienteBean implements Serializable {
 
 	public void salvar() {
 
-		Pessoa clienteExistente = clienteService.porCpf(cliente.getCpfCnpj());
-		if (clienteExistente != null && !clienteExistente.equals(cliente)) {
-			throw new NegocioException("Já existe um Cliente com esse cpf ou cnpj informado.");
+		Pessoa fornecedorExistente = fornecedorService.porCpf(fornecedor.getCpfCnpj());
+		if (fornecedorExistente != null && !fornecedorExistente.equals(fornecedor)) {
+			throw new NegocioException("Já existe um Fornecedor com esse cpf ou cnpj informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
-		clienteService.salvar(cliente);
+		fornecedorService.salvar(fornecedor);
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
 		pesquisar();
 	}
 
 	public void editar() {
-		this.cliente = clienteService.porId(this.clienteSelecionado.getId());
+		this.fornecedor = fornecedorService.porId(this.fornecedorSelecionado.getId());
 	}
 
 	public void novo() {
-		cliente = new Pessoa();
+		fornecedor = new Pessoa();
 	}
 
 	public void novoFiltro() {
@@ -74,15 +74,15 @@ public class ClienteBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		this.listaClientes = clienteService.filtrados(filtro);
+		this.listaFornecedors = fornecedorService.filtrados(filtro);
 	}
 
 	public void preparEdicao() {
-		this.cliente = clienteService.porId(this.clienteSelecionado.getId());
+		this.fornecedor = fornecedorService.porId(this.fornecedorSelecionado.getId());
 	}
 
 	public void excluir() {
-		clienteService.excluir(clienteSelecionado);
+		fornecedorService.excluir(fornecedorSelecionado);
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
@@ -109,32 +109,32 @@ public class ClienteBean implements Serializable {
 		return filtro;
 	}
 
-	public Pessoa getCliente() {
-		return cliente;
+	public Pessoa getFornecedor() {
+		return fornecedor;
 	}
 
-	public void setCliente(Pessoa cliente) {
-		this.cliente = cliente;
+	public void setFornecedor(Pessoa fornecedor) {
+		this.fornecedor = fornecedor;
 	}
 
 	public void setFiltro(PessoaFilter filtro) {
 		this.filtro = filtro;
 	}
 
-	public List<Pessoa> getListaClientes() {
-		return listaClientes;
+	public List<Pessoa> getListaFornecedors() {
+		return listaFornecedors;
 	}
 
-	public void setListaClientes(List<Pessoa> listaClientes) {
-		this.listaClientes = listaClientes;
+	public void setListaFornecedors(List<Pessoa> listaFornecedors) {
+		this.listaFornecedors = listaFornecedors;
 	}
 
-	public Pessoa getClienteSelecionado() {
-		return clienteSelecionado;
+	public Pessoa getFornecedorSelecionado() {
+		return fornecedorSelecionado;
 	}
 
-	public void setClienteSelecionado(Pessoa clienteSelecionado) {
-		this.clienteSelecionado = clienteSelecionado;
+	public void setFornecedorSelecionado(Pessoa fornecedorSelecionado) {
+		this.fornecedorSelecionado = fornecedorSelecionado;
 	}
 
 }

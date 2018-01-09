@@ -65,7 +65,7 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pelo campo nome do grupo"
+						title="Pesquisa pelo campo nome"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
 						value="#{clienteBean.filtro.nome}" />
 
@@ -115,8 +115,15 @@
 				</p:column>
 
 				<p:column headerText="CPF/CNPJ" sortBy="#{cliente.cpfCnpj}"
-					style="width: 130px">
+					style="width: 150px">
 					<h:outputText value="#{cliente.cpfCnpj}" />
+				</p:column>
+
+				<p:column headerText="End/Contato"
+					style="text-align: center; width:100px">
+					<p:commandLink>
+						<i class="fa  fa-search"></i>
+					</p:commandLink>
 				</p:column>
 
 
@@ -145,38 +152,45 @@
 
 
 			<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-				width="280" height="110" resizable="false" draggable="true"
+				width="321" height="154" resizable="false" draggable="true"
 				id="dgFiltro" visible="false" closeOnEscape="true"
 				appendTo="@(body)">
 
-				<p:focus for="txtFilterDescricao" />
+				<h:form>
 
-				<h:panelGrid columns="2" id="panelFiltro">
+					<p:focus for="txtFilterDescricao" />
 
-					<p:outputLabel value="Descrição" />
-					<p:inputText id="txtFilterDescricao"
-						value="#{clienteBean.filtro.nome}" style="width:98%;" />
+					<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
 
-					<p:outputLabel value="Ativo" />
-					<p:selectOneMenu autoWidth="false" style="width:88%;"
-						value="#{clienteBean.filtro.status}">
-						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-						<f:selectItem itemLabel="ATIVO" itemValue="true" />
-						<f:selectItem itemLabel="INATIVO" itemValue="false" />
-					</p:selectOneMenu>
+						<p:outputLabel value="Nome" />
+						<p:inputText id="txtFilterDescricao"
+							value="#{clienteBean.filtro.nome}" style="width:98%;" />
 
-				</h:panelGrid>
+						<p:outputLabel value="CPF/CNPJ" />
+						<p:inputText id="txtFilterCPF" value="#{clienteBean.filtro.cpf}"
+							style="width:98%;" />
 
-				<p:toolbar style="margin-top: 5px; margin-button:5px"
-					styleClass="semPreenchimento">
-					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Pesquisar" icon="fa fa-search"
-							id="btnPesquisarFiltro" process="@this panelFiltro"
-							action="#{clienteBean.pesquisar}"
-							oncomplete="PF('dialogFiltro').hide()"
-							update="tblCliente panelFiltro" />
-					</p:toolbarGroup>
-				</p:toolbar>
+						<p:outputLabel value="Ativo" />
+						<p:selectOneMenu autoWidth="false" style="width:88%;"
+							value="#{clienteBean.filtro.status}">
+							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+							<f:selectItem itemLabel="ATIVO" itemValue="true" />
+							<f:selectItem itemLabel="INATIVO" itemValue="false" />
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<p:toolbar style="margin-top: 5px; margin-button:5px"
+						styleClass="semPreenchimento">
+						<p:toolbarGroup align="right" style="margin-right: 0px;">
+							<p:commandButton value="Pesquisar" icon="fa fa-search"
+								id="btnPesquisarFiltro" process="@this panelFiltro"
+								action="#{clienteBean.pesquisar}"
+								oncomplete="PF('dialogFiltro').hide()"
+								update="tblCliente panelFiltro" />
+						</p:toolbarGroup>
+					</p:toolbar>
+				</h:form>
 			</p:dialog>
 
 		</h:form>
