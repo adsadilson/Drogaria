@@ -15,7 +15,11 @@
 }
 
 .campo {
-	width: 250px;
+	width: 435px;
+}
+
+.rotulo60 {
+	width: 85px !important;
 }
 </style>
 
@@ -45,7 +49,8 @@
 
 					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
 						ajax="false" immediate="true">
-						<p:dataExporter type="xls" target="tblUsuario" fileName="fornecedors" />
+						<p:dataExporter type="xls" target="tblFornecedor"
+							fileName="fornecedors" />
 					</p:commandButton>
 
 					<span class="ui-separator"> <span
@@ -53,12 +58,12 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pelo campo nome do grupo"
+						title="Pesquisa pelo nome do fornecedor"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
 						value="#{fornecedorBean.filtro.nome}" />
 
 					<p:commandButton icon="fa fa-search" value="Pesquisar"
-						update="tblUsuario" id="btnPesquisar"
+						update="tblFornecedor" id="btnPesquisar"
 						action="#{fornecedorBean.pesquisar()}">
 						<f:setPropertyActionListener value="principal"
 							target="#{fornecedorBean.filtro.origem}" />
@@ -72,8 +77,9 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
-			<p:dataTable id="tblUsuario" value="#{fornecedorBean.listaFornecedors}"
-				var="fornecedor" style="margin-top: 20px" lazy="true"
+			<p:dataTable id="tblFornecedor"
+				value="#{fornecedorBean.listaFornecedors}" var="fornecedor"
+				style="margin-top: 20px" lazy="true"
 				emptyMessage="Nenhum registro encontrado." rows="11"
 				paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
@@ -87,19 +93,27 @@
 						oncomplete="PF('dialogCadastro').show()" process="@this"
 						update="dgCadastro" action="#{fornecedorBean.editar}">
 						<f:setPropertyActionListener
-							target="#{fornecedorBean.fornecedorSelecionado}" value="#{fornecedor}" />
+							target="#{fornecedorBean.fornecedorSelecionado}"
+							value="#{fornecedor}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
 						<f:setPropertyActionListener
-							target="#{fornecedorBean.fornecedorSelecionado}" value="#{fornecedor}" />
+							target="#{fornecedorBean.fornecedorSelecionado}"
+							value="#{fornecedor}" />
 					</p:commandButton>
 				</p:column>
 
-				<p:column headerText="Nome do Usuario" sortBy="#{fornecedor.nome}">
+				<p:column headerText="Nome do Fornecedor"
+					sortBy="#{fornecedor.nome}" style="width: 350px">
 					<h:outputText value="#{fornecedor.nome}" />
+				</p:column>
+
+				<p:column headerText="CPF/CNPJ" sortBy="#{fornecedor.cpfCnpj}"
+					style="width: 150px">
+					<h:outputText value="#{fornecedor.cpfCnpj}" />
 				</p:column>
 
 				<p:column headerText="E-mail" sortBy="#{fornecedor.email}"
@@ -122,65 +136,213 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText value="#{fornecedorBean.fornecedorSelecionado.nome} ?" />
+					<h:outputText
+						value="#{fornecedorBean.fornecedorSelecionado.nome} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					oncomplete="PF('confirmacaoExclusao').hide();" update="tblUsuario"
-					action="#{fornecedorBean.excluir()}" process="@this" />
+					oncomplete="PF('confirmacaoExclusao').hide();"
+					update="tblFornecedor" action="#{fornecedorBean.excluir()}"
+					process="@this" />
 			</p:confirmDialog>
-
-
-			<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-				width="280" height="110" resizable="false" draggable="true"
-				id="dgFiltro" visible="false" closeOnEscape="true"
-				appendTo="@(body)">
-
-				<p:focus for="txtFilterDescricao" />
-
-				<h:panelGrid columns="2" id="panelFiltro">
-
-					<p:outputLabel value="Descrição" />
-					<p:inputText id="txtFilterDescricao"
-						value="#{fornecedorBean.filtro.nome}" style="width:98%;" />
-
-					<p:outputLabel value="Ativo" />
-					<p:selectOneMenu autoWidth="false" style="width:88%;"
-						value="#{fornecedorBean.filtro.status}">
-						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-						<f:selectItem itemLabel="ATIVO" itemValue="true" />
-						<f:selectItem itemLabel="INATIVO" itemValue="false" />
-					</p:selectOneMenu>
-
-				</h:panelGrid>
-
-				<p:toolbar style="margin-top: 5px; margin-button:5px"
-					styleClass="semPreenchimento">
-					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Pesquisar" icon="fa fa-search"
-							id="btnPesquisarFiltro" process="@this panelFiltro"
-							action="#{fornecedorBean.pesquisar}"
-							oncomplete="PF('dialogFiltro').hide()"
-							update="tblUsuario panelFiltro" />
-					</p:toolbarGroup>
-				</p:toolbar>
-			</p:dialog>
 
 		</h:form>
 
 		<p:dialog
 			header="#{fornecedorBean.fornecedor.inclusao ?'Fornecedor - Inclusão' :'Fornecedor - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="650" height="370"
+			widgetVar="dialogCadastro" modal="true" width="580" height="390"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
-			<h:form prependId="false">
+			<h:form prependId="false" id="frm-cadastro">
 
+				<h:panelGrid columns="2" columnClasses="rotulo"
+					style="margin-top:10px;">
 
+					<p:outputLabel value="Tipo" for="tp" />
+					<p:selectOneMenu autoWidth="false" style="width:133px;"
+						value="#{fornecedorBean.fornecedor.tipoPessoa}" id="tp"
+						required="true">
+						<f:selectItems value="#{fornecedorBean.listaTipoPessoas}" var="tp"
+							itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+						<p:ajax event="change" process="@this"
+							update="textTipo labelTipo labelNome txtNome" />
+					</p:selectOneMenu>
+
+					<h:panelGroup id="labelTipo">
+						<p:outputLabel value="CPF" for="textCpf"
+							rendered='#{fornecedorBean.fornecedor.tipoPessoa=="F"}' />
+						<p:outputLabel value="CNPJ" for="textCnpj"
+							rendered='#{fornecedorBean.fornecedor.tipoPessoa=="J"}' />
+					</h:panelGroup>
+
+					<h:panelGroup>
+						<h:panelGroup id="textTipo">
+							<p:inputMask id="textCpf"
+								rendered='#{fornecedorBean.fornecedor.tipoPessoa=="F"}'
+								mask="999.999.999-99"
+								value="#{fornecedorBean.fornecedor.cpfCnpj}" required="true"
+								requiredMessage="O campo 'CPF' é obrigatório."
+								style="width: 155px;" />
+							<p:inputMask id="textCnpj"
+								rendered='#{fornecedorBean.fornecedor.tipoPessoa=="J"}'
+								mask="99.999.999/9999-99"
+								value="#{fornecedorBean.fornecedor.cpfCnpj}" required="true"
+								requiredMessage="O campo 'CNPJ' é obrigatório."
+								style="width: 155px;" />
+						</h:panelGroup>
+						<p:outputLabel value="RG/IE"
+							style="margin-left:56px; margin-right:10px;" />
+						<p:inputText value="#{fornecedorBean.fornecedor.rgInsc}"
+							style="width: 155px;" />
+					</h:panelGroup>
+
+					<h:panelGroup id="labelNome">
+						<p:outputLabel value="Nome" for="nome"
+							rendered='#{fornecedorBean.fornecedor.tipoPessoa=="F"}' />
+						<p:outputLabel value="Razão Social" for="razao"
+							rendered='#{fornecedorBean.fornecedor.tipoPessoa=="J"}' />
+					</h:panelGroup>
+					<h:panelGroup id="txtNome">
+						<p:inputText id="nome" style="width:98%" maxlength="80"
+							rendered='#{fornecedorBean.fornecedor.tipoPessoa=="F"}'
+							required="true" requiredMessage="O campo 'NOME' é obrigatório."
+							value="#{fornecedorBean.fornecedor.nome}" />
+						<p:inputText id="razao" style="width:98%" maxlength="80"
+							rendered='#{fornecedorBean.fornecedor.tipoPessoa=="J"}'
+							required="true"
+							requiredMessage="O campo 'RAZÃO SOCIAL' é obrigatório."
+							value="#{fornecedorBean.fornecedor.nome}" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Cep" for="cep" />
+					<p:inputMask mask="99999-999" style="width:132px;"
+						value="#{fornecedorBean.fornecedor.cep}" id="cep" required="true"
+						requiredMessage="O campo 'CEP' é obrigatório." />
+
+					<p:outputLabel for="end" value="Endereço" />
+					<h:panelGroup>
+						<p:inputText style="width:335px;" id="end" required="true"
+							requiredMessage="O campo 'ENDEREÇO' é obrigatório."
+							value="#{fornecedorBean.fornecedor.endereco}" />
+						<p:inputText style="width:75px; margin-left:5px;"
+							value="#{fornecedorBean.fornecedor.num}" />
+					</h:panelGroup>
+
+					<p:outputLabel for="bai" value="Bairro" />
+					<h:panelGroup>
+						<p:inputText style="width:232px;" id="bai"
+							value="#{fornecedorBean.fornecedor.bairro}" required="true"
+							requiredMessage="O campo 'BAIRRO' é obrigatório." />
+						<p:outputLabel value="Comple."
+							style="margin-left:15px; margin-right:12px;" />
+						<p:inputText style="width:100px;"
+							value="#{fornecedorBean.fornecedor.complemento}" />
+					</h:panelGroup>
+
+					<p:outputLabel for="cidade" value="Cidade" />
+					<h:panelGroup>
+						<p:inputText style="width:232px;" id="cidade" required="true"
+							value="#{fornecedorBean.fornecedor.cidade}"
+							requiredMessage="O campo 'CIDADE' é obrigatório." />
+						<p:outputLabel for="est" value="Estado"
+							style="margin-left:15px; margin-right:10px;" />
+						<p:selectOneMenu autoWidth="false" style="width:80px;" id="est"
+							required="true" requiredMessage="O campo 'ESTADO' é obrigatório."
+							value="#{fornecedorBean.fornecedor.estado}">
+							<f:selectItems value="#{fornecedorBean.listaEstados}" var="uf"
+								itemLabel="#{uf.sigla}" itemValue="#{uf}" />
+						</p:selectOneMenu>
+					</h:panelGroup>
+
+					<p:outputLabel value="Telefone(s)" />
+					<h:panelGroup>
+						<p:inputText style="width:135px;"
+							value="#{fornecedorBean.fornecedor.celular}" />
+						<p:inputText
+							style="width:130px; margin-left:5px; margin-right:5px;"
+							value="#{fornecedorBean.fornecedor.telefone}" />
+						<p:inputText style="width:130px;"
+							value="#{fornecedorBean.fornecedor.telefone2}" />
+					</h:panelGroup>
+
+					<p:outputLabel value="E-mail" />
+					<p:inputText value="#{fornecedorBean.fornecedor.email}"
+						style="width:98%; text-transform: lowercase;" />
+
+					<p:outputLabel value="Site" />
+					<p:inputText value="#{fornecedorBean.fornecedor.site}"
+						style="width:98%; text-transform: lowercase;" />
+
+					<p:outputLabel value="Ativo" />
+					<h:panelGroup>
+						<p:selectBooleanCheckbox
+							value="#{fornecedorBean.fornecedor.status}" />
+						<p:selectBooleanCheckbox itemLabel="Cliente"
+							value="#{fornecedorBean.fornecedor.fornecedor}"
+							style="margin-left:25px;" />
+						<p:selectBooleanCheckbox itemLabel="Funcionário"
+							style="margin-left:25px;"
+							value="#{fornecedorBean.fornecedor.funcionario}" />
+					</h:panelGroup>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+							process="@this frm-cadastro tblFornecedor"
+							action="#{fornecedorBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
+							update="tblFornecedor growl frm-cadastro" />
+					</p:toolbarGroup>
+				</p:toolbar>
 			</h:form>
-
 		</p:dialog>
+		
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+				width="321" height="154" resizable="false" draggable="true"
+				id="dgFiltro" visible="false" closeOnEscape="true"
+				appendTo="@(body)">
+
+				<h:form>
+
+					<p:focus for="txtFilterDescricao" />
+
+					<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+
+						<p:outputLabel value="Nome" />
+						<p:inputText id="txtFilterDescricao"
+							value="#{fornecedorBean.filtro.nome}" style="width:98%;" />
+
+						<p:outputLabel value="CPF/CNPJ" />
+						<p:inputText id="txtFilterCPF" value="#{fornecedorBean.filtro.cpf}"
+							style="width:98%;" />
+
+						<p:outputLabel value="Ativo" />
+						<p:selectOneMenu autoWidth="false" style="width:88%;"
+							value="#{fornecedorBean.filtro.status}">
+							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+							<f:selectItem itemLabel="ATIVO" itemValue="true" />
+							<f:selectItem itemLabel="INATIVO" itemValue="false" />
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<p:toolbar style="margin-top: 5px; margin-button:5px"
+						styleClass="semPreenchimento">
+						<p:toolbarGroup align="right" style="margin-right: 0px;">
+							<p:commandButton value="Pesquisar" icon="fa fa-search"
+								id="btnPesquisarFiltro" process="@this panelFiltro"
+								action="#{fornecedorBean.pesquisar}"
+								oncomplete="PF('dialogFiltro').hide()"
+								update="tblFornecedor panelFiltro" />
+						</p:toolbarGroup>
+					</p:toolbar>
+				</h:form>
+			</p:dialog>
 
 	</ui:define>
 </ui:composition>

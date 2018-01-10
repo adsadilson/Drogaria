@@ -67,6 +67,7 @@ public class ClienteBean implements Serializable {
 
 	public void novo() {
 		cliente = new Pessoa();
+		cliente.setCliente(true);
 	}
 
 	public void novoFiltro() {
@@ -74,7 +75,8 @@ public class ClienteBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		this.listaClientes = clienteService.filtrados(filtro);
+		this.filtro.setCliente(true);
+		this.listaClientes = clienteService.filtrados(this.filtro);
 	}
 
 	public void preparEdicao() {

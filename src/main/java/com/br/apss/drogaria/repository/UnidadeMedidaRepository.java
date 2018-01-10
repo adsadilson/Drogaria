@@ -16,7 +16,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.model.UnidadeMedida;
 import com.br.apss.drogaria.model.filter.UnidadeMedidaFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -88,7 +87,7 @@ public class UnidadeMedidaRepository implements Serializable {
 			}
 
 			if (filtro.getStatus() != null) {
-				if (filtro.getStatus() == Status.ATIVO) {
+				if (filtro.getStatus()) {
 					criteria.add(Restrictions.eq("status", true));
 				} else {
 					criteria.add(Restrictions.eq("status", false));
@@ -114,7 +113,7 @@ public class UnidadeMedidaRepository implements Serializable {
 			}
 		}
 
-		return criteria.list();
+		return criteria.addOrder(Order.asc("nome")).list();
 	}
 
 	public int quantidadeFiltrados(UnidadeMedidaFilter filtro) {

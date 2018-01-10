@@ -2,8 +2,6 @@ package com.br.apss.drogaria.model.filter;
 
 import java.io.Serializable;
 
-import com.br.apss.drogaria.enums.Status;
-
 public class UnidadeMedidaFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -11,7 +9,7 @@ public class UnidadeMedidaFilter implements Serializable {
 	private String nome;
 	private String descricao;
 	private String origem;
-	private Status status;
+	private Boolean status;
 	private int primeiroRegistro;
 	private int quantidadeRegistros;
 	private String campoOrdenacao;
@@ -25,11 +23,11 @@ public class UnidadeMedidaFilter implements Serializable {
 		this.nome = nome;
 	}
 
-	public Status getStatus() {
+	public Boolean getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(Boolean status) {
 		this.status = status;
 	}
 

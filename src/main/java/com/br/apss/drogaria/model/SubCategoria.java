@@ -65,6 +65,10 @@ public class SubCategoria implements Serializable {
 		this.categoria = categoria;
 	}
 
+	public boolean isInclusao() {
+		return this.getId() == null;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

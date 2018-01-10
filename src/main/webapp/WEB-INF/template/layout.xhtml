@@ -52,13 +52,18 @@
 						<p:separator />
 						<p:submenu label="Produtos">
 							<p:menuitem value="Produto" />
-							<p:menuitem value="Categorias" />
-							<p:menuitem value="SubCategorias" />
-							<p:menuitem value="Unidade de Medida" />
+							<p:menuitem value="Categorias"
+								outcome="/pages/cadastro/categoria/categoria" />
+							<p:menuitem value="SubCategorias"
+								outcome="/pages/cadastro/subCategoria/subCategoria" />
+							<p:menuitem value="Unidade de Medida"
+								outcome="/pages/cadastro/unidadeMedida/unidadeMedida" />
 						</p:submenu>
 						<p:submenu label="Outros">
-							<p:menuitem value="Cidades" />
-							<p:menuitem value="Configuração E-mail" />
+							<ui:remove>
+								<p:menuitem value="Cidades" />
+								<p:menuitem value="Configuração E-mail" />
+							</ui:remove>
 							<p:menuitem value="Configuração Menu"
 								outcome="/pages/cadastro/controleMenu/controleMenu" />
 						</p:submenu>

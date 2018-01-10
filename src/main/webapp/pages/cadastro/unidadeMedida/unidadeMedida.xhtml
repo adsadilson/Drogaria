@@ -1,0 +1,233 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Unidade de Medida</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo {
+	width: 100px;
+}
+
+.campo {
+	width: 250px;
+}
+
+.rotulo60 {
+	width: 85px !important;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{unidadeMedidaBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Pesquisa Unidade de Medida</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+			<p:focus for="txtPesquisar" />
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Novo" icon="fa fa-file-o"
+						update="dgCadastro" action="#{unidadeMedidaBean.novo()}"
+						oncomplete="PF('dialogCadastro').show()">
+						<p:resetInput target="dgCadastro" />
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						update="dgFiltro" action="#{unidadeMedidaBean.novoFiltro}"
+						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblUnidadeMedida"
+							fileName="unidadeMedidas" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:inputText size="30" placeholder="digite o nome"
+						title="Pesquisa pela sigla ou descrição"
+						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
+						value="#{unidadeMedidaBean.filtro.nome}" />
+
+					<p:commandButton icon="fa fa-search" value="Pesquisar"
+						update="tblUnidadeMedida" id="btnPesquisar"
+						action="#{unidadeMedidaBean.pesquisar()}">
+						<f:setPropertyActionListener value="principal"
+							target="#{unidadeMedidaBean.filtro.origem}" />
+					</p:commandButton>
+
+					<p:defaultCommand target="btnPesquisar" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="tblUnidadeMedida"
+				value="#{unidadeMedidaBean.listaUnidadeMedidas}" var="unidade"
+				style="margin-top: 20px" lazy="true"
+				emptyMessage="Nenhum registro encontrado." rows="11"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogCadastro').show()" process="@this"
+						update="dgCadastro" action="#{unidadeMedidaBean.editar}">
+						<f:setPropertyActionListener
+							target="#{unidadeMedidaBean.unidadeMedidaSelecionado}"
+							value="#{unidade}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{unidadeMedidaBean.unidadeMedidaSelecionado}"
+							value="#{unidade}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="Código"
+					style="text-align: center; width: 70px" sortBy="#{unidade.id}">
+					<h:outputText value="#{unidade.id}" />
+				</p:column>
+
+				<p:column headerText="Sigla" style="text-align: center; width: 60px"
+					sortBy="#{unidade.nome}">
+					<h:outputText value="#{unidade.nome}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{unidade.descricao}">
+					<h:outputText value="#{unidade.descricao}" />
+				</p:column>
+
+				<p:column headerText="Status" sortBy="#{unidade.status}"
+					style="text-align: center; width: 100px">
+					<h:outputText value="#{unidade.status ? 'ATIVO' : 'INATIVO'}" />
+				</p:column>
+
+				<p:column headerText="">
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText
+						value="#{unidadeMedidaBean.unidadeMedidaSelecionado.nome} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusao').hide();"
+					update="tblUnidadeMedida" action="#{unidadeMedidaBean.excluir()}"
+					process="@this" />
+			</p:confirmDialog>
+
+		</h:form>
+
+		<p:dialog
+			header="#{unidadeMedidaBean.unidadeMedida.inclusao ?'Unidade de Medida - Inclusão' :'Unidade de Medida - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="390" height="150"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cadastro">
+
+				<h:panelGrid columns="2" columnClasses="rotulo, campo"
+					style="margin-top:10px;">
+
+					<p:outputLabel value="Sigla" for="nome" />
+					<p:inputText id="nome" style="width:30%" maxlength="5"
+						required="true" requiredMessage="O campo 'SIGLA' é obrigatório."
+						value="#{unidadeMedidaBean.unidadeMedida.nome}" />
+
+					<p:outputLabel value="Descrição" for="descricao" />
+					<p:inputText id="descricao" style="width:96%" maxlength="80"
+						required="true"
+						requiredMessage="O campo 'DESCRIÇÃO' é obrigatório."
+						value="#{unidadeMedidaBean.unidadeMedida.descricao}" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectBooleanCheckbox
+						value="#{unidadeMedidaBean.unidadeMedida.status}" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+							process="@this frm-cadastro tblUnidadeMedida"
+							action="#{unidadeMedidaBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
+							update="tblUnidadeMedida growl frm-cadastro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			width="321" height="154" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
+
+			<h:form>
+
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+
+					<p:outputLabel value="Silga" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{unidadeMedidaBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Descrição" />
+					<p:inputText value="#{unidadeMedidaBean.filtro.descricao}"
+						style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+							value="#{unidadeMedidaBean.filtro.status}">
+							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+							<f:selectItem itemLabel="ATIVO" itemValue="true" />
+							<f:selectItem itemLabel="INATIVO" itemValue="false" />
+						</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{unidadeMedidaBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblUnidadeMedida panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

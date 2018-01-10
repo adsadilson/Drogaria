@@ -64,12 +64,14 @@ public class CategoriaRepository implements Serializable {
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(Categoria.class);
 
-		if (StringUtils.isNotBlank(filtro.getNome())) {
-			criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
-		}
+		if (null != filtro) {
+			if (StringUtils.isNotBlank(filtro.getNome())) {
+				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+			}
 
-		if (filtro.getStatus() != null) {
-			criteria.add(Restrictions.eq("status", filtro.getStatus()));
+			if (filtro.getStatus() != null) {
+				criteria.add(Restrictions.eq("status", filtro.getStatus()));
+			}
 		}
 
 		return criteria;

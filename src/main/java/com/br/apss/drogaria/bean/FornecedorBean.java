@@ -67,6 +67,7 @@ public class FornecedorBean implements Serializable {
 
 	public void novo() {
 		fornecedor = new Pessoa();
+		fornecedor.setFornecedor(true);
 	}
 
 	public void novoFiltro() {
@@ -74,7 +75,8 @@ public class FornecedorBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		this.listaFornecedors = fornecedorService.filtrados(filtro);
+		this.filtro.setFonecedor(true);
+		this.listaFornecedors = fornecedorService.filtrados(this.filtro);
 	}
 
 	public void preparEdicao() {
