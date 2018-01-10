@@ -1,0 +1,344 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Produto</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotuloG1 {
+	width: 130px;
+}
+
+.campoG1 {
+	width: 435px;
+}
+
+.campoG2 {
+	width: 150px;
+}
+
+.rotuloG2 {
+	width: 80px;
+}
+
+.rotulo60 {
+	width: 85px !important;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{produtoBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Pesquisa Produto</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+			<p:focus for="txtPesquisar" />
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Novo" icon="fa fa-file-o"
+						update="dgCadastro" action="#{produtoBean.novo()}"
+						oncomplete="PF('dialogCadastro').show()">
+						<p:resetInput target="dgCadastro" />
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						update="dgFiltro" action="#{produtoBean.novoFiltro}"
+						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblProduto" fileName="produtos" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:inputText size="30" placeholder="digite o nome"
+						title="Pesquisa pela sigla ou descrição"
+						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
+						value="#{produtoBean.filtro.nome}" />
+
+					<p:commandButton icon="fa fa-search" value="Pesquisar"
+						update="tblProduto" id="btnPesquisar"
+						action="#{produtoBean.pesquisar()}">
+						<f:setPropertyActionListener value="principal"
+							target="#{produtoBean.filtro.origem}" />
+					</p:commandButton>
+
+					<p:defaultCommand target="btnPesquisar" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="tblProduto" value="#{produtoBean.listaProdutos}"
+				var="produto" style="margin-top: 20px" lazy="true"
+				emptyMessage="Nenhum registro encontrado." rows="11"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogCadastro').show()" process="@this"
+						update="dgCadastro" action="#{produtoBean.editar}">
+						<f:setPropertyActionListener
+							target="#{produtoBean.produtoSelecionado}" value="#{produto}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{produtoBean.produtoSelecionado}" value="#{produto}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="SKU" sortBy="#{produto.codigoBarra}"
+					style="text-align: center; width: 60px">
+					<h:outputText value="#{produto.sku}" />
+				</p:column>
+
+				<p:column headerText="Codigo de Barra"
+					sortBy="#{produto.codigoBarra}" style="width: 130px">
+					<h:outputText value="#{produto.codigoBarra}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{produto.nome}">
+					<h:outputText value="#{produto.nome}" />
+				</p:column>
+
+				<p:column headerText="Tipo" style="text-align: center; width: 90px"
+					sortBy="#{produto.tipoProduto.descricao}">
+					<h:outputText value="#{produto.tipoProduto.descricao}" />
+				</p:column>
+
+				<p:column headerText="Unidade"
+					style="text-align: center; width: 80px"
+					sortBy="#{produto.unidade.nome}">
+					<h:outputText value="#{produto.unidade.nome}" />
+				</p:column>
+
+				<p:column headerText="Estoque" style="width: 80px;text-align:right;"
+					sortBy="#{produto.quantidade}">
+					<h:outputText value="#{produto.quantidade}">
+						<f:convertNumber type="currency" currencySymbol="" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Preço Venda"
+					style="width: 110px; text-align:right;">
+					<h:outputText value="#{produto.vlrVenda}">
+						<f:convertNumber type="currency" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Status" sortBy="#{produto.status}"
+					style="text-align: center; width: 100px">
+					<h:outputText value="#{produto.status ? 'ATIVO' : 'INATIVO'}" />
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText value="#{produtoBean.produtoSelecionado.nome} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusao').hide();" update="tblProduto"
+					action="#{produtoBean.excluir()}" process="@this" />
+			</p:confirmDialog>
+
+		</h:form>
+
+		<p:dialog
+			header="#{produtoBean.produto.inclusao ?'Produto - Inclusão' :'Produto - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="550" height="340"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cadastro">
+
+				<h:panelGrid columns="2" columnClasses="rotuloG1, campoG1"
+					style="margin-top:10px;">
+
+					<p:outputLabel value="Sku" for="sku" />
+					<p:inputText id="sku" style="width:35%" maxlength="5"
+						required="true" requiredMessage="O campo 'SKU' é obrigatório."
+						value="#{produtoBean.produto.sku}" />
+
+					<p:outputLabel value="Código de Barra" />
+					<p:inputText style="width:35%" maxlength="13"
+						value="#{produtoBean.produto.codigoBarra}" />
+
+					<p:outputLabel value="Descrição" for="nome" />
+					<p:inputText id="nome" style="width:50%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{produtoBean.produto.nome}" />
+
+					<p:outputLabel value="Categoria" for="categoria" />
+					<p:selectOneMenu id="categoria" required="true"
+						converter="omnifaces.SelectItemsConverter" autoWidth="true"
+						style="width:250px;" filter="true" filterMatchMode="contains"
+						requiredMessage="O campo 'CATEGORIA' é obrigatório."
+						value="#{produtoBean.produto.categoria}">
+						<f:selectItem itemLabel="Selecione..." value="#{null}" />
+						<f:selectItems value="#{produtoBean.listaCategorias}"
+							var="categoria" itemValue="#{categoria}"
+							itemLabel="#{categoria.nome}" />
+						<p:ajax listener="#{produtoBean.listarSubCategoriasFiltrada()}"
+							update="subcategoria" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="SubCategoria" for="subcategoria" />
+					<p:selectOneMenu id="subcategoria" required="true" autoWidth="true"
+						style="width:250px;" converter="omnifaces.SelectItemsConverter"
+						filter="true" filterMatchMode="contains"
+						requiredMessage="O campo 'SUBCATEGORIA' é obrigatório."
+						value="#{produtoBean.produto.subCategoria}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{produtoBean.listaSubCategorias}"
+							var="subcategoria" itemValue="#{subcategoria}"
+							itemLabel="#{subcategoria.nome}" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="4"
+					columnClasses="rotuloG1, campoG2, rotuloG2, campoG2">
+
+					<p:outputLabel value="Unidade" for="unidade" />
+					<p:selectOneMenu id="unidade" required="true" autoWidth="true"
+						style="width:10px;" converter="omnifaces.SelectItemsConverter"
+						filter="true" filterMatchMode="contains"
+						requiredMessage="O campo 'UNIDADE DE MEDIDA' é obrigatório."
+						value="#{produtoBean.produto.unidade}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{produtoBean.listaUnidadeMedidas}"
+							var="unidade" itemValue="#{unidade}"
+							itemLabel="#{unidade.nome} - #{unidade.descricao}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Tipo" for="tipo" />
+					<p:selectOneMenu id="tipo" required="true" autoWidth="true"
+						style="width:30px;" converter="omnifaces.SelectItemsConverter"
+						filter="true" filterMatchMode="contains"
+						requiredMessage="O campo 'TIPO' é obrigatório."
+						value="#{produtoBean.produto.tipoProduto}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{produtoBean.tipos}" var="tipo"
+							itemValue="#{tipo}" itemLabel="#{tipo.descricao}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Valor Custo" for="txtCusto" />
+					<p:inputNumber size="10" id="txtCusto" required="true"
+						emptyValue="empty" value="#{produtoBean.produto.vlrCusto}"
+						symbol="R$ " decimalSeparator="," thousandSeparator=".">
+						<p:ajax process="@this" update="txtMarLucro txtCusto txtLucro"
+							listener="#{produtoBean.calcVenda}" />
+					</p:inputNumber>
+
+					<p:outputLabel value="Estoque" for="estoque" />
+					<p:inputText id="estoque" size="10" maxlength="5"
+						value="#{produtoBean.produto.quantidade}" />
+
+					<p:outputLabel value="Valor Venda" for="txtVenda" />
+					<p:inputNumber size="10" id="txtVenda" required="true"
+						emptyValue="empty" value="#{produtoBean.produto.vlrVenda}"
+						symbol="R$ " decimalSeparator="," thousandSeparator=".">
+						<p:ajax process="@this" update="txtMarLucro txtLucro"
+							listener="#{produtoBean.calcVenda}" />
+					</p:inputNumber>
+
+					<p:outputLabel for="txtLucro" value="Lucro" />
+					<p:inputNumber size="10" id="txtLucro" readonly="true"
+						value="#{produtoBean.produto.lucro}" symbol="R$ "
+						decimalSeparator="," thousandSeparator="." />
+
+					<p:outputLabel value="Mar. Lucro (%)" for="txtMarLucro" />
+					<p:inputNumber id="txtMarLucro" size="10" required="true"
+						emptyValue="empty" value="#{produtoBean.produto.margLucro}"
+						symbol="%" symbolPosition="s">
+						<p:ajax process="@this" update="txtVenda txtLucro"
+							listener="#{produtoBean.calcMargem}" />
+					</p:inputNumber>
+
+
+					<p:outputLabel value="Ativo" />
+					<p:selectBooleanCheckbox value="#{produtoBean.produto.status}" />
+
+				</h:panelGrid>
+
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+							process="@this frm-cadastro tblProduto"
+							action="#{produtoBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
+							update="tblProduto growl frm-cadastro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			width="321" height="135" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
+
+			<h:form>
+
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{produtoBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{produtoBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{produtoBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblProduto panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

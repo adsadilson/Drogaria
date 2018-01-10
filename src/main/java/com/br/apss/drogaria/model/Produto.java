@@ -233,6 +233,10 @@ public class Produto implements Serializable {
 		this.dtUltimaVenda = dtUltimaVenda;
 	}
 
+	public boolean isInclusao() {
+		return this.getId() == null;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -270,7 +274,7 @@ public class Produto implements Serializable {
 			throw new NegocioException("N�o h� disponibilidade no estoque de " + quantidade + " itens do produto "
 					+ this.getNome() + ".");
 		}
-		
+
 		this.setDtUltimaVenda(new Date());
 		this.setQuantidade(novaQuantidade);
 
