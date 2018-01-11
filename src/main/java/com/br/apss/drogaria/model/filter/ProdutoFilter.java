@@ -2,6 +2,9 @@ package com.br.apss.drogaria.model.filter;
 
 import java.io.Serializable;
 
+import com.br.apss.drogaria.enums.TipoProduto;
+import com.br.apss.drogaria.model.Categoria;
+
 public class ProdutoFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -15,6 +18,9 @@ public class ProdutoFilter implements Serializable {
 	private boolean ascendente;
 	private Boolean status;
 	private String origem;
+
+	private TipoProduto tipoProduto;
+	private Categoria categoria;
 
 	public String getSku() {
 		return sku;
@@ -79,7 +85,7 @@ public class ProdutoFilter implements Serializable {
 	public void setCodigoBarra(String codigoBarra) {
 		this.codigoBarra = codigoBarra;
 	}
-	
+
 	public void setOrigem(String origem) {
 		if (origem.equals("principal")) {
 			this.status = null;
@@ -89,6 +95,22 @@ public class ProdutoFilter implements Serializable {
 
 	public String getOrigem() {
 		return origem;
+	}
+
+	public TipoProduto getTipoProduto() {
+		return tipoProduto;
+	}
+
+	public void setTipoProduto(TipoProduto tipoProduto) {
+		this.tipoProduto = tipoProduto;
+	}
+
+	public Categoria getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(Categoria categoria) {
+		this.categoria = categoria;
 	}
 
 }

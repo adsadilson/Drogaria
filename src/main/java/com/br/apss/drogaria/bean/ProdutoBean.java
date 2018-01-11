@@ -83,10 +83,15 @@ public class ProdutoBean implements Serializable {
 
 	public void editar() {
 		this.produto = produtoService.porId(this.produtoSelecionado.getId());
+		carregarListaCategorias();
+		carregarListaUnidadeMedidas();
+		listarSubCategoriasFiltrada();
 	}
 
 	public void novo() {
 		produto = new Produto();
+		carregarListaCategorias();
+		carregarListaUnidadeMedidas();
 	}
 
 	public void novoFiltro() {

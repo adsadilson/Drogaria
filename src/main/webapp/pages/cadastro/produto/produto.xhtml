@@ -15,15 +15,19 @@
 }
 
 .campoG1 {
-	width: 435px;
+	width: 322px;
 }
 
 .campoG2 {
-	width: 150px;
+	width: 135px;
+}
+
+.campoG3 {
+	width: 120px;
 }
 
 .rotuloG2 {
-	width: 80px;
+	width: 75px;
 }
 
 .rotulo60 {
@@ -173,63 +177,78 @@
 
 		<p:dialog
 			header="#{produtoBean.produto.inclusao ?'Produto - Inclusão' :'Produto - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="550" height="340"
-			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			widgetVar="dialogCadastro" modal="true" width="515" height="340"
+			resizable="false" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false" id="frm-cadastro">
 
 				<h:panelGrid columns="2" columnClasses="rotuloG1, campoG1"
-					style="margin-top:10px;">
+					style="margin-top:10px; margin-left:0px;">
 
 					<p:outputLabel value="Sku" for="sku" />
-					<p:inputText id="sku" style="width:35%" maxlength="5"
+					<p:inputText id="sku" style="width:40%" maxlength="5"
 						required="true" requiredMessage="O campo 'SKU' é obrigatório."
 						value="#{produtoBean.produto.sku}" />
 
 					<p:outputLabel value="Código de Barra" />
-					<p:inputText style="width:35%" maxlength="13"
+					<p:inputText style="width:40%" maxlength="13"
 						value="#{produtoBean.produto.codigoBarra}" />
 
 					<p:outputLabel value="Descrição" for="nome" />
-					<p:inputText id="nome" style="width:50%" maxlength="80"
+					<p:inputText id="nome" style="width:96%" maxlength="80"
 						required="true" requiredMessage="O campo 'NOME' é obrigatório."
 						value="#{produtoBean.produto.nome}" />
 
 					<p:outputLabel value="Categoria" for="categoria" />
-					<p:selectOneMenu id="categoria" required="true"
-						converter="omnifaces.SelectItemsConverter" autoWidth="true"
-						style="width:250px;" filter="true" filterMatchMode="contains"
-						requiredMessage="O campo 'CATEGORIA' é obrigatório."
-						value="#{produtoBean.produto.categoria}">
-						<f:selectItem itemLabel="Selecione..." value="#{null}" />
-						<f:selectItems value="#{produtoBean.listaCategorias}"
-							var="categoria" itemValue="#{categoria}"
-							itemLabel="#{categoria.nome}" />
-						<p:ajax listener="#{produtoBean.listarSubCategoriasFiltrada()}"
-							update="subcategoria" />
-					</p:selectOneMenu>
+					<h:panelGroup>
+						<p:selectOneMenu id="categoria" required="true"
+							converter="omnifaces.SelectItemsConverter" autoWidth="true"
+							style="width:255px;" filter="true" filterMatchMode="contains"
+							requiredMessage="O campo 'CATEGORIA' é obrigatório."
+							value="#{produtoBean.produto.categoria}">
+							<f:selectItem itemLabel="Selecione..." value="#{null}" />
+							<f:selectItems value="#{produtoBean.listaCategorias}"
+								var="categoria" itemValue="#{categoria}"
+								itemLabel="#{categoria.nome}" />
+							<p:ajax listener="#{produtoBean.listarSubCategoriasFiltrada()}"
+								update="subcategoria" />
+						</p:selectOneMenu>
+						<p:commandButton title="Nova Categoria" icon="fa fa-plus"
+							id="addCat" style="margin-left: 5px;" process="@this"
+							action="#{categoriaBean.novo()}"
+							oncomplete="PF('dialogCadastroCat').show()"
+							update="frm-cadastroCat" />
+					</h:panelGroup>
 
 					<p:outputLabel value="SubCategoria" for="subcategoria" />
-					<p:selectOneMenu id="subcategoria" required="true" autoWidth="true"
-						style="width:250px;" converter="omnifaces.SelectItemsConverter"
-						filter="true" filterMatchMode="contains"
-						requiredMessage="O campo 'SUBCATEGORIA' é obrigatório."
-						value="#{produtoBean.produto.subCategoria}">
-						<f:selectItem itemLabel="Selecione..." />
-						<f:selectItems value="#{produtoBean.listaSubCategorias}"
-							var="subcategoria" itemValue="#{subcategoria}"
-							itemLabel="#{subcategoria.nome}" />
-					</p:selectOneMenu>
+					<h:panelGroup>
+						<p:selectOneMenu id="subcategoria" required="true"
+							autoWidth="true" style="width:255px;"
+							converter="omnifaces.SelectItemsConverter" filter="true"
+							filterMatchMode="contains"
+							requiredMessage="O campo 'SUBCATEGORIA' é obrigatório."
+							value="#{produtoBean.produto.subCategoria}">
+							<f:selectItem itemLabel="Selecione..." />
+							<f:selectItems value="#{produtoBean.listaSubCategorias}"
+								var="subcategoria" itemValue="#{subcategoria}"
+								itemLabel="#{subcategoria.nome}" />
+						</p:selectOneMenu>
+						<p:commandButton title="Nova SubCategoria" icon="fa fa-plus"
+							id="addSubCat" style="margin-left: 5px;" process="@this"
+							action="#{subCategoriaBean.novo()}"
+							oncomplete="PF('dialogCadastroSubCat').show()"
+							update="frm-cadastroSubCat" />
+					</h:panelGroup>
 
 				</h:panelGrid>
 
 				<h:panelGrid columns="4"
-					columnClasses="rotuloG1, campoG2, rotuloG2, campoG2">
+					columnClasses="rotuloG1, campoG2, rotuloG2, campoG3">
 
 					<p:outputLabel value="Unidade" for="unidade" />
-					<p:selectOneMenu id="unidade" required="true" autoWidth="true"
-						style="width:10px;" converter="omnifaces.SelectItemsConverter"
+					<p:selectOneMenu id="unidade" required="true" autoWidth="false"
+						style="width:80px;" converter="omnifaces.SelectItemsConverter"
 						filter="true" filterMatchMode="contains"
 						requiredMessage="O campo 'UNIDADE DE MEDIDA' é obrigatório."
 						value="#{produtoBean.produto.unidade}">
@@ -240,8 +259,8 @@
 					</p:selectOneMenu>
 
 					<p:outputLabel value="Tipo" for="tipo" />
-					<p:selectOneMenu id="tipo" required="true" autoWidth="true"
-						style="width:30px;" converter="omnifaces.SelectItemsConverter"
+					<p:selectOneMenu id="tipo" required="true" autoWidth="false"
+						style="width:80px;" converter="omnifaces.SelectItemsConverter"
 						filter="true" filterMatchMode="contains"
 						requiredMessage="O campo 'TIPO' é obrigatório."
 						value="#{produtoBean.produto.tipoProduto}">
@@ -292,7 +311,7 @@
 
 				<p:toolbar style="margin-top: 10px; margin-button:5px"
 					styleClass="semPreenchimento">
-					<p:toolbarGroup align="right" style="margin-right: 0px;">
+					<p:toolbarGroup align="right" style="margin-right: 15px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
 							process="@this frm-cadastro tblProduto"
 							action="#{produtoBean.salvar()}"
@@ -317,6 +336,22 @@
 					<p:inputText id="txtFilterDescricao"
 						value="#{produtoBean.filtro.nome}" style="width:98%;" />
 
+					<p:outputLabel value="Tipo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{produtoBean.filtro.tipoProduto}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{produtoBean.tipos}" var="tp"
+							itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Categoria" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{produtoBean.filtro.categoria}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{produtoBean.listaCategorias}" var="cat"
+							itemLabel="#{cat.nome}" itemValue="#{cat}" />
+					</p:selectOneMenu>
+
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
 						value="#{produtoBean.filtro.status}">
@@ -335,6 +370,87 @@
 							action="#{produtoBean.pesquisar}"
 							oncomplete="PF('dialogFiltro').hide()"
 							update="tblProduto panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Categoria de Produto" widgetVar="dialogCadastroCat"
+			modal="true" width="390" height="130" resizable="true"
+			draggable="true" id="dgCadastroCat" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cadastroCat">
+
+				<h:panelGrid columns="2" columnClasses="rotulo, campo"
+					style="margin-top:10px;">
+
+					<p:outputLabel value="Nome" for="descricaoCat" />
+					<p:inputText id="descricaoCat" style="width:96%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{categoriaBean.categoria.nome}" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectBooleanCheckbox value="#{categoriaBean.categoria.status}"
+						disabled="true" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							id="btnSalvarCat" process="@this frm-cadastroCat"
+							action="#{produtoBean.carregarListaCategorias()}"
+							actionListener="#{categoriaBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastroCat').hide()"
+							update="categoria growl frm-cadastroCat" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="SubCategoria de Produto - Inclusão"
+			widgetVar="dialogCadastroSubCat" modal="true" width="390"
+			height="150" resizable="true" draggable="true" id="dgCadastroSubCat"
+			visible="false" closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cadastroSubCat">
+
+				<h:panelGrid columns="2" columnClasses="rotulo, campo"
+					style="margin-top:10px;">
+
+					<p:outputLabel value="Nome" for="descricaoSubCat" />
+					<p:inputText id="descricaoSubCat" style="width:96%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{subCategoriaBean.subCategoria.nome}" />
+
+					<p:outputLabel value="Categoria" for="categoriaSubCat" />
+					<p:selectOneMenu autoWidth="true" style="width:88%;"
+						id="categoriaSubCat" filter="true" filterMatchMode="contains"
+						required="true"
+						requiredMessage="O campo 'CATEGORIA' é obrigatório."
+						value="#{subCategoriaBean.subCategoria.categoria}"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{subCategoriaBean.categorias}" var="cat"
+							itemLabel="#{cat.nome}" itemValue="#{cat}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ativo" />
+					<p:selectBooleanCheckbox disabled="true"
+						value="#{subCategoriaBean.subCategoria.status}" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							id="btnSalvarSubCat" process="@this frm-cadastroSubCat"
+							action="#{subCategoriaBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastroSubCat').hide()"
+							update="growl frm-cadastroSubCat" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>

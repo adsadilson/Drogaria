@@ -97,6 +97,14 @@ public class ProdutoRepository implements Serializable {
 				criteria.add(Restrictions.ilike("codigoBarra", filtro.getCodigoBarra(), MatchMode.ANYWHERE));
 			}
 
+			if (filtro.getTipoProduto() != null) {
+				criteria.add(Restrictions.eq("tipoProduto", filtro.getTipoProduto()));
+			}
+			if (filtro.getCategoria() != null) {
+				criteria.add(
+						Restrictions.ilike("categoria.nome", filtro.getCategoria().getNome(), MatchMode.ANYWHERE));
+			}
+
 			if (filtro.getStatus() != null) {
 				if (filtro.getStatus()) {
 					criteria.add(Restrictions.eq("status", true));

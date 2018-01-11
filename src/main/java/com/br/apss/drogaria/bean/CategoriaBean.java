@@ -48,7 +48,7 @@ public class CategoriaBean implements Serializable {
 
 		Categoria categoriaExistente = categoriaService.porNome(categoria.getNome());
 		if (categoriaExistente != null && !categoriaExistente.equals(categoria)) {
-			throw new NegocioException("JÃ¡ existe um registro com essa nome informado.");
+			throw new NegocioException("Já existe um registro com essa nome informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();

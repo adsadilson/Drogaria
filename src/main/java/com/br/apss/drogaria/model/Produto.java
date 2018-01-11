@@ -48,7 +48,7 @@ public class Produto implements Serializable {
 	private TipoProduto tipoProduto;
 
 	@Column(name = "quantidade", precision = 12, scale = 2)
-	@DecimalMin(value = "0.01", message = "O campo 'ESTOQUE' tem quer ser maior que 0")
+	//@DecimalMin(value = "0.01", message = "O campo 'ESTOQUE' tem quer ser maior que 0")
 	private BigDecimal quantidade = BigDecimal.ZERO;
 
 	@Column(name = "qtd_minima", precision = 12, scale = 2)
