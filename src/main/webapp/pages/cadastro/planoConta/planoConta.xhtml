@@ -5,7 +5,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
-	<ui:define name="titulo">Pesquisa Unidade de Medida</ui:define>
+	<ui:define name="titulo">Pesquisa Plano de Conta</ui:define>
 
 	<ui:define name="corpo">
 
@@ -24,12 +24,12 @@
 </style>
 
 		<f:metadata>
-			<o:viewAction action="#{unidadeMedidaBean.inicializar}" />
+			<o:viewAction action="#{planoContaBean.inicializar}" />
 		</f:metadata>
 
 		<h:form prependId="false">
 
-			<h1>Pesquisa Unidade de Medida</h1>
+			<h1>Pesquisa Plano de Conta</h1>
 
 			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
 
@@ -38,19 +38,19 @@
 			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 					<p:commandButton value="Novo" icon="fa fa-file-o"
-						update="dgCadastro" action="#{unidadeMedidaBean.novo()}"
+						update="dgCadastro" action="#{planoContaBean.novo()}"
 						oncomplete="PF('dialogCadastro').show()">
 						<p:resetInput target="dgCadastro" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
-						update="dgFiltro" action="#{unidadeMedidaBean.novoFiltro}"
+						update="dgFiltro" action="#{planoContaBean.novoFiltro}"
 						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
 
 					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
 						ajax="false" immediate="true">
-						<p:dataExporter type="xls" target="tblUnidadeMedida"
-							fileName="unidadeMedidas" />
+						<p:dataExporter type="xls" target="tblPlanoConta"
+							fileName="planoContas" />
 					</p:commandButton>
 
 					<span class="ui-separator"> <span
@@ -58,15 +58,15 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pela sigla ou descrição"
+						title="Pesquisa pelo plano de conta"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
-						value="#{unidadeMedidaBean.filtro.nome}" />
+						value="#{planoContaBean.filtro.nome}" />
 
 					<p:commandButton icon="fa fa-search" value="Pesquisar"
-						update="tblUnidadeMedida" id="btnPesquisar"
-						action="#{unidadeMedidaBean.pesquisar()}">
+						update="tblPlanoConta" id="btnPesquisar"
+						action="#{planoContaBean.pesquisar()}">
 						<f:setPropertyActionListener value="principal"
-							target="#{unidadeMedidaBean.filtro.origem}" />
+							target="#{planoContaBean.filtro.origem}" />
 					</p:commandButton>
 
 					<p:defaultCommand target="btnPesquisar" />
@@ -77,8 +77,8 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
-			<p:dataTable id="tblUnidadeMedida"
-				value="#{unidadeMedidaBean.listaUnidadeMedidas}" var="unidade"
+			<p:dataTable id="tblPlanoConta"
+				value="#{planoContaBean.listaPlanoContas}" var="planoConta"
 				style="margin-top: 20px" lazy="false"
 				emptyMessage="Nenhum registro encontrado." rows="11"
 				paginator="true" paginatorAlwaysVisible="false"
@@ -91,38 +91,45 @@
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
 						styleClass="semPreenchimento"
 						oncomplete="PF('dialogCadastro').show()" process="@this"
-						update="dgCadastro" action="#{unidadeMedidaBean.editar}">
+						update="dgCadastro" action="#{planoContaBean.editar}">
 						<f:setPropertyActionListener
-							target="#{unidadeMedidaBean.unidadeMedidaSelecionado}"
-							value="#{unidade}" />
+							target="#{planoContaBean.planoContaSelecionado}"
+							value="#{planoConta}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
 						<f:setPropertyActionListener
-							target="#{unidadeMedidaBean.unidadeMedidaSelecionado}"
-							value="#{unidade}" />
+							target="#{planoContaBean.planoContaSelecionado}"
+							value="#{planoConta}" />
 					</p:commandButton>
 				</p:column>
 
-				<p:column headerText="Código"
-					style="text-align: center; width: 70px" sortBy="#{unidade.id}">
-					<h:outputText value="#{unidade.id}" />
+				<p:column headerText="Código" style="width:70px; text-align:center;"
+					sortBy="#{planoConta.id}">
+					<h:outputText value="#{planoConta.id}" />
 				</p:column>
 
-				<p:column headerText="Sigla" style="text-align: center; width: 60px"
-					sortBy="#{unidade.nome}">
-					<h:outputText value="#{unidade.nome}" />
+				<p:column headerText="Nome do Plano de Conta"
+					sortBy="#{planoConta.nome}">
+					<h:outputText value="#{planoConta.nome}" />
 				</p:column>
 
-				<p:column headerText="Descrição" sortBy="#{unidade.descricao}">
-					<h:outputText value="#{unidade.descricao}" />
+				<p:column headerText="Tipo" sortBy="#{planoConta.tipo}"
+					style="width: 120px">
+					<h:outputText value="#{planoConta.tipo.descricao}" />
 				</p:column>
 
-				<p:column headerText="Status" sortBy="#{unidade.status}"
+
+				<p:column headerText="Sigla" sortBy="#{planoConta.tipo}"
+					style="text-align:center; width: 60px">
+					<h:outputText value="#{planoConta.tipo.sigla}" />
+				</p:column>
+
+				<p:column headerText="Status" sortBy="#{planoConta.status}"
 					style="text-align: center; width: 100px">
-					<h:outputText value="#{unidade.status ? 'ATIVO' : 'INATIVO'}" />
+					<h:outputText value="#{planoConta.status ? 'ATIVO' : 'INATIVO'}" />
 				</p:column>
 
 				<p:column headerText="">
@@ -135,20 +142,20 @@
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
 					<h:outputText
-						value="#{unidadeMedidaBean.unidadeMedidaSelecionado.nome} ?" />
+						value="#{planoContaBean.planoContaSelecionado.nome} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					oncomplete="PF('confirmacaoExclusao').hide();"
-					update="tblUnidadeMedida" action="#{unidadeMedidaBean.excluir()}"
+					update="tblPlanoConta" action="#{planoContaBean.excluir()}"
 					process="@this" />
 			</p:confirmDialog>
 
 		</h:form>
 
 		<p:dialog
-			header="#{unidadeMedidaBean.unidadeMedida.inclusao ?'Unidade de Medida - Inclusão' :'Unidade de Medida - Edição'}"
+			header="#{planoContaBean.planoConta.inclusao ?'Plano de Conta - Inclusão' :'Plano de Conta - Edição'}"
 			widgetVar="dialogCadastro" modal="true" width="390" height="150"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
@@ -158,20 +165,24 @@
 				<h:panelGrid columns="2" columnClasses="rotulo, campo"
 					style="margin-top:10px;">
 
-					<p:outputLabel value="Sigla" for="nome" />
-					<p:inputText id="nome" style="width:30%" maxlength="5"
-						required="true" requiredMessage="O campo 'SIGLA' é obrigatório."
-						value="#{unidadeMedidaBean.unidadeMedida.nome}" />
+					<p:outputLabel value="Tipo" for="tp" />
+					<p:selectOneMenu id="tp" required="true" style="width:100px;"
+						requiredMessage="O campo 'TIPO' é obrigatório."
+						value="#{planoContaBean.planoConta.tipo}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{planoContaBean.tipoContas}" var="tp"
+							itemLabel="#{tp.sigla} - #{tp.descricao} " itemValue="#{tp}" />
+					</p:selectOneMenu>
 
-					<p:outputLabel value="Descrição" for="descricao" />
-					<p:inputText id="descricao" style="width:96%" maxlength="80"
-						required="true"
-						requiredMessage="O campo 'DESCRIÇÃO' é obrigatório."
-						value="#{unidadeMedidaBean.unidadeMedida.descricao}" />
+
+					<p:outputLabel value="Nome" for="nome" />
+					<p:inputText id="nome" style="width:98%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{planoContaBean.planoConta.nome}" />
 
 					<p:outputLabel value="Ativo" />
 					<p:selectBooleanCheckbox
-						value="#{unidadeMedidaBean.unidadeMedida.status}" />
+						value="#{planoContaBean.planoConta.status}" />
 
 				</h:panelGrid>
 
@@ -179,17 +190,17 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
-							process="@this frm-cadastro tblUnidadeMedida"
-							action="#{unidadeMedidaBean.salvar()}"
+							process="@this frm-cadastro tblPlanoConta"
+							action="#{planoContaBean.salvar()}"
 							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
-							update="tblUnidadeMedida growl frm-cadastro" />
+							update="tblPlanoConta growl frm-cadastro" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>
 		</p:dialog>
 
 		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-			width="321" height="154" resizable="false" draggable="true"
+			width="321" height="135" resizable="false" draggable="true"
 			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
 
 			<h:form>
@@ -198,21 +209,25 @@
 
 				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
 
-					<p:outputLabel value="Silga" />
+					<p:outputLabel value="Nome" />
 					<p:inputText id="txtFilterDescricao"
-						value="#{unidadeMedidaBean.filtro.nome}" style="width:98%;" />
+						value="#{planoContaBean.filtro.nome}" style="width:98%;" />
 
-					<p:outputLabel value="Descrição" />
-					<p:inputText value="#{unidadeMedidaBean.filtro.descricao}"
-						style="width:98%;" />
+					<p:outputLabel value="Tipo" for="filtroTipo" />
+					<p:selectOneMenu id="filtroTipo" style="width:88%;"
+						value="#{planoContaBean.filtro.tipo}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{planoContaBean.tipoContas}" var="tp"
+							itemLabel="#{tp.sigla} - #{tp.descricao} " itemValue="#{tp}" />
+					</p:selectOneMenu>
 
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
-							value="#{unidadeMedidaBean.filtro.status}">
-							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-							<f:selectItem itemLabel="ATIVO" itemValue="true" />
-							<f:selectItem itemLabel="INATIVO" itemValue="false" />
-						</p:selectOneMenu>
+						value="#{planoContaBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
 
 				</h:panelGrid>
 
@@ -221,9 +236,9 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Pesquisar" icon="fa fa-search"
 							id="btnPesquisarFiltro" process="@this panelFiltro"
-							action="#{unidadeMedidaBean.pesquisar}"
+							action="#{planoContaBean.pesquisar}"
 							oncomplete="PF('dialogFiltro').hide()"
-							update="tblUnidadeMedida panelFiltro" />
+							update="tblPlanoConta panelFiltro" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>

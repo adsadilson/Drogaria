@@ -6,6 +6,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -13,6 +14,8 @@ import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.TipoProduto;
 import com.br.apss.drogaria.model.Categoria;
@@ -38,7 +41,7 @@ public class ProdutoBean implements Serializable {
 
 	private ProdutoFilter filtro = new ProdutoFilter();
 
-	private List<Produto> listaProdutos = new ArrayList<Produto>();
+	private LazyDataModel<Produto> listaProdutos;
 
 	private List<SubCategoria> listaSubCategorias = new ArrayList<SubCategoria>();
 
@@ -71,7 +74,7 @@ public class ProdutoBean implements Serializable {
 
 		Produto produtoExistente = produtoService.porNome(produto.getNome());
 		if (produtoExistente != null && !produtoExistente.equals(produto)) {
-			throw new NegocioException("Já existe um registro com essa codigo de barra informado.");
+			throw new NegocioException("Jï¿½ existe um registro com essa codigo de barra informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
@@ -96,10 +99,39 @@ public class ProdutoBean implements Serializable {
 
 	public void novoFiltro() {
 		this.filtro = new ProdutoFilter();
+		carregarListaCategorias();
 	}
 
 	public void pesquisar() {
-		this.listaProdutos = produtoService.filtrados(this.filtro);
+		listaProdutos = new LazyDataModel<Produto>() {
+
+			private static final long serialVersionUID = 1L;
+
+			public List<Produto> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setCampoOrdenacao(sortField);
+
+				setRowCount(produtoService.quantidadeFiltrados(filtro));
+
+				return produtoService.filtrados(filtro);
+			}
+
+			@Override
+			public Produto getRowData(String rowKey) {
+				Produto objeto = (Produto) produtoService.porId(Long.parseLong(rowKey));
+				return objeto;
+			}
+
+			@Override
+			public String getRowKey(Produto objeto) {
+				return objeto.getId().toString();
+			}
+
+		};
 	}
 
 	public void preparEdicao() {
@@ -188,11 +220,11 @@ public class ProdutoBean implements Serializable {
 		this.filtro = filtro;
 	}
 
-	public List<Produto> getListaProdutos() {
+	public LazyDataModel<Produto> getListaProdutos() {
 		return listaProdutos;
 	}
 
-	public void setListaProdutos(List<Produto> listaProdutos) {
+	public void setListaProdutos(LazyDataModel<Produto> listaProdutos) {
 		this.listaProdutos = listaProdutos;
 	}
 

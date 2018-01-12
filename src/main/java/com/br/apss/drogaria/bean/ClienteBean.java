@@ -1,9 +1,9 @@
 package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -11,6 +11,8 @@ import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.Estado;
 import com.br.apss.drogaria.enums.EstadoCivil;
@@ -33,7 +35,7 @@ public class ClienteBean implements Serializable {
 
 	private PessoaFilter filtro = new PessoaFilter();
 
-	private List<Pessoa> listaClientes = new ArrayList<Pessoa>();
+	private LazyDataModel<Pessoa> listaClientes;
 
 	@Inject
 	private PessoaService clienteService;
@@ -75,8 +77,37 @@ public class ClienteBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		this.filtro.setCliente(true);
-		this.listaClientes = clienteService.filtrados(this.filtro);
+
+		listaClientes = new LazyDataModel<Pessoa>() {
+
+			private static final long serialVersionUID = 1L;
+
+			public List<Pessoa> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setCampoOrdenacao(sortField);
+				filtro.setCliente(true);
+
+				setRowCount(clienteService.quantidadeFiltrados(filtro));
+
+				return clienteService.filtrados(filtro);
+			}
+
+			@Override
+			public Pessoa getRowData(String rowKey) {
+				Pessoa objeto = (Pessoa) clienteService.porId(Long.parseLong(rowKey));
+				return objeto;
+			}
+
+			@Override
+			public String getRowKey(Pessoa objeto) {
+				return objeto.getId().toString();
+			}
+
+		};
 	}
 
 	public void preparEdicao() {
@@ -88,20 +119,20 @@ public class ClienteBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
-	
-	public List<TipoPessoa> getlistaTipoPessoas(){
+
+	public List<TipoPessoa> getlistaTipoPessoas() {
 		return Arrays.asList(TipoPessoa.values());
 	}
-	
-	public List<Sexo> getlistaSexos(){
+
+	public List<Sexo> getlistaSexos() {
 		return Arrays.asList(Sexo.values());
 	}
-	
-	public List<EstadoCivil> getlistaEstadoCivis(){
+
+	public List<EstadoCivil> getlistaEstadoCivis() {
 		return Arrays.asList(EstadoCivil.values());
 	}
-	
-	public List<Estado> getlistaEstados(){
+
+	public List<Estado> getlistaEstados() {
 		return Arrays.asList(Estado.values());
 	}
 
@@ -123,11 +154,11 @@ public class ClienteBean implements Serializable {
 		this.filtro = filtro;
 	}
 
-	public List<Pessoa> getListaClientes() {
+	public LazyDataModel<Pessoa> getListaClientes() {
 		return listaClientes;
 	}
 
-	public void setListaClientes(List<Pessoa> listaClientes) {
+	public void setListaClientes(LazyDataModel<Pessoa> listaClientes) {
 		this.listaClientes = listaClientes;
 	}
 

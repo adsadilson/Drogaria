@@ -14,6 +14,10 @@
 	width: 85px !important;
 }
 
+.rotuloInfFone {
+	width: 100px !important;
+}
+
 .campo {
 	width: 250px;
 }
@@ -65,7 +69,7 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pelo campo nome"
+						title="Pesquisa pelo nome do cliente"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
 						value="#{clienteBean.filtro.nome}" />
 
@@ -110,7 +114,8 @@
 					</p:commandButton>
 				</p:column>
 
-				<p:column headerText="Nome do Cliente" sortBy="#{cliente.nome}">
+				<p:column style="width:350px;" headerText="Nome do Cliente"
+					sortBy="#{cliente.nome}">
 					<h:outputText value="#{cliente.nome}" />
 				</p:column>
 
@@ -119,13 +124,25 @@
 					<h:outputText value="#{cliente.cpfCnpj}" />
 				</p:column>
 
-				<p:column headerText="End/Contato"
-					style="text-align: center; width:100px">
-					<p:commandLink>
-						<i class="fa  fa-search"></i>
+				<p:column headerText="Endereço"
+					style="text-align: center; width:90px">
+					<p:commandLink update="dialogInfoEnd" title="Exibir endereço"
+						oncomplete="PF('dialogInfoEnd').show()">
+						<i class="fa fa-envelope-o"></i>
+						<f:setPropertyActionListener
+							target="#{clienteBean.clienteSelecionado}" value="#{cliente}" />
 					</p:commandLink>
 				</p:column>
 
+				<p:column headerText="Fone/Contato"
+					style="text-align: center; width:100px">
+					<p:commandLink update="dialogInfoFone" title="Exibir telefone"
+						oncomplete="PF('dialogInfoFone').show()">
+						<i class="fa fa-phone"></i>
+						<f:setPropertyActionListener
+							target="#{clienteBean.clienteSelecionado}" value="#{cliente}" />
+					</p:commandLink>
+				</p:column>
 
 				<p:column headerText="Status" sortBy="#{cliente.status}"
 					style="text-align: center; width: 100px">
@@ -134,6 +151,8 @@
 
 				<p:column headerText="">
 				</p:column>
+
+
 			</p:dataTable>
 
 			<p:confirmDialog header="Confirmação de Exclusão"
@@ -150,50 +169,70 @@
 					action="#{clienteBean.excluir()}" process="@this" />
 			</p:confirmDialog>
 
-
-			<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-				width="321" height="154" resizable="false" draggable="true"
-				id="dgFiltro" visible="false" closeOnEscape="true"
-				appendTo="@(body)">
-
-				<h:form>
-
-					<p:focus for="txtFilterDescricao" />
-
-					<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
-
-						<p:outputLabel value="Nome" />
-						<p:inputText id="txtFilterDescricao"
-							value="#{clienteBean.filtro.nome}" style="width:98%;" />
-
-						<p:outputLabel value="CPF/CNPJ" />
-						<p:inputText id="txtFilterCPF" value="#{clienteBean.filtro.cpf}"
-							style="width:98%;" />
-
-						<p:outputLabel value="Ativo" />
-						<p:selectOneMenu autoWidth="false" style="width:88%;"
-							value="#{clienteBean.filtro.status}">
-							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-							<f:selectItem itemLabel="ATIVO" itemValue="true" />
-							<f:selectItem itemLabel="INATIVO" itemValue="false" />
-						</p:selectOneMenu>
-
-					</h:panelGrid>
-
-					<p:toolbar style="margin-top: 5px; margin-button:5px"
-						styleClass="semPreenchimento">
-						<p:toolbarGroup align="right" style="margin-right: 0px;">
-							<p:commandButton value="Pesquisar" icon="fa fa-search"
-								id="btnPesquisarFiltro" process="@this panelFiltro"
-								action="#{clienteBean.pesquisar}"
-								oncomplete="PF('dialogFiltro').hide()"
-								update="tblCliente panelFiltro" />
-						</p:toolbarGroup>
-					</p:toolbar>
-				</h:form>
-			</p:dialog>
-
 		</h:form>
+
+		<p:dialog header="Info Endereço" widgetVar="dialogInfoEnd"
+			modal="true" id="dialogInfoEnd" height="140" width="500"
+			responsive="true" styleClass="box-success" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+				<p:outputLabel value="Cep" />
+				<p:outputLabel mask="99999-999" style="width:132px;"
+					value="#{clienteBean.clienteSelecionado.cep}" />
+
+				<p:outputLabel value="Endereço" />
+				<h:panelGroup>
+					<p:outputLabel style="width:335px;"
+						value="#{clienteBean.clienteSelecionado.endereco}" />,
+					<p:outputLabel style="margin-left:5px;"
+						value="#{clienteBean.clienteSelecionado.num}" />
+				</h:panelGroup>
+
+				<p:outputLabel value="Bairro" />
+				<p:outputLabel style="width:232px;"
+					value="#{clienteBean.clienteSelecionado.bairro}" />
+
+				<p:outputLabel value="Compl." />
+				<p:outputLabel style="width:109px;"
+					value="#{clienteBean.clienteSelecionado.complemento}" />
+
+				<p:outputLabel value="Cidade" />
+				<h:panelGroup>
+					<p:outputLabel style="width:232px;"
+						value="#{clienteBean.clienteSelecionado.cidade}" /> -
+					<p:outputLabel value="#{clienteBean.clienteSelecionado.estado}" />
+				</h:panelGroup>
+
+			</h:panelGrid>
+
+		</p:dialog>
+
+		<p:dialog header="Fone/Contato" widgetVar="dialogInfoFone"
+			modal="true" id="dialogInfoFone" height="125" width="400"
+			responsive="true" styleClass="box-success" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:panelGrid columns="2" columnClasses="rotuloInfFone,campo">
+
+				<p:outputLabel value="Telefone1" />
+				<p:outputLabel value="#{clienteBean.clienteSelecionado.telefone}" />
+
+				<p:outputLabel value="Telefone2" />
+				<p:outputLabel value="#{clienteBean.clienteSelecionado.telefone2}" />
+
+				<p:outputLabel value="Telefone3" />
+				<p:outputLabel value="#{clienteBean.clienteSelecionado.celular}" />
+
+				<p:outputLabel value="E-mail" />
+				<p:outputLabel value="#{clienteBean.clienteSelecionado.email}" />
+
+				<p:outputLabel value="Site" />
+				<p:outputLabel value="#{clienteBean.clienteSelecionado.site}" />
+
+			</h:panelGrid>
+
+		</p:dialog>
 
 		<p:dialog
 			header="#{clienteBean.cliente.inclusao ?'Cliente - Inclusão' :'Cliente - Edição'}"
@@ -201,7 +240,7 @@
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
-			<h:form id="frm-cadastro" prependId="false">
+			<h:form prependId="false" id="frm-cadastro">
 
 				<p:tabView prependId="false" style="width: 99%; height: 320px; ">
 					<p:tab title="Principal">
@@ -218,8 +257,6 @@
 					</p:tab>
 				</p:tabView>
 
-
-
 				<p:toolbar style="margin-top: 10px; margin-button:5px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
@@ -233,6 +270,47 @@
 
 			</h:form>
 
+		</p:dialog>
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			width="321" height="154" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
+
+			<h:form>
+
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{clienteBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText id="txtFilterCPF" value="#{clienteBean.filtro.cpf}"
+						style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{clienteBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{clienteBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblCliente panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
 		</p:dialog>
 
 	</ui:define>

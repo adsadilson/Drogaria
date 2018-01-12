@@ -33,6 +33,14 @@
 .rotulo60 {
 	width: 85px !important;
 }
+
+.rotuloSubCat1 {
+	width: 100px !important;
+}
+
+.campoSubCat1 {
+	width: 240px !important;
+}
 </style>
 
 		<f:metadata>
@@ -69,7 +77,7 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pela sigla ou descrição"
+						title="Pesquisa pelo sku, codigo barra ou descrição"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
 						value="#{produtoBean.filtro.nome}" />
 
@@ -129,7 +137,7 @@
 				</p:column>
 
 				<p:column headerText="Tipo" style="text-align: center; width: 90px"
-					sortBy="#{produto.tipoProduto.descricao}">
+					sortBy="#{produto.tipoProduto}">
 					<h:outputText value="#{produto.tipoProduto.descricao}" />
 				</p:column>
 
@@ -323,7 +331,7 @@
 		</p:dialog>
 
 		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-			width="321" height="135" resizable="false" draggable="true"
+			width="325" height="170" resizable="false" draggable="true"
 			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
 
 			<h:form>
@@ -346,6 +354,7 @@
 
 					<p:outputLabel value="Categoria" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						converter="omnifaces.SelectItemsConverter"
 						value="#{produtoBean.filtro.categoria}">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
 						<f:selectItems value="#{produtoBean.listaCategorias}" var="cat"
@@ -376,17 +385,17 @@
 		</p:dialog>
 
 		<p:dialog header="Categoria de Produto" widgetVar="dialogCadastroCat"
-			modal="true" width="390" height="130" resizable="true"
+			modal="true" width="310" height="125" resizable="true"
 			draggable="true" id="dgCadastroCat" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false" id="frm-cadastroCat">
 
-				<h:panelGrid columns="2" columnClasses="rotulo, campo"
+				<h:panelGrid columns="2" columnClasses="rotuloG2"
 					style="margin-top:10px;">
 
 					<p:outputLabel value="Nome" for="descricaoCat" />
-					<p:inputText id="descricaoCat" style="width:96%" maxlength="80"
+					<p:inputText id="descricaoCat" style="width:98%" maxlength="80"
 						required="true" requiredMessage="O campo 'NOME' é obrigatório."
 						value="#{categoriaBean.categoria.nome}" />
 
@@ -411,22 +420,22 @@
 		</p:dialog>
 
 		<p:dialog header="SubCategoria de Produto - Inclusão"
-			widgetVar="dialogCadastroSubCat" modal="true" width="390"
-			height="150" resizable="true" draggable="true" id="dgCadastroSubCat"
+			widgetVar="dialogCadastroSubCat" modal="true" width="343"
+			height="145" resizable="false" draggable="true" id="dgCadastroSubCat"
 			visible="false" closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false" id="frm-cadastroSubCat">
 
-				<h:panelGrid columns="2" columnClasses="rotulo, campo"
+				<h:panelGrid columns="2" columnClasses="rotuloSubCat1,campoSubCat1"
 					style="margin-top:10px;">
 
 					<p:outputLabel value="Nome" for="descricaoSubCat" />
-					<p:inputText id="descricaoSubCat" style="width:96%" maxlength="80"
+					<p:inputText id="descricaoSubCat" style="width:88%" maxlength="80"
 						required="true" requiredMessage="O campo 'NOME' é obrigatório."
 						value="#{subCategoriaBean.subCategoria.nome}" />
 
 					<p:outputLabel value="Categoria" for="categoriaSubCat" />
-					<p:selectOneMenu autoWidth="true" style="width:88%;"
+					<p:selectOneMenu autoWidth="true" style="width:80%;"
 						id="categoriaSubCat" filter="true" filterMatchMode="contains"
 						required="true"
 						requiredMessage="O campo 'CATEGORIA' é obrigatório."
@@ -448,7 +457,8 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							id="btnSalvarSubCat" process="@this frm-cadastroSubCat"
-							action="#{subCategoriaBean.salvar()}"
+							action="#{produtoBean.listarSubCategoriasFiltrada()}"
+							actionListener="#{subCategoriaBean.salvar()}"
 							oncomplete="if(args.sucesso == true) PF('dialogCadastroSubCat').hide()"
 							update="growl frm-cadastroSubCat" />
 					</p:toolbarGroup>

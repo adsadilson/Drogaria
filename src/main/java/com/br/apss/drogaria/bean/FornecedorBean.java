@@ -1,9 +1,9 @@
 package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -11,6 +11,8 @@ import javax.inject.Named;
 
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.Estado;
 import com.br.apss.drogaria.enums.EstadoCivil;
@@ -33,7 +35,7 @@ public class FornecedorBean implements Serializable {
 
 	private PessoaFilter filtro = new PessoaFilter();
 
-	private List<Pessoa> listaFornecedors = new ArrayList<Pessoa>();
+	private LazyDataModel<Pessoa> listaFornecedors;
 
 	@Inject
 	private PessoaService fornecedorService;
@@ -75,8 +77,36 @@ public class FornecedorBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		this.filtro.setFonecedor(true);
-		this.listaFornecedors = fornecedorService.filtrados(this.filtro);
+		listaFornecedors = new LazyDataModel<Pessoa>() {
+
+			private static final long serialVersionUID = 1L;
+
+			public List<Pessoa> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+
+				filtro.setPrimeiroRegistro(first);
+				filtro.setQuantidadeRegistros(pageSize);
+				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+				filtro.setCampoOrdenacao(sortField);
+				filtro.setFonecedor(true);
+
+				setRowCount(fornecedorService.quantidadeFiltrados(filtro));
+
+				return fornecedorService.filtrados(filtro);
+			}
+
+			@Override
+			public Pessoa getRowData(String rowKey) {
+				Pessoa objeto = (Pessoa) fornecedorService.porId(Long.parseLong(rowKey));
+				return objeto;
+			}
+
+			@Override
+			public String getRowKey(Pessoa objeto) {
+				return objeto.getId().toString();
+			}
+
+		};
 	}
 
 	public void preparEdicao() {
@@ -123,11 +153,11 @@ public class FornecedorBean implements Serializable {
 		this.filtro = filtro;
 	}
 
-	public List<Pessoa> getListaFornecedors() {
+	public LazyDataModel<Pessoa> getListaFornecedors() {
 		return listaFornecedors;
 	}
 
-	public void setListaFornecedors(List<Pessoa> listaFornecedors) {
+	public void setListaFornecedors(LazyDataModel<Pessoa> listaFornecedors) {
 		this.listaFornecedors = listaFornecedors;
 	}
 

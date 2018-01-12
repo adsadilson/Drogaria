@@ -102,7 +102,7 @@ public class ProdutoRepository implements Serializable {
 			}
 			if (filtro.getCategoria() != null) {
 				criteria.add(
-						Restrictions.ilike("categoria.nome", filtro.getCategoria().getNome(), MatchMode.ANYWHERE));
+						Restrictions.eq("categoria", filtro.getCategoria()));
 			}
 
 			if (filtro.getStatus() != null) {

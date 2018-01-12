@@ -58,7 +58,7 @@ public class SubCategoriaRepository implements Serializable {
 			return null;
 		}
 	}
-	
+
 	public List<SubCategoria> porCategoria(Categoria categoria) {
 		try {
 			return manager.createQuery("from SubCategoria where categoria = :categoria", SubCategoria.class)
@@ -74,12 +74,28 @@ public class SubCategoriaRepository implements Serializable {
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(SubCategoria.class);
 
-		if (StringUtils.isNotBlank(filtro.getNome())) {
-			criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
-		}
+		if (StringUtils.isNotBlank(filtro.getOrigem())) {
+			if (filtro.getOrigem().equals("principal")) {
+				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+			}
+		} else {
 
-		if (filtro.getStatus() != null) {
-			criteria.add(Restrictions.eq("status", filtro.getStatus()));
+			if (StringUtils.isNotBlank(filtro.getNome())) {
+				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+			}
+			
+			if (filtro.getCategoria() != null) {
+				criteria.add(Restrictions.eq("categoria", filtro.getCategoria()));
+			}
+
+			if (filtro.getStatus() != null) {
+				if (filtro.getStatus()) {
+					criteria.add(Restrictions.eq("status", true));
+				} else {
+					criteria.add(Restrictions.eq("status", false));
+				}
+
+			}
 		}
 
 		return criteria;
@@ -88,20 +104,6 @@ public class SubCategoriaRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<SubCategoria> filtrados(SubCategoriaFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
-		
-		if (StringUtils.isNotBlank(filtro.getNome())) {
-			criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
-		}
-		
-		if (filtro.getStatus() != null) {
-			if (filtro.getStatus()) {
-				criteria.add(Restrictions.eq("status", true));
-			} else {
-				criteria.add(Restrictions.eq("status", false));
-			}
-
-		}
-		
 		return criteria.addOrder(Order.asc("nome")).list();
 	}
 

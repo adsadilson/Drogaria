@@ -58,7 +58,7 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pela subCategoria"
+						title="Pesquisa pelo campo subCategoria"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
 						value="#{subCategoriaBean.filtro.nome}" />
 
@@ -79,7 +79,7 @@
 
 			<p:dataTable id="tblSubCategoria"
 				value="#{subCategoriaBean.listaSubCategorias}" var="subCategoria"
-				style="margin-top: 20px" lazy="true"
+				style="margin-top: 20px" lazy="false"
 				emptyMessage="Nenhum registro encontrado." rows="11"
 				paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
@@ -114,7 +114,7 @@
 				<p:column headerText="SubCategoria" sortBy="#{subCategoria.nome}">
 					<h:outputText value="#{subCategoria.nome}" />
 				</p:column>
-				
+
 				<p:column headerText="Categoria"
 					sortBy="#{subCategoria.categoria.nome}" style="width: 300px">
 					<h:outputText value="#{subCategoria.categoria.nome}" />
@@ -164,15 +164,14 @@
 						value="#{subCategoriaBean.subCategoria.nome}" />
 
 					<p:outputLabel value="Categoria" for="categoria" />
-					<p:selectOneMenu autoWidth="true" style="width:88%;"
-						id="categoria" filter="true" filterMatchMode="contains"
-						required="true"
+					<p:selectOneMenu autoWidth="true" style="width:88%;" id="categoria"
+						filter="true" filterMatchMode="contains" required="true"
 						requiredMessage="O campo 'CATEGORIA' é obrigatório."
 						value="#{subCategoriaBean.subCategoria.categoria}"
 						converter="omnifaces.SelectItemsConverter">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-						<f:selectItems value="#{subCategoriaBean.categorias}"
-							var="cat" itemLabel="#{cat.nome}" itemValue="#{cat}" />
+						<f:selectItems value="#{subCategoriaBean.categorias}" var="cat"
+							itemLabel="#{cat.nome}" itemValue="#{cat}" />
 					</p:selectOneMenu>
 
 					<p:outputLabel value="Ativo" />
@@ -207,6 +206,16 @@
 					<p:outputLabel value="Nome" />
 					<p:inputText id="txtFilterDescricao"
 						value="#{subCategoriaBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Categoria" />
+					<p:selectOneMenu autoWidth="true" style="width:88%;" filter="true"
+						filterMatchMode="contains"
+						value="#{subCategoriaBean.filtro.categoria}"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{subCategoriaBean.categorias}" var="cat"
+							itemLabel="#{cat.nome}" itemValue="#{cat}" />
+					</p:selectOneMenu>
 
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"

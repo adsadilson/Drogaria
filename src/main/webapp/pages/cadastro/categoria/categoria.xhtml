@@ -58,7 +58,7 @@
 					</span>
 
 					<p:inputText size="30" placeholder="digite o nome"
-						title="Pesquisa pela sigla ou descrição"
+						title="Pesquisa pelo campo descrição"
 						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
 						value="#{categoriaBean.filtro.nome}" />
 
@@ -79,7 +79,7 @@
 
 			<p:dataTable id="tblCategoria"
 				value="#{categoriaBean.listaCategorias}" var="categoria"
-				style="margin-top: 20px" lazy="true"
+				style="margin-top: 20px" lazy="false"
 				emptyMessage="Nenhum registro encontrado." rows="11"
 				paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
