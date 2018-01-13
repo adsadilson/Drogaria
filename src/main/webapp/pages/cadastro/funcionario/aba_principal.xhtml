@@ -1,0 +1,167 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<p:panel styleClass="semPreenchimento">
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+			<p:outputLabel value="Tipo" for="tp" />
+
+			<p:selectOneMenu autoWidth="false" style="width:133px;"
+				value="#{funcionarioBean.funcionario.tipoPessoa}" id="tp" required="true">
+				<f:selectItems value="#{funcionarioBean.listaTipoPessoas}" var="tp"
+					itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+				<p:ajax event="change" process="@this"
+					update="textTipo labelTipo labelNasc labelRG labelSexo txtSexo labelCivil txtCivil
+					 labelConjuge txtConjuge labelFiliacao txtFiliacao txtFiliacao2" />
+			</p:selectOneMenu>
+
+			<h:panelGroup id="labelTipo">
+				<p:outputLabel value="CPF" for="textCpf"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}' />
+				<p:outputLabel value="CNPJ" for="textCnpj"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}' />
+			</h:panelGroup>
+
+			<h:panelGroup id="textTipo">
+				<p:inputMask id="textCpf"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					mask="999.999.999-99" value="#{funcionarioBean.funcionario.cpfCnpj}"
+					required="true" requiredMessage="O campo 'CPF' é obrigatório."
+					style="width: 155px;" />
+				<p:inputMask id="textCnpj"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}'
+					mask="99.999.999/9999-99" value="#{funcionarioBean.funcionario.cpfCnpj}"
+					required="true" requiredMessage="O campo 'CNPJ' é obrigatório."
+					style="width: 155px;" />
+			</h:panelGroup>
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+
+			<p:outputLabel value="Nome" for="nome" />
+			<p:inputText id="nome" style="width:96%" maxlength="80"
+				required="true" requiredMessage="O campo 'NOME' é obrigatório."
+				value="#{funcionarioBean.funcionario.nome}" />
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+			<h:panelGroup id="labelRG">
+				<p:outputLabel value="RG"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}' />
+				<p:outputLabel value="I.Estadual"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<p:inputText style="width:85%;" value="#{funcionarioBean.funcionario.rgInsc}" />
+
+			<h:panelGroup id="labelNasc">
+				<p:outputLabel rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					value="Nascimento" />
+				<p:outputLabel rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}'
+					value="Abertura" />
+			</h:panelGroup>
+			<p:calendar size="17" value="#{funcionarioBean.funcionario.nascimento}"
+				locale="pt_BR" pattern="dd/MM/yyyy" />
+
+			<h:panelGroup id="labelSexo">
+				<p:outputLabel value="Sexo"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}' />
+				<p:outputLabel value="I.Municipal"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtSexo">
+				<p:inputText style="width:85%;"
+					value="#{funcionarioBean.funcionario.rgInsc}"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}' />
+				<p:selectOneMenu autoWidth="false" style="width:133px;"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					value="#{funcionarioBean.funcionario.sexo}">
+					<f:selectItems value="#{funcionarioBean.listaSexos}" var="sx"
+						itemLabel="#{sx.descricao}" itemValue="#{sx}" />
+				</p:selectOneMenu>
+			</h:panelGroup>
+
+			<h:panelGroup id="labelCivil">
+				<p:outputLabel value="Estado Civil"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtCivil">
+				<p:selectOneMenu autoWidth="false" style="width:133px;"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					value="#{funcionarioBean.funcionario.estadoCivil}">
+					<f:selectItems value="#{funcionarioBean.listaEstadoCivis}" var="tc"
+						itemLabel="#{tc.descricao}" itemValue="#{tc}" />
+				</p:selectOneMenu>
+			</h:panelGroup>
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+			<h:panelGroup id="labelConjuge">
+				<p:outputLabel value="Conjuge"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}' />
+				<p:outputLabel value="CNAE"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtConjuge">
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					value="#{funcionarioBean.funcionario.conjuge}" />
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}'
+					value="#{funcionarioBean.funcionario.conjuge}" />
+			</h:panelGroup>
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+			<h:panelGroup id="labelFiliacao">
+				<p:outputLabel value="Filiação"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}' />
+				<p:outputLabel value="Contato"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}' />
+			</h:panelGroup>
+			<h:panelGroup id="txtFiliacao">
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					placeholder="Nome da mãe" value="#{funcionarioBean.funcionario.mae}" />
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}'
+					placeholder="contato1" value="#{funcionarioBean.funcionario.mae}" />
+			</h:panelGroup>
+			<p:spacer />
+			<h:panelGroup id="txtFiliacao2">
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="F"}'
+					placeholder="Nome da pai" value="#{funcionarioBean.funcionario.pai}" />
+				<p:inputText style="width:96%" maxlength="80"
+					rendered='#{funcionarioBean.funcionario.tipoPessoa=="J"}'
+					placeholder="contato2" value="#{funcionarioBean.funcionario.mae}" />
+
+			</h:panelGroup>
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+
+			<p:outputLabel value="Ativo" />
+			<h:panelGroup>
+				<p:selectBooleanCheckbox value="#{funcionarioBean.funcionario.status}" />
+				<p:selectBooleanCheckbox itemLabel="Cliente"
+					value="#{funcionarioBean.funcionario.cliente}" style="margin-left:25px;" />
+				<p:selectBooleanCheckbox itemLabel="Fornecedor"
+					style="margin-left:25px;"
+					value="#{funcionarioBean.funcionario.fornecedor}" />
+			</h:panelGroup>
+		</h:panelGrid>
+
+	</p:panel>
+
+</ui:composition>

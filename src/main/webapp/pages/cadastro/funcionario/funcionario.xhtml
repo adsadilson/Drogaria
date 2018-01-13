@@ -1,0 +1,317 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Funcionário</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo100 {
+	width: 85px !important;
+}
+
+.rotuloInfFone {
+	width: 100px !important;
+}
+
+.campo {
+	width: 250px;
+}
+
+.campo415 {
+	width: 445px !important;
+}
+
+.campo180 {
+	width: 180px !important;
+}
+
+.rotulo60 {
+	width: 85px !important;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{funcionarioBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Pesquisa Funcionario</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+			<p:focus for="txtPesquisar" />
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Novo" icon="fa fa-file-o"
+						update="dgCadastro" action="#{funcionarioBean.novo()}"
+						oncomplete="PF('dialogCadastro').show()">
+						<p:resetInput target="dgCadastro" />
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						update="dgFiltro" action="#{funcionarioBean.novoFiltro}"
+						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblFuncionario" fileName="funcionarios" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:inputText size="30" placeholder="digite o nome"
+						title="Pesquisa pelo nome do funcionario"
+						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
+						value="#{funcionarioBean.filtro.nome}" />
+
+					<p:commandButton icon="fa fa-search" value="Pesquisar"
+						update="tblFuncionario" id="btnPesquisar"
+						action="#{funcionarioBean.pesquisar()}">
+						<f:setPropertyActionListener value="principal"
+							target="#{funcionarioBean.filtro.origem}" />
+					</p:commandButton>
+
+					<p:defaultCommand target="btnPesquisar" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="tblFuncionario" value="#{funcionarioBean.listaFuncionarios}"
+				var="funcionario" style="margin-top: 20px" lazy="true"
+				emptyMessage="Nenhum registro encontrado." rows="11"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogCadastro').show()" process="@this"
+						update="dgCadastro" action="#{funcionarioBean.editar}">
+						<f:setPropertyActionListener
+							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column style="width:350px;" headerText="Nome do Funcionario"
+					sortBy="#{funcionario.nome}">
+					<h:outputText value="#{funcionario.nome}" />
+				</p:column>
+
+				<p:column headerText="CPF/CNPJ" sortBy="#{funcionario.cpfCnpj}"
+					style="width: 150px">
+					<h:outputText value="#{funcionario.cpfCnpj}" />
+				</p:column>
+
+				<p:column headerText="Endereço"
+					style="text-align: center; width:90px">
+					<p:commandLink update="dialogInfoEnd" title="Exibir endereço"
+						oncomplete="PF('dialogInfoEnd').show()">
+						<i class="fa fa-envelope-o"></i>
+						<f:setPropertyActionListener
+							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+					</p:commandLink>
+				</p:column>
+
+				<p:column headerText="Fone/Contato"
+					style="text-align: center; width:100px">
+					<p:commandLink update="dialogInfoFone" title="Exibir telefone"
+						oncomplete="PF('dialogInfoFone').show()">
+						<i class="fa fa-phone"></i>
+						<f:setPropertyActionListener
+							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+					</p:commandLink>
+				</p:column>
+
+				<p:column headerText="Status" sortBy="#{funcionario.status}"
+					style="text-align: center; width: 100px">
+					<h:outputText value="#{funcionario.status ? 'ATIVO' : 'INATIVO'}" />
+				</p:column>
+
+				<p:column headerText="">
+				</p:column>
+
+
+			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText value="#{funcionarioBean.funcionarioSelecionado.nome} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusao').hide();" update="tblFuncionario"
+					action="#{funcionarioBean.excluir()}" process="@this" />
+			</p:confirmDialog>
+
+		</h:form>
+
+		<p:dialog header="Info Endereço" widgetVar="dialogInfoEnd"
+			modal="true" id="dialogInfoEnd" height="140" width="500"
+			responsive="true" styleClass="box-success" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+				<p:outputLabel value="Cep" />
+				<p:outputLabel mask="99999-999" style="width:132px;"
+					value="#{funcionarioBean.funcionarioSelecionado.cep}" />
+
+				<p:outputLabel value="Endereço" />
+				<h:panelGroup>
+					<p:outputLabel style="width:335px;"
+						value="#{funcionarioBean.funcionarioSelecionado.endereco}" />,
+					<p:outputLabel style="margin-left:5px;"
+						value="#{funcionarioBean.funcionarioSelecionado.num}" />
+				</h:panelGroup>
+
+				<p:outputLabel value="Bairro" />
+				<p:outputLabel style="width:232px;"
+					value="#{funcionarioBean.funcionarioSelecionado.bairro}" />
+
+				<p:outputLabel value="Compl." />
+				<p:outputLabel style="width:109px;"
+					value="#{funcionarioBean.funcionarioSelecionado.complemento}" />
+
+				<p:outputLabel value="Cidade" />
+				<h:panelGroup>
+					<p:outputLabel style="width:232px;"
+						value="#{funcionarioBean.funcionarioSelecionado.cidade}" /> -
+					<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.estado}" />
+				</h:panelGroup>
+
+			</h:panelGrid>
+
+		</p:dialog>
+
+		<p:dialog header="Fone/Contato" widgetVar="dialogInfoFone"
+			modal="true" id="dialogInfoFone" height="125" width="400"
+			responsive="true" styleClass="box-success" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:panelGrid columns="2" columnClasses="rotuloInfFone,campo">
+
+				<p:outputLabel value="Telefone1" />
+				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.telefone}" />
+
+				<p:outputLabel value="Telefone2" />
+				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.telefone2}" />
+
+				<p:outputLabel value="Telefone3" />
+				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.celular}" />
+
+				<p:outputLabel value="E-mail" />
+				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.email}" />
+
+				<p:outputLabel value="Site" />
+				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.site}" />
+
+			</h:panelGrid>
+
+		</p:dialog>
+
+		<p:dialog
+			header="#{funcionarioBean.funcionario.inclusao ?'Funcionario - Inclusão' :'Funcionario - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="620" height="370"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cadastro">
+
+				<p:tabView prependId="false" style="width: 99%; height: 320px; ">
+					<p:tab title="Principal">
+						<ui:include src="aba_principal.xhtml" />
+					</p:tab>
+					<p:tab title="Endereço/Contato">
+						<ui:include src="aba_endereco.xhtml" />
+					</p:tab>
+					<p:tab title="Obs">
+						<h:panelGroup layout="block" style="margin-top: 10px">
+							<p:inputTextarea rows="16" style="width: 98%"
+								value="#{funcionarioBean.funcionario.obs}" />
+						</h:panelGroup>
+					</p:tab>
+				</p:tabView>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+							process="@this frm-cadastro tblFuncionario"
+							action="#{funcionarioBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
+							update="tblFuncionario growl frm-cadastro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			width="321" height="154" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
+
+			<h:form>
+
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{funcionarioBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText id="txtFilterCPF" value="#{funcionarioBean.filtro.cpf}"
+						style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{funcionarioBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{funcionarioBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblFuncionario panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

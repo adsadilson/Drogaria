@@ -1,0 +1,77 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<p:panel styleClass="semPreenchimento">
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+			<p:outputLabel value="Cep" for="cep" />
+			<p:inputMask mask="99999-999" style="width:132px;"
+				value="#{funcionarioBean.funcionario.cep}" id="cep" required="true"
+				requiredMessage="O campo 'CEP' é obrigatório." />
+
+			<p:outputLabel for="end" value="Endereço" />
+			<h:panelGroup>
+				<p:inputText style="width:335px;" id="end" required="true"
+					requiredMessage="O campo 'ENDEREÇO' é obrigatório."
+					value="#{funcionarioBean.funcionario.endereco}" />
+				<p:inputText style="width:75px; margin-left:5px;"
+					value="#{funcionarioBean.funcionario.num}" />
+			</h:panelGroup>
+
+			<p:outputLabel for="bai" value="Bairro" />
+			<h:panelGroup>
+				<p:inputText style="width:232px;" id="bai"
+					value="#{funcionarioBean.funcionario.bairro}" required="true"
+					requiredMessage="O campo 'BAIRRO' é obrigatório." />
+				<p:outputLabel value="Compl."
+					style="margin-left:15px; margin-right:10px;" />
+				<p:inputText style="width:109px;"
+					value="#{funcionarioBean.funcionario.complemento}" />
+			</h:panelGroup>
+
+			<p:outputLabel for="cidade" value="Cidade" />
+			<h:panelGroup>
+				<p:inputText style="width:232px;" id="cidade" required="true"
+					value="#{funcionarioBean.funcionario.cidade}"
+					requiredMessage="O campo 'CIDADE' é obrigatório." />
+				<p:outputLabel for="est" value="Estado"
+					style="margin-left:15px; margin-right:10px;" />
+				<p:selectOneMenu autoWidth="false" style="width:80px;" id="est"
+					required="true" requiredMessage="O campo 'ESTADO' é obrigatório."
+					value="#{funcionarioBean.funcionario.estado}">
+					<f:selectItems value="#{funcionarioBean.listaEstados}" var="uf"
+						itemLabel="#{uf.sigla}" itemValue="#{uf}" />
+				</p:selectOneMenu>
+			</h:panelGroup>
+
+
+			<p:spacer />
+			<p:spacer />
+
+			<p:outputLabel value="Telefone(s)" />
+			<h:panelGroup>
+				<p:inputText style="width:135px;"
+					value="#{funcionarioBean.funcionario.celular}" />
+				<p:inputText style="width:130px; margin-left:5px; margin-right:5px;"
+					value="#{funcionarioBean.funcionario.telefone}" />
+				<p:inputText style="width:130px;"
+					value="#{funcionarioBean.funcionario.telefone2}" />
+			</h:panelGroup>
+
+			<p:outputLabel value="E-mail" />
+			<p:inputText value="#{funcionarioBean.funcionario.email}"
+				style="width:96%; text-transform: lowercase;" />
+
+			<p:outputLabel value="Site" />
+			<p:inputText value="#{funcionarioBean.funcionario.site}"
+				style="width:96%; text-transform: lowercase;" />
+
+		</h:panelGrid>
+
+
+	</p:panel>
+
+</ui:composition>
