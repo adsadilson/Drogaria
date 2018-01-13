@@ -1,0 +1,100 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<p:panel styleClass="semPreenchimento">
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+			<p:outputLabel value="RG" />
+			<p:inputText style="width:85%;"
+				value="#{funcionarioBean.funcionario.rgInsc}" />
+
+			<p:outputLabel value="Dt Emissão" />
+			<p:calendar size="19"
+				value="#{funcionarioBean.funcionario.dataEmissao}" locale="pt_BR"
+				pattern="dd/MM/yyyy" />
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+
+			<p:outputLabel value="Filiação" />
+			<p:inputText style="width:99%" maxlength="80"
+				placeholder="Nome da mãe" value="#{funcionarioBean.funcionario.mae}"/>
+			<p:spacer />
+			<p:inputText style="width:99%" maxlength="80"
+				placeholder="Nome da pai" value="#{funcionarioBean.funcionario.pai}" />
+
+			<p:outputLabel value="G. Instrução" />
+			<p:inputText value="#{funcionarioBean.funcionario.escolaridade}"
+				style="width: 99%" />
+
+		</h:panelGrid>
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+			<p:outputLabel value="CNH" />
+			<h:panelGroup>
+				<p:selectOneMenu autoWidth="false" style="width:35px;"
+					>
+					<f:selectItem itemLabel="SIM" itemValue="true" />
+					<f:selectItem itemLabel="NÃO" itemValue="false" />
+				</p:selectOneMenu>
+				<p:outputLabel value="Cat."
+					style="margin-left:7px; margin-right:5px;" />
+				<p:inputText size="4" value="#{funcionarioBean.funcionario.catCnh}" />
+			</h:panelGroup>
+
+			<p:outputLabel value="Validade" />
+			<p:calendar size="19"
+				value="#{fornecedorBean.fornecedor.validadeCnh}" locale="pt_BR"
+				pattern="dd/MM/yyyy" />
+
+			<p:outputLabel value="Tít. Eleitor" />
+			<p:inputText value="#{funcionarioBean.funcionario.tituloEleitor}"
+				style="width: 85%;" />
+
+			<p:outputLabel value="Zona" />
+			<h:panelGroup>
+				<p:inputText value="#{funcionarioBean.funcionario.zona}"
+					style="width: 47px;" />
+				<p:outputLabel value="Seção"
+					style="margin-left:7px; margin-right:10px;" />
+				<p:inputText value="#{funcionarioBean.funcionario.secao}"
+					style="width: 55px;" />
+			</h:panelGroup>
+
+			<p:outputLabel value="Cat. Reserv." />
+			<p:inputText value="#{funcionarioBean.funcionario.cateiraReservista}"
+				style="width: 85%;" />
+
+			<p:outputLabel value="Pis/Pasep" />
+			<p:inputText value="#{funcionarioBean.funcionario.pisPasep}"
+				style="width: 94%;" />
+
+			<p:outputLabel value="CTPS" />
+			<p:inputText value="#{funcionarioBean.funcionario.ctps}"
+				style="width: 85%;" />
+
+			<p:outputLabel value="Série" />
+			<h:panelGroup>
+				<p:inputText value="#{funcionarioBean.funcionario.serieCtps}"
+					style="width: 47px;" />
+				<p:outputLabel value="UF"
+					style="margin-left:7px; margin-right:33px;" />
+				<p:inputText value="#{funcionarioBean.funcionario.ufCtps}"
+					style="width: 55px;" />
+			</h:panelGroup>
+
+		</h:panelGrid>
+
+
+
+	</p:panel>
+
+</ui:composition>

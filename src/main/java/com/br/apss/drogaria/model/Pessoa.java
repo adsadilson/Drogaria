@@ -35,6 +35,9 @@ public class Pessoa implements Serializable {
 	@Column(name = "nome", nullable = true, length = 80)
 	private String nome;
 
+	@Column(name = "apelido", nullable = true, length = 80)
+	private String apelido;
+
 	@Column(name = "cpf_cnpj", nullable = true, length = 20)
 	private String cpfCnpj;
 
@@ -75,6 +78,21 @@ public class Pessoa implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "sexo", length = 1)
 	private Sexo sexo;
+
+	@Column(name = "filho", length = 1)
+	private boolean filho;
+
+	@Column(name = "cnh", length = 1)
+	private boolean cnh;
+
+	@Column(name = "cat_cnh", length = 3)
+	private String catCnh;
+
+	@Column(name = "dependente", length = 10)
+	private String dependente;
+
+	@Column(name = "escolaridade", length = 80)
+	private String escolaridade;
 
 	@Column(name = "endereco", length = 80)
 	private String endereco;
@@ -136,6 +154,10 @@ public class Pessoa implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@Column(name = "data_emissao", length = 10)
 	private Date dataEmissao;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "vidade_cnh", length = 10)
+	private Date validadeCnh;
 
 	@Column(name = "orgao_emissor", length = 25)
 	private String orgaoEmissor;
@@ -830,6 +852,62 @@ public class Pessoa implements Serializable {
 
 	public void setTrabalha(Boolean trabalha) {
 		this.trabalha = trabalha;
+	}
+
+	public String getApelido() {
+		return apelido;
+	}
+
+	public void setApelido(String apelido) {
+		this.apelido = apelido;
+	}
+
+	public boolean isFilho() {
+		return filho;
+	}
+
+	public void setFilho(boolean filho) {
+		this.filho = filho;
+	}
+
+	public String getDependente() {
+		return dependente;
+	}
+
+	public void setDependente(String dependente) {
+		this.dependente = dependente;
+	}
+
+	public String getEscolaridade() {
+		return escolaridade;
+	}
+
+	public void setEscolaridade(String escolaridade) {
+		this.escolaridade = escolaridade;
+	}
+
+	public boolean isCnh() {
+		return cnh;
+	}
+
+	public void setCnh(boolean cnh) {
+		this.cnh = cnh;
+	}
+
+	public String getCatCnh() {
+		return catCnh;
+	}
+
+	public void setCatCnh(String catCnh) {
+		this.catCnh = catCnh;
+	}
+
+	public Date getValidadeCnh() {
+		return validadeCnh;
+	}
+
+	public void setValidadeCnh(Date validadeCnh) {
+		this.validadeCnh = validadeCnh;
 	}
 
 	public boolean isInclusao() {

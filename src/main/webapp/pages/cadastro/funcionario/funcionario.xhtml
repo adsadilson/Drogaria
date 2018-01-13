@@ -41,7 +41,7 @@
 
 		<h:form prependId="false">
 
-			<h1>Pesquisa Funcionario</h1>
+			<h1>Pesquisa Funcionário</h1>
 
 			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
 
@@ -61,7 +61,8 @@
 
 					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
 						ajax="false" immediate="true">
-						<p:dataExporter type="xls" target="tblFuncionario" fileName="funcionarios" />
+						<p:dataExporter type="xls" target="tblFuncionario"
+							fileName="funcionarios" />
 					</p:commandButton>
 
 					<span class="ui-separator"> <span
@@ -88,8 +89,9 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
-			<p:dataTable id="tblFuncionario" value="#{funcionarioBean.listaFuncionarios}"
-				var="funcionario" style="margin-top: 20px" lazy="true"
+			<p:dataTable id="tblFuncionario"
+				value="#{funcionarioBean.listaFuncionarios}" var="funcionario"
+				style="margin-top: 20px" lazy="true"
 				emptyMessage="Nenhum registro encontrado." rows="11"
 				paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
@@ -103,14 +105,16 @@
 						oncomplete="PF('dialogCadastro').show()" process="@this"
 						update="dgCadastro" action="#{funcionarioBean.editar}">
 						<f:setPropertyActionListener
-							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+							target="#{funcionarioBean.funcionarioSelecionado}"
+							value="#{funcionario}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
 						<f:setPropertyActionListener
-							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+							target="#{funcionarioBean.funcionarioSelecionado}"
+							value="#{funcionario}" />
 					</p:commandButton>
 				</p:column>
 
@@ -130,7 +134,8 @@
 						oncomplete="PF('dialogInfoEnd').show()">
 						<i class="fa fa-envelope-o"></i>
 						<f:setPropertyActionListener
-							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+							target="#{funcionarioBean.funcionarioSelecionado}"
+							value="#{funcionario}" />
 					</p:commandLink>
 				</p:column>
 
@@ -140,7 +145,8 @@
 						oncomplete="PF('dialogInfoFone').show()">
 						<i class="fa fa-phone"></i>
 						<f:setPropertyActionListener
-							target="#{funcionarioBean.funcionarioSelecionado}" value="#{funcionario}" />
+							target="#{funcionarioBean.funcionarioSelecionado}"
+							value="#{funcionario}" />
 					</p:commandLink>
 				</p:column>
 
@@ -160,13 +166,15 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText value="#{funcionarioBean.funcionarioSelecionado.nome} ?" />
+					<h:outputText
+						value="#{funcionarioBean.funcionarioSelecionado.nome} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					oncomplete="PF('confirmacaoExclusao').hide();" update="tblFuncionario"
-					action="#{funcionarioBean.excluir()}" process="@this" />
+					oncomplete="PF('confirmacaoExclusao').hide();"
+					update="tblFuncionario" action="#{funcionarioBean.excluir()}"
+					process="@this" />
 			</p:confirmDialog>
 
 		</h:form>
@@ -201,7 +209,8 @@
 				<h:panelGroup>
 					<p:outputLabel style="width:232px;"
 						value="#{funcionarioBean.funcionarioSelecionado.cidade}" /> -
-					<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.estado}" />
+					<p:outputLabel
+						value="#{funcionarioBean.funcionarioSelecionado.estado}" />
 				</h:panelGroup>
 
 			</h:panelGrid>
@@ -216,19 +225,24 @@
 			<h:panelGrid columns="2" columnClasses="rotuloInfFone,campo">
 
 				<p:outputLabel value="Telefone1" />
-				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.telefone}" />
+				<p:outputLabel
+					value="#{funcionarioBean.funcionarioSelecionado.telefone}" />
 
 				<p:outputLabel value="Telefone2" />
-				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.telefone2}" />
+				<p:outputLabel
+					value="#{funcionarioBean.funcionarioSelecionado.telefone2}" />
 
 				<p:outputLabel value="Telefone3" />
-				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.celular}" />
+				<p:outputLabel
+					value="#{funcionarioBean.funcionarioSelecionado.celular}" />
 
 				<p:outputLabel value="E-mail" />
-				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.email}" />
+				<p:outputLabel
+					value="#{funcionarioBean.funcionarioSelecionado.email}" />
 
 				<p:outputLabel value="Site" />
-				<p:outputLabel value="#{funcionarioBean.funcionarioSelecionado.site}" />
+				<p:outputLabel
+					value="#{funcionarioBean.funcionarioSelecionado.site}" />
 
 			</h:panelGrid>
 
@@ -245,6 +259,9 @@
 				<p:tabView prependId="false" style="width: 99%; height: 320px; ">
 					<p:tab title="Principal">
 						<ui:include src="aba_principal.xhtml" />
+					</p:tab>
+					<p:tab title="Dados Adicionais">
+						<ui:include src="aba_adcionais.xhtml" />
 					</p:tab>
 					<p:tab title="Endereço/Contato">
 						<ui:include src="aba_endereco.xhtml" />
@@ -287,8 +304,8 @@
 						value="#{funcionarioBean.filtro.nome}" style="width:98%;" />
 
 					<p:outputLabel value="CPF/CNPJ" />
-					<p:inputText id="txtFilterCPF" value="#{funcionarioBean.filtro.cpf}"
-						style="width:98%;" />
+					<p:inputText id="txtFilterCPF"
+						value="#{funcionarioBean.filtro.cpf}" style="width:98%;" />
 
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
