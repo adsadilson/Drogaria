@@ -307,7 +307,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = email == null ? null : email.toLowerCase();
 	}
 
 	public String getSite() {
@@ -315,7 +315,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setSite(String site) {
-		this.site = site;
+		this.site = site == null ? null : site.toLowerCase();
 	}
 
 	public Date getNascimento() {

@@ -1,0 +1,340 @@
+package com.br.apss.drogaria.bean;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.omnifaces.util.Messages;
+import org.primefaces.context.RequestContext;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
+
+import com.br.apss.drogaria.model.Movimentacao;
+import com.br.apss.drogaria.model.PlanoConta;
+import com.br.apss.drogaria.model.filter.MovimentacaoFilter;
+import com.br.apss.drogaria.service.MovimentacaoService;
+import com.br.apss.drogaria.service.PlanoContaService;
+import com.br.apss.drogaria.util.jpa.GeradorVinculo;
+
+@Named
+@ViewScoped
+public class MovimentacaoBean implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private Movimentacao movto = new Movimentacao();
+	private Movimentacao movtoSelecionado;
+	private MovimentacaoFilter filtro;
+	private List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
+	private List<PlanoConta> listaPlanoContas = new ArrayList<PlanoConta>();
+	private BigDecimal valor = BigDecimal.ZERO;
+	private LazyDataModel<Movimentacao> model;
+	private BigDecimal saldo;
+
+	@Inject
+	private PlanoContaService contaService;
+
+	@Inject
+	MovimentacaoService movimentacaoService;
+
+	@Inject
+	GeradorVinculo idVinculo;
+
+	@PostConstruct
+	public void Inicializar() {
+		filtro = new MovimentacaoFilter();
+		filtro.setDataIni(new Date());
+		filtro.setDataFim(new Date());
+		movto = new Movimentacao();
+	}
+
+	public boolean desabilitarInfo(Movimentacao m) {
+		if (m.equals(this.movtoSelecionado)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean desabilitar(Movimentacao m) {
+		if (m.equals(this.movtoSelecionado)) {
+			return true;
+		}
+		return false;
+	}
+
+	public Boolean validarDatas(Date ini, Date fim) {
+		if (ini != null && fim != null) {
+			if (fim.before(ini)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void pesquisar() {
+		if (!validarDatas(filtro.getDataIni(), filtro.getDataFim())) {
+			model = new LazyDataModel<Movimentacao>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public List<Movimentacao> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+						Map<String, Object> filters) {
+
+					setRowCount(movimentacaoService.quantidadeFiltrados(filtro));
+
+					filtro.setPrimeiroRegistro(first);
+					filtro.setQtdeRegistro(pageSize);
+					filtro.setOrdenacao(sortField);
+					filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+
+					listaMovimentacoes = movimentacaoService.filtrados(filtro);
+
+					if (listaMovimentacoes != null) {
+						saldo = movimentacaoService.pesquisaSaldo(filtro);
+						BigDecimal saldoIni = saldo;
+						if (null == saldo) {
+							saldo = BigDecimal.ZERO;
+						}
+
+						for (Movimentacao m : listaMovimentacoes) {
+							if (null != m.getVlrSaida()) {
+								saldo = saldo.subtract(m.getVlrSaida());
+								m.setVlrSaldo(saldo);
+							} else if (null != m.getVlrEntrada()) {
+								saldo = saldo.add(m.getVlrEntrada());
+								m.setVlrSaldo(saldo);
+							}
+						}
+						saldo = saldoIni;
+					}
+					return listaMovimentacoes;
+				}
+
+				@Override
+				public Movimentacao getRowData(String rowKey) {
+					movtoSelecionado = movimentacaoService.porId(Long.valueOf(rowKey));
+					return movtoSelecionado;
+				}
+
+				@Override
+				public String getRowKey(Movimentacao objeto) {
+					return movtoSelecionado.getId().toString();
+				}
+
+			};
+
+			RequestContext request = RequestContext.getCurrentInstance();
+			request.addCallbackParam("sucesso", true);
+		} else {
+			Messages.addGlobalError("Data inicio maior do que data final!");
+		}
+
+	}
+
+	public void novoCadastro() {
+		this.movto = new Movimentacao();
+		this.movto.setVlrEntrada(null);
+	}
+
+	public void editar() {
+		if (this.movtoSelecionado.getVlrEntrada() == null && this.movtoSelecionado.getVinculo() != null) {
+			this.movto = movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movtoSelecionado.getId());
+		} else {
+			this.movto = movtoSelecionado;
+		}
+
+		//carregarContasLanc();
+
+	}
+
+
+
+	public void excluir() {
+		if (this.movtoSelecionado.getVinculo() != null) {
+			movimentacaoService.excluirPorVinculo(this.movtoSelecionado.getVinculo());
+		} else {
+			movimentacaoService.excluir(this.movtoSelecionado);
+		}
+		this.movtoSelecionado = null;
+		pesquisar();
+		Messages.addGlobalInfo("Registro excluido com sucesso");
+	}
+
+	/*public String getContaDestino() {
+		if (null != movtoSelecionado) {
+			if (null == movtoSelecionado.getSubConta() && movtoSelecionado.getContaTipo().getId() == 1) {
+				return movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movtoSelecionado.getId())
+						.getConta().getNome();
+			} else {
+				return contaService.porId(movtoSelecionado.getSubConta().getId()).getNome();
+			}
+		}
+		return null;
+	}*/
+
+	/*private Usuario obterUsuario() {
+		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
+		Usuario usuario = null;
+		if (session != null) {
+			usuario = (Usuario) session.getAttribute("usuarioAutenticado");
+		}
+		return usuario;
+	}*/
+
+	public void salvar() {
+	//	this.movto.getConta().setId(filtro.getContaID());
+		this.movto.setDataLanc(new Date());
+		//this.movto.setUsuario(obterUsuario());
+		movimentacaoService.save(this.movto);
+		this.movtoSelecionado = null;
+		this.movto = new Movimentacao();
+		pesquisar();
+		Messages.addGlobalInfo("Registro salvo com sucesso");
+	}
+
+	public void transferecia() {
+		if (!verificarContaTransf()) {
+			if (this.movto.getId() == null) {
+				this.movto.setDataLanc(new Date());
+				//this.movto.setUsuario(obterUsuario());
+				this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
+				movimentacaoService.save(this.movto);
+
+				PlanoConta c = new PlanoConta();
+				c.setId(filtro.getContaID());
+				//this.movto.setConta(c);
+				if (this.movto.getVlrSaida() != null) {
+					this.movto.setVlrEntrada(this.movto.getVlrSaida());
+					this.movto.setVlrSaida(null);
+				} else {
+					this.movto.setVlrSaida(this.movto.getVlrEntrada());
+					this.movto.setVlrEntrada(null);
+				}
+
+				movimentacaoService.save(this.movto);
+			} else {
+
+				movimentacaoService.save(this.movto);
+				Movimentacao movtoAlt = movimentacaoService.porVinculo(this.movto.getVinculo(), this.movto.getId());
+
+				movtoAlt.setDescricao(this.movto.getDescricao());
+				movtoAlt.setDataDoc(this.movto.getDataDoc());
+				movtoAlt.setDocumento(this.movto.getDocumento());
+				movtoAlt.setVlrEntrada(movto.getVlrSaida());
+				movtoAlt.setVlrSaida(movto.getVlrEntrada());
+
+				movimentacaoService.save(movtoAlt);
+			}
+			this.movtoSelecionado = null;
+			this.movto = new Movimentacao();
+			this.valor = BigDecimal.ZERO;
+			pesquisar();
+			Messages.addGlobalInfo("Registro salvo com sucesso");
+		}
+	}
+
+	public Boolean verificarContaTransf() {
+		if (this.movto.getPlanoConta().getId() == filtro.getContaID()) {
+			Messages.addGlobalError("Selecionar outra conta diferente da: " + this.movto.getPlanoConta().getNome());
+			return true;
+		}
+		return false;
+	}
+
+	public String getSaldoMoeda() {
+		if (null != saldo) {
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			String formatado = nf.format(saldo);
+			return formatado;
+		} else {
+			return "";
+		}
+	}
+
+
+	/********* Gett e Sett ************/
+
+	public Movimentacao getMovto() {
+		return movto;
+	}
+
+	public void setMovto(Movimentacao movto) {
+		this.movto = movto;
+	}
+
+	public Movimentacao getMovtoSelecionado() {
+		return movtoSelecionado;
+	}
+
+	public void setMovtoSelecionado(Movimentacao movtoSelecionado) {
+		this.movtoSelecionado = movtoSelecionado;
+	}
+
+	public MovimentacaoFilter getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(MovimentacaoFilter filtro) {
+		this.filtro = filtro;
+	}
+
+	public BigDecimal getValor() {
+		return valor;
+	}
+
+	public void setValor(BigDecimal valor) {
+		this.valor = valor;
+	}
+
+	public BigDecimal getSaldo() {
+		return saldo;
+	}
+
+	public void setSaldo(BigDecimal saldo) {
+		this.saldo = saldo;
+	}
+
+	public LazyDataModel<Movimentacao> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Movimentacao> model) {
+		this.model = model;
+	}
+
+	public List<Movimentacao> getListaMovimentacoes() {
+		return listaMovimentacoes;
+	}
+
+	public void setListaMovimentacoes(List<Movimentacao> listaMovimentacoes) {
+		this.listaMovimentacoes = listaMovimentacoes;
+	}
+
+	public List<PlanoConta> getListaPlanoContas() {
+		return listaPlanoContas;
+	}
+
+	public void setListaPlanoContas(List<PlanoConta> listaPlanoContas) {
+		this.listaPlanoContas = listaPlanoContas;
+	}
+
+	public GeradorVinculo getIdVinculo() {
+		return idVinculo;
+	}
+
+	public void setIdVinculo(GeradorVinculo idVinculo) {
+		this.idVinculo = idVinculo;
+	}
+
+}
