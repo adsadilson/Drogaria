@@ -206,12 +206,24 @@ public class MovimentacaoBean implements Serializable {
 		this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
 		while (contador <= 1) {
 			if (contador == 0) {
+				if (this.movto.getPlanoConta().getTipo().getSigla().contains("R")) {
+					this.movto.setVlrEntrada(valor);
+					this.movto.setVlrSaida(null);
+				} else {
+					this.movto.setVlrSaida(valor);
+					this.movto.setVlrEntrada(null);
+				}
 				this.movto.getPlanoConta().setId(filtro.getContaID());
-				this.movto.setVlrEntrada(BigDecimal.ZERO);
+
 			} else {
+				if (this.movto.getPlanoConta().getTipo().getSigla().contains("R")) {
+					this.movto.setVlrSaida(valor);
+					this.movto.setVlrEntrada(null);
+				} else {
+					this.movto.setVlrEntrada(valor);
+					this.movto.setVlrSaida(null);
+				}
 				this.movto.getPlanoConta().setId(this.contaDestino);
-				this.movto.setVlrEntrada(movto.getVlrSaida());
-				this.movto.setVlrSaida(BigDecimal.ZERO);
 			}
 			this.movto.setDataLanc(new Date());
 			// this.movto.setUsuario(obterUsuario());
@@ -220,6 +232,7 @@ public class MovimentacaoBean implements Serializable {
 		}
 		this.movtoSelecionado = null;
 		this.movto = new Movimentacao();
+		this.valor = BigDecimal.ZERO;
 		pesquisar();
 		carregarContasLanctos();
 		Messages.addGlobalInfo("Registro salvo com sucesso");

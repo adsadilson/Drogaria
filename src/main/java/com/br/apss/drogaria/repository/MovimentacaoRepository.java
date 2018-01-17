@@ -24,22 +24,20 @@ import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.filter.MovimentacaoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
-
-
 public class MovimentacaoRepository implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Inject
 	private EntityManager manager;
 
 	public Movimentacao save(Movimentacao e) {
 		return manager.merge(e);
 	}
-	
+
 	public List<Movimentacao> save(List<Movimentacao> list) {
 		List<Movimentacao> retorno = new ArrayList<>();
-		for(Movimentacao m : list){
+		for (Movimentacao m : list) {
 			retorno.add(manager.merge(m));
 		}
 		return retorno;
@@ -78,13 +76,15 @@ public class MovimentacaoRepository implements Serializable {
 
 		if (filtro.getDataIni() != null) {
 
-			String sql = "select sum(vlr_entrada) - sum(vlr_saida) as saldo "
+			String sql = "select sum((case when vlr_entrada is null then 0. else vlr_entrada end)) "
+					+ "- sum((case when vlr_saida is null then 0. else vlr_saida end)) as saldo "
 					+ "from movimentacao where conta_id=:id and data_doc < :dtIni";
 
 			Query query = manager.createNativeQuery(sql);
 			query.setParameter("dtIni", filtro.getDataIni());
 			query.setParameter("id", filtro.getContaID());
-			return (BigDecimal) query.getSingleResult();
+			BigDecimal resul = (BigDecimal) query.getSingleResult();
+			return resul;
 
 		}
 		return null;

@@ -28,7 +28,6 @@ public class LoginBean implements Serializable {
 	private Usuario usuario = new Usuario();
 
 	private Usuario usuarioLogado;
-	
 
 	@Inject
 	private UsuarioService usuarioService;
@@ -39,20 +38,22 @@ public class LoginBean implements Serializable {
 
 		SimpleHash hash = new SimpleHash("md5", this.usuario.getSenha());
 		usuarioLogado = usuarioService.autenticacao(this.usuario.getEmail(), hash.toHex());
-		
-		for (GrupoUsuario g : usuarioLogado.getGrupos()) {
-			for (Permissao p : g.getPermissoes()) {
-				System.out.println(p.getControleMenu().getFuncao());
+
+		if (null != usuarioLogado) {
+			for (GrupoUsuario g : usuarioLogado.getGrupos()) {
+				for (Permissao p : g.getPermissoes()) {
+					System.out.println(p.getControleMenu().getFuncao());
+				}
 			}
 		}
 
 		if (null != usuarioLogado) {
 			try {
-				
+
 				HttpSession session;
 				FacesContext ctx = FacesContext.getCurrentInstance();
 				session = (HttpSession) ctx.getExternalContext().getSession(false);
-				
+
 				session.setAttribute("usuarioAutenticado", usuarioLogado);
 				Faces.redirect("./");
 			} catch (IOException e) {
@@ -64,7 +65,7 @@ public class LoginBean implements Serializable {
 		}
 
 	}
-	
+
 	public String logout() {
 		HttpSession session;
 		FacesContext ctx = FacesContext.getCurrentInstance();
@@ -77,8 +78,6 @@ public class LoginBean implements Serializable {
 		return "/login?faces-redirect=true";
 
 	}
-	
-	
 
 	/******************** Getters e Setters ***************************/
 

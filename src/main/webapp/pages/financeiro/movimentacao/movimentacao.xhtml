@@ -24,9 +24,28 @@
 		<h1>Movimentação de Contas</h1>
 
 		<h:form id="frm-menu" prependId="false">
-			<p:panelGrid columns="7" styleClass="semBorda">
-				<p:outputLabel value="CONTA" />
-				<p:selectOneMenu autoWidth="false" style="width:365px; color:red"
+			<h:panelGrid columns="10" styleClass="semBorda">
+				<p:commandButton icon="fa fa-file-o" value="Des/Rec"
+					style="margin-right: 0px;"
+					disabled="#{movimentacaoBean.filtro.contaID == null}"
+					oncomplete="PF('dialogCadDesp').show()" process="@this"
+					update=":frm-cadastro-desp"
+					action="#{movimentacaoBean.novoCadastro}">
+					<p:resetInput target=":frm-cadastro-desp" />
+				</p:commandButton>
+
+				<p:commandButton icon="fa fa-random" value="Transferência"
+					disabled="#{movimentacaoBean.filtro.contaID == null}"
+					oncomplete="PF('dialogCadTransf').show()" process="@this"
+					action="#{movimentacaoBean.novoCadastro}">
+				</p:commandButton>
+
+				<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+					disabled="#{movimentacaoBean.filtro.contaID == null}"
+					style="margin-right:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+				<p:outputLabel value="CONTA" style="margin-left:10px; margin-right:5px;" />
+				<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
 					converter="omnifaces.SelectItemsConverter"
 					value="#{movimentacaoBean.filtro.contaID}">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
@@ -35,57 +54,61 @@
 						itemLabel="#{conta.nome}" itemValue="#{conta.id}" />
 					<p:ajax event="change" process="@this" update="frm-menu" />
 				</p:selectOneMenu>
-				<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
+				<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" style="margin-left:5px;"
 					id="dtInicio" onfocus="mascaraData('dtInicio')"
 					styleClass="cssCalender" value="#{movimentacaoBean.filtro.dataIni}">
 					<p:ajax event="dateSelect" process="@this" update="dtFim"
 						listener="#{movimentacaoBean.filtro.getDataFimMin}" />
 				</p:calendar>
-				<p:outputLabel value="ATÉ" />
+				<p:outputLabel value="ATÉ" style="margin-left:5px; margin-right:5px;" />
 				<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
 					mindate="#{movimentacaoBean.filtro.dataLimite}"
 					styleClass="cssCalender" onfocus="mascaraData('dtFim')"
 					value="#{movimentacaoBean.filtro.dataFim}">
 					<p:ajax event="dateSelect" process="@this" />
 				</p:calendar>
-				<p:commandButton icon="fa fa-search" value="PESQUISA"
+				<p:commandButton icon="fa fa-search" value="PESQUISA" style="margin-left:10px;"
 					update=":frm-tabela" actionListener="#{movimentacaoBean.pesquisar}"
 					disabled="#{movimentacaoBean.filtro.contaID == null}" />
 
-			</p:panelGrid>
+			</h:panelGrid>
 
 			<p:toolbar styleClass="semPreenchimento">
 				<p:toolbarGroup>
-					<p:commandButton icon="fa fa-file-o" value="Des/Rec"
-						style="margin-right: 3px;"
-						disabled="#{movimentacaoBean.filtro.contaID == null}"
-						oncomplete="PF('dialogCadDesp').show()" process="@this"
-						update=":frm-cadastro-desp"
-						action="#{movimentacaoBean.novoCadastro}">
-						<p:resetInput target=":frm-cadastro-desp" />
-					</p:commandButton>
-					<p:commandButton icon="fa fa-random" value="Transferência"
-						disabled="#{movimentacaoBean.filtro.contaID == null}"
-						oncomplete="PF('dialogCadTransf').show()" process="@this"
-						action="#{movimentacaoBean.novoCadastro}">
-					</p:commandButton>
-					<p:commandButton icon="fa fa-pencil" value="Editar"
-						style="margin-left:3px; margin-right: 3px;"
-						oncomplete="#{movimentacaoBean.movtoSelecionado.id} == 1 ? 
+					<ui:remove>
+						<p:commandButton icon="fa fa-file-o" value="Des/Rec"
+							style="margin-right: 3px;"
+							disabled="#{movimentacaoBean.filtro.contaID == null}"
+							oncomplete="PF('dialogCadDesp').show()" process="@this"
+							update=":frm-cadastro-desp"
+							action="#{movimentacaoBean.novoCadastro}">
+							<p:resetInput target=":frm-cadastro-desp" />
+						</p:commandButton>
+						<p:commandButton icon="fa fa-random" value="Transferência"
+							disabled="#{movimentacaoBean.filtro.contaID == null}"
+							oncomplete="PF('dialogCadTransf').show()" process="@this"
+							action="#{movimentacaoBean.novoCadastro}">
+						</p:commandButton>
+
+						<p:commandButton icon="fa fa-pencil" value="Editar"
+							style="margin-left:3px; margin-right: 3px;"
+							oncomplete="#{movimentacaoBean.movtoSelecionado.id} == 1 ? 
 						PF('dialogCadTransf').show() : PF('dialogCadDesp').show()"
-						process="@this" update="dgCadDesp, dgCadTransf"
-						action="#{movimentacaoBean.editar}" id="btnEdit"
-						disabled="#{movimentacaoBean.movtoSelecionado.id == null}">
-					</p:commandButton>
-					<p:commandButton icon="fa fa-trash" value="Excluir" id="btnExcluir"
-						oncomplete="PF('confirmacaoExclusaoDesp').show()" process="@this"
-						update=":frm-excluir-desp"
-						disabled="#{movimentacaoBean.movtoSelecionado.id == null}">
-					</p:commandButton>
-					<p:separator />
-					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						disabled="#{movimentacaoBean.filtro.contaID == null}"
-						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+							process="@this" update="dgCadDesp, dgCadTransf"
+							action="#{movimentacaoBean.editar}" id="btnEdit"
+							disabled="#{movimentacaoBean.movtoSelecionado.id == null}">
+						</p:commandButton>
+						<p:commandButton icon="fa fa-trash" value="Excluir"
+							id="btnExcluir" oncomplete="PF('confirmacaoExclusaoDesp').show()"
+							process="@this" update=":frm-excluir-desp"
+							disabled="#{movimentacaoBean.movtoSelecionado.id == null}">
+						</p:commandButton>
+
+						<p:separator />
+						<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+							disabled="#{movimentacaoBean.filtro.contaID == null}"
+							style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+					</ui:remove>
 
 				</p:toolbarGroup>
 			</p:toolbar>
@@ -100,15 +123,13 @@
 				styleClass="table-tela-manutecao" rowIndexVar="index"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
-				emptyMessage="Nenhuma registro encontrado." rows="15"
+				emptyMessage="Nenhuma registro encontrado." rows="13"
 				paginator="true" paginatorAlwaysVisible="false" lazy="true"
 				paginatorPosition="bottom" selectionMode="single"
 				selection="#{movimentacaoBean.movtoSelecionado}" rowKey="#{desp.id}">
 
-				<p:ajax event="rowSelect"
-					update=":frm-menu:btnEdit :frm-menu:btnExcluir  tbl-desp" />
-				<p:ajax event="rowUnselect"
-					update=":frm-menu:btnEdit :frm-menu:btnExcluir tbl-desp" />
+				<p:ajax event="rowSelect" update=" tbl-desp" />
+				<p:ajax event="rowUnselect" update=" tbl-desp" />
 
 				<ui:remove>
 					<f:facet name="header">Movimentações</f:facet>
@@ -128,7 +149,8 @@
 					<p:row>
 						<p:column headerText="Saldo Anterior" style="text-align:right"
 							colspan="6" />
-						<p:column headerText="#{movimentacaoBean.saldoMoeda}" />
+						<p:column headerText="#{movimentacaoBean.saldoMoeda}"
+							style="text-align:right" />
 					</p:row>
 				</p:columnGroup>
 
@@ -158,20 +180,20 @@
 
 				<p:column style="text-align: right;" sortBy="#{desp.vlrEntrada}">
 					<h:outputText value="#{desp.vlrEntrada}">
-						<f:convertNumber type="currency" currencySymbol="" />
+						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 
 
 				<p:column style="text-align: right;" sortBy="#{desp.vlrSaida}">
 					<h:outputText value="#{desp.vlrSaida}">
-						<f:convertNumber type="currency" currencySymbol="" />
+						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 
 				<p:column style="text-align: right;">
 					<h:outputText value="#{desp.vlrSaldo}">
-						<f:convertNumber type="currency" currencySymbol="" />
+						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 			</p:dataTable>
@@ -240,17 +262,17 @@
 						<p:inputNumber decimalSeparator="," thousandSeparator="."
 							symbol="R$ " size="15" required="true" id="txtVlrEntrada"
 							rendered="#{movimentacaoBean.movto.planoConta.tipo=='R'}}"
-							value="#{movimentacaoBean.movto.vlrEntrada}"
+							value="#{movimentacaoBean.valor}"
 							requiredMessage="Informe o valor" />
 						<p:inputNumber decimalSeparator="," thousandSeparator="."
 							symbol="R$ " size="15" required="true" id="txtVlrSaida"
 							rendered="#{movimentacaoBean.movto.planoConta.tipo=='D'}}"
-							value="#{movimentacaoBean.movto.vlrSaida}"
+							value="#{movimentacaoBean.valor}"
 							requiredMessage="Informe o valor" />
 						<p:inputNumber symbol="R$ " decimalSeparator=","
 							thousandSeparator="." size="15" required="true" id="txtVlr"
 							rendered="#{movimentacaoBean.movto.planoConta.id==null}"
-							value="#{movimentacaoBean.movto.vlrSaida}"
+							value="#{movimentacaoBean.valor}"
 							requiredMessage="Informe o valor" />
 					</h:panelGroup>
 
