@@ -13,5 +13,10 @@
 	<lifecycle>
 		<phase-listener>com.br.apss.drogaria.security.AutenticacaoListener</phase-listener>
 	</lifecycle>
+	
+	<validator>
+		<validator-id>dtMovimentacaoValidation</validator-id>
+		<validator-class>com.br.apss.drogaria.validadors.DtMovimentacaoValidation</validator-class>
+	</validator>
 
 </faces-config>

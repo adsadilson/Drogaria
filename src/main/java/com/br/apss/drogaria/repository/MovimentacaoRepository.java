@@ -97,8 +97,8 @@ public class MovimentacaoRepository implements Serializable {
 
 		Criteria criteria = session.createCriteria(Movimentacao.class);
 
-		criteria.createAlias("conta", "conta", Criteria.INNER_JOIN);
-		Criterion p1 = Restrictions.eq("conta.id", filtro.getContaID());
+		criteria.createAlias("planoConta", "planoConta", Criteria.INNER_JOIN);
+		Criterion p1 = Restrictions.eq("planoConta.id", filtro.getContaID());
 		criteria.add(p1);
 
 		if (StringUtils.isNotBlank(filtro.getDoc())) {

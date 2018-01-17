@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +19,13 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
+import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.PlanoConta;
+import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.MovimentacaoFilter;
+import com.br.apss.drogaria.model.filter.PlanoContaFilter;
+import com.br.apss.drogaria.security.LoginBean;
 import com.br.apss.drogaria.service.MovimentacaoService;
 import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
@@ -40,6 +45,8 @@ public class MovimentacaoBean implements Serializable {
 	private LazyDataModel<Movimentacao> model;
 	private BigDecimal saldo;
 
+	private Long contaDestino;
+
 	@Inject
 	private PlanoContaService contaService;
 
@@ -49,12 +56,21 @@ public class MovimentacaoBean implements Serializable {
 	@Inject
 	GeradorVinculo idVinculo;
 
+	@Inject
+	LoginBean user;
+
 	@PostConstruct
 	public void Inicializar() {
 		filtro = new MovimentacaoFilter();
 		filtro.setDataIni(new Date());
 		filtro.setDataFim(new Date());
 		movto = new Movimentacao();
+	}
+
+	public List<PlanoConta> getContas() {
+		PlanoContaFilter cc = new PlanoContaFilter();
+		cc.setTipo(TipoConta.CC);
+		return contaService.filtrados(cc);
 	}
 
 	public boolean desabilitarInfo(Movimentacao m) {
@@ -154,11 +170,9 @@ public class MovimentacaoBean implements Serializable {
 			this.movto = movtoSelecionado;
 		}
 
-		//carregarContasLanc();
+		// carregarContasLanc();
 
 	}
-
-
 
 	public void excluir() {
 		if (this.movtoSelecionado.getVinculo() != null) {
@@ -171,35 +185,43 @@ public class MovimentacaoBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso");
 	}
 
-	/*public String getContaDestino() {
-		if (null != movtoSelecionado) {
-			if (null == movtoSelecionado.getSubConta() && movtoSelecionado.getContaTipo().getId() == 1) {
-				return movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movtoSelecionado.getId())
-						.getConta().getNome();
-			} else {
-				return contaService.porId(movtoSelecionado.getSubConta().getId()).getNome();
-			}
-		}
-		return null;
-	}*/
+	/*
+	 * public String getContaDestino() { if (null != movtoSelecionado) { if
+	 * (null == movtoSelecionado.getSubConta() &&
+	 * movtoSelecionado.getContaTipo().getId() == 1) { return
+	 * movimentacaoService.porVinculo(movtoSelecionado.getVinculo(),
+	 * movtoSelecionado.getId()) .getConta().getNome(); } else { return
+	 * contaService.porId(movtoSelecionado.getSubConta().getId()).getNome(); } }
+	 * return null; }
+	 */
 
-	/*private Usuario obterUsuario() {
-		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
-		Usuario usuario = null;
-		if (session != null) {
-			usuario = (Usuario) session.getAttribute("usuarioAutenticado");
-		}
+	@SuppressWarnings("unused")
+	private Usuario obterUsuario() {
+		Usuario usuario = user.getUsuario();
 		return usuario;
-	}*/
+	}
 
 	public void salvar() {
-	//	this.movto.getConta().setId(filtro.getContaID());
-		this.movto.setDataLanc(new Date());
-		//this.movto.setUsuario(obterUsuario());
-		movimentacaoService.save(this.movto);
+		int contador = 0;
+		this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
+		while (contador <= 1) {
+			if (contador == 0) {
+				this.movto.getPlanoConta().setId(filtro.getContaID());
+				this.movto.setVlrEntrada(BigDecimal.ZERO);
+			} else {
+				this.movto.getPlanoConta().setId(this.contaDestino);
+				this.movto.setVlrEntrada(movto.getVlrSaida());
+				this.movto.setVlrSaida(BigDecimal.ZERO);
+			}
+			this.movto.setDataLanc(new Date());
+			// this.movto.setUsuario(obterUsuario());
+			movimentacaoService.salvar(this.movto);
+			contador++;
+		}
 		this.movtoSelecionado = null;
 		this.movto = new Movimentacao();
 		pesquisar();
+		carregarContasLanctos();
 		Messages.addGlobalInfo("Registro salvo com sucesso");
 	}
 
@@ -207,13 +229,13 @@ public class MovimentacaoBean implements Serializable {
 		if (!verificarContaTransf()) {
 			if (this.movto.getId() == null) {
 				this.movto.setDataLanc(new Date());
-				//this.movto.setUsuario(obterUsuario());
+				// this.movto.setUsuario(obterUsuario());
 				this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
-				movimentacaoService.save(this.movto);
+				movimentacaoService.salvar(this.movto);
 
 				PlanoConta c = new PlanoConta();
 				c.setId(filtro.getContaID());
-				//this.movto.setConta(c);
+				// this.movto.setConta(c);
 				if (this.movto.getVlrSaida() != null) {
 					this.movto.setVlrEntrada(this.movto.getVlrSaida());
 					this.movto.setVlrSaida(null);
@@ -222,10 +244,10 @@ public class MovimentacaoBean implements Serializable {
 					this.movto.setVlrEntrada(null);
 				}
 
-				movimentacaoService.save(this.movto);
+				movimentacaoService.salvar(this.movto);
 			} else {
 
-				movimentacaoService.save(this.movto);
+				movimentacaoService.salvar(this.movto);
 				Movimentacao movtoAlt = movimentacaoService.porVinculo(this.movto.getVinculo(), this.movto.getId());
 
 				movtoAlt.setDescricao(this.movto.getDescricao());
@@ -234,7 +256,7 @@ public class MovimentacaoBean implements Serializable {
 				movtoAlt.setVlrEntrada(movto.getVlrSaida());
 				movtoAlt.setVlrSaida(movto.getVlrEntrada());
 
-				movimentacaoService.save(movtoAlt);
+				movimentacaoService.salvar(movtoAlt);
 			}
 			this.movtoSelecionado = null;
 			this.movto = new Movimentacao();
@@ -262,6 +284,20 @@ public class MovimentacaoBean implements Serializable {
 		}
 	}
 
+	public List<TipoConta> getTipoConta() {
+		return Arrays.asList(TipoConta.D, TipoConta.R);
+	}
+
+	public void carregarContasLanctos() {
+		PlanoContaFilter cl = new PlanoContaFilter();
+		if (null != movto.getPlanoConta().getTipo()) {
+			cl.setTipo(movto.getPlanoConta().getTipo());
+			cl.setStatus(true);
+			listaPlanoContas = contaService.filtrados(cl);
+		} else {
+			listaPlanoContas = new ArrayList<>();
+		}
+	}
 
 	/********* Gett e Sett ************/
 
@@ -335,6 +371,14 @@ public class MovimentacaoBean implements Serializable {
 
 	public void setIdVinculo(GeradorVinculo idVinculo) {
 		this.idVinculo = idVinculo;
+	}
+
+	public Long getContaDestino() {
+		return contaDestino;
+	}
+
+	public void setContaDestino(Long contaDestino) {
+		this.contaDestino = contaDestino;
 	}
 
 }

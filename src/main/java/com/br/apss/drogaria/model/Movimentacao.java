@@ -57,7 +57,7 @@ public class Movimentacao implements Serializable {
 	private BigDecimal vlrSaldo = BigDecimal.ZERO;
 
 	@Column(name = "vlr_saida", precision = 12, scale = 2)
-	private BigDecimal vlrSaida;
+	private BigDecimal vlrSaida = BigDecimal.ZERO;
 
 	private Long vinculo;
 

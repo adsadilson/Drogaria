@@ -2,9 +2,9 @@ package com.br.apss.drogaria.enums;
 
 public enum TipoConta {
 
-	CC("C/CORRENTE","CC"),
-	R("RECEITA","R"),
-	D("DESPESA","D");
+	CC("C/CORRENTES","CC"),
+	R("RECEITAS","R"),
+	D("DESPESAS","D");
 	
 	private String descricao;
 	private String sigla;
