@@ -178,7 +178,7 @@ public class MovimentacaoRepository implements Serializable {
 
 	public List<Movimentacao> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from Movimentacao where vinculo = :vinculo", Movimentacao.class)
+			return manager.createQuery("from Movimentacao where vinculo = :vinculo order by id", Movimentacao.class)
 					.setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;

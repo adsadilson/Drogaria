@@ -61,7 +61,7 @@ public class LoginBean implements Serializable {
 				Messages.addGlobalError(e.getMessage());
 			}
 		} else {
-			Messages.addGlobalInfo("Login ou Senha inváida.");
+			Messages.addGlobalInfo("Login ou Senha inválida.");
 		}
 
 	}

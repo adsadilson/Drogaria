@@ -52,6 +52,10 @@ public class MovimentacaoService implements Serializable {
 		return dao.porVinculo(vinculo, id);
 	}
 
+	public List<Movimentacao> porVinculo(Long vinculo) {
+		return dao.porVinculo(vinculo);
+	}
+
 	public void excluirPorVinculo(Long id) {
 		dao.excluirPorVinculo(id);
 	}
