@@ -198,6 +198,8 @@ public class MovimentacaoBean implements Serializable {
 		this.movto = new Movimentacao();
 		pesquisar();
 		carregarContasLanctos();
+		RequestContext request = RequestContext.getCurrentInstance();
+		request.addCallbackParam("sucesso", true);
 		Messages.addGlobalInfo("Registro salvo com sucesso");
 
 	}

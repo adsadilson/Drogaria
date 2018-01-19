@@ -24,106 +24,75 @@
 		<h1>Movimentação de Contas</h1>
 
 		<h:form id="frm-menu" prependId="false">
-			<h:panelGrid columns="10" styleClass="semBorda">
-				<p:commandButton icon="fa fa-file-o" value="Des/Rec"
-					style="margin-right: 0px;"
-					disabled="#{movimentacaoBean.filtro.contaID == null}"
-					oncomplete="PF('dialogCadDesp').show()" process="@this"
-					update=":frm-cadastro-desp"
-					action="#{movimentacaoBean.novoCadastro}">
-					<p:resetInput target=":frm-cadastro-desp" />
-				</p:commandButton>
 
-				<p:commandButton icon="fa fa-random" value="Transferência"
-					disabled="#{movimentacaoBean.filtro.contaID == null}"
-					oncomplete="PF('dialogCadTransf').show()" process="@this"
-					action="#{movimentacaoBean.novoCadastro}">
-				</p:commandButton>
-
-				<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-					disabled="#{movimentacaoBean.filtro.contaID == null}"
-					style="margin-right:5px;" oncomplete="PF('dialogFiltro').show()" />
-
-				<p:outputLabel value="CONTA"
-					style="margin-left:10px; margin-right:5px;" />
-				<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
-					converter="omnifaces.SelectItemsConverter"
-					value="#{movimentacaoBean.filtro.contaID}">
-					<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
-						noSelectionOption="true" />
-					<f:selectItems value="#{movimentacaoBean.contas}" var="conta"
-						itemLabel="#{conta.nome}" itemValue="#{conta.id}" />
-					<p:ajax event="change" process="@this" update="frm-menu" />
-				</p:selectOneMenu>
-				<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
-					style="margin-left:5px;" id="dtInicio"
-					onfocus="mascaraData('dtInicio')" styleClass="cssCalender"
-					value="#{movimentacaoBean.filtro.dataIni}">
-					<p:ajax event="dateSelect" process="@this" update="dtFim"
-						listener="#{movimentacaoBean.filtro.getDataFimMin}" />
-				</p:calendar>
-				<p:outputLabel value="ATÉ"
-					style="margin-left:5px; margin-right:5px;" />
-				<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
-					mindate="#{movimentacaoBean.filtro.dataLimite}"
-					styleClass="cssCalender" onfocus="mascaraData('dtFim')"
-					value="#{movimentacaoBean.filtro.dataFim}">
-					<p:ajax event="dateSelect" process="@this" />
-				</p:calendar>
-				<p:commandButton icon="fa fa-search" value="PESQUISA"
-					style="margin-left:10px;" update=":frm-tabela"
-					actionListener="#{movimentacaoBean.pesquisar}"
-					disabled="#{movimentacaoBean.filtro.contaID == null}" />
-
-			</h:panelGrid>
-
-			<p:toolbar styleClass="semPreenchimento">
+			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
-					<ui:remove>
-						<p:commandButton icon="fa fa-file-o" value="Des/Rec"
-							style="margin-right: 3px;"
-							disabled="#{movimentacaoBean.filtro.contaID == null}"
-							oncomplete="PF('dialogCadDesp').show()" process="@this"
-							update=":frm-cadastro-desp"
-							action="#{movimentacaoBean.novoCadastro}">
-							<p:resetInput target=":frm-cadastro-desp" />
-						</p:commandButton>
-						<p:commandButton icon="fa fa-random" value="Transferência"
-							disabled="#{movimentacaoBean.filtro.contaID == null}"
-							oncomplete="PF('dialogCadTransf').show()" process="@this"
-							action="#{movimentacaoBean.novoCadastro}">
-						</p:commandButton>
 
-						<p:commandButton icon="fa fa-pencil" value="Editar"
-							style="margin-left:3px; margin-right: 3px;"
-							oncomplete="#{movimentacaoBean.movtoSelecionado.id} == 1 ? 
-						PF('dialogCadTransf').show() : PF('dialogCadDesp').show()"
-							process="@this" update="dgCadDesp, dgCadTransf"
-							action="#{movimentacaoBean.editar}" id="btnEdit"
-							disabled="#{movimentacaoBean.movtoSelecionado.id == null}">
-						</p:commandButton>
-						<p:commandButton icon="fa fa-trash" value="Excluir"
-							id="btnExcluir" oncomplete="PF('confirmacaoExclusaoDesp').show()"
-							process="@this" update=":frm-excluir-desp"
-							disabled="#{movimentacaoBean.movtoSelecionado.id == null}">
-						</p:commandButton>
+					<p:commandButton icon="fa fa-file-o" value="Des/Rec"
+						style="margin-right: 3px;"
+						disabled="#{movimentacaoBean.filtro.contaID == null}"
+						oncomplete="PF('dialogCadDesp').show()" process="@this"
+						update=":frm-cadastro-desp"
+						action="#{movimentacaoBean.novoCadastro}">
+						<p:resetInput target=":frm-cadastro-desp" />
+					</p:commandButton>
 
-						<p:separator />
-						<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-							disabled="#{movimentacaoBean.filtro.contaID == null}"
-							style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
-					</ui:remove>
+					<p:commandButton icon="fa fa-random" value="Transferência"
+						disabled="#{movimentacaoBean.filtro.contaID == null}"
+						oncomplete="PF('dialogCadTransf').show()" process="@this"
+						action="#{movimentacaoBean.novoCadastro}">
+					</p:commandButton>
 
+					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+						disabled="#{movimentacaoBean.filtro.contaID == null}"
+						style="margin-right:5px; margin-left:3px;"
+						oncomplete="PF('dialogFiltro').show()" />
+
+					<p:outputLabel value="CONTA"
+						style="margin-left:10px; margin-right:10px; color:black" />
+
+					<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{movimentacaoBean.filtro.contaID}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
+							noSelectionOption="true" />
+						<f:selectItems value="#{movimentacaoBean.contas}" var="conta"
+							itemLabel="#{conta.nome}" itemValue="#{conta.id}" />
+						<p:ajax event="change" process="@this" update="frm-menu" />
+					</p:selectOneMenu>
+
+					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
+						style="margin-left:5px;" id="dtInicio"
+						onfocus="mascaraData('dtInicio')" styleClass="cssCalender"
+						value="#{movimentacaoBean.filtro.dataIni}">
+						<p:ajax event="dateSelect" process="@this" update="dtFim"
+							listener="#{movimentacaoBean.filtro.getDataFimMin}" />
+					</p:calendar>
+					<p:outputLabel value="ATÉ"
+						style="margin-left:5px; margin-right:5px; color:black" />
+					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
+						mindate="#{movimentacaoBean.filtro.dataLimite}"
+						styleClass="cssCalender" onfocus="mascaraData('dtFim')"
+						value="#{movimentacaoBean.filtro.dataFim}">
+						<p:ajax event="dateSelect" process="@this" />
+					</p:calendar>
+					<p:commandButton icon="fa fa-search" value="PESQUISA"
+						style="margin-left:10px;" update=":frm-tabela"
+						actionListener="#{movimentacaoBean.pesquisar}"
+						disabled="#{movimentacaoBean.filtro.contaID == null}" />
 				</p:toolbarGroup>
+
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+
 			</p:toolbar>
+
 		</h:form>
-
-
-
 
 		<h:form id="frm-tabela">
 			<p:dataTable id="tbl-desp" value="#{movimentacaoBean.model}"
-				var="desp" style="margin-top: 5px; margin-bottom:20px;"
+				var="desp" style="margin-top: 10px; margin-bottom:20px;"
 				styleClass="table-tela-manutecao" rowIndexVar="index"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
@@ -219,7 +188,7 @@
 
 		<p:dialog header="Lançamento em conta" widgetVar="dialogCadDesp"
 			modal="true" resizable="false" draggable="true" id="dgCadDesp"
-			closeOnEscape="true" width="490" height="355" appendTo="@(body)">
+			closeOnEscape="true" width="490" height="245" appendTo="@(body)">
 
 			<h:form id="frm-cadastro-desp">
 
@@ -231,6 +200,7 @@
 					<p:outputLabel for="txtTipo" value="Tipo" />
 					<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:92%;"
 						value="#{movimentacaoBean.tipoConta}"
+						disabled="#{movimentacaoBean.movto.notInclusao}"
 						converter="omnifaces.SelectItemsConverter" required="true"
 						requiredMessage="Selecione tipo">
 						<f:selectItem itemLabel="Selecione o tipo de conta"
@@ -240,7 +210,7 @@
 							itemValue="#{tipo}" />
 						<p:ajax event="change" process="@this"
 							listener="#{movimentacaoBean.carregarContasLanctos}"
-							update="txtConta txtVlrEntrada txtVlrSaida" />
+							update="txtConta txtVlrEntrada txtVlrSaida txtVlrValor" />
 					</p:selectOneMenu>
 
 					<p:outputLabel for="txtConta" value="Conta" />
@@ -265,18 +235,28 @@
 						value="#{movimentacaoBean.movto.dataDoc}"
 						requiredMessage="Informe a data" />
 
-					<p:outputLabel for="txtVlrEntrada" value="Entrada" />
+					<p:outputLabel for="txtVlrEntrada" value="Entrada"
+						rendered="#{movimentacaoBean.tipoConta.sigla=='R'}" />
 					<p:inputNumber decimalSeparator="," thousandSeparator="."
-						disabled="#{movimentacaoBean.tipoConta.sigla=='D'}" symbol="R$ "
+						rendered="#{movimentacaoBean.tipoConta.sigla=='R'}" symbol="R$ "
 						size="15" required="true" id="txtVlrEntrada"
 						value="#{movimentacaoBean.movto.vlrEntrada}"
 						requiredMessage="Informe o valor" />
 
-					<p:outputLabel for="txtVlrSaida" value="Saída" />
+					<p:outputLabel for="txtVlrSaida" value="Saída"
+						rendered="#{movimentacaoBean.tipoConta.sigla=='D'}" />
 					<p:inputNumber decimalSeparator="," thousandSeparator="."
 						symbol="R$ " size="15" required="true" id="txtVlrSaida"
-						disabled="#{movimentacaoBean.tipoConta.sigla=='R'}"
+						rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
 						value="#{movimentacaoBean.movto.vlrSaida}"
+						requiredMessage="Informe o valor" />
+
+					<p:outputLabel for="txtVlrValor" value="Valor"
+						rendered="#{movimentacaoBean.tipoConta.sigla==null}" />
+					<p:inputNumber decimalSeparator="," thousandSeparator="."
+						symbol="R$ " size="15" required="true" id="txtVlrValor"
+						rendered="#{movimentacaoBean.tipoConta.sigla==null}"
+						value="#{movimentacaoBean.valor}"
 						requiredMessage="Informe o valor" />
 
 					<p:outputLabel value="Documento" />
@@ -285,7 +265,7 @@
 
 				</h:panelGrid>
 
-				<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Cancelar" icon="fa fa-remove"
 							style="margin-right: 3px;"
@@ -293,6 +273,7 @@
 							oncomplete="PF('dialogCadDesp').hide()" immediate="true" />
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							id="salvarCommandButtonDesp"
+							oncomplete="if(args.sucesso == true) PF('dialogCadDesp').hide()"
 							actionListener="#{movimentacaoBean.salvar}"
 							update=":frm-cadastro-desp :frm-tabela">
 						</p:commandButton>

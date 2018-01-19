@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.validation.constraints.DecimalMin;
 
 @Entity
 @Table(name = "movimentacao")
@@ -54,12 +55,14 @@ public class Movimentacao implements Serializable {
 	private String documento;
 
 	@Column(name = "vlr_entrada", precision = 12, scale = 2)
+	@DecimalMin(value = "0.01", message = "O 'VALOR' tem quer ser maior que 0,00")
 	private BigDecimal vlrEntrada = BigDecimal.ZERO;
 
 	@Transient
 	private BigDecimal vlrSaldo = BigDecimal.ZERO;
 
 	@Column(name = "vlr_saida", precision = 12, scale = 2)
+	@DecimalMin(value = "0.01", message = "O 'VALOR' tem quer ser maior que 0,00")
 	private BigDecimal vlrSaida = BigDecimal.ZERO;
 
 	private Long vinculo;
@@ -163,6 +166,11 @@ public class Movimentacao implements Serializable {
 	@Transient
 	public boolean isInclusao() {
 		return this.getId() == null;
+	}
+
+	@Transient
+	public boolean isNotInclusao() {
+		return !isInclusao();
 	}
 
 	@Override
