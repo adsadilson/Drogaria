@@ -4,11 +4,13 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.br.apss.drogaria.model.PlanoConta;
+
 public class MovimentacaoFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Long contaID;
+	private PlanoConta planoConta;
 	private String nomeConta;
 	private Date dataIni = new Date();
 	private Date dataFim = new Date();
@@ -28,12 +30,12 @@ public class MovimentacaoFilter implements Serializable {
 		this.dataLimite = this.dataIni;
 	}
 
-	public Long getContaID() {
-		return contaID;
+	public PlanoConta getPlanoConta() {
+		return planoConta;
 	}
 
-	public void setContaID(Long contaID) {
-		this.contaID = contaID;
+	public void setPlanoConta(PlanoConta planoConta) {
+		this.planoConta = planoConta;
 	}
 
 	public String getNomeConta() {

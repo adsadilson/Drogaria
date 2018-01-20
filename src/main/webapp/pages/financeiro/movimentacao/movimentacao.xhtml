@@ -25,26 +25,22 @@
 
 		<h:form id="frm-menu" prependId="false">
 
+			<!-- BOTÕES DE AÇÕES -->
+
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Des/Rec"
+					<p:commandButton icon="fa fa-file-o" value="Novo Lançamento"
 						style="margin-right: 3px;"
-						disabled="#{movimentacaoBean.filtro.contaID == null}"
+						disabled="#{movimentacaoBean.filtro.planoConta.id == null}"
 						oncomplete="PF('dialogCadDesp').show()" process="@this"
 						update=":frm-cadastro-desp"
 						action="#{movimentacaoBean.novoCadastro}">
 						<p:resetInput target=":frm-cadastro-desp" />
 					</p:commandButton>
 
-					<p:commandButton icon="fa fa-random" value="Transferência"
-						disabled="#{movimentacaoBean.filtro.contaID == null}"
-						oncomplete="PF('dialogCadTransf').show()" process="@this"
-						action="#{movimentacaoBean.novoCadastro}">
-					</p:commandButton>
-
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						disabled="#{movimentacaoBean.filtro.contaID == null}"
+						disabled="#{movimentacaoBean.filtro.planoConta.id == null}"
 						style="margin-right:5px; margin-left:3px;"
 						oncomplete="PF('dialogFiltro').show()" />
 
@@ -53,11 +49,11 @@
 
 					<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
 						converter="omnifaces.SelectItemsConverter"
-						value="#{movimentacaoBean.filtro.contaID}">
+						value="#{movimentacaoBean.filtro.planoConta}">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
 							noSelectionOption="true" />
 						<f:selectItems value="#{movimentacaoBean.contas}" var="conta"
-							itemLabel="#{conta.nome}" itemValue="#{conta.id}" />
+							itemLabel="#{conta.nome}" itemValue="#{conta}" />
 						<p:ajax event="change" process="@this" update="frm-menu" />
 					</p:selectOneMenu>
 
@@ -79,7 +75,7 @@
 					<p:commandButton icon="fa fa-search" value="PESQUISA"
 						style="margin-left:10px;" update=":frm-tabela"
 						actionListener="#{movimentacaoBean.pesquisar}"
-						disabled="#{movimentacaoBean.filtro.contaID == null}" />
+						disabled="#{movimentacaoBean.filtro.planoConta.id == null}" />
 				</p:toolbarGroup>
 
 				<p:toolbarGroup align="right">
@@ -89,6 +85,8 @@
 			</p:toolbar>
 
 		</h:form>
+
+		<!-- TABELA DE LANÇAMENTO EM CONTA -->
 
 		<h:form id="frm-tabela">
 			<p:dataTable id="tbl-desp" value="#{movimentacaoBean.model}"
@@ -210,7 +208,7 @@
 							itemValue="#{tipo}" />
 						<p:ajax event="change" process="@this"
 							listener="#{movimentacaoBean.carregarContasLanctos}"
-							update="txtConta txtVlrEntrada txtVlrSaida txtVlrValor" />
+							update="txtConta labelVlrs txtVlrs" />
 					</p:selectOneMenu>
 
 					<p:outputLabel for="txtConta" value="Conta" />
@@ -235,29 +233,26 @@
 						value="#{movimentacaoBean.movto.dataDoc}"
 						requiredMessage="Informe a data" />
 
-					<p:outputLabel for="txtVlrEntrada" value="Entrada"
-						rendered="#{movimentacaoBean.tipoConta.sigla=='R'}" />
-					<p:inputNumber decimalSeparator="," thousandSeparator="."
-						rendered="#{movimentacaoBean.tipoConta.sigla=='R'}" symbol="R$ "
-						size="15" required="true" id="txtVlrEntrada"
-						value="#{movimentacaoBean.movto.vlrEntrada}"
-						requiredMessage="Informe o valor" />
+					<h:panelGroup id="labelVlrs">
+						<p:outputLabel for="txtVlrSaida" value="Saída"
+							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}" />
+						<p:outputLabel for="txtVlrEntrada" value="Entrada"
+							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" />
+					</h:panelGroup>
 
-					<p:outputLabel for="txtVlrSaida" value="Saída"
-						rendered="#{movimentacaoBean.tipoConta.sigla=='D'}" />
-					<p:inputNumber decimalSeparator="," thousandSeparator="."
-						symbol="R$ " size="15" required="true" id="txtVlrSaida"
-						rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
-						value="#{movimentacaoBean.movto.vlrSaida}"
-						requiredMessage="Informe o valor" />
+					<h:panelGroup id="txtVlrs">
+						<p:inputNumber decimalSeparator="," thousandSeparator="."
+							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" symbol="R$ "
+							size="15" required="true" id="txtVlrEntrada"
+							value="#{movimentacaoBean.movto.vlrEntrada}"
+							requiredMessage="Informe o valor" />
+						<p:inputNumber decimalSeparator="," thousandSeparator="."
+							symbol="R$ " size="15" required="true" id="txtVlrSaida"
+							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
+							value="#{movimentacaoBean.movto.vlrSaida}"
+							requiredMessage="Informe o valor" />
 
-					<p:outputLabel for="txtVlrValor" value="Valor"
-						rendered="#{movimentacaoBean.tipoConta.sigla==null}" />
-					<p:inputNumber decimalSeparator="," thousandSeparator="."
-						symbol="R$ " size="15" required="true" id="txtVlrValor"
-						rendered="#{movimentacaoBean.tipoConta.sigla==null}"
-						value="#{movimentacaoBean.valor}"
-						requiredMessage="Informe o valor" />
+					</h:panelGroup>
 
 					<p:outputLabel value="Documento" />
 					<p:inputText size="15" value="#{movimentacaoBean.movto.documento}" />
@@ -280,6 +275,74 @@
 					</p:toolbarGroup>
 				</p:toolbar>
 				<p:defaultCommand target="salvarCommandButtonDesp" />
+			</h:form>
+
+		</p:dialog>
+
+
+		<!-- LANÇAMENTO DE ENTRE CONTAS CORRENTES -->
+
+		<p:dialog header="Transferência entre contas"
+			widgetVar="dialogCadTransf" modal="true" resizable="false"
+			draggable="true" id="dgCadTransf" closeOnEscape="true" width="490"
+			height="245" appendTo="@(body)">
+
+			<h:form id="frm-cadastro-transf">
+
+				<p:growl autoUpdate="true" />
+
+				<h:panelGrid id="panelCadastroTransf" columns="2"
+					columnClasses="rotuloDesRec,campoDesRec" style="margin-top:10px;">
+
+					<p:outputLabel for="txtContaTransf" value="Conta" />
+					<p:selectOneMenu id="txtContaTransf" required="true"
+						autoWidth="false" converter="omnifaces.SelectItemsConverter"
+						style="width:91%;" value="#{movimentacaoBean.movto.planoConta}"
+						requiredMessage="Selecione tipo lançamento">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{movimentacaoBean.contaCorrentes}" var="st"
+							itemLabel="#{st.nome}" itemValue="#{st}" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel for="txtDescricaoTransf" value="Descrição" />
+					<p:inputText id="txtDescricaoTransf" size="40"
+						value="#{movimentacaoBean.movto.descricao}" required="true"
+						requiredMessage="Informe a descrição" />
+
+					<p:outputLabel for="txtDataTransf" value="Data Doc." />
+					<p:calendar id="txtDataTransf" size="15" pattern="dd/MM/yyyy"
+						locale="pt_BR" required="true"
+						value="#{movimentacaoBean.movto.dataDoc}"
+						requiredMessage="Informe a data" />
+
+					<p:outputLabel for="txtValorTransf" value="Valor" />
+					<p:inputNumber decimalSeparator="," thousandSeparator="."
+						styleClass="moeda" id="txtValorTransf" size="15" required="true"
+						value="#{movimentacaoBean.movto.vlrEntrada}"
+						requiredMessage="Informe o valor" />
+
+					<p:outputLabel value="Documento" />
+					<p:inputText size="15" value="#{movimentacaoBean.movto.documento}" />
+
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 5px;">
+						<p:commandButton value="Cancelar" icon="fa fa-remove"
+							style="margin-right: 3px;" action="#{movimentacaoBean.pesquisar}"
+							update=":frm-cadastro-transf :frm-tabela :frm-menu"
+							oncomplete="PF('dialogCadTransf').hide()" immediate="true" />
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							id="salvarCommandButtonTransf"
+							action="#{movimentacaoBean.salvar()}"
+							update=":frm-cadastro-transf :frm-tabela">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
+				<p:defaultCommand target="salvarCommandButtonTransf" />
+
 			</h:form>
 
 		</p:dialog>

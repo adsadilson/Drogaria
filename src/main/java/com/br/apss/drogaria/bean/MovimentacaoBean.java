@@ -21,6 +21,7 @@ import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.Usuario;
@@ -185,13 +186,22 @@ public class MovimentacaoBean implements Serializable {
 				this.movtoSelecionado.setVlrSaida(this.movto.getVlrEntrada());
 				this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
 			}
-			
+
 			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("D")) {
 				this.movtoSelecionado.setVlrSaida(null);
 				this.movtoSelecionado.setVlrEntrada(this.movto.getVlrSaida());
 				this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
 			}
-			
+
+			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("CC")) {
+				if (i == 0) {
+					this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
+				} else {
+					this.movtoSelecionado.setVlrSaida(this.movto.getVlrEntrada());
+					this.movtoSelecionado.setVlrEntrada(null);
+				}
+			}
+
 			movimentacaoService.salvar(this.movtoSelecionado);
 
 		}
@@ -207,27 +217,20 @@ public class MovimentacaoBean implements Serializable {
 	public void editar() {
 		List<Movimentacao> m = this.movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
 		this.movto = m.get(0);
-		this.tipoConta = this.movto.getPlanoConta().getTipo();
-		if (this.tipoConta.getSigla().contains("R")) {
-			this.movto.setVlrEntrada(this.movto.getVlrSaida());
-			this.movto.setVlrSaida(null);
+		if (movto.getTipoLanc().getSigla().contains("CC")) {
+			
 		} else {
-			this.movto.setVlrSaida(this.movto.getVlrEntrada());
-			this.movto.setVlrEntrada(null);
+			this.tipoConta = this.movto.getPlanoConta().getTipo();
+			if (this.tipoConta.getSigla().contains("R")) {
+				this.movto.setVlrEntrada(this.movto.getVlrSaida());
+				this.movto.setVlrSaida(null);
+			} else if (this.tipoConta.getSigla().contains("D")) {
+				this.movto.setVlrSaida(this.movto.getVlrEntrada());
+				this.movto.setVlrEntrada(null);
+			}
 		}
 		carregarListaTipoContas();
 		carregarContasLanctos();
-
-		// getListaPlanoContas();
-
-		/*
-		 * if (this.movtoSelecionado.getVlrEntrada() == null &&
-		 * this.movtoSelecionado.getVinculo() != null) { this.movto =
-		 * movimentacaoService.porVinculo(movtoSelecionado.getVinculo(),
-		 * movtoSelecionado.getId()); } else { this.movto = movtoSelecionado; }
-		 */
-
-		// carregarContasLanc();
 
 	}
 
@@ -269,21 +272,32 @@ public class MovimentacaoBean implements Serializable {
 						this.movto.setVlrSaida(this.movto.getVlrEntrada());
 						this.valor = this.movto.getVlrEntrada();
 						this.movto.setVlrEntrada(null);
-					} else {
+						this.movto.setTipoLanc(TipoLanc.CR);
+					} else if (this.tipoConta.getSigla().contains("D")) {
 						this.movto.setVlrEntrada(this.movto.getVlrSaida());
 						this.valor = this.movto.getVlrSaida();
 						this.movto.setVlrSaida(null);
+						this.movto.setTipoLanc(TipoLanc.CD);
+					} else {
+						this.valor = this.movto.getVlrEntrada();
+						this.movto.setVlrSaida(null);
+						this.movto.setTipoLanc(TipoLanc.CC);
 					}
 				} else {
 					if (this.tipoConta.getSigla().contains("R")) {
 						this.movto.setVlrEntrada(this.valor);
-						;
 						this.movto.setVlrSaida(null);
+						this.movto.setTipoLanc(TipoLanc.CR);
+					} else if (this.tipoConta.getSigla().contains("D")) {
+						this.movto.setVlrSaida(this.valor);
+						this.movto.setVlrEntrada(null);
+						this.movto.setTipoLanc(TipoLanc.CD);
 					} else {
 						this.movto.setVlrSaida(this.valor);
 						this.movto.setVlrEntrada(null);
+						this.movto.setTipoLanc(TipoLanc.CC);
 					}
-					this.movto.getPlanoConta().setId(filtro.getContaID());
+					this.movto.setPlanoConta(this.filtro.getPlanoConta());
 				}
 				this.movto.setDataLanc(new Date());
 				// this.movto.setUsuario(obterUsuario());
@@ -302,52 +316,42 @@ public class MovimentacaoBean implements Serializable {
 	}
 
 	public void transferecia() {
-		if (!verificarContaTransf()) {
-			if (this.movto.getId() == null) {
-				this.movto.setDataLanc(new Date());
-				// this.movto.setUsuario(obterUsuario());
-				this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
-				movimentacaoService.salvar(this.movto);
+		if (this.movto.getId() == null) {
+			this.movto.setDataLanc(new Date());
+			// this.movto.setUsuario(obterUsuario());
+			this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
+			movimentacaoService.salvar(this.movto);
 
-				PlanoConta c = new PlanoConta();
-				c.setId(filtro.getContaID());
-				// this.movto.setConta(c);
-				if (this.movto.getVlrSaida() != null) {
-					this.movto.setVlrEntrada(this.movto.getVlrSaida());
-					this.movto.setVlrSaida(null);
-				} else {
-					this.movto.setVlrSaida(this.movto.getVlrEntrada());
-					this.movto.setVlrEntrada(null);
-				}
-
-				movimentacaoService.salvar(this.movto);
+			PlanoConta c = new PlanoConta();
+			// c.setId(filtro.getContaID());
+			// this.movto.setConta(c);
+			if (this.movto.getVlrSaida() != null) {
+				this.movto.setVlrEntrada(this.movto.getVlrSaida());
+				this.movto.setVlrSaida(null);
 			} else {
-
-				movimentacaoService.salvar(this.movto);
-				Movimentacao movtoAlt = movimentacaoService.porVinculo(this.movto.getVinculo(), this.movto.getId());
-
-				movtoAlt.setDescricao(this.movto.getDescricao());
-				movtoAlt.setDataDoc(this.movto.getDataDoc());
-				movtoAlt.setDocumento(this.movto.getDocumento());
-				movtoAlt.setVlrEntrada(movto.getVlrSaida());
-				movtoAlt.setVlrSaida(movto.getVlrEntrada());
-
-				movimentacaoService.salvar(movtoAlt);
+				this.movto.setVlrSaida(this.movto.getVlrEntrada());
+				this.movto.setVlrEntrada(null);
 			}
-			this.movtoSelecionado = null;
-			this.movto = new Movimentacao();
-			this.valor = BigDecimal.ZERO;
-			pesquisar();
-			Messages.addGlobalInfo("Registro salvo com sucesso");
-		}
-	}
 
-	public Boolean verificarContaTransf() {
-		if (this.movto.getPlanoConta().getId() == filtro.getContaID()) {
-			Messages.addGlobalError("Selecionar outra conta diferente da: " + this.movto.getPlanoConta().getNome());
-			return true;
+			movimentacaoService.salvar(this.movto);
+		} else {
+
+			movimentacaoService.salvar(this.movto);
+			Movimentacao movtoAlt = movimentacaoService.porVinculo(this.movto.getVinculo(), this.movto.getId());
+
+			movtoAlt.setDescricao(this.movto.getDescricao());
+			movtoAlt.setDataDoc(this.movto.getDataDoc());
+			movtoAlt.setDocumento(this.movto.getDocumento());
+			movtoAlt.setVlrEntrada(movto.getVlrSaida());
+			movtoAlt.setVlrSaida(movto.getVlrEntrada());
+
+			movimentacaoService.salvar(movtoAlt);
 		}
-		return false;
+		this.movtoSelecionado = null;
+		this.movto = new Movimentacao();
+		this.valor = BigDecimal.ZERO;
+		pesquisar();
+		Messages.addGlobalInfo("Registro salvo com sucesso");
 	}
 
 	public String getSaldoMoeda() {
@@ -361,7 +365,7 @@ public class MovimentacaoBean implements Serializable {
 	}
 
 	public void carregarListaTipoContas() {
-		this.listaTiposContas = Arrays.asList(TipoConta.D, TipoConta.R);
+		this.listaTiposContas = Arrays.asList(TipoConta.values());
 	}
 
 	public void carregarContasLanctos() {
@@ -370,9 +374,27 @@ public class MovimentacaoBean implements Serializable {
 			cl.setTipo(this.tipoConta);
 			cl.setStatus(true);
 			listaPlanoContas = contaService.filtrados(cl);
+			if (cl.getTipo().getSigla().contains("CC")) {
+				listaPlanoContas = getContaCorrentes();
+			}
 		} else {
 			listaPlanoContas = new ArrayList<>();
 		}
+	}
+
+	/* Remover a propria conta para lançamento */
+	public List<PlanoConta> getContaCorrentes() {
+		List<PlanoConta> cts = new ArrayList<PlanoConta>();
+		List<PlanoConta> pc = getContas();
+		if (null != this.filtro.getPlanoConta()) {
+			for (int i = 0; i < pc.size(); i++) {
+				if (pc.get(i).getId() == this.filtro.getPlanoConta().getId()) {
+					pc.remove(i);
+				}
+			}
+			cts = pc;
+		}
+		return cts;
 	}
 
 	/********* Gett e Sett ************/

@@ -6,6 +6,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,7 +18,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.validation.constraints.DecimalMin;
+
+import com.br.apss.drogaria.enums.TipoLanc;
 
 @Entity
 @Table(name = "movimentacao")
@@ -55,17 +58,19 @@ public class Movimentacao implements Serializable {
 	private String documento;
 
 	@Column(name = "vlr_entrada", precision = 12, scale = 2)
-	@DecimalMin(value = "0.01", message = "O 'VALOR' tem quer ser maior que 0,00")
 	private BigDecimal vlrEntrada = BigDecimal.ZERO;
 
 	@Transient
 	private BigDecimal vlrSaldo = BigDecimal.ZERO;
 
 	@Column(name = "vlr_saida", precision = 12, scale = 2)
-	@DecimalMin(value = "0.01", message = "O 'VALOR' tem quer ser maior que 0,00")
 	private BigDecimal vlrSaida = BigDecimal.ZERO;
 
 	private Long vinculo;
+
+	@Column(name = "tipo_lanc", length = 5)
+	@Enumerated(EnumType.STRING)
+	private TipoLanc tipoLanc;
 
 	public Long getId() {
 		return id;
@@ -161,6 +166,14 @@ public class Movimentacao implements Serializable {
 
 	public void setContaOrigem(PlanoConta contaOrigem) {
 		this.contaOrigem = contaOrigem;
+	}
+
+	public TipoLanc getTipoLanc() {
+		return tipoLanc;
+	}
+
+	public void setTipoLanc(TipoLanc tipoLanc) {
+		this.tipoLanc = tipoLanc;
 	}
 
 	@Transient

@@ -82,7 +82,7 @@ public class MovimentacaoRepository implements Serializable {
 
 			Query query = manager.createNativeQuery(sql);
 			query.setParameter("dtIni", filtro.getDataIni());
-			query.setParameter("id", filtro.getContaID());
+			query.setParameter("id", filtro.getPlanoConta().getId());
 			BigDecimal resul = (BigDecimal) query.getSingleResult();
 			return resul;
 
@@ -98,7 +98,7 @@ public class MovimentacaoRepository implements Serializable {
 		Criteria criteria = session.createCriteria(Movimentacao.class);
 
 		criteria.createAlias("planoConta", "planoConta", Criteria.INNER_JOIN);
-		Criterion p1 = Restrictions.eq("planoConta.id", filtro.getContaID());
+		Criterion p1 = Restrictions.eq("planoConta.id", filtro.getPlanoConta().getId());
 		criteria.add(p1);
 
 		if (StringUtils.isNotBlank(filtro.getDoc())) {
