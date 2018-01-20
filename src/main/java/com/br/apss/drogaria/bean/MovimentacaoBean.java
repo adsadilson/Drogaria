@@ -167,6 +167,8 @@ public class MovimentacaoBean implements Serializable {
 
 	public void novoCadastro() {
 		this.movto = new Movimentacao();
+		this.valor = BigDecimal.ZERO;
+		this.movto.setDataDoc(new Date());
 		carregarListaTipoContas();
 	}
 
@@ -182,14 +184,15 @@ public class MovimentacaoBean implements Serializable {
 			this.movtoSelecionado.setVlrSaida(this.movto.getVlrSaida());
 
 			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("R")) {
-				this.movtoSelecionado.setVlrEntrada(null);
 				this.movtoSelecionado.setVlrSaida(this.movto.getVlrEntrada());
+				this.movtoSelecionado.setVlrEntrada(null);
 				this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
 			}
 
 			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("D")) {
-				this.movtoSelecionado.setVlrSaida(null);
 				this.movtoSelecionado.setVlrEntrada(this.movto.getVlrSaida());
+				this.valor = this.movto.getVlrSaida();
+				this.movtoSelecionado.setVlrSaida(null);
 				this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
 			}
 
@@ -197,7 +200,7 @@ public class MovimentacaoBean implements Serializable {
 				if (i == 0) {
 					this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
 				} else {
-					this.movtoSelecionado.setVlrSaida(this.movto.getVlrEntrada());
+					this.movtoSelecionado.setVlrSaida(valor);
 					this.movtoSelecionado.setVlrEntrada(null);
 				}
 			}
@@ -218,7 +221,13 @@ public class MovimentacaoBean implements Serializable {
 		List<Movimentacao> m = this.movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
 		this.movto = m.get(0);
 		if (movto.getTipoLanc().getSigla().contains("CC")) {
-			
+			this.tipoConta = movto.getPlanoConta().getTipo();
+			if (movtoSelecionado.getId() == this.movto.getId()) {
+				Movimentacao mm = this.movimentacaoService.porVinculo(movtoSelecionado.getVinculo(),
+						this.movto.getId());
+				this.filtro.setPlanoConta(mm.getPlanoConta());
+			}
+			// System.out.println("Entrou aqui...");
 		} else {
 			this.tipoConta = this.movto.getPlanoConta().getTipo();
 			if (this.tipoConta.getSigla().contains("R")) {
@@ -305,53 +314,15 @@ public class MovimentacaoBean implements Serializable {
 				contador++;
 			}
 			this.movtoSelecionado = null;
-			this.movto = new Movimentacao();
-			this.valor = BigDecimal.ZERO;
+			novoCadastro();
 			pesquisar();
 			carregarContasLanctos();
+			RequestContext request = RequestContext.getCurrentInstance();
+			request.addCallbackParam("nao fechar", true);
 			Messages.addGlobalInfo("Registro salvo com sucesso");
 		} else {
 			atualizar();
 		}
-	}
-
-	public void transferecia() {
-		if (this.movto.getId() == null) {
-			this.movto.setDataLanc(new Date());
-			// this.movto.setUsuario(obterUsuario());
-			this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
-			movimentacaoService.salvar(this.movto);
-
-			PlanoConta c = new PlanoConta();
-			// c.setId(filtro.getContaID());
-			// this.movto.setConta(c);
-			if (this.movto.getVlrSaida() != null) {
-				this.movto.setVlrEntrada(this.movto.getVlrSaida());
-				this.movto.setVlrSaida(null);
-			} else {
-				this.movto.setVlrSaida(this.movto.getVlrEntrada());
-				this.movto.setVlrEntrada(null);
-			}
-
-			movimentacaoService.salvar(this.movto);
-		} else {
-
-			movimentacaoService.salvar(this.movto);
-			Movimentacao movtoAlt = movimentacaoService.porVinculo(this.movto.getVinculo(), this.movto.getId());
-
-			movtoAlt.setDescricao(this.movto.getDescricao());
-			movtoAlt.setDataDoc(this.movto.getDataDoc());
-			movtoAlt.setDocumento(this.movto.getDocumento());
-			movtoAlt.setVlrEntrada(movto.getVlrSaida());
-			movtoAlt.setVlrSaida(movto.getVlrEntrada());
-
-			movimentacaoService.salvar(movtoAlt);
-		}
-		this.movtoSelecionado = null;
-		this.movto = new Movimentacao();
-		this.valor = BigDecimal.ZERO;
-		pesquisar();
-		Messages.addGlobalInfo("Registro salvo com sucesso");
 	}
 
 	public String getSaldoMoeda() {

@@ -48,6 +48,7 @@
 						style="margin-left:10px; margin-right:10px; color:black" />
 
 					<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
+						filter="true" filterMatchMode="contains"
 						converter="omnifaces.SelectItemsConverter"
 						value="#{movimentacaoBean.filtro.planoConta}">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
@@ -182,7 +183,7 @@
 		</h:form>
 
 
-		<!-- LANÇAMENTO DE RECEITAS E DESPESAS -->
+		<!-- LANÇAMENTO DE CONTAS -->
 
 		<p:dialog header="Lançamento em conta" widgetVar="dialogCadDesp"
 			modal="true" resizable="false" draggable="true" id="dgCadDesp"
@@ -213,6 +214,7 @@
 
 					<p:outputLabel for="txtConta" value="Conta" />
 					<p:selectOneMenu id="txtConta" required="true" autoWidth="false"
+					filter="true" filterMatchMode="contains"
 						style="width:92%;" converter="omnifaces.SelectItemsConverter"
 						value="#{movimentacaoBean.movto.planoConta}"
 						requiredMessage="Selecione conta">
@@ -256,7 +258,6 @@
 
 					<p:outputLabel value="Documento" />
 					<p:inputText size="15" value="#{movimentacaoBean.movto.documento}" />
-
 
 				</h:panelGrid>
 
