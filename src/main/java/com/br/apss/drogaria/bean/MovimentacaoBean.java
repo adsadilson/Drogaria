@@ -224,6 +224,10 @@ public class MovimentacaoBean implements Serializable {
 		Messages.addGlobalInfo("Registro salvo com sucesso");
 
 	}
+	
+	public void carregarInfo(){
+		this.movto = movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movtoSelecionado.getId());
+	}
 
 	public void editar() {
 		List<Movimentacao> m = movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
@@ -271,12 +275,12 @@ public class MovimentacaoBean implements Serializable {
 	 */
 
 	@SuppressWarnings("unused")
-	private Usuario obterUsuario() {
+	private Usuario obterUsuario2() {
 		Usuario usuario = loginBean.getUsuario();
 		return usuario;
 	}
 
-	private Usuario obterUsuario2() {
+	private Usuario obterUsuario() {
 		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
 		Usuario usuario = null;
 		if (session != null) {
@@ -324,15 +328,13 @@ public class MovimentacaoBean implements Serializable {
 					this.movto.setPlanoConta(this.filtro.getPlanoConta());
 				}
 				this.movto.setDataLanc(new Date());
-				this.movto.setUsuario(obterUsuario2());
+				this.movto.setUsuario(obterUsuario());
 				movimentacaoService.salvar(this.movto);
 				contador++;
 			}
 			this.movtoSelecionado = null;
 			novoCadastro();
 			pesquisar();
-			RequestContext request = RequestContext.getCurrentInstance();
-			request.addCallbackParam("nao fechar", true);
 			Messages.addGlobalInfo("Registro salvo com sucesso");
 		} else {
 			atualizar();

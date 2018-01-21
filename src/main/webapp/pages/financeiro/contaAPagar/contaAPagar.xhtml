@@ -5,7 +5,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
-	<ui:define name="titulo">Movimentação de Contas</ui:define>
+	<ui:define name="titulo">Contas a Pagar</ui:define>
 
 	<ui:define name="corpo">
 
@@ -29,7 +29,7 @@
 -->
 </style>
 
-		<h1>Movimentação de Contas</h1>
+		<h1>Contas a Pagar</h1>
 
 		<h:form id="frm-menu" prependId="false">
 
@@ -40,15 +40,15 @@
 
 					<p:commandButton icon="fa fa-file-o" value="Novo Lançamento"
 						style="margin-right: 3px;"
-						disabled="#{movimentacaoBean.filtro.planoConta.id == null}"
+						disabled="#{contaAPagarBean.filtro.planoConta.id == null}"
 						oncomplete="PF('dialogCadDesp').show()" process="@this"
 						update=":frm-cadastro-desp"
-						action="#{movimentacaoBean.novoCadastro}">
+						action="#{contaAPagarBean.novoCadastro}">
 						<p:resetInput target=":frm-cadastro-desp" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						disabled="#{movimentacaoBean.filtro.planoConta.id == null}"
+						disabled="#{contaAPagarBean.filtro.planoConta.id == null}"
 						style="margin-right:5px; margin-left:3px;"
 						oncomplete="PF('dialogFiltro').show()" />
 
@@ -58,35 +58,35 @@
 					<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
 						filter="true" filterMatchMode="contains"
 						converter="omnifaces.SelectItemsConverter"
-						value="#{movimentacaoBean.filtro.planoConta}">
+						value="#{contaAPagarBean.filtro.planoConta}">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
 							noSelectionOption="true" />
-						<f:selectItems value="#{movimentacaoBean.contas}" var="conta"
+						<f:selectItems value="#{contaAPagarBean.contas}" var="conta"
 							itemLabel="#{conta.nome}" itemValue="#{conta}" />
 						<p:ajax event="change" process="@this"
 							update="frm-menu frm-tabela"
-							listener="#{movimentacaoBean.pesquisar()}" />
+							listener="#{contaAPagarBean.pesquisar()}" />
 					</p:selectOneMenu>
 
 					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
 						style="margin-left:5px;" id="dtInicio"
 						onfocus="mascaraData('dtInicio')" styleClass="cssCalender"
-						value="#{movimentacaoBean.filtro.dataIni}">
+						value="#{contaAPagarBean.filtro.dataIni}">
 						<p:ajax event="dateSelect" process="@this" update="dtFim"
-							listener="#{movimentacaoBean.filtro.getDataFimMin}" />
+							listener="#{contaAPagarBean.filtro.getDataFimMin}" />
 					</p:calendar>
 					<p:outputLabel value="ATÉ"
 						style="margin-left:5px; margin-right:5px; color:black" />
 					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
-						mindate="#{movimentacaoBean.filtro.dataLimite}"
+						mindate="#{contaAPagarBean.filtro.dataLimite}"
 						styleClass="cssCalender" onfocus="mascaraData('dtFim')"
-						value="#{movimentacaoBean.filtro.dataFim}">
+						value="#{contaAPagarBean.filtro.dataFim}">
 						<p:ajax event="dateSelect" process="@this" />
 					</p:calendar>
 					<p:commandButton icon="fa fa-search" value="PESQUISA"
 						style="margin-left:10px;" update=":frm-tabela"
-						actionListener="#{movimentacaoBean.pesquisar}"
-						disabled="#{movimentacaoBean.filtro.planoConta.id == null}" />
+						actionListener="#{contaAPagarBean.pesquisar}"
+						disabled="#{contaAPagarBean.filtro.planoConta.id == null}" />
 				</p:toolbarGroup>
 
 				<p:toolbarGroup align="right">
@@ -100,7 +100,7 @@
 		<!-- TABELA DE LANÇAMENTO EM CONTA -->
 
 		<h:form id="frm-tabela" prependId="false">
-			<p:dataTable id="tbl-desp" value="#{movimentacaoBean.model}"
+			<p:dataTable id="tbl-desp" value="#{contaAPagarBean.model}"
 				var="desp" style="margin-top: 10px; margin-bottom:20px;"
 				styleClass="table-tela-manutecao" rowIndexVar="index"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
@@ -108,7 +108,7 @@
 				emptyMessage="Nenhuma registro encontrado." rows="13"
 				paginator="true" paginatorAlwaysVisible="false" lazy="true"
 				paginatorPosition="bottom" selectionMode="single"
-				selection="#{movimentacaoBean.movtoSelecionado}" rowKey="#{desp.id}">
+				selection="#{contaAPagarBean.contaAPagarSelecionado}" rowKey="#{desp.id}">
 
 				<ui:remove>
 					<p:ajax event="rowSelect" update=" tbl-desp" />
@@ -131,7 +131,7 @@
 					<p:row>
 						<p:column headerText="Saldo Anterior" style="text-align:right"
 							colspan="7" />
-						<p:column headerText="#{movimentacaoBean.saldoMoeda}"
+						<p:column headerText="#{contaAPagarBean.saldoMoeda}"
 							style="text-align:right" />
 					</p:row>
 				</p:columnGroup>
@@ -141,24 +141,24 @@
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
 						styleClass="semPreenchimento"
 						oncomplete="PF('dialogCadDesp').show()" process="@this"
-						update="dgCadDesp" action="#{movimentacaoBean.editar}">
+						update="dgCadDesp" action="#{contaAPagarBean.editar}">
 						<f:setPropertyActionListener
-							target="#{movimentacaoBean.movtoSelecionado}" value="#{desp}" />
+							target="#{contaAPagarBean.contaAPagarSelecionado}" value="#{desp}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
 						<f:setPropertyActionListener
-							target="#{movimentacaoBean.movtoSelecionado}" value="#{desp}" />
+							target="#{contaAPagarBean.contaAPagarSelecionado}" value="#{desp}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-search" title="Informações"
 						styleClass="semPreenchimento"
-						action="#{movimentacaoBean.carregarInfo()}"
+						action="#{contaAPagarBean.carregarInfo()}"
 						oncomplete="PF('dialogInfo').show()" process="@this"
 						update="dgInfo">
 						<f:setPropertyActionListener
-							target="#{movimentacaoBean.movtoSelecionado}" value="#{desp}" />
+							target="#{contaAPagarBean.contaAPagarSelecionado}" value="#{desp}" />
 					</p:commandButton>
 				</p:column>
 
@@ -207,13 +207,13 @@
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
 					<h:outputText
-						value="#{movimentacaoBean.movtoSelecionado.descricao} ?" />
+						value="#{contaAPagarBean.contaAPagarSelecionado.descricao} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					oncomplete="PF('confirmacaoExclusao').hide();" update="tbl-desp"
-					action="#{movimentacaoBean.excluir()}" process="@this" />
+					action="#{contaAPagarBean.excluir()}" process="@this" />
 			</p:confirmDialog>
 
 		</h:form>
@@ -234,17 +234,17 @@
 
 					<p:outputLabel for="txtTipo" value="Tipo" />
 					<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:92%;"
-						value="#{movimentacaoBean.tipoConta}"
-						disabled="#{movimentacaoBean.movto.notInclusao}"
+						value="#{contaAPagarBean.tipoConta}"
+						disabled="#{contaAPagarBean.contaAPagar.notInclusao}"
 						converter="omnifaces.SelectItemsConverter" required="true"
 						requiredMessage="Selecione tipo">
 						<f:selectItem itemLabel="Selecione o tipo de conta"
 							itemValue="#{null}" />
-						<f:selectItems value="#{movimentacaoBean.listaTiposContas}"
+						<f:selectItems value="#{contaAPagarBean.listaTiposContas}"
 							var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
 							itemValue="#{tipo}" />
 						<p:ajax event="change" process="@this"
-							listener="#{movimentacaoBean.carregarContasLanctos}"
+							listener="#{contaAPagarBean.carregarContasLanctos}"
 							update="txtConta labelVlrs txtVlrs" />
 					</p:selectOneMenu>
 
@@ -252,45 +252,45 @@
 					<p:selectOneMenu id="txtConta" required="true" autoWidth="false"
 						filter="true" filterMatchMode="contains" style="width:92%;"
 						converter="omnifaces.SelectItemsConverter"
-						value="#{movimentacaoBean.movto.planoConta}"
+						value="#{contaAPagarBean.contaAPagar.planoConta}"
 						requiredMessage="Selecione conta">
 						<f:selectItem itemLabel="Selecione uma conta destino"
 							itemValue="#{null}" />
-						<f:selectItems value="#{movimentacaoBean.listaPlanoContas}"
+						<f:selectItems value="#{contaAPagarBean.listaPlanoContas}"
 							var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 					</p:selectOneMenu>
 
 					<p:outputLabel for="txtDescricao" value="Descrição" />
 					<p:inputText id="txtDescricao" size="40"
-						value="#{movimentacaoBean.movto.descricao}" required="true"
+						value="#{contaAPagarBean.contaAPagar.descricao}" required="true"
 						requiredMessage="Informe a descrição" />
 
 					<p:outputLabel for="txtData" value="Data Doc." />
 					<p:calendar id="txtData" size="15" pattern="dd/MM/yyyy"
 						locale="pt_BR" required="true"
-						value="#{movimentacaoBean.movto.dataDoc}"
+						value="#{contaAPagarBean.contaAPagar.dataDoc}"
 						requiredMessage="Informe a data" />
 
 					<h:panelGroup id="labelVlrs">
 						<p:outputLabel for="txtVlrSaida" value="Saída"
-							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}" />
+							rendered="#{contaAPagarBean.tipoConta.sigla=='D'}" />
 						<p:outputLabel for="txtVlrEntrada" value="Entrada"
-							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" />
+							rendered="#{contaAPagarBean.tipoConta.sigla!='D'}" />
 					</h:panelGroup>
 
 					<h:panelGroup id="txtVlrs">
 						<p:inputNumber decimalSeparator="," thousandSeparator="."
-							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" symbol="R$ "
+							rendered="#{contaAPagarBean.tipoConta.sigla!='D'}" symbol="R$ "
 							size="15" required="true" id="txtVlrEntrada"
-							value="#{movimentacaoBean.movto.vlrEntrada}"
+							value="#{contaAPagarBean.contaAPagar.vlrEntrada}"
 							requiredMessage="Informe o valor" minValue="0.01">
 							<f:validateDoubleRange minimum="0.01" />
 						</p:inputNumber>
 
 						<p:inputNumber decimalSeparator="," thousandSeparator="."
 							symbol="R$ " size="15" required="true" id="txtVlrSaida"
-							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
-							value="#{movimentacaoBean.movto.vlrSaida}"
+							rendered="#{contaAPagarBean.tipoConta.sigla=='D'}"
+							value="#{contaAPagarBean.contaAPagar.vlrSaida}"
 							requiredMessage="Informe o valor" minValue="0.01">
 							<f:validateDoubleRange minimum="0.01" />
 						</p:inputNumber>
@@ -298,7 +298,7 @@
 					</h:panelGroup>
 
 					<p:outputLabel value="Documento" />
-					<p:inputText size="15" value="#{movimentacaoBean.movto.documento}" />
+					<p:inputText size="15" value="#{contaAPagarBean.contaAPagar.documento}" />
 
 				</h:panelGrid>
 
@@ -310,7 +310,7 @@
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							id="salvarCommandButtonDesp"
 							oncomplete="if(args.sucesso == true) PF('dialogCadDesp').hide()"
-							actionListener="#{movimentacaoBean.salvar}"
+							actionListener="#{contaAPagarBean.salvar}"
 							update=":frm-cadastro-desp :frm-tabela">
 						</p:commandButton>
 					</p:toolbarGroup>
@@ -327,28 +327,28 @@
 			<h:form id="frm-info">
 				<h:panelGrid id="panelInfo" columns="2" columnClasses="rotuloDesRec">
 					<p:outputLabel value="Usuário" />
-					<p:outputLabel value="#{movimentacaoBean.movto.usuario.nome}" />
+					<p:outputLabel value="#{contaAPagarBean.contaAPagar.usuario.nome}" />
 
 					<p:outputLabel value="ID" />
-					<p:outputLabel value="#{movimentacaoBean.movto.id}" />
+					<p:outputLabel value="#{contaAPagarBean.contaAPagar.id}" />
 
 					<p:outputLabel value="Data Lanc." />
-					<p:outputLabel value="#{movimentacaoBean.movto.dataLanc}">
+					<p:outputLabel value="#{contaAPagarBean.contaAPagar.dataLanc}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</p:outputLabel>
 
 					<p:outputLabel value="Tipo" />
 					<p:outputLabel
-						value="#{movimentacaoBean.movto.planoConta.tipo.descricao}" />
+						value="#{contaAPagarBean.contaAPagar.planoConta.tipo.descricao}" />
 
 					<p:outputLabel value="C/Partida" />
-					<p:outputLabel value="#{movimentacaoBean.movto.planoConta.nome}" />
+					<p:outputLabel value="#{contaAPagarBean.contaAPagar.planoConta.nome}" />
 
 					<p:outputLabel value="Valor" />
 					<p:outputLabel
-						value="#{movimentacaoBean.movto.vlrEntrada==null ? 
-						movimentacaoBean.movto.vlrSaida : 
-						movimentacaoBean.movto.vlrEntrada}">
+						value="#{contaAPagarBean.contaAPagar.vlrEntrada==null ? 
+						contaAPagarBean.contaAPagar.vlrSaida : 
+						contaAPagarBean.contaAPagar.vlrEntrada}">
 						<f:convertNumber type="currency" />
 					</p:outputLabel>
 
@@ -365,47 +365,47 @@
 				<h:panelGrid columnClasses="rotuloFiltro1,campoFiltro1" columns="2">
 
 					<p:outputLabel value="Descrição" />
-					<p:inputText value="#{movimentacaoBean.filtro.descricao}"
+					<p:inputText value="#{contaAPagarBean.filtro.descricao}"
 						style="width:230px;" />
 
 					<p:outputLabel value="Período" />
 					<h:panelGroup>
-						<p:calendar value="#{movimentacaoBean.filtro.dataIni}" size="10"
+						<p:calendar value="#{contaAPagarBean.filtro.dataIni}" size="10"
 							pattern="dd/MM/yyyy" locale="pt_BR">
 							<p:ajax event="dateSelect" process="@this" />
 						</p:calendar>
 						<p:outputLabel value="a"
 							style="margin-left:7px; margin-right:7px;" />
-						<p:calendar value="#{movimentacaoBean.filtro.dataFim}" size="10"
+						<p:calendar value="#{contaAPagarBean.filtro.dataFim}" size="10"
 							pattern="dd/MM/yyyy" locale="pt_BR">
 							<p:ajax event="dateSelect" process="@this" />
 							<f:attribute name="startDate"
-								value="#{movimentacaoBean.filtro.dataIni}" />
+								value="#{contaAPagarBean.filtro.dataIni}" />
 							<f:validator validatorId="primeDateRangeValidator" />
 						</p:calendar>
 					</h:panelGroup>
 
 					<p:outputLabel value="Documento" />
-					<p:inputText value="#{movimentacaoBean.filtro.doc}"
+					<p:inputText value="#{contaAPagarBean.filtro.doc}"
 						style="width:230px;" />
 
 					<p:outputLabel value="Valor Entrada" />
 					<h:panelGroup>
-						<p:inputNumber value="#{movimentacaoBean.filtro.entrada1}"
+						<p:inputNumber value="#{contaAPagarBean.filtro.entrada1}"
 							size="10" decimalSeparator="," thousandSeparator="." />
 						<p:outputLabel value="a"
 							style="margin-left:7px; margin-right:7px;" />
-						<p:inputNumber value="#{movimentacaoBean.filtro.entrada2}"
+						<p:inputNumber value="#{contaAPagarBean.filtro.entrada2}"
 							size="10" decimalSeparator="," thousandSeparator="." />
 					</h:panelGroup>
 
 					<p:outputLabel value="Valor Saída" />
 					<h:panelGroup>
-						<p:inputNumber value="#{movimentacaoBean.filtro.saida1}" size="10"
+						<p:inputNumber value="#{contaAPagarBean.filtro.saida1}" size="10"
 							decimalSeparator="," thousandSeparator="." />
 						<p:outputLabel value="a"
 							style="margin-left:7px; margin-right:7px;" />
-						<p:inputNumber value="#{movimentacaoBean.filtro.saida2}" size="10"
+						<p:inputNumber value="#{contaAPagarBean.filtro.saida2}" size="10"
 							decimalSeparator="," thousandSeparator="." />
 					</h:panelGroup>
 
@@ -414,7 +414,7 @@
 				<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Pesquisar" icon="fa fa-search"
-							actionListener="#{movimentacaoBean.pesquisar}"
+							actionListener="#{contaAPagarBean.pesquisar}"
 							id="btnFiltroPesquisar" process="frm-dialog"
 							oncomplete="if(args.sucesso == true) PF('dialogFiltro').hide()"
 							update="frm-tabela frm-menu frm-dialog" />
