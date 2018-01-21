@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.DecimalMin;
 
 import org.omnifaces.util.Messages;
@@ -63,8 +66,8 @@ public class MovimentacaoBean implements Serializable {
 	@Inject
 	GeradorVinculo idVinculo;
 
-	@Inject
-	LoginBean user;
+	@ManagedProperty(value = "#{loginBean}")
+	private LoginBean loginBean;
 
 	@PostConstruct
 	public void Inicializar() {
@@ -174,6 +177,7 @@ public class MovimentacaoBean implements Serializable {
 
 	public void atualizar() {
 		List<Movimentacao> m = this.movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
+		filtro.setPlanoConta(movtoSelecionado.getPlanoConta());
 		for (int i = 0; i < m.size(); i++) {
 			this.movtoSelecionado = m.get(i);
 
@@ -183,22 +187,27 @@ public class MovimentacaoBean implements Serializable {
 			this.movtoSelecionado.setVlrEntrada(this.movto.getVlrEntrada());
 			this.movtoSelecionado.setVlrSaida(this.movto.getVlrSaida());
 
-			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("R")) {
-				this.movtoSelecionado.setVlrSaida(this.movto.getVlrEntrada());
-				this.movtoSelecionado.setVlrEntrada(null);
-				this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
+			if (this.movtoSelecionado.getTipoLanc().getSigla().contains("CR")) {
+				if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("R")) {
+					this.movtoSelecionado.setVlrSaida(this.movto.getVlrEntrada());
+					this.movtoSelecionado.setVlrEntrada(null);
+					this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
+				}
 			}
 
-			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("D")) {
-				this.movtoSelecionado.setVlrEntrada(this.movto.getVlrSaida());
-				this.valor = this.movto.getVlrSaida();
-				this.movtoSelecionado.setVlrSaida(null);
-				this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
+			if (this.movtoSelecionado.getTipoLanc().getSigla().contains("CD")) {
+				if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("D")) {
+					this.movtoSelecionado.setVlrEntrada(this.movto.getVlrSaida());
+					this.valor = this.movto.getVlrSaida();
+					this.movtoSelecionado.setVlrSaida(null);
+					this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
+				}
 			}
 
-			if (this.movtoSelecionado.getPlanoConta().getTipo().getSigla().contains("CC")) {
+			if (this.movtoSelecionado.getTipoLanc().getSigla().contains("CC")) {
 				if (i == 0) {
 					this.movtoSelecionado.setPlanoConta(this.movto.getPlanoConta());
+					this.valor = this.movto.getVlrEntrada();
 				} else {
 					this.movtoSelecionado.setVlrSaida(valor);
 					this.movtoSelecionado.setVlrEntrada(null);
@@ -210,7 +219,6 @@ public class MovimentacaoBean implements Serializable {
 		}
 		this.movto = new Movimentacao();
 		pesquisar();
-		carregarContasLanctos();
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
 		Messages.addGlobalInfo("Registro salvo com sucesso");
@@ -218,16 +226,14 @@ public class MovimentacaoBean implements Serializable {
 	}
 
 	public void editar() {
-		List<Movimentacao> m = this.movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
-		this.movto = m.get(0);
+		List<Movimentacao> m = movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
+		movto = m.get(0);
 		if (movto.getTipoLanc().getSigla().contains("CC")) {
-			this.tipoConta = movto.getPlanoConta().getTipo();
-			if (movtoSelecionado.getId() == this.movto.getId()) {
-				Movimentacao mm = this.movimentacaoService.porVinculo(movtoSelecionado.getVinculo(),
-						this.movto.getId());
-				this.filtro.setPlanoConta(mm.getPlanoConta());
+			tipoConta = movto.getPlanoConta().getTipo();
+			if (movto.getId().equals(movtoSelecionado.getId())) {
+				Movimentacao mm = movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movto.getId());
+				filtro.setPlanoConta(mm.getPlanoConta());
 			}
-			// System.out.println("Entrou aqui...");
 		} else {
 			this.tipoConta = this.movto.getPlanoConta().getTipo();
 			if (this.tipoConta.getSigla().contains("R")) {
@@ -266,7 +272,16 @@ public class MovimentacaoBean implements Serializable {
 
 	@SuppressWarnings("unused")
 	private Usuario obterUsuario() {
-		Usuario usuario = user.getUsuario();
+		Usuario usuario = loginBean.getUsuario();
+		return usuario;
+	}
+
+	private Usuario obterUsuario2() {
+		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
+		Usuario usuario = null;
+		if (session != null) {
+			usuario = (Usuario) session.getAttribute("usuarioAutenticado");
+		}
 		return usuario;
 	}
 
@@ -309,14 +324,13 @@ public class MovimentacaoBean implements Serializable {
 					this.movto.setPlanoConta(this.filtro.getPlanoConta());
 				}
 				this.movto.setDataLanc(new Date());
-				// this.movto.setUsuario(obterUsuario());
+				this.movto.setUsuario(obterUsuario2());
 				movimentacaoService.salvar(this.movto);
 				contador++;
 			}
 			this.movtoSelecionado = null;
 			novoCadastro();
 			pesquisar();
-			carregarContasLanctos();
 			RequestContext request = RequestContext.getCurrentInstance();
 			request.addCallbackParam("nao fechar", true);
 			Messages.addGlobalInfo("Registro salvo com sucesso");

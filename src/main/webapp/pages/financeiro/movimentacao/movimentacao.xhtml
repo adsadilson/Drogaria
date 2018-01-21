@@ -55,7 +55,8 @@
 							noSelectionOption="true" />
 						<f:selectItems value="#{movimentacaoBean.contas}" var="conta"
 							itemLabel="#{conta.nome}" itemValue="#{conta}" />
-						<p:ajax event="change" process="@this" update="frm-menu" />
+						<p:ajax event="change" process="@this" update="frm-menu frm-tabela"
+							listener="#{movimentacaoBean.pesquisar()}" />
 					</p:selectOneMenu>
 
 					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
@@ -214,8 +215,8 @@
 
 					<p:outputLabel for="txtConta" value="Conta" />
 					<p:selectOneMenu id="txtConta" required="true" autoWidth="false"
-					filter="true" filterMatchMode="contains"
-						style="width:92%;" converter="omnifaces.SelectItemsConverter"
+						filter="true" filterMatchMode="contains" style="width:92%;"
+						converter="omnifaces.SelectItemsConverter"
 						value="#{movimentacaoBean.movto.planoConta}"
 						requiredMessage="Selecione conta">
 						<f:selectItem itemLabel="Selecione uma conta destino"
@@ -247,12 +248,17 @@
 							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" symbol="R$ "
 							size="15" required="true" id="txtVlrEntrada"
 							value="#{movimentacaoBean.movto.vlrEntrada}"
-							requiredMessage="Informe o valor" />
+							requiredMessage="Informe o valor" minValue="0.01" >
+							<f:validateDoubleRange minimum="0.01" />
+						</p:inputNumber>
+							
 						<p:inputNumber decimalSeparator="," thousandSeparator="."
 							symbol="R$ " size="15" required="true" id="txtVlrSaida"
 							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
 							value="#{movimentacaoBean.movto.vlrSaida}"
-							requiredMessage="Informe o valor" />
+							requiredMessage="Informe o valor" minValue="0.01">
+							<f:validateDoubleRange minimum="0.01" />	
+						</p:inputNumber>
 
 					</h:panelGroup>
 
@@ -265,7 +271,6 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Cancelar" icon="fa fa-remove"
 							style="margin-right: 3px;"
-							update=":frm-cadastro-desp :frm-tabela :frm-menu"
 							oncomplete="PF('dialogCadDesp').hide()" immediate="true" />
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							id="salvarCommandButtonDesp"
