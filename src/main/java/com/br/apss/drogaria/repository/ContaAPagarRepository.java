@@ -107,14 +107,14 @@ public class ContaAPagarRepository implements Serializable {
 	public List<ContaAPagar> filtrados(ContaAPagarFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
 
-		criteria.setFirstResult(filtro.getPriRegistro());
-		criteria.setMaxResults(filtro.getQtdeRegistros());
+		criteria.setFirstResult(filtro.getPrimerioRegistro());
+		criteria.setMaxResults(filtro.getQuantidadeRegistros());
 
-		if (filtro.getCampoOrder() != null) {
+		if (filtro.getCampoOrdernacao() != null) {
 			if (filtro.isAsc()) {
-				criteria.addOrder(Order.asc(filtro.getCampoOrder()));
+				criteria.addOrder(Order.asc(filtro.getCampoOrdernacao()));
 			} else {
-				criteria.addOrder(Order.desc(filtro.getCampoOrder()));
+				criteria.addOrder(Order.desc(filtro.getCampoOrdernacao()));
 			}
 		}
 

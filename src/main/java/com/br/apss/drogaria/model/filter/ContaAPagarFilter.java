@@ -1,5 +1,8 @@
 package com.br.apss.drogaria.model.filter;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import com.br.apss.drogaria.enums.Estado;
 
 public class ContaAPagarFilter {
@@ -8,10 +11,16 @@ public class ContaAPagarFilter {
 	private Estado uf;
 	private Boolean status;
 	private String origem;
-	private int priRegistro;
-	private int qtdeRegistros;
-	private String campoOrder;
+	private int primerioRegistro;
+	private int quantidadeRegistros;
+	private String campoOrdernacao;
 	private boolean asc;
+	private Date dataIni = new Date();
+	private Date dataFim = new Date();
+	private BigDecimal entrada1;
+	private BigDecimal entrada2;
+	private BigDecimal saida1;
+	private BigDecimal saida2;
 
 	public String getNome() {
 		return nome;
@@ -37,28 +46,30 @@ public class ContaAPagarFilter {
 		this.status = status;
 	}
 
-	public int getPriRegistro() {
-		return priRegistro;
+	
+
+	public int getPrimerioRegistro() {
+		return primerioRegistro;
 	}
 
-	public void setPriRegistro(int priRegistro) {
-		this.priRegistro = priRegistro;
+	public void setPrimerioRegistro(int primerioRegistro) {
+		this.primerioRegistro = primerioRegistro;
 	}
 
-	public int getQtdeRegistros() {
-		return qtdeRegistros;
+	public int getQuantidadeRegistros() {
+		return quantidadeRegistros;
 	}
 
-	public void setQtdeRegistros(int qtdeRegistros) {
-		this.qtdeRegistros = qtdeRegistros;
+	public void setQuantidadeRegistros(int quantidadeRegistros) {
+		this.quantidadeRegistros = quantidadeRegistros;
 	}
 
-	public String getCampoOrder() {
-		return campoOrder;
+	public String getCampoOrdernacao() {
+		return campoOrdernacao;
 	}
 
-	public void setCampoOrder(String campoOrder) {
-		this.campoOrder = campoOrder;
+	public void setCampoOrdernacao(String campoOrdernacao) {
+		this.campoOrdernacao = campoOrdernacao;
 	}
 
 	public boolean isAsc() {
@@ -75,6 +86,54 @@ public class ContaAPagarFilter {
 
 	public void setOrigem(String origem) {
 		this.origem = origem;
+	}
+
+	public Date getDataIni() {
+		return dataIni;
+	}
+
+	public void setDataIni(Date dataIni) {
+		this.dataIni = dataIni;
+	}
+
+	public Date getDataFim() {
+		return dataFim;
+	}
+
+	public void setDataFim(Date dataFim) {
+		this.dataFim = dataFim;
+	}
+
+	public BigDecimal getEntrada1() {
+		return entrada1;
+	}
+
+	public void setEntrada1(BigDecimal entrada1) {
+		this.entrada1 = entrada1;
+	}
+
+	public BigDecimal getEntrada2() {
+		return entrada2;
+	}
+
+	public void setEntrada2(BigDecimal entrada2) {
+		this.entrada2 = entrada2;
+	}
+
+	public BigDecimal getSaida1() {
+		return saida1;
+	}
+
+	public void setSaida1(BigDecimal saida1) {
+		this.saida1 = saida1;
+	}
+
+	public BigDecimal getSaida2() {
+		return saida2;
+	}
+
+	public void setSaida2(BigDecimal saida2) {
+		this.saida2 = saida2;
 	}
 
 }

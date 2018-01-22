@@ -4,9 +4,80 @@
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
+	<style>
+<!--
+.rotuloCab1 {
+	width: 150px !important;
+}
+
+.campoCab1 {
+	width: 300 !important;
+}
+-->
+</style>
+
 	<p:panel styleClass="semPreenchimento">
 
-		
+		<h:panelGrid columns="2" style="margin-top:20px; margin-left:10px;"
+			columnClasses="rotuloCab1,campoCab1">
+
+			<p:outputLabel for="combCobranca" value="Tipo de Cobrança" />
+			<p:selectOneMenu id="combCobranca" autoWidth="false"
+				style="width:65%;" required="true"
+				value="#{contaAPagarBean.contaAPagar.tipoCobranca}"
+				requiredMessage="Selecione um tipo de cobrança.">
+				<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
+					noSelectionOption="true" />
+				<f:selectItems value="#{contaAPagarBean.listaTipoCobranças}"
+					var="cob" itemLabel="#{cob.descricao}" itemValue="#{cob}" />
+			</p:selectOneMenu>
+			
+			<p:outputLabel value="Favorecido" for="combFornecedor"/>
+			<p:selectOneMenu id="combFornecedor" autoWidth="false"
+				style="width:300px;" required="true"
+				value="#{contaAPagarBean.contaAPagar.fornecedor}"
+				requiredMessage="Selecione um favorecido."
+				converter="omnifaces.SelectItemsConverter">
+				<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
+					noSelectionOption="true" />
+				<f:selectItems var="forn" itemLabel="#{forn.nome}"
+					itemValue="#{forn}" />
+			</p:selectOneMenu>
+			
+			<p:outputLabel for="txtEmissao" value="Emissão" />
+			<p:inputText size="10" id="txtEmissao"
+				onfocus="mascaraDtInput('txtEmissao')"
+				disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+				value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
+				requiredMessage="Informe uma data para a emissão.">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</p:inputText>
+			
+			<p:outputLabel for="txtVencimento" value="Vencimento" />
+			<p:inputText size="10" id="txtVencimento"
+				onfocus="mascaraDtInput('txtVencimento')"
+				value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
+				requiredMessage="Informe uma data para a vencimento">
+				<f:convertDateTime pattern="dd/MM/yyyy" />
+			</p:inputText>
+			
+			<p:outputLabel value="Parcela(s)" />
+			<p:spinner id="parcela" size="1" min="1" max="100"
+				value="#{contaAPagarBean.numVezes}" />
+				
+			<p:outputLabel value="Intervalo" />
+			<h:panelGroup>
+				<p:spinner id="intervalo" size="1" min="1" max="30"
+					value="#{contaAPagarBean.periodo}" />
+				<p:outputLabel value="Dia(s)" style="margin-left:15px;" />
+			</h:panelGroup>
+			
+			<p:outputLabel for="txtNum" value="Nr. Documento" />
+			<p:inputText id="txtNum" size="10" required="false"
+				value="#{contaAPagarBean.contaAPagar.numDoc}"
+				requiredMessage="Informe o numero." />
+
+		</h:panelGrid>
 
 	</p:panel>
 

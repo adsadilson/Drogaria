@@ -1,7 +1,7 @@
 @charset "utf-8";
 
 .ui-panelgrid.teste .ui-panelgrid-cell {
-    padding: 0px 0px;
+	padding: 0px 0px;
 }
 
 .ui-selectonemenu {
@@ -15,8 +15,11 @@ body {
 	font-weight: normal;
 }
 
+.ui-calendar input {
+	text-align: center !important;
+}
 
-header > div {
+header>div {
 	margin-left: 8px
 }
 
@@ -46,7 +49,6 @@ header > div {
 .ui-state-disabled {
 	opacity: .90 !important;
 }
-
 
 #conteudo {
 	padding: 0px 8px
@@ -109,50 +111,54 @@ h1 {
 
 /* Customiza TabView - início */
 .ui-tabs .ui-tabs-panel {
-    padding: 0.5em 0.2em !important;
+	padding: 0.5em 0.2em !important;
 }
 
 .ui-tabs {
-    padding: 0px !important;
+	padding: 0px !important;
 }
 
 .ui-tabs .ui-tabs-nav {
-    margin: -1px !important;
+	margin: -1px !important;
 }
 
-.ui-tabs.ui-tabs-top > .ui-tabs-nav {
-    padding: 0px !important;
+.ui-tabs.ui-tabs-top>.ui-tabs-nav {
+	padding: 0px !important;
 }
 /* Customiza TabView - fim */
 
 /* Menu sistema inicio */
 .menu-sistema {
-    border: 0px !important;
-    padding: 0px !important;
-    background: none !important;
+	border: 0px !important;
+	padding: 0px !important;
+	background: none !important;
 }
 
 .menu-sistema>.ui-menu-list>.ui-menuitem>a>.ui-menuitem-text {
-    color: #ffffff !important;
+	color: #ffffff !important;
 }
 
 .menu-sistema>.ui-menu-list>.ui-menuitem-active>a>.ui-menuitem-text {
-    color: #000 !important;
+	color: #000 !important;
 }
 
 .menu-sistema .ui-icon-triangle-1-s {
-    background: url(#{resource['images:seta-para-baixo.png']}) no-repeat;
+	background: url(#{ resource [ 'images:seta-para-baixo.png' ]
+}
+
+)
+no-repeat
+;
+
+
 }
 /* Menu sistema fim */
-
 header {
 	padding: 5px 0px;
 	margin-bottom: 20px;
 	height: 45px !important;
-	
 	background-color: #cb842e !important;
 	color: #fff;
-	
 	box-shadow: 0px 2px 2px #ccc;
 }
 
