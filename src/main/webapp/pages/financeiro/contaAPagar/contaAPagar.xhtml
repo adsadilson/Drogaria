@@ -38,55 +38,27 @@
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo Lançamento"
-						style="margin-right: 3px;"
-						disabled="#{contaAPagarBean.filtro.planoConta.id == null}"
-						oncomplete="PF('dialogCadDesp').show()" process="@this"
-						update=":frm-cadastro-desp"
+					<p:commandButton icon="fa fa-file-o" value="Novo" update=""
+						oncomplete="PF('dialog-lacamento').show()" process="@this"
 						action="#{contaAPagarBean.novoCadastro}">
-						<p:resetInput target=":frm-cadastro-desp" />
+						<p:resetInput target="" />
 					</p:commandButton>
 
-					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						disabled="#{contaAPagarBean.filtro.planoConta.id == null}"
-						style="margin-right:5px; margin-left:3px;"
-						oncomplete="PF('dialogFiltro').show()" />
+					<p:commandButton icon="fa fa-copy" value="Duplicar"
+						style="margin-right: 3px;" id="btnDuplicar" update=""
+						oncomplete="PF('duplicarContaAPagar').show()"
+						disabled="#{contaAPagarBean.contaAPagarSelecionadas.size()!=1}">
+					</p:commandButton>
 
-					<p:outputLabel value="CONTA"
-						style="margin-left:10px; margin-right:10px; color:black" />
+					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
+						id="btnRecebimento"
+						disabled="#{contaAPagarBean.contaAPagarSelecionadas.size()==0}">
+					</p:commandButton>
 
-					<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
-						filter="true" filterMatchMode="contains"
-						converter="omnifaces.SelectItemsConverter"
-						value="#{contaAPagarBean.filtro.planoConta}">
-						<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
-							noSelectionOption="true" />
-						<f:selectItems value="#{contaAPagarBean.contas}" var="conta"
-							itemLabel="#{conta.nome}" itemValue="#{conta}" />
-						<p:ajax event="change" process="@this"
-							update="frm-menu frm-tabela"
-							listener="#{contaAPagarBean.pesquisar()}" />
-					</p:selectOneMenu>
+					<p:separator />
 
-					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
-						style="margin-left:5px;" id="dtInicio"
-						onfocus="mascaraData('dtInicio')" styleClass="cssCalender"
-						value="#{contaAPagarBean.filtro.dataIni}">
-						<p:ajax event="dateSelect" process="@this" update="dtFim"
-							listener="#{contaAPagarBean.filtro.getDataFimMin}" />
-					</p:calendar>
-					<p:outputLabel value="ATÉ"
-						style="margin-left:5px; margin-right:5px; color:black" />
-					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
-						mindate="#{contaAPagarBean.filtro.dataLimite}"
-						styleClass="cssCalender" onfocus="mascaraData('dtFim')"
-						value="#{contaAPagarBean.filtro.dataFim}">
-						<p:ajax event="dateSelect" process="@this" />
-					</p:calendar>
-					<p:commandButton icon="fa fa-search" value="PESQUISA"
-						style="margin-left:10px;" update=":frm-tabela"
-						actionListener="#{contaAPagarBean.pesquisar}"
-						disabled="#{contaAPagarBean.filtro.planoConta.id == null}" />
+					<p:commandButton icon="fa fa-filter" title="Filtrar Registro" />
+
 				</p:toolbarGroup>
 
 				<p:toolbarGroup align="right">
@@ -108,33 +80,36 @@
 				emptyMessage="Nenhuma registro encontrado." rows="13"
 				paginator="true" paginatorAlwaysVisible="false" lazy="true"
 				paginatorPosition="bottom" selectionMode="single"
-				selection="#{contaAPagarBean.contaAPagarSelecionado}" rowKey="#{desp.id}">
+				selection="#{contaAPagarBean.contaAPagarSelecionado}"
+				rowKey="#{desp.id}">
 
-				<ui:remove>
-					<p:ajax event="rowSelect" update=" tbl-desp" />
-					<p:ajax event="rowUnselect" update=" tbl-desp" />
-
-					<f:facet name="header">Movimentações</f:facet>
-				</ui:remove>
+				<p:ajax event="rowSelect" update="" />
+				<p:ajax event="rowUnselect" update="" />
+				<p:ajax event="toggleSelect" update="" />
+				<p:ajax event="rowSelectCheckbox" update="" />
+				<p:ajax event="rowUnselectCheckbox" update="" />
 
 				<p:columnGroup type="header">
 					<p:row>
+						<p:column headerText="x" width="10" />
 						<p:column headerText="Ação" width="25" />
-						<p:column headerText="Data" width="20" />
 						<p:column headerText="Documento" width="20" />
-						<p:column headerText="Descrição" width="160" />
-						<p:column headerText="Tipo" width="5" />
-						<p:column headerText="Entrada" width="25" />
-						<p:column headerText="Saída" width="25" />
-						<p:column headerText="Saldo" width="35" />
+						<p:column headerText="Parcela" width="20" />
+						<p:column headerText="Emissão" width="20" />
+						<p:column headerText="Favorecido" width="160" />
+						<p:column headerText="Vencimento" width="25" />
+						<p:column headerText="Dias" width="5" />
+						<p:column headerText="Valor" width="35" />
 					</p:row>
 					<p:row>
-						<p:column headerText="Saldo Anterior" style="text-align:right"
-							colspan="7" />
+						<p:column headerText="Total" style="text-align:right" colspan="8" />
 						<p:column headerText="#{contaAPagarBean.saldoMoeda}"
 							style="text-align:right" />
 					</p:row>
 				</p:columnGroup>
+
+				<p:column selectionMode="multiple"
+					style="width:1px;text-align:center" />
 
 				<p:column headerText="Ação" style="width: 70px; text-align: center"
 					exportable="false">
@@ -143,14 +118,16 @@
 						oncomplete="PF('dialogCadDesp').show()" process="@this"
 						update="dgCadDesp" action="#{contaAPagarBean.editar}">
 						<f:setPropertyActionListener
-							target="#{contaAPagarBean.contaAPagarSelecionado}" value="#{desp}" />
+							target="#{contaAPagarBean.contaAPagarSelecionado}"
+							value="#{desp}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
 						<f:setPropertyActionListener
-							target="#{contaAPagarBean.contaAPagarSelecionado}" value="#{desp}" />
+							target="#{contaAPagarBean.contaAPagarSelecionado}"
+							value="#{desp}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-search" title="Informações"
 						styleClass="semPreenchimento"
@@ -158,7 +135,8 @@
 						oncomplete="PF('dialogInfo').show()" process="@this"
 						update="dgInfo">
 						<f:setPropertyActionListener
-							target="#{contaAPagarBean.contaAPagarSelecionado}" value="#{desp}" />
+							target="#{contaAPagarBean.contaAPagarSelecionado}"
+							value="#{desp}" />
 					</p:commandButton>
 				</p:column>
 
@@ -221,101 +199,39 @@
 
 		<!-- LANÇAMENTO DE CONTAS -->
 
-		<p:dialog header="Lançamento em conta" widgetVar="dialogCadDesp"
-			modal="true" resizable="false" draggable="true" id="dgCadDesp"
-			closeOnEscape="true" width="490" height="245" appendTo="@(body)">
+		<p:dialog
+			header="Lançamento Contas a Pagar"
+			widgetVar="dialogCadastro" modal="true" width="620" height="370"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
 
-			<h:form id="frm-cadastro-desp">
+			<h:form prependId="false" id="frm-cadastro">
 
-				<p:growl autoUpdate="true" />
+				<p:tabView prependId="false" style="width: 99%; height: 320px; ">
+					<p:tab title="Cabeçalho">
+						<ui:include src="aba_cabecalho.xhtml" />
+					</p:tab>
+					<p:tab title="Rateio da Despesa(s)">
+						<ui:include src="aba_rateio.xhtml" />
+					</p:tab>
+					<p:tab title="Forma de Pagamento">
+						<h:panelGroup layout="block" style="margin-top: 10px">
+							<p:inputTextarea rows="16" style="width: 98%"
+								value="" />
+						</h:panelGroup>
+					</p:tab>
+				</p:tabView>
 
-				<h:panelGrid id="panelCadastroDesp" columns="2"
-					columnClasses="rotuloDesRec,campoDesRec" style="margin-top:10px;">
-
-					<p:outputLabel for="txtTipo" value="Tipo" />
-					<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:92%;"
-						value="#{contaAPagarBean.tipoConta}"
-						disabled="#{contaAPagarBean.contaAPagar.notInclusao}"
-						converter="omnifaces.SelectItemsConverter" required="true"
-						requiredMessage="Selecione tipo">
-						<f:selectItem itemLabel="Selecione o tipo de conta"
-							itemValue="#{null}" />
-						<f:selectItems value="#{contaAPagarBean.listaTiposContas}"
-							var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
-							itemValue="#{tipo}" />
-						<p:ajax event="change" process="@this"
-							listener="#{contaAPagarBean.carregarContasLanctos}"
-							update="txtConta labelVlrs txtVlrs" />
-					</p:selectOneMenu>
-
-					<p:outputLabel for="txtConta" value="Conta" />
-					<p:selectOneMenu id="txtConta" required="true" autoWidth="false"
-						filter="true" filterMatchMode="contains" style="width:92%;"
-						converter="omnifaces.SelectItemsConverter"
-						value="#{contaAPagarBean.contaAPagar.planoConta}"
-						requiredMessage="Selecione conta">
-						<f:selectItem itemLabel="Selecione uma conta destino"
-							itemValue="#{null}" />
-						<f:selectItems value="#{contaAPagarBean.listaPlanoContas}"
-							var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
-					</p:selectOneMenu>
-
-					<p:outputLabel for="txtDescricao" value="Descrição" />
-					<p:inputText id="txtDescricao" size="40"
-						value="#{contaAPagarBean.contaAPagar.descricao}" required="true"
-						requiredMessage="Informe a descrição" />
-
-					<p:outputLabel for="txtData" value="Data Doc." />
-					<p:calendar id="txtData" size="15" pattern="dd/MM/yyyy"
-						locale="pt_BR" required="true"
-						value="#{contaAPagarBean.contaAPagar.dataDoc}"
-						requiredMessage="Informe a data" />
-
-					<h:panelGroup id="labelVlrs">
-						<p:outputLabel for="txtVlrSaida" value="Saída"
-							rendered="#{contaAPagarBean.tipoConta.sigla=='D'}" />
-						<p:outputLabel for="txtVlrEntrada" value="Entrada"
-							rendered="#{contaAPagarBean.tipoConta.sigla!='D'}" />
-					</h:panelGroup>
-
-					<h:panelGroup id="txtVlrs">
-						<p:inputNumber decimalSeparator="," thousandSeparator="."
-							rendered="#{contaAPagarBean.tipoConta.sigla!='D'}" symbol="R$ "
-							size="15" required="true" id="txtVlrEntrada"
-							value="#{contaAPagarBean.contaAPagar.vlrEntrada}"
-							requiredMessage="Informe o valor" minValue="0.01">
-							<f:validateDoubleRange minimum="0.01" />
-						</p:inputNumber>
-
-						<p:inputNumber decimalSeparator="," thousandSeparator="."
-							symbol="R$ " size="15" required="true" id="txtVlrSaida"
-							rendered="#{contaAPagarBean.tipoConta.sigla=='D'}"
-							value="#{contaAPagarBean.contaAPagar.vlrSaida}"
-							requiredMessage="Informe o valor" minValue="0.01">
-							<f:validateDoubleRange minimum="0.01" />
-						</p:inputNumber>
-
-					</h:panelGroup>
-
-					<p:outputLabel value="Documento" />
-					<p:inputText size="15" value="#{contaAPagarBean.contaAPagar.documento}" />
-
-				</h:panelGrid>
-
-				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Cancelar" icon="fa fa-remove"
-							style="margin-right: 3px;"
-							oncomplete="PF('dialogCadDesp').hide()" immediate="true" />
-						<p:commandButton value="Salvar" icon="fa fa-save"
-							id="salvarCommandButtonDesp"
-							oncomplete="if(args.sucesso == true) PF('dialogCadDesp').hide()"
-							actionListener="#{contaAPagarBean.salvar}"
-							update=":frm-cadastro-desp :frm-tabela">
-						</p:commandButton>
+						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+							process="@this frm-cadastro "
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
+							update="" />
 					</p:toolbarGroup>
 				</p:toolbar>
-				<p:defaultCommand target="salvarCommandButtonDesp" />
+
 			</h:form>
 
 		</p:dialog>
@@ -342,7 +258,8 @@
 						value="#{contaAPagarBean.contaAPagar.planoConta.tipo.descricao}" />
 
 					<p:outputLabel value="C/Partida" />
-					<p:outputLabel value="#{contaAPagarBean.contaAPagar.planoConta.nome}" />
+					<p:outputLabel
+						value="#{contaAPagarBean.contaAPagar.planoConta.nome}" />
 
 					<p:outputLabel value="Valor" />
 					<p:outputLabel
