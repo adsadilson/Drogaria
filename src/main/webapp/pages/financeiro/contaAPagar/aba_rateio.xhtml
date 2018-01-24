@@ -19,12 +19,13 @@
 
 			<p:toolbar styleClass="semPreenchimento">
 				<p:toolbarGroup>
-					<p:commandButton value="Adicionar" style="margin-bottom:10px;"
+					<p:commandButton id="addRateio" value="Adicionar" style="margin-bottom:10px;"
 						icon="ui-icon-plus" oncomplete="PF('dialogCadRateio').show()"
 						process="@this" />
 				</p:toolbarGroup>
 				<p:toolbarGroup align="right">
-					<p:outputLabel value="Total R$" style="color: black; margin-right:10px;" />
+					<p:outputLabel value="Total R$"
+						style="color: black; margin-right:10px;" />
 				</p:toolbarGroup>
 			</p:toolbar>
 
@@ -72,16 +73,17 @@
 
 				<p:outputLabel for="txtTipo" value="Tipo" />
 				<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:50%;"
-					value="#{movimentacaoBean.tipoConta}"
+					value="#{contaAPagarBean.contaAPagar.tipoConta}"
 					disabled="#{movimentacaoBean.movto.notInclusao}"
 					converter="omnifaces.SelectItemsConverter" required="true"
 					requiredMessage="Selecione tipo">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-					<f:selectItems value="#{movimentacaoBean.listaTiposContas}"
+					<f:selectItems value="#{contaAPagarBean.listaTipoContas}"
 						var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
 						itemValue="#{tipo}" />
 					<p:ajax event="change" process="@this"
-						listener="#{movimentacaoBean.carregarContasLanctos}" update="" />
+						listener="#{contaAPagarBean.carregarContasLanctos}"
+						update="combConta" />
 				</p:selectOneMenu>
 
 				<p:outputLabel for="combConta" value="Conta" />
@@ -91,8 +93,8 @@
 					value="#{movimentacaoBean.movto.planoConta}"
 					requiredMessage="Selecione conta">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-					<f:selectItems var="conta" itemLabel="#{conta.nome}"
-						itemValue="#{conta}" />
+					<f:selectItems value="#{contaAPagarBean.listaContas}" var="conta"
+						itemLabel="#{conta.nome}" itemValue="#{conta}" />
 				</p:selectOneMenu>
 
 				<p:outputLabel for="txtDescricao" value="Descrição" />
@@ -100,11 +102,12 @@
 
 				<p:outputLabel for="combFavorecido" value="Favorecido" />
 				<p:selectOneMenu id="combFavorecido" autoWidth="false" filter="true"
+					value="#{contaAPagarBean.contaAPagar.fornecedor}"
 					filterMatchMode="contains" style="width:91%;"
 					converter="omnifaces.SelectItemsConverter">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-					<f:selectItems var="conta" itemLabel="#{conta.nome}"
-						itemValue="#{conta}" />
+					<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
+						var="p" itemLabel="#{p.nome}" itemValue="#{p}" />
 				</p:selectOneMenu>
 
 
@@ -113,8 +116,9 @@
 
 				<p:outputLabel for="txtValor" value="Valor" />
 				<p:inputNumber decimalSeparator="," thousandSeparator="."
-					symbol="R$ " size="10" required="true" id="txtValor"
-					requiredMessage="Informe o valor" minValue="0.01">
+					value="#{contaAPagarBean.contaAPagar.valor}" symbol="R$ " size="10"
+					required="true" id="txtValor" requiredMessage="Informe o valor"
+					minValue="0.01">
 					<f:validateDoubleRange minimum="0.01" />
 				</p:inputNumber>
 
@@ -123,6 +127,8 @@
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup align="right" style="margin-right: 0px;">
 					<p:commandButton value="Salvar" icon="fa fa-save"
+						process="@this frm-cadastro-rateio"
+						action="#{contaAPagarBean.addConta()}" update="frm-cadastro-rateio"
 						id="salvarCommandButtonRateio">
 					</p:commandButton>
 				</p:toolbarGroup>

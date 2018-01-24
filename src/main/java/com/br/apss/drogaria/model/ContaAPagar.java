@@ -23,9 +23,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.DecimalMin;
 
-import com.br.apss.drogaria.enums.TipoCobranca;
+import com.br.apss.drogaria.enums.TipoConta;
 
 
 @Entity
@@ -74,7 +73,6 @@ public class ContaAPagar implements Serializable {
 	@JoinColumn(name = "fornecedor_id")
 	private Pessoa fornecedor;
 
-	@DecimalMin(value = "0.01", message = "Valor precisa ser maior que 0.00")
 	@Column(name = "valor", precision = 12, scale = 2)
 	private BigDecimal valor = BigDecimal.ZERO;
 
@@ -95,8 +93,8 @@ public class ContaAPagar implements Serializable {
 	private List<Movimentacao> movimentacoes = new ArrayList<Movimentacao>();
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "tipo_cobranca", length = 20)
-	private TipoCobranca tipoCobranca;
+	@Column(name = "tipoConta", length = 20)
+	private TipoConta tipoConta;
 
 	@Column(length = 20)
 	private String status;
@@ -221,12 +219,12 @@ public class ContaAPagar implements Serializable {
 		this.movimentacoes = movimentacoes;
 	}
 
-	public TipoCobranca getTipoCobranca() {
-		return tipoCobranca;
+	public TipoConta getTipoConta() {
+		return tipoConta;
 	}
 
-	public void setTipoCobranca(TipoCobranca tipoCobranca) {
-		this.tipoCobranca = tipoCobranca;
+	public void setTipoConta(TipoConta tipoConta) {
+		this.tipoConta = tipoConta;
 	}
 
 	public String getParcela() {

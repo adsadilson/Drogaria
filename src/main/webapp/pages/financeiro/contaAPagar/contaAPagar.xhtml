@@ -206,7 +206,11 @@
 					<p:toolbarGroup align="right">
 						<p:outputLabel value="Emissão:"
 							style="color: black; margin-right:10px;" />
-						<p:calendar size="10" style="text-align:  center;" />
+						<p:calendar size="10" style="text-align:  center;"
+							pattern="dd/MM/yyyy" immediate="true"
+							value="#{contaAPagarBean.contaAPagar.dataDoc}">
+							<p:ajax event="dateSelect" update="addRateio" />
+						</p:calendar>
 					</p:toolbarGroup>
 				</p:toolbar>
 

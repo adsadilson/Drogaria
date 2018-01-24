@@ -8,9 +8,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
@@ -18,10 +20,17 @@ import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.Status;
-import com.br.apss.drogaria.enums.TipoCobranca;
+import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.Movimentacao;
+import com.br.apss.drogaria.model.Pessoa;
+import com.br.apss.drogaria.model.PlanoConta;
+import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
+import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.ContaAPagarService;
+import com.br.apss.drogaria.service.PessoaService;
+import com.br.apss.drogaria.service.PlanoContaService;
 
 @Named
 @ViewScoped
@@ -29,7 +38,7 @@ public class ContaAPagarBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private ContaAPagar contaAPagar = new ContaAPagar();
+	private ContaAPagar contaAPagar;
 
 	private ContaAPagar contaAPagarSelecionado;
 
@@ -45,15 +54,28 @@ public class ContaAPagarBean implements Serializable {
 
 	private List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
 
+	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
+
+	private Movimentacao movto;
+
+	private BigDecimal totalRateio = BigDecimal.ZERO;
+
 	@Inject
 	private ContaAPagarService contaAPagarService;
+
+	@Inject
+	private PlanoContaService contaService;
+
+	@Inject
+	private PessoaService pessoaService;
 
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
-		if (this.contaAPagar == null) {
-			novo();
-		}
+		contaAPagar = new ContaAPagar();
+		filtro = new ContaAPagarFilter();
+		movto = new Movimentacao();
+		periodo = 30;
 		pesquisar();
 	}
 
@@ -74,12 +96,74 @@ public class ContaAPagarBean implements Serializable {
 		contaAPagar = new ContaAPagar();
 	}
 
+	public void carregarContasLanctos() {
+		PlanoContaFilter cl = new PlanoContaFilter();
+		if (null != this.contaAPagar.getTipoConta()) {
+			cl.setTipo(this.contaAPagar.getTipoConta());
+			cl.setStatus(true);
+			this.listaContas = contaService.filtrados(cl);
+		}
+	}
+
+	public List<Pessoa> getCarregarFornecedores() {
+		return pessoaService.listarTodos();
+	}
+
+	public void addConta() {
+		int achou = -1;
+		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
+			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
+					.equals(movto.getPlanoConta().getNome())) {
+				achou = i;
+			}
+		}
+		if (achou < 0) {
+			movto.setDataDoc(contaAPagar.getDataDoc());
+			movto.setDataLanc(new Date());
+			movto.setUsuario(obterUsuario());
+			movto.setVlrEntrada(null);
+			movto.setDocumento(contaAPagar.getNumDoc());
+			contaAPagar.getMovimentacoes().add(movto);
+			totalRateio = totalRateio.add(movto.getVlrSaida());
+			contaAPagar.setValor(totalRateio);
+			movto = new Movimentacao();
+		} else {
+			Messages.addGlobalError("Conta jÃ¡ cadastrada!");
+			RequestContext requestContext = RequestContext.getCurrentInstance();
+			requestContext.addCallbackParam("sucesso", true);
+		}
+	}
+
+	private Usuario obterUsuario() {
+		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
+		Usuario usuario = null;
+		if (session != null) {
+			usuario = (Usuario) session.getAttribute("usuarioAutenticado");
+		}
+		return usuario;
+	}
+
+	public void removerConta() {
+		int achou = -1;
+		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
+			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
+					.equals(movto.getPlanoConta().getNome())) {
+				achou = i;
+			}
+		}
+		if (achou > -1) {
+			contaAPagar.getMovimentacoes().remove(achou);
+			totalRateio = totalRateio.subtract(movto.getVlrSaida());
+			contaAPagar.setValor(totalRateio);
+		}
+	}
+
 	public void novoFiltro() {
 		this.filtro = new ContaAPagarFilter();
 	}
 
-	public List<TipoCobranca> getListaTipoCobranças() {
-		return Arrays.asList(TipoCobranca.values());
+	public List<TipoConta> getListaTipoContas() {
+		return Arrays.asList(TipoConta.D, TipoConta.CC);
 	}
 
 	public Boolean validarDatas(Date ini, Date fim) {
@@ -213,6 +297,30 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setPeriodo(int periodo) {
 		this.periodo = periodo;
+	}
+
+	public List<PlanoConta> getListaContas() {
+		return listaContas;
+	}
+
+	public void setListaContas(List<PlanoConta> listaContas) {
+		this.listaContas = listaContas;
+	}
+
+	public Movimentacao getMovto() {
+		return movto;
+	}
+
+	public void setMovto(Movimentacao movto) {
+		this.movto = movto;
+	}
+
+	public BigDecimal getTotalRateio() {
+		return totalRateio;
+	}
+
+	public void setTotalRateio(BigDecimal totalRateio) {
+		this.totalRateio = totalRateio;
 	}
 
 }
