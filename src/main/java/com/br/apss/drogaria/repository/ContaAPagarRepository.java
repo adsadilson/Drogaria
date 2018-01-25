@@ -38,7 +38,7 @@ public class ContaAPagarRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Conta A Pagar n„o pode ser excluÌda");
+			throw new NegocioException("Conta A Pagar n√£o pode ser exclu√≠da");
 		}
 	}
 
@@ -50,10 +50,10 @@ public class ContaAPagarRepository implements Serializable {
 		return manager.createQuery("from ContaAPagar order by nome", ContaAPagar.class).getResultList();
 	}
 
-	public ContaAPagar porNome(String nome) {
+	public ContaAPagar porNome(String descricao) {
 		try {
-			return manager.createQuery("from ContaAPagar where upper(nome) = :nome", ContaAPagar.class)
-					.setParameter("nome", nome.toUpperCase()).getSingleResult();
+			return manager.createQuery("from ContaAPagar where upper(descricao) = :descricao", ContaAPagar.class)
+					.setParameter("descricao", descricao.toUpperCase()).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -118,7 +118,7 @@ public class ContaAPagarRepository implements Serializable {
 			}
 		}
 
-		return criteria.addOrder(Order.asc("nome")).list();
+		return criteria.addOrder(Order.asc("dataDoc")).list();
 	}
 
 	public int quantidadeFiltrados(ContaAPagarFilter filtro) {

@@ -40,9 +40,9 @@ public class ContaAPagarBean implements Serializable {
 
 	private ContaAPagar contaAPagar;
 
-	private ContaAPagar contaAPagarSelecionado;
+	private ContaAPagar cPSelecionado;
 
-	private ContaAPagarFilter filtro = new ContaAPagarFilter();
+	private ContaAPagarFilter filtro;
 
 	private LazyDataModel<ContaAPagar> model;
 
@@ -73,6 +73,7 @@ public class ContaAPagarBean implements Serializable {
 
 	public void inicializar() {
 		contaAPagar = new ContaAPagar();
+		cPSelecionado = new ContaAPagar();
 		filtro = new ContaAPagarFilter();
 		movto = new Movimentacao();
 		periodo = 30;
@@ -89,17 +90,18 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
-		this.contaAPagar = contaAPagarService.porId(this.contaAPagarSelecionado.getId());
+		this.contaAPagar = contaAPagarService.porId(this.cPSelecionado.getId());
 	}
 
 	public void novo() {
 		contaAPagar = new ContaAPagar();
+		cPSelecionado = new ContaAPagar();
 	}
 
 	public void carregarContasLanctos() {
 		PlanoContaFilter cl = new PlanoContaFilter();
-		if (null != this.contaAPagar.getTipoConta()) {
-			cl.setTipo(this.contaAPagar.getTipoConta());
+		if (null != this.cPSelecionado.getTipoConta()) {
+			cl.setTipo(this.cPSelecionado.getTipoConta());
 			cl.setStatus(true);
 			this.listaContas = contaService.filtrados(cl);
 		}
@@ -107,6 +109,10 @@ public class ContaAPagarBean implements Serializable {
 
 	public List<Pessoa> getCarregarFornecedores() {
 		return pessoaService.listarTodos();
+	}
+
+	public void iniciarLancRateio() {
+		movto = new Movimentacao();
 	}
 
 	public void addConta() {
@@ -122,11 +128,14 @@ public class ContaAPagarBean implements Serializable {
 			movto.setDataLanc(new Date());
 			movto.setUsuario(obterUsuario());
 			movto.setVlrEntrada(null);
-			movto.setDocumento(contaAPagar.getNumDoc());
+			movto.setDescricao(cPSelecionado.getDescricao());
+			movto.setVlrSaida(cPSelecionado.getValor());
+			movto.setDocumento(cPSelecionado.getNumDoc());
 			contaAPagar.getMovimentacoes().add(movto);
-			totalRateio = totalRateio.add(movto.getVlrSaida());
+			totalRateio = totalRateio.add(cPSelecionado.getValor());
 			contaAPagar.setValor(totalRateio);
 			movto = new Movimentacao();
+			cPSelecionado = new ContaAPagar();
 		} else {
 			Messages.addGlobalError("Conta já cadastrada!");
 			RequestContext requestContext = RequestContext.getCurrentInstance();
@@ -144,7 +153,8 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void removerConta() {
-		int achou = -1;
+		System.out.println(contaAPagar.getDescricao());
+		/*int achou = -1;
 		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
 			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
 					.equals(movto.getPlanoConta().getNome())) {
@@ -155,7 +165,7 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.getMovimentacoes().remove(achou);
 			totalRateio = totalRateio.subtract(movto.getVlrSaida());
 			contaAPagar.setValor(totalRateio);
-		}
+		}*/
 	}
 
 	public void novoFiltro() {
@@ -200,13 +210,13 @@ public class ContaAPagarBean implements Serializable {
 
 				@Override
 				public ContaAPagar getRowData(String rowKey) {
-					contaAPagarSelecionado = contaAPagarService.porId(Long.valueOf(rowKey));
-					return contaAPagarSelecionado;
+					cPSelecionado = contaAPagarService.porId(Long.valueOf(rowKey));
+					return cPSelecionado;
 				}
 
 				@Override
 				public String getRowKey(ContaAPagar objeto) {
-					return contaAPagarSelecionado.getId().toString();
+					return cPSelecionado.getId().toString();
 				}
 
 			};
@@ -220,11 +230,11 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void preparEdicao() {
-		this.contaAPagar = contaAPagarService.porId(this.contaAPagarSelecionado.getId());
+		this.contaAPagar = contaAPagarService.porId(this.cPSelecionado.getId());
 	}
 
 	public void excluir() {
-		contaAPagarService.excluir(contaAPagarSelecionado);
+		contaAPagarService.excluir(cPSelecionado);
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
@@ -259,12 +269,12 @@ public class ContaAPagarBean implements Serializable {
 		this.listaContaAPagars = listaContaAPagars;
 	}
 
-	public ContaAPagar getContaAPagarSelecionado() {
-		return contaAPagarSelecionado;
+	public ContaAPagar getcPSelecionado() {
+		return cPSelecionado;
 	}
 
-	public void setContaAPagarSelecionado(ContaAPagar contaAPagarSelecionado) {
-		this.contaAPagarSelecionado = contaAPagarSelecionado;
+	public void setcPSelecionado(ContaAPagar cPSelecionado) {
+		this.cPSelecionado = cPSelecionado;
 	}
 
 	public LazyDataModel<ContaAPagar> getModel() {

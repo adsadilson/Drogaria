@@ -29,6 +29,11 @@
 -->
 </style>
 
+
+		<f:metadata>
+			<o:viewAction action="#{contaAPagarBean.inicializar()}" />
+		</f:metadata>
+
 		<h1>Contas a Pagar</h1>
 
 		<h:form id="frm-menu" prependId="false">
@@ -38,10 +43,10 @@
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo" update=""
+					<p:commandButton icon="fa fa-file-o" value="Novo" update="tbl-desp"
 						oncomplete="PF('dialogCadastro').show()" process="@this"
 						action="#{contaAPagarBean.novo}">
-						<p:resetInput target="" />
+						<p:resetInput target="tbl-desp" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-copy" value="Duplicar"
@@ -78,8 +83,7 @@
 				emptyMessage="Nenhuma registro encontrado." rows="13"
 				paginator="true" paginatorAlwaysVisible="false" lazy="true"
 				paginatorPosition="bottom" selectionMode="single"
-				selection="#{contaAPagarBean.contaAPagarSelecionado}"
-				rowKey="#{desp.id}">
+				selection="#{contaAPagarBean.cPSelecionado}" rowKey="#{desp.id}">
 
 				<p:ajax event="rowSelect" update="" />
 				<p:ajax event="rowUnselect" update="" />
@@ -111,23 +115,20 @@
 						oncomplete="PF('dialogCadDesp').show()" process="@this"
 						update="dgCadDesp" action="#{contaAPagarBean.editar}">
 						<f:setPropertyActionListener
-							target="#{contaAPagarBean.contaAPagarSelecionado}"
-							value="#{desp}" />
+							target="#{contaAPagarBean.cPSelecionado}" value="#{desp}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
 						<f:setPropertyActionListener
-							target="#{contaAPagarBean.contaAPagarSelecionado}"
-							value="#{desp}" />
+							target="#{contaAPagarBean.cPSelecionado}" value="#{desp}" />
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-search" title="Informações"
 						styleClass="semPreenchimento" oncomplete="PF('dialogInfo').show()"
 						process="@this" update="dgInfo">
 						<f:setPropertyActionListener
-							target="#{contaAPagarBean.contaAPagarSelecionado}"
-							value="#{desp}" />
+							target="#{contaAPagarBean.cPSelecionado}" value="#{desp}" />
 					</p:commandButton>
 				</p:column>
 
@@ -175,8 +176,7 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText
-						value="#{contaAPagarBean.contaAPagarSelecionado.descricao} ?" />
+					<h:outputText value="#{contaAPagarBean.cPSelecionado.descricao} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
@@ -191,7 +191,7 @@
 		<!-- LANÇAMENTO DE CONTAS -->
 
 		<p:dialog header="Lançamento Contas a Pagar"
-			widgetVar="dialogCadastro" modal="true" width="660" height="400"
+			widgetVar="dialogCadastro" modal="true" width="745" height="400"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
@@ -206,8 +206,9 @@
 					<p:toolbarGroup align="right">
 						<p:outputLabel value="Emissão:"
 							style="color: black; margin-right:10px;" />
-						<p:calendar size="10" style="text-align:  center;"
-							pattern="dd/MM/yyyy" immediate="true"
+						<p:calendar size="10" style="text-align:  center;" locale="pt_BR"
+							pattern="dd/MM/yyyy" immediate="true" id="txtEmissao"
+							disabled="#{contAPagarBean.contaApagar.movimentacoes.size() > 0}"
 							value="#{contaAPagarBean.contaAPagar.dataDoc}">
 							<p:ajax event="dateSelect" update="addRateio" />
 						</p:calendar>

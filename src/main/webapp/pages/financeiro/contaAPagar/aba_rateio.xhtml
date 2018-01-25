@@ -19,24 +19,32 @@
 
 			<p:toolbar styleClass="semPreenchimento">
 				<p:toolbarGroup>
-					<p:commandButton id="addRateio" value="Adicionar" style="margin-bottom:10px;"
-						icon="ui-icon-plus" oncomplete="PF('dialogCadRateio').show()"
-						process="@this" />
+					<p:commandButton id="addRateio" value="Adicionar"
+						style="margin-bottom:10px;" icon="ui-icon-plus"
+						action="#{contaAPagarBean.iniciarLancRateio}"
+						oncomplete="PF('dialogCadRateio').show()" process="@this" />
 				</p:toolbarGroup>
 				<p:toolbarGroup align="right">
-					<p:outputLabel value="Total R$"
-						style="color: black; margin-right:10px;" />
+					<p:outputLabel value="Total"
+						style="font-size:13px; margin-right:10px; color:black" />
+					<p:outputLabel id="txtTotalRateio"
+						style="color:red; font-size:13px; margin-right:10px;"
+						value="#{contaAPagarBean.totalRateio}">
+						<f:convertNumber type="currency" />
+					</p:outputLabel>
 				</p:toolbarGroup>
 			</p:toolbar>
 
 			<p:dataTable id="tblRateioDes" style="width:99%;"
-				emptyMessage="Nenhuma registro lançado" var="m">
+				emptyMessage="Nenhuma registro lançado" scrollable="true"
+				scrollHeight="175"
+				value="#{contaAPagarBean.contaAPagar.movimentacoes}" var="m">
 
-				<p:column style="width:163px" headerText="Conta">
-					<h:outputText value="#{m.conta.nome}" />
+				<p:column style="width:170px" headerText="Conta">
+					<h:outputText value="#{m.planoConta.nome}" />
 				</p:column>
 
-				<p:column style="width:220px" headerText="Descrição">
+				<p:column style="width:230px" headerText="Descrição">
 					<h:outputText value="#{m.descricao}" />
 				</p:column>
 
@@ -46,14 +54,33 @@
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align:center">
-					<p:commandLink title="Excluir" process="@this"
-						styleClass="semPreenchimento">
-						<i class="fa  fa-trash"></i>
-					</p:commandLink>
+				<p:column style="text-align:center;width:50px" headerText="Ação">
+					<p:commandButton title="Excluir" process="@this"
+						icon="ui-icon-trash" styleClass="semPreenchimento"
+						update="tblRateioDes txtTotalRateio"
+						action="#{contaAPagarBean.removerConta()}">
+						<f:setPropertyActionListener value="#{m}"
+							target="#{contaAPagarBean.movto}" />
+					</p:commandButton>
 				</p:column>
 
 			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusaoRateio"
+				id="confirmacaoExclusaoDialogRateio">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText value="#{contaAPagarBean.cPSelecionado.descricao} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusaoRateio').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusaoRateio').hide();"
+					update="tblRateioDes" action="#{contaAPagarBean.removerConta()}"
+					process="@this" />
+			</p:confirmDialog>
 
 		</h:form>
 
@@ -63,7 +90,7 @@
 		modal="true" resizable="false" draggable="true" id="dgCadRateio"
 		closeOnEscape="true" width="460" height="245" appendTo="@(body)">
 
-		<h:form id="frm-cadastro-rateio">
+		<h:form id="frm-cadastro-rateio" prependId="false">
 
 			<p:growl autoUpdate="true" />
 
@@ -73,7 +100,7 @@
 
 				<p:outputLabel for="txtTipo" value="Tipo" />
 				<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:50%;"
-					value="#{contaAPagarBean.contaAPagar.tipoConta}"
+					value="#{contaAPagarBean.cPSelecionado.tipoConta}"
 					disabled="#{movimentacaoBean.movto.notInclusao}"
 					converter="omnifaces.SelectItemsConverter" required="true"
 					requiredMessage="Selecione tipo">
@@ -90,7 +117,7 @@
 				<p:selectOneMenu id="combConta" required="true" autoWidth="false"
 					filter="true" filterMatchMode="contains" style="width:91%;"
 					converter="omnifaces.SelectItemsConverter"
-					value="#{movimentacaoBean.movto.planoConta}"
+					value="#{contaAPagarBean.movto.planoConta}"
 					requiredMessage="Selecione conta">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
 					<f:selectItems value="#{contaAPagarBean.listaContas}" var="conta"
@@ -98,11 +125,12 @@
 				</p:selectOneMenu>
 
 				<p:outputLabel for="txtDescricao" value="Descrição" />
-				<p:inputText id="txtDescricao" size="36" />
+				<p:inputText id="txtDescricao"
+					value="#{contaAPagarBean.cPSelecionado.descricao}" size="36" />
 
 				<p:outputLabel for="combFavorecido" value="Favorecido" />
 				<p:selectOneMenu id="combFavorecido" autoWidth="false" filter="true"
-					value="#{contaAPagarBean.contaAPagar.fornecedor}"
+					value="#{contaAPagarBean.cPSelecionado.fornecedor}"
 					filterMatchMode="contains" style="width:91%;"
 					converter="omnifaces.SelectItemsConverter">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
@@ -112,15 +140,25 @@
 
 
 				<p:outputLabel value="Documento" />
-				<p:inputText size="10" />
+				<p:inputText size="10"
+					value="#{contaAPagarBean.cPSelecionado.numDoc}" />
 
 				<p:outputLabel for="txtValor" value="Valor" />
-				<p:inputNumber decimalSeparator="," thousandSeparator="."
-					value="#{contaAPagarBean.contaAPagar.valor}" symbol="R$ " size="10"
-					required="true" id="txtValor" requiredMessage="Informe o valor"
-					minValue="0.01">
+				<ui:remove>
+					<p:inputNumber decimalSeparator="," thousandSeparator="."
+						value="#{contaAPagarBean.cPSelecionado.valor}" symbol="R$ "
+						size="10" required="true" id="txtValor"
+						requiredMessage="Informe o valor" minValue="0.01">
+						<f:validateDoubleRange minimum="0.01" />
+					</p:inputNumber>
+				</ui:remove>
+				<p:inputText id="txtValor" required="true"
+					requiredMessage="Informe um valor"
+					onfocus="formatoMoeda('txtValor')"
+					value="#{contaAPagarBean.cPSelecionado.valor}" size="10">
 					<f:validateDoubleRange minimum="0.01" />
-				</p:inputNumber>
+					<f:convertNumber type="currency" />
+				</p:inputText>
 
 			</h:panelGrid>
 
@@ -128,7 +166,8 @@
 				<p:toolbarGroup align="right" style="margin-right: 0px;">
 					<p:commandButton value="Salvar" icon="fa fa-save"
 						process="@this frm-cadastro-rateio"
-						action="#{contaAPagarBean.addConta()}" update="frm-cadastro-rateio"
+						action="#{contaAPagarBean.addConta()}"
+						update="frm-cadastro-rateio tblRateioDes txtEmissao txtTotalRateio"
 						id="salvarCommandButtonRateio">
 					</p:commandButton>
 				</p:toolbarGroup>

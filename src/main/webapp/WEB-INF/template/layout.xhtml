@@ -11,6 +11,8 @@
 	<title><ui:insert name="titulo">Sistema de Drogaria</ui:insert></title>
 	<h:outputStylesheet library="css" name="sistema.css" />
 	<h:outputScript library="js" name="jquery.maskMoney.js" />
+	<h:outputScript library="js" name="initInputMask.js" />
+	<h:outputScript library="js" name="jquery.inputmask.bundle.min.js" />
 	<h:outputScript library="js" name="initScript.js" />
 
 </h:head>
@@ -76,7 +78,7 @@
 					<p:submenu label="Financeiro">
 						<p:menuitem value="Movto de Contas"
 							outcome="/pages/financeiro/movimentacao/movimentacao" />
-							<p:menuitem value="Conta a Pagar"
+						<p:menuitem value="Conta a Pagar"
 							outcome="/pages/financeiro/contaAPagar/contaAPagar" />
 					</p:submenu>
 					<p:submenu label="Pedidos">
