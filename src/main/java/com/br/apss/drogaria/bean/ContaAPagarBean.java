@@ -95,7 +95,7 @@ public class ContaAPagarBean implements Serializable {
 
 	public void novo() {
 		contaAPagar = new ContaAPagar();
-		cPSelecionado = new ContaAPagar();
+		contaAPagar.setDataDoc(new Date());
 	}
 
 	public void carregarContasLanctos() {
@@ -114,6 +114,24 @@ public class ContaAPagarBean implements Serializable {
 	public void iniciarLancRateio() {
 		movto = new Movimentacao();
 	}
+	
+	public void removerConta() {
+		System.out.println(contaAPagar.getDescricao());
+		int achou = -1;
+		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
+			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
+					.equals(movto.getPlanoConta().getNome())) {
+				achou = i;
+				break;
+			}
+		}
+		if (achou > -1) {
+			contaAPagar.getMovimentacoes().remove(achou);
+			totalRateio = totalRateio.subtract(movto.getVlrSaida());
+			contaAPagar.setValor(totalRateio);
+		}
+	}
+	
 
 	public void addConta() {
 		int achou = -1;
@@ -128,14 +146,10 @@ public class ContaAPagarBean implements Serializable {
 			movto.setDataLanc(new Date());
 			movto.setUsuario(obterUsuario());
 			movto.setVlrEntrada(null);
-			movto.setDescricao(cPSelecionado.getDescricao());
-			movto.setVlrSaida(cPSelecionado.getValor());
-			movto.setDocumento(cPSelecionado.getNumDoc());
 			contaAPagar.getMovimentacoes().add(movto);
-			totalRateio = totalRateio.add(cPSelecionado.getValor());
+			totalRateio = totalRateio.add(movto.getVlrSaida());
 			contaAPagar.setValor(totalRateio);
 			movto = new Movimentacao();
-			cPSelecionado = new ContaAPagar();
 		} else {
 			Messages.addGlobalError("Conta já cadastrada!");
 			RequestContext requestContext = RequestContext.getCurrentInstance();
@@ -152,21 +166,7 @@ public class ContaAPagarBean implements Serializable {
 		return usuario;
 	}
 
-	public void removerConta() {
-		System.out.println(contaAPagar.getDescricao());
-		/*int achou = -1;
-		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
-			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
-					.equals(movto.getPlanoConta().getNome())) {
-				achou = i;
-			}
-		}
-		if (achou > -1) {
-			contaAPagar.getMovimentacoes().remove(achou);
-			totalRateio = totalRateio.subtract(movto.getVlrSaida());
-			contaAPagar.setValor(totalRateio);
-		}*/
-	}
+	
 
 	public void novoFiltro() {
 		this.filtro = new ContaAPagarFilter();

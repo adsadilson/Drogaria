@@ -43,7 +43,8 @@
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo" update="tbl-desp"
+					<p:commandButton icon="fa fa-file-o" value="Novo"
+						update="tbl-desp txtEmissao"
 						oncomplete="PF('dialogCadastro').show()" process="@this"
 						action="#{contaAPagarBean.novo}">
 						<p:resetInput target="tbl-desp" />
@@ -208,7 +209,7 @@
 							style="color: black; margin-right:10px;" />
 						<p:calendar size="10" style="text-align:  center;" locale="pt_BR"
 							pattern="dd/MM/yyyy" immediate="true" id="txtEmissao"
-							disabled="#{contAPagarBean.contaApagar.movimentacoes.size() > 0}"
+							disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
 							value="#{contaAPagarBean.contaAPagar.dataDoc}">
 							<p:ajax event="dateSelect" update="addRateio" />
 						</p:calendar>

@@ -54,6 +54,10 @@ public class Movimentacao implements Serializable {
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 
+	@ManyToOne
+	@JoinColumn(name = "pessoa_id")
+	private Pessoa pessoa;
+
 	@Column(name = "documento", length = 15)
 	private String documento;
 
@@ -174,6 +178,14 @@ public class Movimentacao implements Serializable {
 
 	public void setTipoLanc(TipoLanc tipoLanc) {
 		this.tipoLanc = tipoLanc;
+	}
+
+	public Pessoa getPessoa() {
+		return pessoa;
+	}
+
+	public void setPessoa(Pessoa pessoa) {
+		this.pessoa = pessoa;
 	}
 
 	@Transient

@@ -16,7 +16,6 @@
 
 		<h:form prependId="false" id="frm-rateio">
 
-
 			<p:toolbar styleClass="semPreenchimento">
 				<p:toolbarGroup>
 					<p:commandButton id="addRateio" value="Adicionar"
@@ -57,7 +56,7 @@
 				<p:column style="text-align:center;width:50px" headerText="Ação">
 					<p:commandButton title="Excluir" process="@this"
 						icon="ui-icon-trash" styleClass="semPreenchimento"
-						update="tblRateioDes txtTotalRateio"
+						update="tblRateioDes txtTotalRateio :frm-cadastro:txtEmissao"
 						action="#{contaAPagarBean.removerConta()}">
 						<f:setPropertyActionListener value="#{m}"
 							target="#{contaAPagarBean.movto}" />
@@ -89,6 +88,8 @@
 	<p:dialog header="Lançamento de Rateio" widgetVar="dialogCadRateio"
 		modal="true" resizable="false" draggable="true" id="dgCadRateio"
 		closeOnEscape="true" width="460" height="245" appendTo="@(body)">
+
+		<p:ajax event="close" update=":frm-cadastro:txtEmissao" />
 
 		<h:form id="frm-cadastro-rateio" prependId="false">
 
@@ -126,13 +127,12 @@
 
 				<p:outputLabel for="txtDescricao" value="Descrição" />
 				<p:inputText id="txtDescricao"
-					value="#{contaAPagarBean.cPSelecionado.descricao}" size="36" />
+					value="#{contaAPagarBean.movto.descricao}" size="36" />
 
 				<p:outputLabel for="combFavorecido" value="Favorecido" />
 				<p:selectOneMenu id="combFavorecido" autoWidth="false" filter="true"
-					value="#{contaAPagarBean.cPSelecionado.fornecedor}"
-					filterMatchMode="contains" style="width:91%;"
-					converter="omnifaces.SelectItemsConverter">
+					value="#{contaAPagarBean.movto.pessoa}" filterMatchMode="contains"
+					style="width:91%;" converter="omnifaces.SelectItemsConverter">
 					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
 					<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
 						var="p" itemLabel="#{p.nome}" itemValue="#{p}" />
@@ -140,22 +140,13 @@
 
 
 				<p:outputLabel value="Documento" />
-				<p:inputText size="10"
-					value="#{contaAPagarBean.cPSelecionado.numDoc}" />
+				<p:inputText size="10" value="#{contaAPagarBean.movto.documento}" />
 
 				<p:outputLabel for="txtValor" value="Valor" />
-				<ui:remove>
-					<p:inputNumber decimalSeparator="," thousandSeparator="."
-						value="#{contaAPagarBean.cPSelecionado.valor}" symbol="R$ "
-						size="10" required="true" id="txtValor"
-						requiredMessage="Informe o valor" minValue="0.01">
-						<f:validateDoubleRange minimum="0.01" />
-					</p:inputNumber>
-				</ui:remove>
 				<p:inputText id="txtValor" required="true"
 					requiredMessage="Informe um valor"
 					onfocus="formatoMoeda('txtValor')"
-					value="#{contaAPagarBean.cPSelecionado.valor}" size="10">
+					value="#{contaAPagarBean.movto.vlrSaida}" size="10">
 					<f:validateDoubleRange minimum="0.01" />
 					<f:convertNumber type="currency" />
 				</p:inputText>
