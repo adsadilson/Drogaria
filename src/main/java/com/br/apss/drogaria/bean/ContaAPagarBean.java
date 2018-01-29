@@ -79,6 +79,12 @@ public class ContaAPagarBean implements Serializable {
 	@Inject
 	private PessoaService pessoaService;
 
+	private BigDecimal totalAVencer = BigDecimal.ZERO;
+
+	private BigDecimal totalAVencido = BigDecimal.ZERO;
+
+	private BigDecimal totalGeral = BigDecimal.ZERO;
+
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
@@ -225,7 +231,7 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setValor(totalRateio);
 			movto = new Movimentacao();
 		} else {
-			Messages.addGlobalError("Conta j√° cadastrada!");
+			Messages.addGlobalError("Conta j·° cadastrada!");
 			RequestContext requestContext = RequestContext.getCurrentInstance();
 			requestContext.addCallbackParam("sucesso", true);
 		}
@@ -263,6 +269,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void pesquisar() {
 		listaContaAPagars = contaAPagarService.filtrados(filtro);
+		for (ContaAPagar c : listaContaAPagars) {
+			if (c.getDataVencto().before(new Date())) {
+				this.totalAVencido = this.totalAVencido.add(c.getValor());
+			} else {
+				this.totalAVencer = this.totalAVencer.add(c.getValor());
+			}
+			this.totalGeral = this.totalGeral.add(c.getValor());
+		}
 	}
 
 	public List<Status> getStatus() {
@@ -283,7 +297,7 @@ public class ContaAPagarBean implements Serializable {
 			ap.setDataDoc(contaAPagar.getDataDoc());
 			ap.setDataLanc(new Date());
 			ap.setFornecedor(contaAPagar.getFornecedor());
-			ap.setNumDoc(contaAPagar.getNumDoc().isEmpty() ? null : contaAPagar.getNumDoc() +"-" + (i + 1));
+			ap.setNumDoc(contaAPagar.getNumDoc().isEmpty() ? null : contaAPagar.getNumDoc() + "-" + (i + 1));
 			ap.setTipoCobranca(contaAPagar.getTipoCobranca());
 			ap.setUsuario(obterUsuario());
 			ap.setStatus("ABERTO");
@@ -420,6 +434,18 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setContaApagarSelecionadas(List<ContaAPagar> contaApagarSelecionadas) {
 		this.contaApagarSelecionadas = contaApagarSelecionadas;
+	}
+
+	public BigDecimal getTotalAVencer() {
+		return totalAVencer;
+	}
+
+	public BigDecimal getTotalAVencido() {
+		return totalAVencido;
+	}
+
+	public BigDecimal getTotalGeral() {
+		return totalGeral;
 	}
 
 }

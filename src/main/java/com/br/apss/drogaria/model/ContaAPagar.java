@@ -282,5 +282,5 @@ public class ContaAPagar implements Serializable {
 	public String toString() {
 		return String.format("%s[id=%d]", getClass().getSimpleName(), getId());
 	}
-
 }
+
