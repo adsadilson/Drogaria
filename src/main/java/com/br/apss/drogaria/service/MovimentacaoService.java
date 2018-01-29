@@ -24,6 +24,11 @@ public class MovimentacaoService implements Serializable {
 	}
 
 	@Transacional
+	public List<Movimentacao> salvar(List<Movimentacao> list) {
+		return dao.save(list);
+	}
+
+	@Transacional
 	public void excluir(Movimentacao obj) {
 		dao.excluirPorVinculo(obj.getId());
 	}

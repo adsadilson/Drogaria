@@ -278,24 +278,30 @@
 					</p:selectOneMenu>
 
 					<p:outputLabel value="Valor Custo" for="txtCusto" />
-					<p:inputNumber size="10" id="txtCusto" required="true"
-						emptyValue="empty" value="#{produtoBean.produto.vlrCusto}"
-						symbol="R$ " decimalSeparator="," thousandSeparator=".">
+					<p:inputText id="txtCusto" required="true"
+						requiredMessage="Informe um valor custo"
+						onfocus="formatoMoeda('txtCusto')"
+						value="#{produtoBean.produto.vlrCusto}" size="10">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
 						<p:ajax process="@this" update="txtMarLucro txtCusto txtLucro"
 							listener="#{produtoBean.calcVenda}" />
-					</p:inputNumber>
+					</p:inputText>
 
 					<p:outputLabel value="Estoque" for="estoque" />
 					<p:inputText id="estoque" size="10" maxlength="5"
 						value="#{produtoBean.produto.quantidade}" />
 
 					<p:outputLabel value="Valor Venda" for="txtVenda" />
-					<p:inputNumber size="10" id="txtVenda" required="true"
-						emptyValue="empty" value="#{produtoBean.produto.vlrVenda}"
-						symbol="R$ " decimalSeparator="," thousandSeparator=".">
+					<p:inputText id="txtVenda" required="true"
+						requiredMessage="Informe um valor custo"
+						onfocus="formatoMoeda('txtVenda')"
+						value="#{produtoBean.produto.vlrVenda}" size="10">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
 						<p:ajax process="@this" update="txtMarLucro txtLucro"
 							listener="#{produtoBean.calcVenda}" />
-					</p:inputNumber>
+					</p:inputText>
 
 					<p:outputLabel for="txtLucro" value="Lucro" />
 					<p:inputNumber size="10" id="txtLucro" readonly="true"

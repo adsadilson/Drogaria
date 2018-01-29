@@ -40,19 +40,33 @@
 
 			<!-- BOTÕES DE AÇÕES -->
 
-			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento"
+				id="toolbar-botoes">
+
 				<p:toolbarGroup>
 
 					<p:commandButton icon="fa fa-file-o" value="Novo"
-						update="tbl-desp txtEmissao"
-						oncomplete="PF('dialogCadastro').show()" process="@this"
-						action="#{contaAPagarBean.novo}">
-						<p:resetInput target="tbl-desp" />
+						update="dgCadastro" oncomplete="PF('dialogCadastro').show()"
+						process="@this" action="#{contaAPagarBean.novo}">
+						<p:resetInput target="dgCadastro" />
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-pencil" value="Editar"
+						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
+						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-trash" value="Excluir" id="btnExcluir"
+						style="margin-right: 3px;" process="@this"
+						update="confirmacaoExclusaoDialog"
+						oncomplete="PF('confirmacaoExclusao').show()"
+						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()==0}">
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-copy" value="Duplicar"
-						style="margin-right: 3px;" id="btnDuplicar" update=""
-						oncomplete="PF('duplicarContaAPagar').show()">
+						style="margin-right: 3px;" id="btnDuplicar" update="form-duplicar"
+						oncomplete="PF('duplicarContaApagar').show()"
+						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
@@ -76,97 +90,65 @@
 		<!-- TABELA DE LANÇAMENTO EM CONTA -->
 
 		<h:form id="frm-tabela" prependId="false">
-			<p:dataTable id="tbl-desp" value="#{contaAPagarBean.model}"
-				var="desp" style="margin-top: 10px; margin-bottom:20px;"
-				styleClass="table-tela-manutecao" rowIndexVar="index"
+			<p:dataTable id="tbl-conta-apagar"
+				value="#{contaAPagarBean.listaContaAPagars}" var="cp"
+				style="margin-top: 10px; margin-bottom:20px;" rows="13"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
-				emptyMessage="Nenhuma registro encontrado." rows="13"
-				paginator="true" paginatorAlwaysVisible="false" lazy="true"
-				paginatorPosition="bottom" selectionMode="single"
-				selection="#{contaAPagarBean.cPSelecionado}" rowKey="#{desp.id}">
+				emptyMessage="Nenhuma registro encontrado." scrollable="true"
+				scrollHeight="350"
+				selection="#{contaAPagarBean.contaApagarSelecionadas}"
+				rowKey="#{cp.id}">
 
-				<p:ajax event="rowSelect" update="" />
-				<p:ajax event="rowUnselect" update="" />
-				<p:ajax event="toggleSelect" update="" />
-				<p:ajax event="rowSelectCheckbox" update="" />
-				<p:ajax event="rowUnselectCheckbox" update="" />
-
-				<p:columnGroup type="header">
-					<p:row>
-						<p:column headerText="x" width="10" />
-						<p:column headerText="Ação" width="25" />
-						<p:column headerText="Documento" width="20" />
-						<p:column headerText="Parcela" width="20" />
-						<p:column headerText="Emissão" width="20" />
-						<p:column headerText="Favorecido" width="160" />
-						<p:column headerText="Vencimento" width="25" />
-						<p:column headerText="Dias" width="5" />
-						<p:column headerText="Valor" width="35" />
-					</p:row>
-				</p:columnGroup>
+				<p:ajax event="rowSelect" update="toolbar-botoes" />
+				<p:ajax event="rowUnselect" update="toolbar-botoes" />
+				<p:ajax event="toggleSelect" update="toolbar-botoes" />
+				<p:ajax event="rowSelectCheckbox" update="toolbar-botoes" />
+				<p:ajax event="rowUnselectCheckbox" update="toolbar-botoes" />
 
 				<p:column selectionMode="multiple"
 					style="width:1px;text-align:center" />
 
-				<p:column headerText="Ação" style="width: 70px; text-align: center"
-					exportable="false">
-					<p:commandButton icon="ui-icon-pencil" title="Editar"
-						styleClass="semPreenchimento"
-						oncomplete="PF('dialogCadDesp').show()" process="@this"
-						update="dgCadDesp" action="#{contaAPagarBean.editar}">
-						<f:setPropertyActionListener
-							target="#{contaAPagarBean.cPSelecionado}" value="#{desp}" />
-					</p:commandButton>
-					<p:commandButton icon="ui-icon-trash" title="Excluir"
-						styleClass="semPreenchimento"
-						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
-						update="confirmacaoExclusaoDialog">
-						<f:setPropertyActionListener
-							target="#{contaAPagarBean.cPSelecionado}" value="#{desp}" />
-					</p:commandButton>
-					<p:commandButton icon="ui-icon-search" title="Informações"
-						styleClass="semPreenchimento" oncomplete="PF('dialogInfo').show()"
-						process="@this" update="dgInfo">
-						<f:setPropertyActionListener
-							target="#{contaAPagarBean.cPSelecionado}" value="#{desp}" />
-					</p:commandButton>
+				<p:column sortBy="#{cp.numDoc}"
+					style="text-align: right; width:25px;" headerText="Documento">
+					<h:outputText value="#{cp.numDoc}">
+					</h:outputText>
 				</p:column>
 
-				<p:column sortBy="#{desp.dataDoc}" style="text-align: center;">
-					<h:outputText value="#{desp.dataDoc}">
+				<p:column style="text-align: center;  width:17px "
+					headerText="Parcela(s)">
+					<h:outputText value="#{cp.parcela}" />
+				</p:column>
+
+				<p:column sortBy="#{cp.fornecedor}" headerText="Favorecido"
+					width="230">
+					<h:outputText value="#{cp.fornecedor.nome}" />
+				</p:column>
+
+				<p:column sortBy="#{cp.dataDoc}"
+					style="text-align: center; width:50px;" headerText="Emissão">
+					<h:outputText value="#{cp.dataDoc}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
-					<!-- <p:tooltip for="tool#{desp.id}" /> -->
 				</p:column>
 
-				<p:column style="text-align: right;">
-					<h:outputText />
+				<p:column style="text-align: center;width:50px;"
+					headerText="Vencimento" sortBy="#{cp.dataVencto}">
+					<h:outputText value="#{cp.dataVencto}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
 				</p:column>
 
-				<p:column sortBy="#{desp.descricao}">
-					<h:outputText value="#{desp.descricao}" />
-				</p:column>
 
-				<p:column sortBy="#{desp.descricao}" style="text-align: center">
-					<h:outputText />
-				</p:column>
-
-				<p:column style="text-align: right;">
+				<p:column style="text-align: right; width: 17px;"
+					headerText="Dia(s)">
 					<h:outputText>
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 
-
-				<p:column style="text-align: right;">
-					<h:outputText>
-						<f:convertNumber type="currency" currencySymbol="R$" />
-					</h:outputText>
-				</p:column>
-
-				<p:column style="text-align: right;">
-					<h:outputText>
+				<p:column style="text-align: right;width:60px;" headerText="Valor">
+					<h:outputText value="#{cp.valor}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
@@ -175,73 +157,179 @@
 			<p:confirmDialog header="Confirmação de Exclusão"
 				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
 				<f:facet name="message">
-					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<h:outputText
+						value="Tem certeza que deseja excluir o(s) registro(s):" />
 					<br />
-					<h:outputText value="#{contaAPagarBean.cPSelecionado.descricao} ?" />
+					<br />
+					<p:repeat value="#{contaAPagarBean.contaApagarSelecionadas}"
+						var="car">
+						<h:panelGrid columns="3" cellpadding="1">
+							<h:outputText value="#{car.numDoc}"
+								style="font-weight: bold; margin-right:10px;" />
+							<h:outputText value="#{car.fornecedor.nome}"
+								style="font-weight: bold; margin-right:10px;" />
+							<h:outputText value="#{car.valor}" style="font-weight: bold;">
+								<f:convertNumber type="currency" />
+							</h:outputText>
+						</h:panelGrid>
+					</p:repeat>
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					oncomplete="PF('confirmacaoExclusao').hide();" update="tbl-desp"
-					action="#{contaAPagarBean.excluir()}" process="@this" />
+					action="#{contaAPagarBean.excluirSelecionados}"
+					update="tbl-conta-apagar toolbar-botoes" process="@this"
+					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
+			<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+				<p:toolbarGroup align="right">
+					<p:outputLabel value="Total Avencer"
+						style="font-size:13px; margin-right:70px; color:black" />
+					<p:outputLabel
+						style="color:red; font-size:14px; margin-right:50px;"
+						value="#{contaAPagarBean.totalRateio}">
+						<f:convertNumber type="currency" />
+					</p:outputLabel>
+					<p:outputLabel value="Total Vencido"
+						style="font-size:13px; margin-right:70px; color:black" />
+					<p:outputLabel
+						style="color:red; font-size:14px; margin-right:50px;"
+						value="#{contaAPagarBean.totalRateio}">
+						<f:convertNumber type="currency" />
+					</p:outputLabel>
+					<p:outputLabel value="Total"
+						style="font-size:13px; margin-right:70px; color:black" />
+					<p:outputLabel
+						style="color:red; font-size:14px; margin-right:50px;"
+						value="#{contaAPagarBean.totalRateio}">
+						<f:convertNumber type="currency" />
+					</p:outputLabel>
+					<p:outputLabel value="Total selecionado"
+						style="font-size:13px; margin-right:70px; color:black" />
+					<p:outputLabel
+						style="color:red; font-size:14px; margin-right:10px;"
+						value="#{contaAPagarBean.totalRateio}">
+						<f:convertNumber type="currency" />
+					</p:outputLabel>
+				</p:toolbarGroup>
+			</p:toolbar>
+
 		</h:form>
+
+
 
 
 		<!-- LANÇAMENTO DE CONTAS -->
 
 		<p:dialog header="Lançamento Contas a Pagar"
-			widgetVar="dialogCadastro" modal="true" width="745" height="400"
+			widgetVar="dialogCadastro" modal="true" width="750" height="430"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false" id="frm-cadastro">
 
-				<p:toolbar style="margin-top: 5px; margin-bottom:10px;"
-					styleClass="semPreenchimento">
-					<p:toolbarGroup>
-						<p:outputLabel value="Usuário: #{loginBean.usuarioLogado.nome}"
-							style="color: black;" />
-					</p:toolbarGroup>
-					<p:toolbarGroup align="right">
-						<p:outputLabel value="Emissão:"
-							style="color: black; margin-right:10px;" />
-						<p:calendar size="10" style="text-align:  center;" locale="pt_BR"
-							pattern="dd/MM/yyyy" immediate="true" id="txtEmissao"
-							disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
-							value="#{contaAPagarBean.contaAPagar.dataDoc}">
-							<p:ajax event="dateSelect" update="addRateio" />
-						</p:calendar>
-					</p:toolbarGroup>
-				</p:toolbar>
+				<p:growl id="msn" autoUpdate="true" />
 
-				<p:tabView prependId="false" style="width: 99%; height: 300px; ">
-					<p:tab title="Rateio da Despesa(s)">
+				<h:panelGrid columns="4" id="panelGCab"
+					columnClasses="rotuloFiltro1,campoDesRec,rotuloFiltro1">
+
+					<p:outputLabel for="combFavorecido" value="Fornecedor" />
+					<p:selectOneMenu id="combFavorecido" autoWidth="false"
+						filter="true" value="#{contaAPagarBean.contaAPagar.fornecedor}"
+						required="true" requiredMessage="Selecione um favorecido."
+						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+						filterMatchMode="contains" style="width:250px;"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
+							var="p" itemLabel="#{p.nome}" itemValue="#{p}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel for="txtEmissao" value="Data Entrada" />
+					<p:inputText size="11" id="txtEmissao"
+						onfocus="mascaraDtInput('txtEmissao')" style="text-align:center"
+						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+						value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
+						requiredMessage="Informe uma data de emissão">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</p:inputText>
+
+					<p:outputLabel for="txtNum" value="Documento" />
+					<p:inputText id="txtNum" size="11" required="false"
+						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+						value="#{contaAPagarBean.contaAPagar.numDoc}"
+						requiredMessage="Informe o numero." />
+
+					<p:outputLabel for="txtVencimento" value="Vencimento" />
+					<p:inputText size="11" id="txtVencimento" style="text-align:center"
+						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+						onfocus="mascaraDtInput('txtVencimento')"
+						value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
+						requiredMessage="Informe uma data para a vencimento">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</p:inputText>
+
+				</h:panelGrid>
+
+
+				<p:tabView prependId="false"
+					style="width: 99%; height: 300px; margin-top:10px; ">
+					<p:tab title="Rateio da nota">
 						<ui:include src="aba_rateio.xhtml" />
 					</p:tab>
 					<p:tab title="Forma de Pagamento">
 						<ui:include src="aba_forma_pagto.xhtml" />
 					</p:tab>
-					<ui:remove>
-						<p:tab title="Cabeçalho">
-							<ui:include src="aba_cabecalho.xhtml" />
-						</p:tab>
-					</ui:remove>
 				</p:tabView>
+
+
 
 				<p:toolbar style="margin-top: 10px; margin-button:5px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
-							process="@this frm-cadastro "
+						<p:commandButton value="Salvar" icon="fa fa-save" process="@this"
+							update=":frm-tabela"
 							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
-							update="" />
+							action="#{contaAPagarBean.salvar}">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
+
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Duplicar Conta Apagar"
+			widgetVar="duplicarContaApagar" modal="true" resizable="false"
+			draggable="true" closeOnEscape="true" width="auto" height="170"
+			appendTo="@(body)">
+			<h:form prependId="false" id="form-duplicar">
+
+				<p:panelGrid columns="2" style="margin-bottom:10px"
+					styleClass="semBorda">
+					<p:outputLabel value="Duplicar (n) vezes" />
+					<p:spinner size="3" min="1" max="100"
+						value="#{contaAPagarBean.numVezes}" />
+				</p:panelGrid>
+				<h:panelGrid>
+					<p:inputTextarea cols="37" rows="3" readonly="true"
+						value="Os registros duplicados serão lançados com o 
+						período de emissão e vencimento para 30 dias." />
+				</h:panelGrid>
+
+
+				<p:toolbar styleClass="semPreenchimento" style="margin-top:15px;">
+					<p:toolbarGroup align="right">
+						<p:commandButton value="Confirmar"
+							action="#{contaAPagarBean.duplicarLancamento}" icon="fa fa-check"
+							update="tbl-conta-apagar toolbar-botoes"
+							oncomplete="if(!args.validationFailed) PF('duplicarContaApagar').hide()" />
 					</p:toolbarGroup>
 				</p:toolbar>
 
 			</h:form>
-
 		</p:dialog>
 
 	</ui:define>

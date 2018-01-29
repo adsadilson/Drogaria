@@ -26,6 +26,11 @@ public class ContaAPagarService implements Serializable {
 	public void excluir(ContaAPagar obj) {
 		dao.excluir(obj);
 	}
+	
+	@Transacional
+	public void excluirContas(List<ContaAPagar> contas) throws Exception{
+		dao.excluirContas(contas);
+	}
 
 	public List<ContaAPagar> listAll() {
 		return dao.listarTodos();

@@ -14,9 +14,9 @@
 				value="#{funcionarioBean.funcionario.rgInsc}" />
 
 			<p:outputLabel value="Dt Emissão" />
-			<p:calendar size="19"
-				value="#{funcionarioBean.funcionario.dataEmissao}" locale="pt_BR"
-				pattern="dd/MM/yyyy" />
+			<p:calendar size="19" onfocus="mascaraDtCalendar('txtDtEmissao')"
+				id="txtDtEmissao" value="#{funcionarioBean.funcionario.dataEmissao}"
+				locale="pt_BR" pattern="dd/MM/yyyy" />
 
 		</h:panelGrid>
 
@@ -24,7 +24,7 @@
 
 			<p:outputLabel value="Filiação" />
 			<p:inputText style="width:99%" maxlength="80"
-				placeholder="Nome da mãe" value="#{funcionarioBean.funcionario.mae}"/>
+				placeholder="Nome da mãe" value="#{funcionarioBean.funcionario.mae}" />
 			<p:spacer />
 			<p:inputText style="width:99%" maxlength="80"
 				placeholder="Nome da pai" value="#{funcionarioBean.funcionario.pai}" />
@@ -40,8 +40,7 @@
 
 			<p:outputLabel value="CNH" />
 			<h:panelGroup>
-				<p:selectOneMenu autoWidth="false" style="width:35px;"
-					>
+				<p:selectOneMenu autoWidth="false" style="width:35px;">
 					<f:selectItem itemLabel="SIM" itemValue="true" />
 					<f:selectItem itemLabel="NÃO" itemValue="false" />
 				</p:selectOneMenu>
@@ -51,9 +50,9 @@
 			</h:panelGroup>
 
 			<p:outputLabel value="Validade" />
-			<p:calendar size="19"
+			<p:calendar size="19" id="txtValidade"
 				value="#{fornecedorBean.fornecedor.validadeCnh}" locale="pt_BR"
-				pattern="dd/MM/yyyy" />
+				pattern="dd/MM/yyyy" onfocus="mascaraDtCalendar('txtValidade')"/>
 
 			<p:outputLabel value="Tít. Eleitor" />
 			<p:inputText value="#{funcionarioBean.funcionario.tituloEleitor}"

@@ -24,8 +24,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
-
 
 @Entity
 @Table(name = "conta_apagar")
@@ -87,14 +87,16 @@ public class ContaAPagar implements Serializable {
 	private Usuario usuario;
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinTable(name = "conta_apagar_movimentacao", 
-	joinColumns = @JoinColumn(name = "conta_apagar_id"), 
-	inverseJoinColumns = @JoinColumn(name = "movimentacao_id"))
+	@JoinTable(name = "conta_apagar_movimentacao", joinColumns = @JoinColumn(name = "conta_apagar_id"), inverseJoinColumns = @JoinColumn(name = "movimentacao_id"))
 	private List<Movimentacao> movimentacoes = new ArrayList<Movimentacao>();
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipoConta", length = 20)
 	private TipoConta tipoConta;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo_cobranca", length = 40)
+	private TipoCobranca tipoCobranca;
 
 	@Column(length = 20)
 	private String status;
@@ -241,6 +243,14 @@ public class ContaAPagar implements Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public TipoCobranca getTipoCobranca() {
+		return tipoCobranca;
+	}
+
+	public void setTipoCobranca(TipoCobranca tipoCobranca) {
+		this.tipoCobranca = tipoCobranca;
 	}
 
 	@Override

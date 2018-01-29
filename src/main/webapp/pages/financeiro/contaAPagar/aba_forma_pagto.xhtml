@@ -7,117 +7,181 @@
 	<style>
 <!--
 .rotulo {
-	width: 160xp !important;
+	width: 190xp !important;
+}
+
+.ui-panel.pagto .ui-panel-content {
+	border: 0;
+	background: 0;
+	padding: 0;
 }
 -->
 </style>
 
-	<p:panel styleClass="semPreenchimento" id="panel-forma-pagto">
+	<p:panel styleClass="semPreenchimento pagto" id="panel-pagto">
 
-		<h:form prependId="false" id="frm-forma-pagto">
+		<h:form prependId="false" id="frm-pagto">
 
-			<p:toolbar styleClass="semPreenchimento">
-				<p:toolbarGroup>
-					<p:commandButton value="Adicionar" style="margin-bottom:10px;"
-						icon="ui-icon-plus" oncomplete="PF('dialogCadFormaPagto').show()"
-						process="@this" />
-				</p:toolbarGroup>
-				<p:toolbarGroup align="right">
-					<p:outputLabel value="Total R$"
-						style="color: black; margin-right:10px;" />
-				</p:toolbarGroup>
-			</p:toolbar>
+			<h:panelGrid id="panelGrid-pagto" columns="8">
 
-			<p:dataTable id="tblFormaPagto" style="width:99%;"
-				emptyMessage="Nenhuma registro lançado" var="m">
+				<p:selectOneMenu id="comboTipoCobranca" autoWidth="false"
+					style="width:170px;"
+					value="#{contaAPagarBean.contaAPagar.tipoCobranca}"
+					disabled="#{movimentacaoBean.movto.notInclusao}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Selecione tipo">
+					<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
+					<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
+						var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
+						itemValue="#{cob}" />
+				</p:selectOneMenu>
 
-				<p:column style="width:163px" headerText="Conta">
-					<h:outputText value="#{m.conta.nome}" />
+				<p:outputLabel value="Parcela(s)"
+					style="margin-left:12px; margin-right:2px;" />
+				<p:spinner size="1" min="1" max="100"
+					value="#{contaAPagarBean.numVezes}" />
+
+				<p:outputLabel value="Intervalo"
+					style="margin-left:12px; margin-right:2px;" />
+				<p:spinner size="1" min="1" max="30"
+					value="#{contaAPagarBean.periodo}" />
+
+				<p:outputLabel value="Dia(s)"
+					style="margin-left:2px; margin-right:10px;" />
+
+				<p:inputText id="txtVlrPag" required="true"
+					requiredMessage="Informe um valor"
+					onfocus="formatoMoeda('txtVlrPag')"
+					value="#{contaAPagarBean.valor}" placeholder="VALOR" size="11">
+					<f:validateDoubleRange minimum="0.01" />
+					<f:convertNumber type="currency" />
+				</p:inputText>
+
+				<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
+					disabled="#{contApagarBean.contaApagar.movimentacoes.size() == 0}"
+					process="@this panelGrid-pagto"
+					action="#{contaAPagarBean.gerarParcelas}"
+					update="tblPagto panelGrid-pagto txtTotalPagto"
+					id="salvarCommandButtonPagto" />
+			</h:panelGrid>
+
+
+			<p:dataTable id="tblPagto" style="width:99%;"
+				emptyMessage="Nenhuma registro lançado" scrollable="true"
+				scrollHeight="160" value="#{contaAPagarBean.parcelas}" var="p">
+
+				<p:column style="width:35px; text-align:center;" headerText="Ação">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
+						update="frm-edicao-parcela">
+						<f:setPropertyActionListener
+							target="#{contaAPagarBean.contaAPagar}" value="#{p}" />
+					</p:commandButton>
+
 				</p:column>
-
-				<p:column style="width:220px" headerText="Descrição">
-					<h:outputText value="#{m.descricao}" />
+				<p:column style="width:35px; text-align:center;" headerText="Tipo">
+					<h:outputText value="#{p.tipoCobranca.sigla}" />
 				</p:column>
-
-				<p:column style="width:88px" headerText="Valor">
-					<h:outputText value="#{m.vlrSaida}">
+				<p:column style="width:60px; text-align:center;"
+					headerText="Parcela(s)">
+					<h:outputText value="#{p.parcela}" />
+				</p:column>
+				<p:column style="text-align:center; width:100px;"
+					headerText="Documento">
+					<h:outputText value="#{p.numDoc}" />
+				</p:column>
+				<p:column style="text-align:center; width:110px;"
+					headerText="Vencimento">
+					<h:outputText value="#{p.dataVencto}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+				<p:column style="width:115px; text-align:right;"
+					headerText="Valor R$">
+					<h:outputText value="#{p.valor}">
 						<f:convertNumber type="currency" />
 					</h:outputText>
 				</p:column>
-
-				<p:column style="text-align:center">
-					<p:commandLink title="Excluir" process="@this"
-						styleClass="semPreenchimento">
-						<i class="fa  fa-trash"></i>
-					</p:commandLink>
-				</p:column>
-
 			</p:dataTable>
+
+			<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+				<p:toolbarGroup align="right">
+					<p:outputLabel value="Total:"
+						style="font-size:13px; margin-right:70px; color:black" />
+					<p:outputLabel id="txtTotalPagto"
+						value="#{contaAPagarBean.totalPagto}"
+						style="color:red; font-size:14px; margin-right:10px;">
+						<f:convertNumber type="currency" />
+					</p:outputLabel>
+				</p:toolbarGroup>
+			</p:toolbar>
 
 		</h:form>
 
 	</p:panel>
 
-	<p:dialog header="Lançamento de Forma Pagto"
-		widgetVar="dialogCadFormaPagto" modal="true" resizable="false"
-		draggable="true" id="dgCadFormaPagto" closeOnEscape="true" width="460"
-		height="245" appendTo="@(body)">
+	<p:dialog header="Edição de parcela(s)" widgetVar="dialogEdicaoParcela"
+		modal="true" resizable="false" draggable="true" id="dgEdicaoParcela"
+		closeOnEscape="true" width="350" height="190" appendTo="@(body)">
 
-		<h:form id="frm-cadastro-forma-pagto">
+		<p:ajax event="close" update="" />
+
+		<h:form id="frm-edicao-parcela" prependId="false">
 
 			<p:growl autoUpdate="true" />
 
-			<h:panelGrid id="panelCadastroFormaPagto" columns="2"
+			<h:panelGrid id="panelEdicaoParcela" columns="2"
 				style="margin-top:10px;" columnClasses="rotulo">
 
-				<p:outputLabel for="combFavor" value="Conta" />
-				<p:selectOneMenu id="combFavor" required="true" autoWidth="false"
-					filter="true" filterMatchMode="contains" style="width:291px;"
-					converter="omnifaces.SelectItemsConverter"
-					value="#{movimentacaoBean.movto.planoConta}"
-					requiredMessage="Selecione conta">
-					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-					<f:selectItems var="conta" itemLabel="#{conta.nome}"
-						itemValue="#{conta}" />
+				<p:outputLabel value="Tipo" for="comboEdicaoTipoCobranca" />
+				<p:selectOneMenu id="comboEdicaoTipoCobranca" autoWidth="false"
+					style="width:170px;"
+					value="#{contaAPagarBean.contaAPagar.tipoCobranca}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="Selecione tipo">
+					<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
+					<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
+						var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
+						itemValue="#{cob}" />
 				</p:selectOneMenu>
 
-				<p:outputLabel for="txtVencto" value="Vencimento" />
-				<p:inputText id="txtVencto" size="10" />
-
-				<p:outputLabel for="txtValor2" value="Valor" />
-				<p:inputNumber decimalSeparator="," thousandSeparator="."
-					symbol="R$ " size="10" required="true" id="txtValor2"
-					requiredMessage="Informe o valor" minValue="0.01">
-					<f:validateDoubleRange minimum="0.01" />
-				</p:inputNumber>
-
 				<p:outputLabel value="Documento" />
-				<p:inputText size="10" />
+				<p:inputText value="#{contaAPagarBean.contaAPagar.numDoc}" />
 
-				<p:outputLabel value="Parcela(s)" />
-				<p:spinner size="1" min="1" max="100"
-					value="#{contaAPagarBean.numVezes}" />
+				<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
+				<p:inputText size="11" id="txtEdicaoVencimento"
+					onfocus="mascaraDtInput('txtEdicaoVencimento')"
+					value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
+					requiredMessage="Informe uma data para a vencimento">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</p:inputText>
 
-				<p:outputLabel value="Intervalo" />
-				<h:panelGroup>
-					<p:spinner size="1" min="1" max="30"
-						value="#{contaAPagarBean.periodo}" />
-					<p:outputLabel value="Dia(s)" style="margin-left:15px;" />
-				</h:panelGroup>
-
-
+				<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
+				<p:inputText id="txtEdicaoVlrPag" required="true"
+					requiredMessage="Informe um valor"
+					onfocus="formatoMoeda('txtEdicaoVlrPag')"
+					value="#{contaAPagarBean.contaAPagar.valor}" placeholder="VALOR"
+					size="11">
+					<f:validateDoubleRange minimum="0.01" />
+					<f:convertNumber type="currency" />
+				</p:inputText>
 
 			</h:panelGrid>
 
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup align="right" style="margin-right: 0px;">
 					<p:commandButton value="Salvar" icon="fa fa-save"
-						id="salvarCommandButtonRateio">
+						action="#{contaAPagarBean.editarParcela()}"
+						process="@this frm-edicao-parcela"
+						oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
+						update="frm-edicao-parcela :tblPagto txtTotalPagto"
+						id="salvarCommandButtonParcela">
 					</p:commandButton>
 				</p:toolbarGroup>
 			</p:toolbar>
 
-			<p:defaultCommand target="salvarCommandButtonRateio" />
+			<p:defaultCommand target="salvarCommandButtonParcela" />
 
 		</h:form>
 

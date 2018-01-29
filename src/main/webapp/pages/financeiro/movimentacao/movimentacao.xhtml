@@ -70,7 +70,7 @@
 
 					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
 						style="margin-left:5px;" id="dtInicio"
-						onfocus="mascaraData('dtInicio')" styleClass="cssCalender"
+						onfocus="mascaraDtCalendar('dtInicio')" styleClass="cssCalender"
 						value="#{movimentacaoBean.filtro.dataIni}">
 						<p:ajax event="dateSelect" process="@this" update="dtFim"
 							listener="#{movimentacaoBean.filtro.getDataFimMin}" />
@@ -79,7 +79,7 @@
 						style="margin-left:5px; margin-right:5px; color:black" />
 					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
 						mindate="#{movimentacaoBean.filtro.dataLimite}"
-						styleClass="cssCalender" onfocus="mascaraData('dtFim')"
+						onfocus="mascaraDtCalendar('dtFim')" styleClass="cssCalender"
 						value="#{movimentacaoBean.filtro.dataFim}">
 						<p:ajax event="dateSelect" process="@this" />
 					</p:calendar>
@@ -225,7 +225,7 @@
 			modal="true" resizable="false" draggable="true" id="dgCadDesp"
 			closeOnEscape="true" width="490" height="245" appendTo="@(body)">
 
-			<h:form id="frm-cadastro-desp">
+			<h:form id="frm-cadastro-desp" prependId="false">
 
 				<p:growl autoUpdate="true" />
 
@@ -268,6 +268,7 @@
 					<p:outputLabel for="txtData" value="Data Doc." />
 					<p:calendar id="txtData" size="15" pattern="dd/MM/yyyy"
 						locale="pt_BR" required="true"
+						onfocus="mascaraDtCalendar('txtData')"
 						value="#{movimentacaoBean.movto.dataDoc}"
 						requiredMessage="Informe a data" />
 
@@ -279,21 +280,25 @@
 					</h:panelGroup>
 
 					<h:panelGroup id="txtVlrs">
-						<p:inputNumber decimalSeparator="," thousandSeparator="."
-							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" symbol="R$ "
-							size="15" required="true" id="txtVlrEntrada"
-							value="#{movimentacaoBean.movto.vlrEntrada}"
-							requiredMessage="Informe o valor" minValue="0.01">
-							<f:validateDoubleRange minimum="0.01" />
-						</p:inputNumber>
 
-						<p:inputNumber decimalSeparator="," thousandSeparator="."
-							symbol="R$ " size="15" required="true" id="txtVlrSaida"
-							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
-							value="#{movimentacaoBean.movto.vlrSaida}"
-							requiredMessage="Informe o valor" minValue="0.01">
+						<p:inputText id="txtVlrEntrada" required="true"
+							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}"
+							requiredMessage="Informe um valor"
+							onfocus="formatoMoeda('txtVlrEntrada')"
+							value="#{movimentacaoBean.movto.vlrEntrada}" size="15">
 							<f:validateDoubleRange minimum="0.01" />
-						</p:inputNumber>
+							<f:convertNumber type="currency" />
+						</p:inputText>
+
+
+						<p:inputText id="txtVlrSaida" required="true"
+							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
+							requiredMessage="Informe um valor"
+							onfocus="formatoMoeda('txtVlrSaida')"
+							value="#{movimentacaoBean.movto.vlrSaida}" size="15">
+							<f:validateDoubleRange minimum="0.01" />
+							<f:convertNumber type="currency" />
+						</p:inputText>
 
 					</h:panelGroup>
 
@@ -370,14 +375,17 @@
 
 					<p:outputLabel value="Período" />
 					<h:panelGroup>
-						<p:calendar value="#{movimentacaoBean.filtro.dataIni}" size="10"
-							pattern="dd/MM/yyyy" locale="pt_BR">
+						<p:calendar id="txtDtIni"
+							value="#{movimentacaoBean.filtro.dataIni}" size="10"
+							pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtDtIni')">
 							<p:ajax event="dateSelect" process="@this" />
 						</p:calendar>
 						<p:outputLabel value="a"
 							style="margin-left:7px; margin-right:7px;" />
 						<p:calendar value="#{movimentacaoBean.filtro.dataFim}" size="10"
-							pattern="dd/MM/yyyy" locale="pt_BR">
+							id="txtDtFim" pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtDtFim')">
 							<p:ajax event="dateSelect" process="@this" />
 							<f:attribute name="startDate"
 								value="#{movimentacaoBean.filtro.dataIni}" />

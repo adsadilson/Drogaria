@@ -65,11 +65,15 @@
 
 			<p:outputLabel value="Admissão" />
 			<p:calendar value="#{funcionarioBean.funcionario.admissao}" size="15"
-				locale="pt_BR" pattern="dd/MM/yyyy" />
+				id="txtAdmissao" style="text-align:  center;"
+				onfocus="mascaraDtCalendar('txtAdmissao')" locale="pt_BR"
+				pattern="dd/MM/yyyy" />
 
 			<p:outputLabel value="Demissão" />
-			<p:calendar value="#{funcionarioBean.funcionario.demissao}" size="15"
-				locale="pt_BR" pattern="dd/MM/yyyy" />
+			<p:calendar id="txtDemissao"
+				value="#{funcionarioBean.funcionario.demissao}" size="15"
+				style="text-align:  center;" locale="pt_BR" pattern="dd/MM/yyyy"
+				onfocus="mascaraDtCalendar('txtDemissao')" />
 
 		</h:panelGrid>
 

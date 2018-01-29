@@ -23,6 +23,38 @@
 			<h:panelGrid columns="2" style="margin-top:20px; margin-left:10px;"
 				columnClasses="rotuloCab1,campoCab1">
 
+				<p:outputLabel for="combFavorecido" value="Fornecedor" />
+				<p:selectOneMenu id="combFavorecido" autoWidth="false" filter="true"
+					value="#{contaAPagarBean.contaAPagar.fornecedor}" required="true"
+					requiredMessage="Selecione um favorecido."
+					filterMatchMode="contains" style="width:300px;"
+					converter="omnifaces.SelectItemsConverter">
+					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+					<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
+						var="p" itemLabel="#{p.nome}" itemValue="#{p}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel for="txtEmissao" value="Data Entrada" />
+				<p:inputText size="10" id="txtEmissao"
+					onfocus="mascaraDtInput('txtEmissao')" style="text-align:center"
+					disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+					value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
+					requiredMessage="Informe uma data para a vencimento">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</p:inputText>
+
+				<p:outputLabel for="txtVencimento" value="Vencimento" />
+				<p:inputText size="10" id="txtVencimento"
+					onfocus="mascaraDtInput('txtVencimento')"
+					value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
+					requiredMessage="Informe uma data para a vencimento">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</p:inputText>
+
+				<p:outputLabel for="txtNum" value="Nr. Documento" />
+				<p:inputText id="txtNum" size="10" required="false"
+					value="#{contaAPagarBean.contaAPagar.numDoc}"
+					requiredMessage="Informe o numero." />
 
 				<p:outputLabel for="txtValor" value="Valor" />
 				<p:inputText id="txtValor" required="true"

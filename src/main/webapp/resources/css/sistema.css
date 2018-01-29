@@ -15,10 +15,6 @@ body {
 	font-weight: normal;
 }
 
-.ui-calendar input {
-	text-align: center !important;
-}
-
 header>div {
 	margin-left: 8px
 }

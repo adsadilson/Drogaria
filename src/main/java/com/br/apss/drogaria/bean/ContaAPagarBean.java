@@ -2,11 +2,14 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
@@ -16,10 +19,9 @@ import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
-import org.primefaces.model.LazyDataModel;
-import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.Status;
+import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Movimentacao;
@@ -29,6 +31,7 @@ import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.ContaAPagarService;
+import com.br.apss.drogaria.service.MovimentacaoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.PlanoContaService;
 
@@ -40,11 +43,7 @@ public class ContaAPagarBean implements Serializable {
 
 	private ContaAPagar contaAPagar;
 
-	private ContaAPagar cPSelecionado;
-
 	private ContaAPagarFilter filtro;
-
-	private LazyDataModel<ContaAPagar> model;
 
 	private BigDecimal saldo;
 
@@ -54,14 +53,25 @@ public class ContaAPagarBean implements Serializable {
 
 	private List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
 
+	private List<ContaAPagar> contaApagarSelecionadas = new ArrayList<ContaAPagar>();
+
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
+
+	private List<ContaAPagar> parcelas = new ArrayList<ContaAPagar>();
 
 	private Movimentacao movto;
 
 	private BigDecimal totalRateio = BigDecimal.ZERO;
 
+	private BigDecimal valor = BigDecimal.ZERO;
+
+	private BigDecimal totalPagto = BigDecimal.ZERO;
+
 	@Inject
 	private ContaAPagarService contaAPagarService;
+
+	@Inject
+	private MovimentacaoService movtoService;
 
 	@Inject
 	private PlanoContaService contaService;
@@ -73,7 +83,6 @@ public class ContaAPagarBean implements Serializable {
 
 	public void inicializar() {
 		contaAPagar = new ContaAPagar();
-		cPSelecionado = new ContaAPagar();
 		filtro = new ContaAPagarFilter();
 		movto = new Movimentacao();
 		periodo = 30;
@@ -81,27 +90,92 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void salvar() {
+		List<Movimentacao> movimentos = movtoService.salvar(contaAPagar.getMovimentacoes());
+
+		for (ContaAPagar ca : parcelas) {
+			ca.setMovimentacoes(movimentos);
+			contaAPagarService.salvar(ca);
+		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
-		contaAPagarService.salvar(contaAPagar);
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
 		pesquisar();
 	}
 
+	public void excluirSelecionados() {
+		try {
+			contaAPagarService.excluirContas(contaApagarSelecionadas);
+			pesquisar();
+			contaApagarSelecionadas = new ArrayList<>();
+			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
+		} catch (Exception e) {
+			Messages.addGlobalError("Não é possivel excluir uma conta a pagar se existe outras parcelas, "
+					+ "selecionas todas para excluir!");
+		}
+	}
+
 	public void editar() {
-		this.contaAPagar = contaAPagarService.porId(this.cPSelecionado.getId());
+		// this.contaAPagar =
+		// contaAPagarService.porId(this.cPSelecionado.getId());
+	}
+
+	public void editarParcela() {
+		BigDecimal recalculo = BigDecimal.ZERO;
+		for (ContaAPagar pp : parcelas) {
+			recalculo = recalculo.add(pp.getValor());
+		}
+		totalPagto = recalculo;
+		Messages.addGlobalError("Registro alterado com sucesso!");
+		RequestContext requestContext = RequestContext.getCurrentInstance();
+		requestContext.addCallbackParam("sucesso", true);
+	}
+
+	public void duplicarLancamento() {
+		for (ContaAPagar cp : contaApagarSelecionadas) {
+			for (int i = 0; i < numVezes; i++) {
+				ContaAPagar c = new ContaAPagar();
+				c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+				c.setDataLanc(cp.getDataLanc());
+				c.setValor(cp.getValor());
+				c.setValorPago(cp.getValorPago());
+				c.setVlrApagar(cp.getVlrApagar());
+				c.setFornecedor(cp.getFornecedor());
+				c.setUsuario(cp.getUsuario());
+				c.setTipoCobranca(cp.getTipoCobranca());
+				c.setStatus(cp.getStatus());
+				c.setNumDoc(cp.getNumDoc());
+
+				if (null != cp.getParcela()) {
+					// pegar só numero converter em int e soma com i depois
+					// converter em string
+					int p = Integer.parseInt(cp.getParcela().replaceAll("\\D", ""));
+					p = p + (i + 1);
+					c.setParcela("D/" + String.valueOf(p));
+				} else {
+					c.setParcela("D/" + (i + 1));
+				}
+
+				c.setDataVencto(somaDias(cp.getDataVencto(), 30 * (i + 1)));
+				contaAPagarService.salvar(c);
+			}
+			pesquisar();
+		}
 	}
 
 	public void novo() {
 		contaAPagar = new ContaAPagar();
 		contaAPagar.setDataDoc(new Date());
+		parcelas = new ArrayList<ContaAPagar>();
+		numVezes = 1;
+		totalPagto = BigDecimal.ZERO;
+		totalRateio = BigDecimal.ZERO;
 	}
 
 	public void carregarContasLanctos() {
 		PlanoContaFilter cl = new PlanoContaFilter();
-		if (null != this.cPSelecionado.getTipoConta()) {
-			cl.setTipo(this.cPSelecionado.getTipoConta());
+		if (null != this.contaAPagar.getTipoConta()) {
+			cl.setTipo(this.contaAPagar.getTipoConta());
 			cl.setStatus(true);
 			this.listaContas = contaService.filtrados(cl);
 		}
@@ -114,9 +188,8 @@ public class ContaAPagarBean implements Serializable {
 	public void iniciarLancRateio() {
 		movto = new Movimentacao();
 	}
-	
+
 	public void removerConta() {
-		System.out.println(contaAPagar.getDescricao());
 		int achou = -1;
 		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
 			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
@@ -131,7 +204,6 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setValor(totalRateio);
 		}
 	}
-	
 
 	public void addConta() {
 		int achou = -1;
@@ -146,6 +218,8 @@ public class ContaAPagarBean implements Serializable {
 			movto.setDataLanc(new Date());
 			movto.setUsuario(obterUsuario());
 			movto.setVlrEntrada(null);
+			movto.setDocumento(contaAPagar.getNumDoc());
+			movto.setPessoa(contaAPagar.getFornecedor());
 			contaAPagar.getMovimentacoes().add(movto);
 			totalRateio = totalRateio.add(movto.getVlrSaida());
 			contaAPagar.setValor(totalRateio);
@@ -166,14 +240,16 @@ public class ContaAPagarBean implements Serializable {
 		return usuario;
 	}
 
-	
-
 	public void novoFiltro() {
 		this.filtro = new ContaAPagarFilter();
 	}
 
 	public List<TipoConta> getListaTipoContas() {
 		return Arrays.asList(TipoConta.D, TipoConta.CC);
+	}
+
+	public List<TipoCobranca> getListaTipoCobrancas() {
+		return Arrays.asList(TipoCobranca.values());
 	}
 
 	public Boolean validarDatas(Date ini, Date fim) {
@@ -186,61 +262,58 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void pesquisar() {
-
-		if (!validarDatas(filtro.getDataIni(), filtro.getDataFim())) {
-
-			model = new LazyDataModel<ContaAPagar>() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public List<ContaAPagar> load(int first, int pageSize, String sortField, SortOrder sortOrder,
-						Map<String, Object> filters) {
-
-					setRowCount(contaAPagarService.qtdeFiltrados(filtro));
-
-					filtro.setPrimerioRegistro(first);
-					filtro.setQuantidadeRegistros(pageSize);
-					filtro.setCampoOrdernacao(sortField);
-					filtro.setAsc(SortOrder.ASCENDING.equals(sortOrder));
-
-					return listaContaAPagars = contaAPagarService.filtrados(filtro);
-
-				}
-
-				@Override
-				public ContaAPagar getRowData(String rowKey) {
-					cPSelecionado = contaAPagarService.porId(Long.valueOf(rowKey));
-					return cPSelecionado;
-				}
-
-				@Override
-				public String getRowKey(ContaAPagar objeto) {
-					return cPSelecionado.getId().toString();
-				}
-
-			};
-
-			RequestContext request = RequestContext.getCurrentInstance();
-			request.addCallbackParam("sucesso", true);
-		} else {
-			Messages.addGlobalError("Data inicio maior do que data final!");
-		}
-
-	}
-
-	public void preparEdicao() {
-		this.contaAPagar = contaAPagarService.porId(this.cPSelecionado.getId());
-	}
-
-	public void excluir() {
-		contaAPagarService.excluir(cPSelecionado);
-		Messages.addGlobalInfo("Registro excluido com sucesso.");
-		pesquisar();
+		listaContaAPagars = contaAPagarService.filtrados(filtro);
 	}
 
 	public List<Status> getStatus() {
 		return Arrays.asList(Status.values());
+	}
+
+	public void gerarParcelas() {
+
+		BigDecimal qtde_parcela = new BigDecimal(numVezes);
+		totalPagto = valor;
+		BigDecimal valorParcela = valor.divide(qtde_parcela, 1, RoundingMode.CEILING);
+		BigDecimal valorParcial = valorParcela.multiply(qtde_parcela.subtract(new BigDecimal(1)));
+		BigDecimal primeiraParcela = valor.subtract(valorParcial);
+
+		parcelas = new ArrayList<ContaAPagar>();
+		for (int i = 0; i < numVezes; i++) {
+			ContaAPagar ap = new ContaAPagar();
+			ap.setDataDoc(contaAPagar.getDataDoc());
+			ap.setDataLanc(new Date());
+			ap.setFornecedor(contaAPagar.getFornecedor());
+			ap.setNumDoc(contaAPagar.getNumDoc().isEmpty() ? null : contaAPagar.getNumDoc() +"-" + (i + 1));
+			ap.setTipoCobranca(contaAPagar.getTipoCobranca());
+			ap.setUsuario(obterUsuario());
+			ap.setStatus("ABERTO");
+			ap.setParcela((i + 1) + "/" + numVezes);
+			ap.setDataVencto(i == 0 ? contaAPagar.getDataVencto() : somaDias(contaAPagar.getDataVencto(), periodo * i));
+			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
+			ap.setVlrApagar(i == 0 ? primeiraParcela : valorParcela);
+			ap.setMovimentacoes(contaAPagar.getMovimentacoes());
+			parcelas.add(ap);
+		}
+
+		valor = BigDecimal.ZERO;
+
+	}
+
+	public Date somaDias(Date data, int dias) {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(data);
+		cal.add(Calendar.DAY_OF_MONTH, dias);
+		return cal.getTime();
+	}
+
+	public String getCalculaDif() {
+		BigDecimal dif = contaAPagar.getValor();
+		for (ContaAPagar cp : parcelas) {
+			dif.subtract(cp.getValor());
+		}
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		String formatado = nf.format(dif);
+		return formatado;
 	}
 
 	/******************** Getters e Setters ***************************/
@@ -267,22 +340,6 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setListaContaAPagars(List<ContaAPagar> listaContaAPagars) {
 		this.listaContaAPagars = listaContaAPagars;
-	}
-
-	public ContaAPagar getcPSelecionado() {
-		return cPSelecionado;
-	}
-
-	public void setcPSelecionado(ContaAPagar cPSelecionado) {
-		this.cPSelecionado = cPSelecionado;
-	}
-
-	public LazyDataModel<ContaAPagar> getModel() {
-		return model;
-	}
-
-	public void setModel(LazyDataModel<ContaAPagar> model) {
-		this.model = model;
 	}
 
 	public BigDecimal getSaldo() {
@@ -331,6 +388,38 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setTotalRateio(BigDecimal totalRateio) {
 		this.totalRateio = totalRateio;
+	}
+
+	public List<ContaAPagar> getParcelas() {
+		return parcelas;
+	}
+
+	public void setParcelas(List<ContaAPagar> parcelas) {
+		this.parcelas = parcelas;
+	}
+
+	public BigDecimal getTotalPagto() {
+		return totalPagto;
+	}
+
+	public void setTotalPagto(BigDecimal totalPagto) {
+		this.totalPagto = totalPagto;
+	}
+
+	public BigDecimal getValor() {
+		return valor;
+	}
+
+	public void setValor(BigDecimal valor) {
+		this.valor = valor;
+	}
+
+	public List<ContaAPagar> getContaApagarSelecionadas() {
+		return contaApagarSelecionadas;
+	}
+
+	public void setContaApagarSelecionadas(List<ContaAPagar> contaApagarSelecionadas) {
+		this.contaApagarSelecionadas = contaApagarSelecionadas;
 	}
 
 }

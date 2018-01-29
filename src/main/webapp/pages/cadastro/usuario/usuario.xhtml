@@ -177,7 +177,7 @@
 
 		<p:dialog
 			header="#{usuarioBean.usuario.inclusao ?'Usuário - Inclusão' :'Usuário - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="650" height="370"
+			widgetVar="dialogCadastro" modal="true" width="650" height="410"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
@@ -239,8 +239,9 @@
 
 				<p:dataTable id="grupoTabela" value="#{usuarioBean.usuario.grupos}"
 					var="grupo" style="margin-top: 10px" styleClass="tblUsuarioGrupo"
-					emptyMessage="Nenhum grupo encontrado." rows="5" paginator="true"
-					paginatorAlwaysVisible="false" paginatorPosition="bottom">
+					emptyMessage="Nenhum grupo encontrado." paginator="true"
+					scrollable="true" scrollHeight="130" paginatorAlwaysVisible="false"
+					paginatorPosition="bottom">
 
 					<p:column headerText="Grupo" style="text-align: left; width: 250px">
 						<h:outputText value="#{grupo.id} - #{grupo.nome}"
@@ -277,7 +278,7 @@
 						process="@this" />
 				</p:confirmDialog>
 
-				<p:toolbar style="margin-top: 5px; margin-button:5px"
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"

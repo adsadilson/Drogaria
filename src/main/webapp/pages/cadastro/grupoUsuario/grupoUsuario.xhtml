@@ -78,7 +78,7 @@
 				value="#{grupoUsuarioBean.grupoUsuarios}" var="grupoUsuario"
 				style="margin-top: 20px" emptyMessage="Nenhum registro encontrado."
 				rows="11" paginator="true" paginatorAlwaysVisible="false"
-				paginatorPosition="bottom"
+				paginatorPosition="bottom" 
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
 				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
 
@@ -199,11 +199,11 @@
 				</h:panelGrid>
 
 				<p:dataTable id="tblFuncoes" widgetVar="grupoUsuarioTable"
-					styleClass="testeFabri" rows="10" style="margin-top: 10px"
+					styleClass="testeFabri" style="margin-top: 10px"
 					emptyMessage="Nenhum registro encontrado."
 					value="#{grupoUsuarioBean.grupoUsuario.permissoes}" var="func"
 					rowKey="#{func.id}" paginatorPosition="bottom" paginator="true"
-					paginatorAlwaysVisible="false"
+					paginatorAlwaysVisible="false" scrollable="true" scrollHeight="325"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
 						{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}"
 					currentPageReportTemplate="">
