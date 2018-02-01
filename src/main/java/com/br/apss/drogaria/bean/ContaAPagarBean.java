@@ -20,9 +20,9 @@ import javax.servlet.http.HttpSession;
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
-import org.primefaces.event.ToggleEvent;
 import org.primefaces.event.UnselectEvent;
 
+import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
@@ -229,6 +229,42 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
+	public void carregarContasADebitar() {
+		PlanoContaFilter cl = new PlanoContaFilter();
+		cl.setTipo(TipoConta.CC);
+		cl.setStatus(true);
+		this.listaContas = contaService.filtrados(cl);
+	}
+
+	public void iniciarBaixaTitulo() {
+		contaAPagar = new ContaAPagar();
+		contaAPagar.setDataPagto(new Date());
+
+		BigDecimal vlr = BigDecimal.ZERO;
+		for (ContaAPagar cp : contaApagarSelecionadas) {
+			vlr = vlr.add(cp.getValor());
+		}
+		contaAPagar.setValor(vlr);
+
+		carregarContasADebitar();
+		calcJurDesMul();
+
+	}
+
+	public void calcJurDesMul() {
+		BigDecimal t = BigDecimal.ZERO;
+		BigDecimal multa = contaAPagar.getValorMulta();
+		BigDecimal juro = contaAPagar.getValorJuro();
+		BigDecimal desc = contaAPagar.getValorDesc();
+		t = t.add(contaAPagar.getValor().add(multa).add(juro).subtract(desc));
+		contaAPagar.setValorPago(t);
+
+	}
+
+	public List<FormaBaixa> getListaFormaBaixa() {
+		return Arrays.asList(FormaBaixa.values());
+	}
+
 	public List<Pessoa> getCarregarFornecedores() {
 		return pessoaService.listarTodos();
 	}
@@ -317,8 +353,8 @@ public class ContaAPagarBean implements Serializable {
 	public void pesquisar() {
 		listaContaAPagars = contaAPagarService.filtrados(filtro);
 		for (ContaAPagar c : listaContaAPagars) {
-					c.setDias(intervaloDias(c.getDataVencto(), new Date()));
-			
+			c.setDias(intervaloDias(c.getDataVencto(), new Date()));
+
 			if (c.getDataVencto().before(new Date())) {
 				this.totalAVencido = this.totalAVencido.add(c.getValor());
 				vermelho = true;

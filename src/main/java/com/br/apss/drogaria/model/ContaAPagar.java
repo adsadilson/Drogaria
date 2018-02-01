@@ -25,6 +25,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
 
@@ -83,6 +84,15 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "vlr_pago", precision = 12, scale = 2)
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
+	@Column(name = "vlr_multa", precision = 12, scale = 2)
+	private BigDecimal valorMulta = BigDecimal.ZERO;
+
+	@Column(name = "vlr_juro", precision = 12, scale = 2)
+	private BigDecimal valorJuro = BigDecimal.ZERO;
+
+	@Column(name = "vlr_desc", precision = 12, scale = 2)
+	private BigDecimal valorDesc = BigDecimal.ZERO;
+
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
@@ -98,6 +108,10 @@ public class ContaAPagar implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_cobranca", length = 40)
 	private TipoCobranca tipoCobranca;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "forma_baixa", length = 45)
+	private FormaBaixa formaBaixa;
 
 	@Column(length = 20)
 	private String status;
@@ -263,6 +277,38 @@ public class ContaAPagar implements Serializable {
 
 	public void setDias(int dias) {
 		this.dias = dias;
+	}
+
+	public BigDecimal getValorMulta() {
+		return valorMulta;
+	}
+
+	public void setValorMulta(BigDecimal valorMulta) {
+		this.valorMulta = valorMulta;
+	}
+
+	public BigDecimal getValorJuro() {
+		return valorJuro;
+	}
+
+	public void setValorJuro(BigDecimal valorJuro) {
+		this.valorJuro = valorJuro;
+	}
+
+	public BigDecimal getValorDesc() {
+		return valorDesc;
+	}
+
+	public void setValorDesc(BigDecimal valorDesc) {
+		this.valorDesc = valorDesc;
+	}
+
+	public FormaBaixa getFormaBaixa() {
+		return formaBaixa;
+	}
+
+	public void setFormaBaixa(FormaBaixa formaBaixa) {
+		this.formaBaixa = formaBaixa;
 	}
 
 	@Override

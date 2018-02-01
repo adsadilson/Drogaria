@@ -28,7 +28,23 @@
 }
 
 .red {
-    color: red  !important ;
+	color: red !important;
+}
+
+.rotuloBaixa1 {
+	width: 123px !important;
+}
+
+.rotuloBaixa2 {
+	width: 50px !important;
+}
+
+.campoBaixa1 {
+	width: 120px !important;
+}
+
+.campoBaixa2 {
+	width: 430px !important;
 }
 -->
 </style>
@@ -79,7 +95,10 @@
 					</ui:remove>
 
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
-						id="btnRecebimento">
+						id="btnRecebimento" update=":dialogBaixaTitulo"
+						oncomplete="PF('baixaTitulo').show()"
+						action="#{contaAPagarBean.iniciarBaixaTitulo()}"
+						disabled="#{contaAPagarBean.contaApagarSelecionadas.size() == 0}">
 					</p:commandButton>
 
 					<p:separator />
@@ -319,35 +338,102 @@
 
 		</p:dialog>
 
-		<p:dialog header="Duplicar Conta Apagar"
-			widgetVar="duplicarContaApagar" modal="true" resizable="false"
-			draggable="true" closeOnEscape="true" width="auto" height="170"
+		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
+			modal="true" resizable="false" id="dialogBaixaTitulo"
+			draggable="true" closeOnEscape="true" width="610" height="235"
 			appendTo="@(body)">
-			<h:form prependId="false" id="form-duplicar">
 
-				<p:panelGrid columns="2" style="margin-bottom:10px"
-					styleClass="semBorda">
-					<p:outputLabel value="Duplicar (n) vezes" />
-					<p:spinner size="3" min="1" max="100"
-						value="#{contaAPagarBean.numVezes}" />
-				</p:panelGrid>
-				<h:panelGrid>
-					<p:inputTextarea cols="37" rows="3" readonly="true"
-						value="Os registros duplicados serão lançados com o 
-						período de emissão e vencimento para 30 dias." />
+			<h:form prependId="false" id="frm-baixa-titulo">
+
+
+				<h:panelGrid columns="6" style="margin-top:15px;"
+					columnClasses="rotuloBaixa1,campoBaixa1,
+					rotuloBaixa2,campoBaixa1, rotuloBaixa2">
+
+					<p:outputLabel value="SubTotal" />
+					<p:inputText readonly="true"
+						value="#{contaAPagarBean.contaAPagar.valor}" size="10">
+						<f:convertNumber type="currency" />
+					</p:inputText>
+					<p:spacer />
+					<p:spacer />
+					<p:spacer />
+					<p:spacer />
+
+					<p:outputLabel value="Multa" />
+					<p:inputText id="txtMulta" onfocus="formatoMoeda('txtMulta')"
+						value="#{contaAPagarBean.contaAPagar.valorMulta}" size="10">
+						<f:convertNumber type="currency" />
+						<p:ajax event="keyup" update="txtVlrPago" process="@this"
+							listener="#{contaAPagarBean.calcJurDesMul()}" />
+					</p:inputText>
+
+					<p:outputLabel value="Juros" />
+					<p:inputText id="txtJuro" onfocus="formatoMoeda('txtJuro')"
+						value="#{contaAPagarBean.contaAPagar.valorJuro}" size="10">
+						<f:convertNumber type="currency" />
+						<p:ajax event="keyup" update="txtVlrPago" process="@this"
+							listener="#{contaAPagarBean.calcJurDesMul()}" />
+					</p:inputText>
+
+					<p:outputLabel value="Desc." />
+					<p:inputText id="txtDesc" onfocus="formatoMoeda('txtDesc')"
+						value="#{contaAPagarBean.contaAPagar.valorDesc}" size="8">
+						<f:convertNumber type="currency" />
+						<p:ajax event="keyup" update="txtVlrPago" process="@this"
+							listener="#{contaAPagarBean.calcJurDesMul()}" />
+					</p:inputText>
+
+					<p:outputLabel value="Data Baixa" for="dtBaixa" />
+					<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
+						value="#{contaAPagarBean.contaAPagar.dataPagto}" id="dtBaixa"
+						onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
+						required="true" requiredMessage="Informe uma data da baixa">
+					</p:calendar>
+
+					<p:outputLabel value="Total" />
+					<p:inputText id="txtVlrPago" readonly="true"
+						value="#{contaAPagarBean.contaAPagar.valorPago}" size="10">
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
 				</h:panelGrid>
 
+				<h:panelGrid columns="2" columnClasses="rotuloBaixa1, campoBaixa2">
 
-				<p:toolbar styleClass="semPreenchimento" style="margin-top:15px;">
-					<p:toolbarGroup align="right">
-						<p:commandButton value="Confirmar"
-							action="#{contaAPagarBean.duplicarLancamento}" icon="fa fa-check"
-							update="tbl-conta-apagar toolbar-botoes"
-							oncomplete="if(!args.validationFailed) PF('duplicarContaApagar').hide()" />
+					<p:outputLabel value="Conta a debitar" for="combBaixaConta" />
+					<p:selectOneMenu autoWidth="false" style="width:98%;"
+						id="combBaixaConta" converter="omnifaces.SelectItemsConverter"
+						required="true">
+						<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+							noSelectionOption="true" />
+						<f:selectItems value="#{contaAPagarBean.listaContas}" var="conta"
+							itemLabel="#{conta.nome}" itemValue="#{conta}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Forma baixa" />
+					<p:selectOneMenu autoWidth="false" style="width:98%;"
+						value="#{contaAPagarBean.contaAPagar.formaBaixa}"
+						converter="omnifaces.SelectItemsConverter" required="true"
+						requiredMessage="Selecione tipo">
+						<f:selectItems value="#{contaAPagarBean.listaFormaBaixa}" var="fp"
+							itemLabel="#{fp.descricao}" itemValue="#{fp}" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 20px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this"
+							oncomplete="if(args.sucesso == true) PF('baixaTitulo').hide()">
+						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>
 
 			</h:form>
+
 		</p:dialog>
 
 		<p:dialog header="Edição de parcela" widgetVar="edicaoParcela"
