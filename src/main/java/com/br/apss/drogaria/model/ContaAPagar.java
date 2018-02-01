@@ -23,6 +23,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
@@ -100,6 +101,9 @@ public class ContaAPagar implements Serializable {
 
 	@Column(length = 20)
 	private String status;
+
+	@Transient
+	private int dias;
 
 	public Long getId() {
 		return id;
@@ -253,6 +257,14 @@ public class ContaAPagar implements Serializable {
 		this.tipoCobranca = tipoCobranca;
 	}
 
+	public int getDias() {
+		return dias;
+	}
+
+	public void setDias(int dias) {
+		this.dias = dias;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -283,4 +295,3 @@ public class ContaAPagar implements Serializable {
 		return String.format("%s[id=%d]", getClass().getSimpleName(), getId());
 	}
 }
-

@@ -39,7 +39,7 @@
 				</p:selectOneMenu>
 
 				<p:selectOneMenu id="combConta" autoWidth="false"
-					style="width:155px;" required="true" filter="true"
+					style="width:150px;" required="true" filter="true"
 					requiredMessage="Selecione uma conta."
 					value="#{contaAPagarBean.movto.planoConta}"
 					converter="omnifaces.SelectItemsConverter">
@@ -50,7 +50,7 @@
 				</p:selectOneMenu>
 				<p:inputText required="true" requiredMessage="Informe a descrição"
 					placeholder="descrição" value="#{contaAPagarBean.movto.descricao}"
-					size="32" />
+					size="30" />
 				<p:inputText id="txtVlrSaida" required="true"
 					requiredMessage="Informe um valor"
 					onfocus="formatoMoeda('txtVlrSaida')"
@@ -62,7 +62,7 @@
 				<p:commandButton icon="fa fa-download" title="Adicionar conta"
 					process="@this panelGCab panelGrid-rateio "
 					action="#{contaAPagarBean.addConta()}"
-					update="panelGCab msn panelGrid-rateio tblRateioDes txtTotalRateio"
+					update="panelGCab msn panelGrid-rateio tblRateioDes @(.total)"
 					id="salvarCommandButtonRateio" />
 			</h:panelGrid>
 
@@ -75,7 +75,7 @@
 				<p:column style="width:35px; text-align:center;" headerText="Ação">
 					<p:commandButton title="Excluir" process="@this"
 						icon="ui-icon-trash" styleClass="semPreenchimento"
-						update="tblRateioDes txtTotalRateio panelGCab"
+						update="tblRateioDes panelGCab @(.total)"
 						action="#{contaAPagarBean.removerConta()}">
 						<f:setPropertyActionListener value="#{m}"
 							target="#{contaAPagarBean.movto}" />
@@ -101,7 +101,7 @@
 				<p:toolbarGroup align="right">
 					<p:outputLabel value="Total:"
 						style="font-size:13px; margin-right:70px; color:black" />
-					<p:outputLabel id="txtTotalRateio"
+					<p:outputLabel id="txtTotalRateio" styleClass="total"
 						style="color:red; font-size:14px; margin-right:10px;"
 						value="#{contaAPagarBean.totalRateio}">
 						<f:convertNumber type="currency" />

@@ -19,6 +19,9 @@ import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.ToggleEvent;
+import org.primefaces.event.UnselectEvent;
 
 import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.enums.TipoCobranca;
@@ -46,6 +49,8 @@ public class ContaAPagarBean implements Serializable {
 	private ContaAPagarFilter filtro;
 
 	private BigDecimal saldo;
+
+	private BigDecimal totalSelecionado = BigDecimal.ZERO;
 
 	private int numVezes = 1;
 
@@ -85,6 +90,10 @@ public class ContaAPagarBean implements Serializable {
 
 	private BigDecimal totalGeral = BigDecimal.ZERO;
 
+	private boolean isToggle = false;
+
+	private boolean vermelho;
+
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
@@ -96,17 +105,50 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void salvar() {
-		List<Movimentacao> movimentos = movtoService.salvar(contaAPagar.getMovimentacoes());
+		if (!this.valor.equals(BigDecimal.ZERO)) {
+			if (totalRateio.equals(totalPagto)) {
 
-		for (ContaAPagar ca : parcelas) {
-			ca.setMovimentacoes(movimentos);
-			contaAPagarService.salvar(ca);
+				List<Movimentacao> movimentos = movtoService.salvar(contaAPagar.getMovimentacoes());
+
+				for (ContaAPagar ca : parcelas) {
+					ca.setMovimentacoes(movimentos);
+					contaAPagarService.salvar(ca);
+				}
+
+				RequestContext request = RequestContext.getCurrentInstance();
+				request.addCallbackParam("sucesso", true);
+				Messages.addGlobalInfo("Registro salvor com sucesso.");
+				pesquisar();
+			} else {
+				Messages.addGlobalError("Total do rateio diferente do total de pagamento");
+			}
+		} else {
+			Messages.addGlobalError("NÃ£o foi informado nenhum valor");
 		}
+	}
 
-		RequestContext request = RequestContext.getCurrentInstance();
-		request.addCallbackParam("sucesso", true);
-		Messages.addGlobalInfo("Registro salvor com sucesso.");
-		pesquisar();
+	public void rowSelect(SelectEvent event) {
+		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValor()));
+	}
+
+	public void rowUnSelect(UnselectEvent event) {
+		this.setTotalSelecionado(this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValor()));
+	}
+
+	public void rowToggleSelect() {
+		if (!isToggle) {
+			BigDecimal t = BigDecimal.ZERO;
+			if (contaApagarSelecionadas.size() > 0) {
+				for (ContaAPagar cp : contaApagarSelecionadas) {
+					t = t.add(cp.getValor());
+					this.setTotalSelecionado(t);
+				}
+				isToggle = true;
+			}
+		} else {
+			isToggle = false;
+			this.setTotalSelecionado(BigDecimal.ZERO);
+		}
 	}
 
 	public void excluirSelecionados() {
@@ -212,28 +254,33 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void addConta() {
-		int achou = -1;
-		for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
-			if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
-					.equals(movto.getPlanoConta().getNome())) {
-				achou = i;
+		if (!validarDatas(this.contaAPagar.getDataDoc(), this.contaAPagar.getDataVencto())) {
+			int achou = -1;
+			for (int i = 0; i < this.contaAPagar.getMovimentacoes().size(); i++) {
+				if (this.contaAPagar.getMovimentacoes().get(i).getPlanoConta().getNome()
+						.equals(movto.getPlanoConta().getNome())) {
+					achou = i;
+				}
 			}
-		}
-		if (achou < 0) {
-			movto.setDataDoc(contaAPagar.getDataDoc());
-			movto.setDataLanc(new Date());
-			movto.setUsuario(obterUsuario());
-			movto.setVlrEntrada(null);
-			movto.setDocumento(contaAPagar.getNumDoc());
-			movto.setPessoa(contaAPagar.getFornecedor());
-			contaAPagar.getMovimentacoes().add(movto);
-			totalRateio = totalRateio.add(movto.getVlrSaida());
-			contaAPagar.setValor(totalRateio);
-			movto = new Movimentacao();
+			if (achou < 0) {
+				movto.setDataDoc(contaAPagar.getDataDoc());
+				movto.setDataLanc(new Date());
+				movto.setUsuario(obterUsuario());
+				movto.setVlrEntrada(null);
+				movto.setDocumento(contaAPagar.getNumDoc());
+				movto.setPessoa(contaAPagar.getFornecedor());
+				contaAPagar.getMovimentacoes().add(movto);
+				totalRateio = totalRateio.add(movto.getVlrSaida());
+				contaAPagar.setValor(totalRateio);
+				this.setValor(totalRateio);
+				movto = new Movimentacao();
+			} else {
+				Messages.addGlobalError("Conta jï¿½ cadastrada!");
+				RequestContext requestContext = RequestContext.getCurrentInstance();
+				requestContext.addCallbackParam("sucesso", true);
+			}
 		} else {
-			Messages.addGlobalError("Conta já¡ cadastrada!");
-			RequestContext requestContext = RequestContext.getCurrentInstance();
-			requestContext.addCallbackParam("sucesso", true);
+			Messages.addGlobalError("A data de entrada esta maior que a data de vencimento.");
 		}
 	}
 
@@ -270,8 +317,11 @@ public class ContaAPagarBean implements Serializable {
 	public void pesquisar() {
 		listaContaAPagars = contaAPagarService.filtrados(filtro);
 		for (ContaAPagar c : listaContaAPagars) {
+					c.setDias(intervaloDias(c.getDataVencto(), new Date()));
+			
 			if (c.getDataVencto().before(new Date())) {
 				this.totalAVencido = this.totalAVencido.add(c.getValor());
+				vermelho = true;
 			} else {
 				this.totalAVencer = this.totalAVencer.add(c.getValor());
 			}
@@ -309,8 +359,6 @@ public class ContaAPagarBean implements Serializable {
 			parcelas.add(ap);
 		}
 
-		valor = BigDecimal.ZERO;
-
 	}
 
 	public Date somaDias(Date data, int dias) {
@@ -318,6 +366,11 @@ public class ContaAPagarBean implements Serializable {
 		cal.setTime(data);
 		cal.add(Calendar.DAY_OF_MONTH, dias);
 		return cal.getTime();
+	}
+
+	public static int intervaloDias(Date d1, Date d2) {
+		int result = (int) ((d1.getTime() - d2.getTime()) / 86400000L);
+		return result < 0 ? result * -1 : 0;
 	}
 
 	public String getCalculaDif() {
@@ -446,6 +499,22 @@ public class ContaAPagarBean implements Serializable {
 
 	public BigDecimal getTotalGeral() {
 		return totalGeral;
+	}
+
+	public boolean isVermelho() {
+		return vermelho;
+	}
+
+	public void setVermelho(boolean vermelho) {
+		this.vermelho = vermelho;
+	}
+
+	public BigDecimal getTotalSelecionado() {
+		return totalSelecionado;
+	}
+
+	public void setTotalSelecionado(BigDecimal totalSelecionado) {
+		this.totalSelecionado = totalSelecionado;
 	}
 
 }

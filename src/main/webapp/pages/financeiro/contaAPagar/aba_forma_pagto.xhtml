@@ -37,29 +37,30 @@
 				</p:selectOneMenu>
 
 				<p:outputLabel value="Parcela(s)"
-					style="margin-left:12px; margin-right:2px;" />
+					style="margin-left:8px; margin-right:2px;" />
 				<p:spinner size="1" min="1" max="100"
 					value="#{contaAPagarBean.numVezes}" />
 
 				<p:outputLabel value="Intervalo"
-					style="margin-left:12px; margin-right:2px;" />
+					style="margin-left:9px; margin-right:2px;" />
 				<p:spinner size="1" min="1" max="30"
 					value="#{contaAPagarBean.periodo}" />
 
 				<p:outputLabel value="Dia(s)"
-					style="margin-left:2px; margin-right:10px;" />
+					style="margin-left:1px; margin-right:9px;" />
 
 				<p:inputText id="txtVlrPag" required="true"
 					requiredMessage="Informe um valor"
+					disabled="true" styleClass="total"
 					onfocus="formatoMoeda('txtVlrPag')"
-					value="#{contaAPagarBean.valor}" placeholder="VALOR" size="11">
+					value="#{contaAPagarBean.valor}" placeholder="VALOR" size="10">
 					<f:validateDoubleRange minimum="0.01" />
 					<f:convertNumber type="currency" />
 				</p:inputText>
 
 				<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
-					disabled="#{contApagarBean.contaApagar.movimentacoes.size() == 0}"
-					process="@this panelGrid-pagto"
+					disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() == 0}"
+					process="@this panelGrid-pagto" styleClass="total"
 					action="#{contaAPagarBean.gerarParcelas}"
 					update="tblPagto panelGrid-pagto txtTotalPagto"
 					id="salvarCommandButtonPagto" />

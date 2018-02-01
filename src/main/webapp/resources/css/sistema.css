@@ -1,9 +1,5 @@
 @charset "utf-8";
 
-.ui-panelgrid.teste .ui-panelgrid-cell {
-	padding: 0px 0px;
-}
-
 .ui-selectonemenu {
 	vertical-align: middle;
 }
@@ -144,9 +140,11 @@ h1 {
 
 )
 no-repeat
+
+
+
+
 ;
-
-
 }
 /* Menu sistema fim */
 header {
@@ -160,6 +158,10 @@ header {
 
 .ui-calendar.cssCalender input {
 	color: red !important;
+	text-align: center !important;
+}
+
+.ui-calendar input {
 	text-align: center !important;
 }
 

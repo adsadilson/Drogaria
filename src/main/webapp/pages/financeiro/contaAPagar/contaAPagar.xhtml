@@ -26,6 +26,10 @@
 .campoFiltro1 {
 	width: 100px !important;
 }
+
+.red {
+    color: red  !important ;
+}
 -->
 </style>
 
@@ -101,15 +105,24 @@
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
-				scrollHeight="350"
+				scrollHeight="350" rowStyleClass="#{cp.dias le 0 ? null : 'red'}"
 				selection="#{contaAPagarBean.contaApagarSelecionadas}"
 				rowKey="#{cp.id}">
 
-				<p:ajax event="rowSelect" update="toolbar-botoes" />
-				<p:ajax event="rowUnselect" update="toolbar-botoes" />
-				<p:ajax event="toggleSelect" update="toolbar-botoes" />
-				<p:ajax event="rowSelectCheckbox" update="toolbar-botoes" />
-				<p:ajax event="rowUnselectCheckbox" update="toolbar-botoes" />
+				<p:ajax event="rowSelect" update="toolbar-botoes toolbar-totais"
+					listener="#{contaAPagarBean.rowSelect}" />
+				<p:ajax event="rowUnselect" update="toolbar-botoes toolbar-totais"
+					listener="#{contaAPagarBean.rowUnSelect}" />
+				<p:ajax event="toggleSelect" update="toolbar-botoes toolbar-totais"
+					listener="#{contaAPagarBean.rowToggleSelect}" />
+				<p:ajax event="rowSelectCheckbox"
+					update="toolbar-botoes toolbar-totais"
+					listener="#{contaAPagarBean.rowSelect}" />
+				<p:ajax event="rowUnselectCheckbox"
+					update="toolbar-botoes toolbar-totais"
+					listener="#{contaAPagarBean.rowUnSelect}" />
+
+
 
 				<p:column selectionMode="multiple"
 					style="width:1px;text-align:center" />
@@ -145,10 +158,9 @@
 				</p:column>
 
 
-				<p:column style="text-align: right; width: 17px;"
+				<p:column style="text-align: center; width: 17px;"
 					headerText="Dia(s)">
-					<h:outputText>
-						<f:convertNumber type="currency" currencySymbol="R$" />
+					<h:outputText value="#{cp.dias > 0 ? cp.dias : null}">
 					</h:outputText>
 				</p:column>
 
@@ -183,11 +195,13 @@
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					action="#{contaAPagarBean.excluirSelecionados}"
-					update="tbl-conta-apagar toolbar-botoes toolbar-totais" process="@this"
+					update="tbl-conta-apagar toolbar-botoes toolbar-totais"
+					process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
-			<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;" id="toolbar-totais">
+			<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;"
+				id="toolbar-totais">
 				<p:toolbarGroup align="right">
 					<p:outputLabel value="Total Avencer"
 						style="font-size:13px; margin-right:70px; color:black" />
@@ -214,7 +228,7 @@
 						style="font-size:13px; margin-right:70px; color:black" />
 					<p:outputLabel
 						style="color:red; font-size:14px; margin-right:10px;"
-						value="#{contaAPagarBean.totalRateio}">
+						value="#{contaAPagarBean.totalSelecionado}">
 						<f:convertNumber type="currency" />
 					</p:outputLabel>
 				</p:toolbarGroup>
@@ -252,13 +266,14 @@
 					</p:selectOneMenu>
 
 					<p:outputLabel for="txtEmissao" value="Data Entrada" />
-					<p:inputText size="11" id="txtEmissao"
-						onfocus="mascaraDtInput('txtEmissao')" style="text-align:center"
+					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
+						id="txtEmissao"
 						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
+						onfocus="mascaraDtCalendar('txtEmissao')" styleClass="cssCalender"
 						value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
 						requiredMessage="Informe uma data de emissão">
-						<f:convertDateTime pattern="dd/MM/yyyy" />
-					</p:inputText>
+						<p:ajax event="dateSelect" process="@this" update="txtVencimento" />
+					</p:calendar>
 
 					<p:outputLabel for="txtNum" value="Documento" />
 					<p:inputText id="txtNum" size="11" required="false"
@@ -267,13 +282,14 @@
 						requiredMessage="Informe o numero." />
 
 					<p:outputLabel for="txtVencimento" value="Vencimento" />
-					<p:inputText size="11" id="txtVencimento" style="text-align:center"
+					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
+						id="txtVencimento" styleClass="cssCalender"
+						mindate="#{contaAPagarBean.contaAPagar.dataDoc}"
 						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
-						onfocus="mascaraDtInput('txtVencimento')"
+						onfocus="mascaraDtCalendar('txtVencimento')"
 						value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
 						requiredMessage="Informe uma data para a vencimento">
-						<f:convertDateTime pattern="dd/MM/yyyy" />
-					</p:inputText>
+					</p:calendar>
 
 				</h:panelGrid>
 
