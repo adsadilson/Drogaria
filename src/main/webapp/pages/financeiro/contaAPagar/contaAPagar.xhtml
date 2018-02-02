@@ -73,8 +73,8 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
-						oncomplete="PF('dialogCadastro').show()"
-						update="dgCadastro" action="#{contaAPagarBean.editar()}"
+						oncomplete="PF('dialogCadastro').show()" update="dgCadastro"
+						action="#{contaAPagarBean.editar()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
 
@@ -95,7 +95,7 @@
 					</ui:remove>
 
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
-						id="btnRecebimento" update=":dialogBaixaTitulo" 
+						id="btnRecebimento" update=":dialogBaixaTitulo"
 						oncomplete="PF('baixaTitulo').show()"
 						action="#{contaAPagarBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size() == 0}">
@@ -270,7 +270,7 @@
 
 				<p:growl id="msn" autoUpdate="true" />
 
-				<h:panelGrid columns="4" id="panelGCab"
+				<h:panelGrid columns="4" id="panelGridCabNota"
 					columnClasses="rotuloFiltro1,campoDesRec,rotuloFiltro1">
 
 					<p:outputLabel for="combFavorecido" value="Fornecedor" />
@@ -296,10 +296,10 @@
 					</p:calendar>
 
 					<p:outputLabel for="txtNum" value="Documento" />
-					<p:inputText id="txtNum" size="11" required="false"
+					<p:inputText id="txtNum" size="11"
 						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
-						value="#{contaAPagarBean.contaAPagar.numDoc}"
-						requiredMessage="Informe o numero." />
+						value="#{contaAPagarBean.contaAPagar.numDoc}">
+					</p:inputText>
 
 					<p:outputLabel for="txtVencimento" value="Vencimento" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
@@ -313,24 +313,27 @@
 
 				</h:panelGrid>
 
-
 				<p:tabView prependId="false"
 					style="width: 99%; height: 300px; margin-top:10px; ">
-					<p:tab title="Rateio da nota">
+
+					<p:tab title="Rateio da Nota">
 						<ui:include src="aba_rateio.xhtml" />
 					</p:tab>
+
 					<p:tab title="Forma de Pagamento">
 						<ui:include src="aba_forma_pagto.xhtml" />
 					</p:tab>
+
 				</p:tabView>
 
 				<p:toolbar style="margin-top: 10px; margin-button:5px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Salvar" icon="fa fa-save" process="@this"
-							update=":frm-tabela :toolbar-totais"
-							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
-							action="#{contaAPagarBean.salvar}">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							process="@this panelGridCabNota"
+							action="#{contaAPagarBean.salvar()}"
+							update=":frm-tabela :toolbar-totais panelGridCabNota"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>
@@ -427,68 +430,11 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Confirmar" icon="fa fa-check"
-							process="@this frm-baixa-titulo"  update="frm-baixa-titulo"
+							process="@this frm-baixa-titulo" update="frm-baixa-titulo"
 							oncomplete="if(args.sucesso == true) PF('baixaTitulo').hide()">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>
-
-			</h:form>
-
-		</p:dialog>
-
-		<p:dialog header="Edição de parcela" widgetVar="edicaoParcela"
-			modal="true" resizable="false" draggable="true" id="edicaoParcela"
-			closeOnEscape="true" width="350" height="160" appendTo="@(body)">
-
-			<p:ajax event="close" update="" />
-
-			<h:form id="frm-edicao-parcela2" prependId="false">
-
-				<p:growl autoUpdate="true" />
-
-				<h:panelGrid id="panelEdicaoParcela2" columns="2"
-					style="margin-top:10px;" columnClasses="rotulo">
-
-					<p:outputLabel value="Tipo" for="comboEdicaoTipoCobranca2" />
-					<p:selectOneMenu id="comboEdicaoTipoCobranca2" autoWidth="false"
-						style="width:170px;"
-						value="#{contaAPagarBean.contaAPagar.tipoCobranca}"
-						converter="omnifaces.SelectItemsConverter" required="true"
-						requiredMessage="Selecione tipo">
-						<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
-						<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
-							var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
-							itemValue="#{cob}" />
-					</p:selectOneMenu>
-
-					<p:outputLabel for="txtEdicaoVencimento2" value="Vencimento" />
-					<p:inputText size="11" id="txtEdicaoVencimento2"
-						onfocus="mascaraDtInput('txtEdicaoVencimento2')"
-						value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
-						requiredMessage="Informe uma data para a vencimento">
-						<f:convertDateTime pattern="dd/MM/yyyy" />
-					</p:inputText>
-
-					<p:outputLabel value="Documento" />
-					<p:inputText value="#{contaAPagarBean.contaAPagar.numDoc}"
-						size="11" />
-
-				</h:panelGrid>
-
-				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
-					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Salvar" icon="fa fa-save"
-							action="#{contaAPagarBean.editarParcela()}"
-							process="@this frm-edicao-parcela2"
-							oncomplete="if(!args.validationFailed) PF('edicaoParcela').hide()"
-							update="frm-edicao-parcela2 :tbl-conta-apagar"
-							id="salvarCommandButtonParcela2">
-						</p:commandButton>
-					</p:toolbarGroup>
-				</p:toolbar>
-
-				<p:defaultCommand target="salvarCommandButtonParcela2" />
 
 			</h:form>
 

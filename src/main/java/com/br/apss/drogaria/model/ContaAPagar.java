@@ -119,6 +119,18 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private int dias;
 
+	@Transient
+	private int numVezes = 1;
+
+	@Transient
+	private int periodo = 30;
+
+	@Transient
+	private BigDecimal totalRateio = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal totalFormaPg = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -311,6 +323,38 @@ public class ContaAPagar implements Serializable {
 		this.formaBaixa = formaBaixa;
 	}
 
+	public int getNumVezes() {
+		return numVezes;
+	}
+
+	public void setNumVezes(int numVezes) {
+		this.numVezes = numVezes;
+	}
+
+	public int getPeriodo() {
+		return periodo;
+	}
+
+	public void setPeriodo(int periodo) {
+		this.periodo = periodo;
+	}
+
+	public BigDecimal getTotalRateio() {
+		return totalRateio;
+	}
+
+	public void setTotalRateio(BigDecimal totalRateio) {
+		this.totalRateio = totalRateio;
+	}
+
+	public BigDecimal getTotalFormaPg() {
+		return totalFormaPg;
+	}
+
+	public void setTotalFormaPg(BigDecimal totalFormaPg) {
+		this.totalFormaPg = totalFormaPg;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -340,5 +384,5 @@ public class ContaAPagar implements Serializable {
 	public String toString() {
 		return String.format("%s[id=%d]", getClass().getSimpleName(), getId());
 	}
-	
+
 }

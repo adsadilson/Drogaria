@@ -3,8 +3,7 @@ package com.br.apss.drogaria.enums;
 public enum TipoCobranca {
 
 	BOLETO_BANCARIO("BOLETO BANCARIO","BB"),
-	CHEQUE("CHEQUE","CHQ"),
-	DINHEIRO("DINHEIRO","DH");
+	CHEQUE("CHEQUE","CHQ");
 	
 	private String descricao;
 	private String sigla;

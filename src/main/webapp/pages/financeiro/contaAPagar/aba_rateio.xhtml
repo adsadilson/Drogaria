@@ -18,67 +18,68 @@
 -->
 </style>
 
-	<p:panel styleClass="semPreenchimento rateio" id="panel-rateio">
+	<p:panel styleClass="semPreenchimento rateio" id="panelRateio">
 
-		<h:form prependId="false" id="frm-rateio">
+		<h:panelGrid id="panelGridRateio" columns="5">
 
-			<h:panelGrid id="panelGrid-rateio" columns="5">
+			<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:35px;"
+				value="#{contaAPagarBean.contaAPagar.tipoConta}"
+				disabled="#{movimentacaoBean.movto.notInclusao}"
+				converter="omnifaces.SelectItemsConverter" required="true"
+				requiredMessage="Selecione tipo">
+				<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
+				<f:selectItems value="#{contaAPagarBean.listaTipoContas}" var="tipo"
+					itemLabel="#{tipo.sigla} - #{tipo.descricao}" itemValue="#{tipo}" />
+				<p:ajax event="change" process="@this"
+					listener="#{contaAPagarBean.carregarContasLanctos}"
+					update="combConta" />
+			</p:selectOneMenu>
 
-				<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:35px;"
-					value="#{contaAPagarBean.contaAPagar.tipoConta}"
-					disabled="#{movimentacaoBean.movto.notInclusao}"
-					converter="omnifaces.SelectItemsConverter" required="true"
-					requiredMessage="Selecione tipo">
-					<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
-					<f:selectItems value="#{contaAPagarBean.listaTipoContas}"
-						var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
-						itemValue="#{tipo}" />
-					<p:ajax event="change" process="@this"
-						listener="#{contaAPagarBean.carregarContasLanctos}"
-						update="combConta" />
-				</p:selectOneMenu>
+			<p:selectOneMenu id="combConta" autoWidth="false"
+				style="width:150px;" required="true" filter="true"
+				requiredMessage="Selecione uma conta."
+				value="#{contaAPagarBean.movimentacao.planoConta}"
+				converter="omnifaces.SelectItemsConverter">
+				<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+					noSelectionOption="true" />
+				<f:selectItems value="#{contaAPagarBean.listaContas}" var="conta"
+					itemLabel="#{conta.nome}" itemValue="#{conta}" />
+			</p:selectOneMenu>
 
-				<p:selectOneMenu id="combConta" autoWidth="false"
-					style="width:150px;" required="true" filter="true"
-					requiredMessage="Selecione uma conta."
-					value="#{contaAPagarBean.movto.planoConta}"
-					converter="omnifaces.SelectItemsConverter">
-					<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
-						noSelectionOption="true" />
-					<f:selectItems value="#{contaAPagarBean.listaContas}" var="conta"
-						itemLabel="#{conta.nome}" itemValue="#{conta}" />
-				</p:selectOneMenu>
-				<p:inputText required="true" requiredMessage="Informe a descrição"
-					placeholder="descrição" value="#{contaAPagarBean.movto.descricao}"
-					size="30" />
-				<p:inputText id="txtVlrSaida" required="true"
-					requiredMessage="Informe um valor"
-					onfocus="formatoMoeda('txtVlrSaida')"
-					value="#{contaAPagarBean.movto.vlrSaida}" placeholder="VALOR"
-					size="10">
-					<f:validateDoubleRange minimum="0.01" />
-					<f:convertNumber type="currency" />
-				</p:inputText>
-				<p:commandButton icon="fa fa-download" title="Adicionar conta"
-					process="@this panelGCab panelGrid-rateio "
-					action="#{contaAPagarBean.addConta()}"
-					update="panelGCab msn panelGrid-rateio tblRateioDes @(.total)"
-					id="salvarCommandButtonRateio" />
-			</h:panelGrid>
+			<p:inputText required="true" requiredMessage="Informe a descrição"
+				placeholder="descrição"
+				value="#{contaAPagarBean.movimentacao.descricao}" size="30" />
 
+			<p:inputText id="txtVlrSaida" required="true"
+				requiredMessage="Informe um valor"
+				onfocus="formatoMoeda('txtVlrSaida')"
+				value="#{contaAPagarBean.movimentacao.vlrSaida}" placeholder="VALOR"
+				size="10">
+				<f:validateDoubleRange minimum="0.01" />
+				<f:convertNumber type="currency" />
+			</p:inputText>
 
+			<p:commandButton icon="fa fa-download" title="Adicionar conta"
+				process="@this panelGridCabNota panelGridRateio "
+				action="#{contaAPagarBean.addConta()}"
+				update="panelGridCabNota panelGridRateio tblRateioDes @(.total)"
+				id="salvarCommandButtonRateio">
+			</p:commandButton>
+
+		</h:panelGrid>
+		
 			<p:dataTable id="tblRateioDes" style="width:99%;"
 				emptyMessage="Nenhuma registro lançado" scrollable="true"
-				scrollHeight="160"
-				value="#{contaAPagarBean.contaAPagar.movimentacoes}" var="m">
+				scrollHeight="160" value="#{contaAPagarBean.listaMovimentacoes}"
+				var="m">
 
 				<p:column style="width:35px; text-align:center;" headerText="Ação">
 					<p:commandButton title="Excluir" process="@this"
 						icon="ui-icon-trash" styleClass="semPreenchimento"
-						update="tblRateioDes panelGCab @(.total)"
+						update="tblRateioDes panelGridCabNota @(.total)"
 						action="#{contaAPagarBean.removerConta()}">
 						<f:setPropertyActionListener value="#{m}"
-							target="#{contaAPagarBean.movto}" />
+							target="#{contaAPagarBean.movimentacao}" />
 					</p:commandButton>
 
 				</p:column>
@@ -103,13 +104,11 @@
 						style="font-size:13px; margin-right:70px; color:black" />
 					<p:outputLabel id="txtTotalRateio" styleClass="total"
 						style="color:red; font-size:14px; margin-right:10px;"
-						value="#{contaAPagarBean.totalRateio}">
+						value="#{contaAPagarBean.parcela.totalRateio}">
 						<f:convertNumber type="currency" />
 					</p:outputLabel>
 				</p:toolbarGroup>
 			</p:toolbar>
-
-		</h:form>
 
 	</p:panel>
 
