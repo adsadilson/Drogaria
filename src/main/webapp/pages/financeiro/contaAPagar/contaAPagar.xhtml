@@ -73,8 +73,8 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
-						oncomplete="PF('edicaoParcela').show()"
-						update="frm-edicao-parcela2"
+						oncomplete="PF('dialogCadastro').show()"
+						update="dgCadastro" action="#{contaAPagarBean.editar()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
 
@@ -95,10 +95,11 @@
 					</ui:remove>
 
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
-						id="btnRecebimento" update=":dialogBaixaTitulo"
+						id="btnRecebimento" update=":dialogBaixaTitulo" 
 						oncomplete="PF('baixaTitulo').show()"
 						action="#{contaAPagarBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size() == 0}">
+						<p:resetInput target="frm-baixa-titulo" />
 					</p:commandButton>
 
 					<p:separator />
@@ -404,7 +405,7 @@
 					<p:outputLabel value="Conta a debitar" for="combBaixaConta" />
 					<p:selectOneMenu autoWidth="false" style="width:98%;"
 						id="combBaixaConta" converter="omnifaces.SelectItemsConverter"
-						required="true">
+						required="true" requiredMessage="Selecione uma conta a debitar">
 						<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 							noSelectionOption="true" />
 						<f:selectItems value="#{contaAPagarBean.listaContas}" var="conta"
@@ -426,7 +427,7 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Confirmar" icon="fa fa-check"
-							process="@this"
+							process="@this frm-baixa-titulo"  update="frm-baixa-titulo"
 							oncomplete="if(args.sucesso == true) PF('baixaTitulo').hide()">
 						</p:commandButton>
 					</p:toolbarGroup>

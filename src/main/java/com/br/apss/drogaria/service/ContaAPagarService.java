@@ -39,6 +39,10 @@ public class ContaAPagarService implements Serializable {
 	public ContaAPagar porId(Long id) {
 		return dao.porId(id);
 	}
+	
+	public List<ContaAPagar> porVinculo(Long vinculo) {
+		return dao.porVinculo(vinculo);
+	}
 
 	public ContaAPagar porNome(String nome) {
 		return dao.porNome(nome);

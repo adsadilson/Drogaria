@@ -2,7 +2,7 @@ package com.br.apss.drogaria.enums;
 
 public enum FormaBaixa {
 
-	BI("Baixa individual de lançamentos"),
+	BI("Baixa individual de lanÃ§amentos"),
 	AG("Baixa agrupada");
 	
 	private String descricao;

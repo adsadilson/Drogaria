@@ -112,6 +112,15 @@ public class ContaAPagarRepository implements Serializable {
 			return null;
 		}
 	}
+	
+	public List<ContaAPagar> porVinculo(Long vinculo) {
+		try {
+			return manager.createQuery("from ContaAPagar where vinculo = :vinculo order by id", ContaAPagar.class)
+					.setParameter("vinculo", vinculo).getResultList();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
 
 	@SuppressWarnings({ "deprecation" })
 	private Criteria criarCriteriaParaFiltro(ContaAPagarFilter filtro) {

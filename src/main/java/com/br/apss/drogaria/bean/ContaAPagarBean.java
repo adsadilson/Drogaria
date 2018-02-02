@@ -37,6 +37,7 @@ import com.br.apss.drogaria.service.ContaAPagarService;
 import com.br.apss.drogaria.service.MovimentacaoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.PlanoContaService;
+import com.br.apss.drogaria.util.jpa.GeradorVinculo;
 
 @Named
 @ViewScoped
@@ -83,6 +84,9 @@ public class ContaAPagarBean implements Serializable {
 
 	@Inject
 	private PessoaService pessoaService;
+	
+	@Inject
+	GeradorVinculo gerarVinculo;
 
 	private BigDecimal totalAVencer = BigDecimal.ZERO;
 
@@ -128,6 +132,8 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void rowSelect(SelectEvent event) {
+		
+		
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValor()));
 	}
 
@@ -164,8 +170,10 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
-		// this.contaAPagar =
-		// contaAPagarService.porId(this.cPSelecionado.getId());
+		for (ContaAPagar cp : contaApagarSelecionadas) {
+			this.contaAPagar = cp;
+			this.parcelas = contaAPagarService.porVinculo(cp.getVinculo());
+		}
 	}
 
 	public void editarParcela() {
@@ -249,6 +257,10 @@ public class ContaAPagarBean implements Serializable {
 		carregarContasADebitar();
 		calcJurDesMul();
 
+	}
+	
+	public void baixarTitulos(){
+		
 	}
 
 	public void calcJurDesMul() {
@@ -352,6 +364,7 @@ public class ContaAPagarBean implements Serializable {
 
 	public void pesquisar() {
 		listaContaAPagars = contaAPagarService.filtrados(filtro);
+		
 		for (ContaAPagar c : listaContaAPagars) {
 			c.setDias(intervaloDias(c.getDataVencto(), new Date()));
 
@@ -376,6 +389,7 @@ public class ContaAPagarBean implements Serializable {
 		BigDecimal valorParcela = valor.divide(qtde_parcela, 1, RoundingMode.CEILING);
 		BigDecimal valorParcial = valorParcela.multiply(qtde_parcela.subtract(new BigDecimal(1)));
 		BigDecimal primeiraParcela = valor.subtract(valorParcial);
+		this.contaAPagar.setVinculo(gerarVinculo.gerar(ContaAPagar.class));
 
 		parcelas = new ArrayList<ContaAPagar>();
 		for (int i = 0; i < numVezes; i++) {
@@ -387,6 +401,7 @@ public class ContaAPagarBean implements Serializable {
 			ap.setTipoCobranca(contaAPagar.getTipoCobranca());
 			ap.setUsuario(obterUsuario());
 			ap.setStatus("ABERTO");
+			ap.setVinculo(contaAPagar.getVinculo());
 			ap.setParcela((i + 1) + "/" + numVezes);
 			ap.setDataVencto(i == 0 ? contaAPagar.getDataVencto() : somaDias(contaAPagar.getDataVencto(), periodo * i));
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
