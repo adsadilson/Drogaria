@@ -35,6 +35,14 @@ public class ContaAPagarRepository implements Serializable {
 		return manager.merge(obj);
 	}
 
+	public List<ContaAPagar> salvar(List<ContaAPagar> list) {
+		List<ContaAPagar> retorno = new ArrayList<>();
+		for (ContaAPagar cp : list) {
+			retorno.add(manager.merge(cp));
+		}
+		return retorno;
+	}
+
 	public void excluir(ContaAPagar obj) {
 		try {
 			obj = porId(obj.getId());
@@ -59,7 +67,6 @@ public class ContaAPagarRepository implements Serializable {
 			c = manager.find(ContaAPagar.class, c.getId());
 
 			excluirVinculo(c.getId());
-			
 
 			manager.remove(c);
 		}
@@ -112,7 +119,7 @@ public class ContaAPagarRepository implements Serializable {
 			return null;
 		}
 	}
-	
+
 	public List<ContaAPagar> porVinculo(Long vinculo) {
 		try {
 			return manager.createQuery("from ContaAPagar where vinculo = :vinculo order by id", ContaAPagar.class)
@@ -170,7 +177,7 @@ public class ContaAPagarRepository implements Serializable {
 			}
 		}
 
-		return criteria.addOrder(Order.asc("dataDoc")).list();
+		return criteria.addOrder(Order.asc("dataVencto")).list();
 	}
 
 	public int quantidadeFiltrados(ContaAPagarFilter filtro) {

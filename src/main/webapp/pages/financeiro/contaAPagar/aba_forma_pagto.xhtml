@@ -26,7 +26,7 @@
 				style="width:170px;" value="#{contaAPagarBean.parcela.tipoCobranca}"
 				disabled="#{movimentacaoBean.movto.notInclusao}"
 				converter="omnifaces.SelectItemsConverter" required="true"
-				requiredMessage="Selecione o tipo de cobrança">
+				requiredMessage="Selecione tipo de cobrança">
 				<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
 				<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
 					var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
@@ -73,7 +73,7 @@
 					oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
 					update="panelEdicaoParcela">
 					<f:setPropertyActionListener
-						target="#{contaAPagarBean.contaAPagar}" value="#{p}" />
+						target="#{contaAPagarBean.parcela}" value="#{p}" />
 				</p:commandButton>
 
 			</p:column>
@@ -115,11 +115,11 @@
 		</p:toolbar>
 
 
-		<p:dialog header="Edição de parcela(s)"
+		<p:dialog header="Edição de parcela(s)" 
 			widgetVar="dialogEdicaoParcela" modal="true" resizable="false"
 			draggable="true" id="dgEdicaoParcela" closeOnEscape="true"
 			width="350" height="190" appendTo="@(body)">
-
+			
 			<p:ajax event="close" update="" />
 
 			<p:growl autoUpdate="true" />
@@ -127,25 +127,14 @@
 			<h:panelGrid id="panelEdicaoParcela" columns="2"
 				style="margin-top:10px;" columnClasses="rotulo">
 
-				<p:outputLabel value="Tipo" for="comboEdicaoTipoCobranca" />
-				<p:selectOneMenu id="comboEdicaoTipoCobranca" autoWidth="false"
-					style="width:170px;"
-					value="#{contaAPagarBean.contaAPagar.tipoCobranca}"
-					converter="omnifaces.SelectItemsConverter" required="true"
-					requiredMessage="Selecione tipo">
-					<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
-					<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
-						var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
-						itemValue="#{cob}" />
-				</p:selectOneMenu>
 
 				<p:outputLabel value="Documento" />
-				<p:inputText value="#{contaAPagarBean.contaAPagar.numDoc}" />
+				<p:inputText value="#{contaAPagarBean.parcela.numDoc}" />
 
 				<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
 				<p:inputText size="11" id="txtEdicaoVencimento"
 					onfocus="mascaraDtInput('txtEdicaoVencimento')"
-					value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
+					value="#{contaAPagarBean.parcela.dataVencto}" required="true"
 					requiredMessage="Informe uma data para a vencimento">
 					<f:convertDateTime pattern="dd/MM/yyyy" />
 				</p:inputText>
@@ -154,7 +143,7 @@
 				<p:inputText id="txtEdicaoVlrPag" required="true"
 					requiredMessage="Informe um valor"
 					onfocus="formatoMoeda('txtEdicaoVlrPag')"
-					value="#{contaAPagarBean.contaAPagar.valor}" placeholder="VALOR"
+					value="#{contaAPagarBean.parcela.valor}" placeholder="VALOR"
 					size="11">
 					<f:validateDoubleRange minimum="0.01" />
 					<f:convertNumber type="currency" />
@@ -168,7 +157,7 @@
 						action="#{contaAPagarBean.editarParcela()}"
 						process="@this panelEdicaoParcela"
 						oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
-						update="panelEdicaoParcela :tblPagto txtTotalPagto"
+						update="panelEdicaoParcela tblPagto @(.total)"
 						id="salvarCommandButtonParcela">
 					</p:commandButton>
 				</p:toolbarGroup>

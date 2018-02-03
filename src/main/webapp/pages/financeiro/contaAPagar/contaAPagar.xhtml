@@ -277,7 +277,6 @@
 					<p:selectOneMenu id="combFavorecido" autoWidth="false"
 						filter="true" value="#{contaAPagarBean.contaAPagar.fornecedor}"
 						required="true" requiredMessage="Selecione um favorecido."
-						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
 						filterMatchMode="contains" style="width:250px;"
 						converter="omnifaces.SelectItemsConverter">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
@@ -288,7 +287,6 @@
 					<p:outputLabel for="txtEmissao" value="Data Entrada" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
 						id="txtEmissao"
-						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
 						onfocus="mascaraDtCalendar('txtEmissao')" styleClass="cssCalender"
 						value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
 						requiredMessage="Informe uma data de emissão">
@@ -297,7 +295,6 @@
 
 					<p:outputLabel for="txtNum" value="Documento" />
 					<p:inputText id="txtNum" size="11"
-						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
 						value="#{contaAPagarBean.contaAPagar.numDoc}">
 					</p:inputText>
 
@@ -305,7 +302,6 @@
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
 						id="txtVencimento" styleClass="cssCalender"
 						mindate="#{contaAPagarBean.contaAPagar.dataDoc}"
-						disabled="#{contaAPagarBean.contaAPagar.movimentacoes.size() > 0}"
 						onfocus="mascaraDtCalendar('txtVencimento')"
 						value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
 						requiredMessage="Informe uma data para a vencimento">

@@ -34,6 +34,7 @@ import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.ContaAPagarService;
+import com.br.apss.drogaria.service.MovimentacaoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
@@ -74,6 +75,9 @@ public class ContaAPagarBean implements Serializable {
 
 	@Inject
 	private PessoaService pessoaService;
+
+	@Inject
+	private MovimentacaoService movtoServico;
 
 	@Inject
 	GeradorVinculo gerarVinculo;
@@ -133,17 +137,44 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
+		this.parcela = new ContaAPagar();
+		this.movimentacao = new Movimentacao();
+		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
 		for (ContaAPagar cp : contaApagarSelecionadas) {
-			this.contaAPagar = cp;
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
+			this.contaApagarSelecionadas = this.listaParcelas;
+			this.listaMovimentacoes = cp.getMovimentacoes();
+			for (int i = 0; i < this.listaParcelas.size();) {
+				this.contaAPagar = this.listaParcelas.get(0);
+				break;
+			}
 		}
+		for (ContaAPagar c : this.listaParcelas) {
+			t = t.add(c.getValor());
+		}
+
+		for (Movimentacao m : this.listaMovimentacoes) {
+			t2 = t2.add(m.getVlrSaida());
+		}
+		this.parcela.setTotalFormaPg(t);
+		this.parcela.setTotalRateio(t2);
+
 	}
 
 	public void editarParcela() {
+
 		BigDecimal recalculo = BigDecimal.ZERO;
-		for (ContaAPagar pp : listaParcelas) {
+
+		for (ContaAPagar pp : this.listaParcelas) {
+			if (this.parcela.getParcela().equals(pp.getParcela())) {
+
+			}
 			recalculo = recalculo.add(pp.getValor());
+
 		}
+
+		this.parcela.setTotalFormaPg(recalculo);
+
 		Messages.addGlobalError("Registro alterado com sucesso!");
 		RequestContext requestContext = RequestContext.getCurrentInstance();
 		requestContext.addCallbackParam("sucesso", true);
@@ -159,8 +190,8 @@ public class ContaAPagarBean implements Serializable {
 	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
 	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e
-	 * soma com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
@@ -172,6 +203,7 @@ public class ContaAPagarBean implements Serializable {
 		this.contaAPagar = new ContaAPagar();
 		this.contaAPagar.setDataDoc(new Date());
 		this.parcela = new ContaAPagar();
+		this.listaMovimentacoes = new ArrayList<Movimentacao>();
 		this.listaParcelas = new ArrayList<ContaAPagar>();
 	}
 
@@ -232,7 +264,6 @@ public class ContaAPagarBean implements Serializable {
 		movimentacao = new Movimentacao();
 	}
 
-	@SuppressWarnings("unused")
 	private Usuario obterUsuario() {
 		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
 		Usuario usuario = null;
@@ -301,6 +332,7 @@ public class ContaAPagarBean implements Serializable {
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
 			// ap.setVlrApagar(i == 0 ? primeiraParcela : valorParcela);
 			// ap.setMovimentacoes(contaAPagar.getMovimentacoes());
+			this.listaParcelas.add(ap);
 		}
 		this.parcela.setTotalFormaPg(this.parcela.getValor());
 	}
@@ -348,7 +380,7 @@ public class ContaAPagarBean implements Serializable {
 				this.parcela.setTotalRateio(t);
 				this.parcela.setValor(t);
 			} else {
-				Messages.addGlobalError("Conta j� cadastrada!");
+				Messages.addGlobalError("Conta j� cadastrada!");
 				RequestContext requestContext = RequestContext.getCurrentInstance();
 				requestContext.addCallbackParam("sucesso", true);
 			}
@@ -357,32 +389,66 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
-	public void salvar() {
+	public void salvar() throws Exception {
 
 		if (!validarDatas(this.contaAPagar.getDataDoc(), this.contaAPagar.getDataVencto())) {
 
-		} else {
-			Messages.addGlobalInfo("Data da entrada est� maior que a data de vencimento.");
-		}
+			if (!this.parcela.getTotalFormaPg().equals(BigDecimal.ZERO)) {
 
-		/*
-		 * if (!this.valor.equals(BigDecimal.ZERO)) { if
-		 * (totalRateio.equals(totalPagto)) {
-		 * 
-		 * List<Movimentacao> movimentos =
-		 * movimentacaoService.salvar(contaAPagar.getMovimentacoes());
-		 * 
-		 * for (ContaAPagar ca : listaParcelas) {
-		 * ca.setMovimentacoes(movimentos); contaAPagarService.salvar(ca); }
-		 * 
-		 * RequestContext request = RequestContext.getCurrentInstance();
-		 * request.addCallbackParam("sucesso", true);
-		 * Messages.addGlobalInfo("Registro salvor com sucesso."); pesquisar();
-		 * } else { Messages.
-		 * addGlobalError("Total do rateio diferente do total de pagamento"); }
-		 * } else { Messages.addGlobalError("Não foi informado nenhum valor");
-		 * }
-		 */
+				if (this.parcela.getTotalRateio().equals(this.parcela.getTotalFormaPg())) {
+
+					if (this.contaAPagar.getId() == null) {
+						this.contaAPagar.setVinculo(gerarVinculo.gerar(ContaAPagar.class));
+					} else {
+						contaAPagarService.excluirContas(contaApagarSelecionadas);
+					}
+
+					for (int i = 0; i < this.listaMovimentacoes.size(); i++) {
+						if (this.contaAPagar.getId() != null) {
+							this.listaMovimentacoes.get(i).setId(null);
+						}
+						this.listaMovimentacoes.get(i).setDataDoc(this.contaAPagar.getDataDoc());
+						this.listaMovimentacoes.get(i).setDataLanc(new Date());
+						this.listaMovimentacoes.get(i).setDocumento(this.contaAPagar.getNumDoc());
+						this.listaMovimentacoes.get(i).setVlrEntrada(null);
+						this.listaMovimentacoes.get(i).setPessoa(this.contaAPagar.getFornecedor());
+						this.listaMovimentacoes.get(i).setUsuario(obterUsuario());
+						this.listaMovimentacoes.get(i).setDocumento(this.contaAPagar.getNumDoc());
+					}
+
+					for (int i = 0; i < this.listaParcelas.size(); i++) {
+						this.listaParcelas.get(i).setDataDoc(this.contaAPagar.getDataDoc());
+						this.listaParcelas.get(i).setDataLanc(new Date());
+						this.listaParcelas.get(i).setNumDoc(this.contaAPagar.getNumDoc());
+						this.listaParcelas.get(i).setStatus("ABERTO");
+						this.listaParcelas.get(i).setFornecedor(this.contaAPagar.getFornecedor());
+						this.listaParcelas.get(i).setUsuario(obterUsuario());
+						this.listaParcelas.get(i).setVinculo(this.contaAPagar.getVinculo());
+
+					}
+
+					this.listaMovimentacoes = this.movtoServico.salvar(this.listaMovimentacoes);
+
+					for (int i = 0; i < this.listaParcelas.size(); i++) {
+						this.listaParcelas.get(i).setMovimentacoes(this.listaMovimentacoes);
+						contaAPagarService.salvar(this.listaParcelas.get(i));
+					}
+
+					RequestContext request = RequestContext.getCurrentInstance();
+					request.addCallbackParam("sucesso", true);
+					Messages.addGlobalInfo("Registro atualizado com sucesso.");
+
+					pesquisar();
+
+				} else {
+					Messages.addGlobalError("Total do rateio diferente do total de pagamento");
+				}
+			} else {
+				Messages.addGlobalError("Não foi informado nenhum valor para forma de pagamento");
+			}
+		} else {
+			Messages.addGlobalInfo("Data da entrada est� maior que a data de vencimento.");
+		}
 	}
 
 	public Date somaDias(Date data, int dias) {

@@ -23,12 +23,17 @@ public class ContaAPagarService implements Serializable {
 	}
 
 	@Transacional
+	public List<ContaAPagar> salvar(List<ContaAPagar> list) {
+		return dao.salvar(list);
+	}
+
+	@Transacional
 	public void excluir(ContaAPagar obj) {
 		dao.excluir(obj);
 	}
-	
+
 	@Transacional
-	public void excluirContas(List<ContaAPagar> contas) throws Exception{
+	public void excluirContas(List<ContaAPagar> contas) throws Exception {
 		dao.excluirContas(contas);
 	}
 
@@ -39,7 +44,7 @@ public class ContaAPagarService implements Serializable {
 	public ContaAPagar porId(Long id) {
 		return dao.porId(id);
 	}
-	
+
 	public List<ContaAPagar> porVinculo(Long vinculo) {
 		return dao.porVinculo(vinculo);
 	}
