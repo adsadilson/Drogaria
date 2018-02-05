@@ -47,7 +47,7 @@ public class Movimentacao implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "conta_id")
 	private PlanoConta planoConta = new PlanoConta();
-	
+
 	@ManyToOne
 	@JoinColumn(name = "conta_pai_id")
 	private PlanoConta planoContaPai = new PlanoConta();
@@ -81,7 +81,8 @@ public class Movimentacao implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private TipoLanc tipoLanc;
 
-	@Transient
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo_conta", length = 10)
 	private TipoConta tipoConta;
 
 	public Long getId() {

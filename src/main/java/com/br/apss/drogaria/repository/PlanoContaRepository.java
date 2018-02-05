@@ -108,13 +108,13 @@ public class PlanoContaRepository implements Serializable {
 			criteria.add(Restrictions.eq("status", filtro.getStatus()));
 		}
 		
-		if (filtro.getPlanoContaPai() != null) {
+		/*if (filtro.getPlanoContaPai() != null) {
 			criteria.add(Restrictions.eq("contaPai", filtro.getPlanoContaPai()));
 		}
 		
 		if (filtro.getPlanoConta() != null) {
 			criteria.add(Restrictions.eq("id", filtro.getPlanoConta().getId()));
-		}
+		}*/
 
 		return criteria;
 	}
