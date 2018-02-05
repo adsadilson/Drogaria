@@ -1,15 +1,14 @@
 package com.br.apss.drogaria.enums;
 
-public enum TipoConta {
+public enum TipoRelatorio {
 
-	CC("C/CORRENTES","CC"),
-	R("Receita","R"),
-	D("Despesa","D");
+	A("Analítica","A"),
+	S("Sintético","S");
 	
 	private String descricao;
 	private String sigla;
 	
-	private TipoConta(String descricao, String sigla) {
+	private TipoRelatorio(String descricao, String sigla) {
 		this.descricao = descricao;
 		this.sigla = sigla;
 	}

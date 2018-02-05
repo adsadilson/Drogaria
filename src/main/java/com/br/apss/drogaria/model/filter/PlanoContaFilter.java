@@ -1,6 +1,8 @@
 package com.br.apss.drogaria.model.filter;
 
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
+import com.br.apss.drogaria.model.PlanoConta;
 
 public class PlanoContaFilter {
 
@@ -8,6 +10,9 @@ public class PlanoContaFilter {
 	private TipoConta tipo;
 	private Boolean status;
 	private String origem;
+	private PlanoConta planoContaPai;
+	private PlanoConta planoConta;
+	private TipoRelatorio categoria;
 
 	public String getNome() {
 		return nome;
@@ -23,6 +28,22 @@ public class PlanoContaFilter {
 
 	public void setStatus(Boolean status) {
 		this.status = status;
+	}
+
+	public PlanoConta getPlanoContaPai() {
+		return planoContaPai;
+	}
+
+	public void setPlanoContaPai(PlanoConta planoContaPai) {
+		this.planoContaPai = planoContaPai;
+	}
+
+	public TipoRelatorio getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(TipoRelatorio categoria) {
+		this.categoria = categoria;
 	}
 
 	public void setOrigem(String origem) {
@@ -43,6 +64,14 @@ public class PlanoContaFilter {
 
 	public void setTipo(TipoConta tipo) {
 		this.tipo = tipo;
+	}
+
+	public PlanoConta getPlanoConta() {
+		return planoConta;
+	}
+
+	public void setPlanoConta(PlanoConta planoConta) {
+		this.planoConta = planoConta;
 	}
 
 }

@@ -161,7 +161,7 @@ header {
 	text-align: center !important;
 }
 
-.ui-calendar input {
+.ui-calendar.alinhaCalendar input {
 	text-align: center !important;
 }
 

@@ -9,10 +9,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
 
 @Entity
 @Table(name = "plano_conta")
@@ -34,6 +37,17 @@ public class PlanoConta implements Serializable {
 
 	@Column(name = "status", length = 1)
 	private boolean status = true;
+
+	@Column(name = "mascara", length = 30)
+	private String mascara;
+
+	@ManyToOne
+	@JoinColumn(name = "conta_pai_id")
+	private PlanoConta contaPai;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "categoria", length = 30)
+	private TipoRelatorio categoria;
 
 	public Long getId() {
 		return id;
@@ -65,6 +79,30 @@ public class PlanoConta implements Serializable {
 
 	public void setTipo(TipoConta tipo) {
 		this.tipo = tipo;
+	}
+
+	public String getMascara() {
+		return mascara;
+	}
+
+	public void setMascara(String mascara) {
+		this.mascara = mascara;
+	}
+
+	public PlanoConta getContaPai() {
+		return contaPai;
+	}
+
+	public void setContaPai(PlanoConta contaPai) {
+		this.contaPai = contaPai;
+	}
+
+	public TipoRelatorio getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(TipoRelatorio categoria) {
+		this.categoria = categoria;
 	}
 
 	public boolean isInclusao() {

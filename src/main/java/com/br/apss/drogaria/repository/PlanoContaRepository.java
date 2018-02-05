@@ -16,6 +16,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -67,6 +68,23 @@ public class PlanoContaRepository implements Serializable {
 			return null;
 		}
 	}
+	
+	public PlanoConta porMascara(String mascara) {
+		try {
+			return manager.createQuery("from PlanoConta where mascara = :mascara", PlanoConta.class)
+					.setParameter("mascara", mascara).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+	
+	public List<PlanoConta> listarContasPais(PlanoConta contaPai, TipoConta tipo, TipoRelatorio categoria) {
+		return manager.createQuery("from PlanoConta where contaPai = :contaPai and tipo = :tipo "
+				+ "and categoria = :categoria", PlanoConta.class)
+				.setParameter("contaPai", contaPai)
+				.setParameter("tipo", tipo)
+				.setParameter("categoria", categoria).getResultList();
+	}
 
 	@SuppressWarnings({ "deprecation" })
 	private Criteria criarCriteriaParaFiltro(PlanoContaFilter filtro) {
@@ -81,9 +99,21 @@ public class PlanoContaRepository implements Serializable {
 		if (filtro.getTipo() != null) {
 			criteria.add(Restrictions.eq("tipo", filtro.getTipo()));
 		}
+		
+		if (filtro.getCategoria() != null) {
+			criteria.add(Restrictions.eq("categoria", filtro.getCategoria()));
+		}
 
 		if (filtro.getStatus() != null) {
 			criteria.add(Restrictions.eq("status", filtro.getStatus()));
+		}
+		
+		if (filtro.getPlanoContaPai() != null) {
+			criteria.add(Restrictions.eq("contaPai", filtro.getPlanoContaPai()));
+		}
+		
+		if (filtro.getPlanoConta() != null) {
+			criteria.add(Restrictions.eq("id", filtro.getPlanoConta().getId()));
 		}
 
 		return criteria;
@@ -92,7 +122,7 @@ public class PlanoContaRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<PlanoConta> filtrados(PlanoContaFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
-		return criteria.addOrder(Order.asc("nome")).list();
+		return criteria.addOrder(Order.asc("mascara")).list();
 	}
 
 	public int quantidadeFiltrados(PlanoContaFilter filtro) {

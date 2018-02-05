@@ -11,15 +11,20 @@
 
 		<style>
 .rotulo {
-	width: 100px;
+	width: 125px;
 }
 
 .campo {
-	width: 250px;
+	width: 320px;
 }
 
 .rotulo60 {
 	width: 85px !important;
+}
+
+.red {
+	color: black !important;
+	font-weight: bold !important;
 }
 </style>
 
@@ -80,13 +85,14 @@
 			<p:dataTable id="tblPlanoConta"
 				value="#{planoContaBean.listaPlanoContas}" var="planoConta"
 				style="margin-top: 20px" lazy="false"
-				emptyMessage="Nenhum registro encontrado." rows="11"
-				paginator="true" paginatorAlwaysVisible="false"
-				paginatorPosition="bottom"
+				emptyMessage="Nenhum registro encontrado." paginator="true"
+				paginatorAlwaysVisible="false" paginatorPosition="bottom"
+				scrollable="true" scrollHeight="390"
+				rowStyleClass="#{planoConta.categoria == 'S' ? 'red' : null}"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
 				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
 
-				<p:column headerText="Ação" style="width: 70px; text-align: center"
+				<p:column headerText="Ação" style="width: 100px; text-align: center"
 					exportable="false">
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
 						styleClass="semPreenchimento"
@@ -104,6 +110,15 @@
 							target="#{planoContaBean.planoContaSelecionado}"
 							value="#{planoConta}" />
 					</p:commandButton>
+					<p:commandButton icon="ui-icon-copy" title="Clonar"
+						styleClass="semPreenchimento"
+						disabled="#{planoConta.categoria == 'S' ? true : false}"
+						oncomplete="PF('dialogCadastro').show()" process="@this"
+						update="dgCadastro" action="#{planoContaBean.clonar()}">
+						<f:setPropertyActionListener
+							target="#{planoContaBean.planoContaSelecionado}"
+							value="#{planoConta}" />
+					</p:commandButton>
 				</p:column>
 
 				<p:column headerText="Código" style="width:70px; text-align:center;"
@@ -111,29 +126,34 @@
 					<h:outputText value="#{planoConta.id}" />
 				</p:column>
 
-				<p:column headerText="Nome do Plano de Conta"
-					sortBy="#{planoConta.nome}">
+				<p:column headerText="Mascara"
+					style="width:110px; text-align:center;"
+					sortBy="#{planoConta.mascara}">
+					<h:outputText value="#{planoConta.mascara}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{planoConta.nome}"
+					style="width:450px;">
 					<h:outputText value="#{planoConta.nome}" />
 				</p:column>
 
 				<p:column headerText="Tipo" sortBy="#{planoConta.tipo}"
-					style="width: 120px">
-					<h:outputText value="#{planoConta.tipo.descricao}" />
-				</p:column>
-
-
-				<p:column headerText="Sigla" sortBy="#{planoConta.tipo}"
-					style="text-align:center; width: 60px">
+					style="width: 60px; text-align:center">
 					<h:outputText value="#{planoConta.tipo.sigla}" />
 				</p:column>
 
-				<p:column headerText="Status" sortBy="#{planoConta.status}"
-					style="text-align: center; width: 100px">
-					<h:outputText value="#{planoConta.status ? 'ATIVO' : 'INATIVO'}" />
+				<p:column headerText="Categoria" sortBy="#{planoConta.categoria}"
+					style="text-align:center; width: 100px">
+					<h:outputText value="#{planoConta.categoria}" />
 				</p:column>
 
-				<p:column headerText="">
+				<p:column headerText="Ativo" sortBy="#{planoConta.status}"
+					style="text-align: center; width: 80px">
+					<h:outputText value="#{planoConta.status ? 'S' : 'N'}" />
 				</p:column>
+
+				<p:column />
+
 			</p:dataTable>
 
 			<p:confirmDialog header="Confirmação de Exclusão"
@@ -155,8 +175,9 @@
 		</h:form>
 
 		<p:dialog
-			header="#{planoContaBean.planoConta.inclusao ?'Plano de Conta - Inclusão' :'Plano de Conta - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="390" height="150"
+			header="#{planoContaBean.planoConta.inclusao ?'
+			Plano de Conta - Inclusão' :'Plano de Conta - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="490" height="260"
 			resizable="true" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
@@ -165,8 +186,41 @@
 				<h:panelGrid columns="2" columnClasses="rotulo, campo"
 					style="margin-top:10px;">
 
-					<p:outputLabel value="Tipo" for="tp" />
-					<p:selectOneMenu id="tp" required="true" style="width:100px;"
+					<p:outputLabel value="Código" />
+
+					<h:panelGroup>
+						<p:inputText value="#{planoContaBean.planoConta.id}"
+							disabled="true" size="7" />
+						<p:outputLabel value="Ativo"
+							style="margin-left:15px; margin-right:15px;" />
+						<p:selectBooleanCheckbox
+							value="#{planoContaBean.planoConta.status}" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Mascara" />
+					<p:inputMask mask="9.99.99.99" style="width:170px;"
+						value="#{planoContaBean.planoConta.mascara}" />
+
+					<p:outputLabel value="Conta Pai" />
+					<p:selectOneMenu id="txtContaPai" style="width:300px;"
+						immediate="true" autoWidth="false"
+						disabled="#{planoContaBean.clonarSimNao}"
+						value="#{planoContaBean.planoConta.contaPai}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{planoContaBean.listaContaPais}"
+							var="contaPai"
+							itemLabel="#{contaPai.mascara} - #{contaPai.nome} "
+							itemValue="#{contaPai}" />
+						<p:ajax event="change" process="@this" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Descrição" for="nome" />
+					<p:inputText id="nome" style="width:97%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{planoContaBean.planoConta.nome}" />
+
+					<p:outputLabel value="Tipo da Conta" for="tp" />
+					<p:selectOneMenu id="tp" required="true" style="width:150px;"
 						requiredMessage="O campo 'TIPO' é obrigatório."
 						value="#{planoContaBean.planoConta.tipo}">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
@@ -174,19 +228,19 @@
 							itemLabel="#{tp.sigla} - #{tp.descricao} " itemValue="#{tp}" />
 					</p:selectOneMenu>
 
+					<p:outputLabel value="Categoria" for="cat" />
+					<p:selectOneMenu id="cat" required="true" style="width:150px;"
+						requiredMessage="O campo 'CATEGORIA' é obrigatório."
+						value="#{planoContaBean.planoConta.categoria}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{planoContaBean.tipoRelat}" var="tp"
+							itemLabel="#{tp.sigla} - #{tp.descricao} " itemValue="#{tp}" />
+					</p:selectOneMenu>
 
-					<p:outputLabel value="Nome" for="nome" />
-					<p:inputText id="nome" style="width:98%" maxlength="80"
-						required="true" requiredMessage="O campo 'NOME' é obrigatório."
-						value="#{planoContaBean.planoConta.nome}" />
-
-					<p:outputLabel value="Ativo" />
-					<p:selectBooleanCheckbox
-						value="#{planoContaBean.planoConta.status}" />
 
 				</h:panelGrid>
 
-				<p:toolbar style="margin-top: 10px; margin-button:5px"
+				<p:toolbar style="margin-top: 20px; margin-button:10px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"

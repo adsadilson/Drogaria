@@ -19,6 +19,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
 
 @Entity
@@ -46,6 +47,10 @@ public class Movimentacao implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "conta_id")
 	private PlanoConta planoConta = new PlanoConta();
+	
+	@ManyToOne
+	@JoinColumn(name = "conta_pai_id")
+	private PlanoConta planoContaPai = new PlanoConta();
 
 	@Transient
 	private PlanoConta contaOrigem = new PlanoConta();
@@ -75,6 +80,9 @@ public class Movimentacao implements Serializable {
 	@Column(name = "tipo_lanc", length = 5)
 	@Enumerated(EnumType.STRING)
 	private TipoLanc tipoLanc;
+
+	@Transient
+	private TipoConta tipoConta;
 
 	public Long getId() {
 		return id;
@@ -196,6 +204,22 @@ public class Movimentacao implements Serializable {
 	@Transient
 	public boolean isNotInclusao() {
 		return !isInclusao();
+	}
+
+	public TipoConta getTipoConta() {
+		return tipoConta;
+	}
+
+	public void setTipoConta(TipoConta tipoConta) {
+		this.tipoConta = tipoConta;
+	}
+
+	public PlanoConta getPlanoContaPai() {
+		return planoContaPai;
+	}
+
+	public void setPlanoContaPai(PlanoConta planoContaPai) {
+		this.planoContaPai = planoContaPai;
 	}
 
 	@Override

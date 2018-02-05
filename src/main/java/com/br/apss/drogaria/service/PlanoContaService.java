@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.repository.PlanoContaRepository;
@@ -32,6 +33,10 @@ public class PlanoContaService implements Serializable {
 		return dao.filtrados(filtro);
 	}
 
+	public List<PlanoConta> listarContasPais(PlanoConta contaPaiId, TipoConta tipo, TipoRelatorio categoria) {
+		return dao.listarContasPais(contaPaiId, tipo, categoria);
+	}
+
 	public List<PlanoConta> listarTodos() {
 		return dao.listarTodos();
 	}
@@ -43,9 +48,13 @@ public class PlanoContaService implements Serializable {
 	public PlanoConta porNome(String nome) {
 		return dao.porNome(nome);
 	}
-	
+
 	public PlanoConta porNomeTipo(String nome, TipoConta tipo) {
 		return dao.porNomeTipo(nome, tipo);
+	}
+
+	public PlanoConta porMascara(String mascara) {
+		return dao.porMascara(mascara);
 	}
 
 	public int quantidadeFiltrados(PlanoContaFilter filtro) {

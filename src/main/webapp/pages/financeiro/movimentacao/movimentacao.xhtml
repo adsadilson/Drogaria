@@ -12,11 +12,11 @@
 		<style>
 <!--
 .rotuloDesRec {
-	width: 100px !important;
+	width: 125px !important;
 }
 
 .campoDesRec {
-	width: 350px !important;
+	width: 400px !important;
 }
 
 .rotuloFiltro1 {
@@ -38,13 +38,22 @@
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo Lançamento"
+					<p:commandButton icon="fa fa-file-o" value="Novo"
 						style="margin-right: 3px;"
 						disabled="#{movimentacaoBean.filtro.planoConta.id == null}"
 						oncomplete="PF('dialogCadDesp').show()" process="@this"
 						update=":frm-cadastro-desp"
 						action="#{movimentacaoBean.novoCadastro}">
 						<p:resetInput target=":frm-cadastro-desp" />
+					</p:commandButton>
+					
+					<p:commandButton icon="fa fa-file-o" value="Transferência"
+						style="margin-right: 3px;"
+						disabled="#{movimentacaoBean.filtro.planoConta.id == null}"
+						oncomplete="PF('dialogTransf').show()" process="@this"
+						update=":frmTransf"
+						action="#{movimentacaoBean.novoCadastro}">
+						<p:resetInput target=":frmTransf" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
@@ -223,7 +232,7 @@
 
 		<p:dialog header="Lançamento em conta" widgetVar="dialogCadDesp"
 			modal="true" resizable="false" draggable="true" id="dgCadDesp"
-			closeOnEscape="true" width="490" height="245" appendTo="@(body)">
+			closeOnEscape="true" width="530" height="275" appendTo="@(body)">
 
 			<h:form id="frm-cadastro-desp" prependId="false">
 
@@ -232,25 +241,40 @@
 				<h:panelGrid id="panelCadastroDesp" columns="2"
 					columnClasses="rotuloDesRec,campoDesRec" style="margin-top:10px;">
 
-					<p:outputLabel for="txtTipo" value="Tipo" />
-					<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:92%;"
-						value="#{movimentacaoBean.tipoConta}"
+					<p:outputLabel for="txtTipo" value="Tipo da Conta" />
+					<p:selectOneMenu id="txtTipo" autoWidth="false"
+						style="width:370px;" value="#{movimentacaoBean.movto.tipoConta}"
 						disabled="#{movimentacaoBean.movto.notInclusao}"
-						converter="omnifaces.SelectItemsConverter" required="true"
-						requiredMessage="Selecione tipo">
+						converter="omnifaces.SelectItemsConverter">
 						<f:selectItem itemLabel="Selecione o tipo de conta"
-							itemValue="#{null}" />
+							noSelectionOption="true" itemValue="#{null}" />
 						<f:selectItems value="#{movimentacaoBean.listaTiposContas}"
 							var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
 							itemValue="#{tipo}" />
 						<p:ajax event="change" process="@this"
-							listener="#{movimentacaoBean.carregarContasLanctos}"
-							update="txtConta labelVlrs txtVlrs" />
+							listener="#{movimentacaoBean.carregarCategorias}"
+							update="txtCategoria txtConta labelVlrs txtVlrs" />
+					</p:selectOneMenu>
+
+					<p:outputLabel for="txtCategoria" value="Categoria" />
+					<p:selectOneMenu id="txtCategoria"
+						converter="omnifaces.SelectItemsConverter" required="true"
+						requiredMessage="Selecione a categoria." autoWidth="false"
+						filter="true" filterMatchMode="contains" style="width:370px;"
+						value="#{movimentacaoBean.movto.planoContaPai}">
+						<f:selectItem itemLabel="Selecione a categoria"
+							itemValue="#{null}" />
+						<f:selectItems value="#{movimentacaoBean.listaCategorias}"
+							var="categoria" itemLabel="#{categoria.nome}"
+							itemValue="#{categoria}" />
+						<p:ajax event="change" process="@this"
+							listener="#{movimentacaoBean.carregarContasLanctos()}"
+							update="txtConta" />
 					</p:selectOneMenu>
 
 					<p:outputLabel for="txtConta" value="Conta" />
 					<p:selectOneMenu id="txtConta" required="true" autoWidth="false"
-						filter="true" filterMatchMode="contains" style="width:92%;"
+						filter="true" filterMatchMode="contains" style="width:370px;"
 						converter="omnifaces.SelectItemsConverter"
 						value="#{movimentacaoBean.movto.planoConta}"
 						requiredMessage="Selecione conta">
@@ -274,15 +298,15 @@
 
 					<h:panelGroup id="labelVlrs">
 						<p:outputLabel for="txtVlrSaida" value="Saída"
-							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}" />
+							rendered="#{movimentacaoBean.movto.tipoConta.sigla=='D'}" />
 						<p:outputLabel for="txtVlrEntrada" value="Entrada"
-							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}" />
+							rendered="#{movimentacaoBean.movto.tipoConta.sigla!='D'}" />
 					</h:panelGroup>
 
 					<h:panelGroup id="txtVlrs">
 
 						<p:inputText id="txtVlrEntrada" required="true"
-							rendered="#{movimentacaoBean.tipoConta.sigla!='D'}"
+							rendered="#{movimentacaoBean.movto.tipoConta.sigla!='D'}"
 							requiredMessage="Informe um valor"
 							onfocus="formatoMoeda('txtVlrEntrada')"
 							value="#{movimentacaoBean.movto.vlrEntrada}" size="15">
@@ -292,7 +316,7 @@
 
 
 						<p:inputText id="txtVlrSaida" required="true"
-							rendered="#{movimentacaoBean.tipoConta.sigla=='D'}"
+							rendered="#{movimentacaoBean.movto.tipoConta.sigla=='D'}"
 							requiredMessage="Informe um valor"
 							onfocus="formatoMoeda('txtVlrSaida')"
 							value="#{movimentacaoBean.movto.vlrSaida}" size="15">
@@ -314,13 +338,81 @@
 							oncomplete="PF('dialogCadDesp').hide()" immediate="true" />
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							id="salvarCommandButtonDesp"
-							oncomplete="if(args.sucesso == true) PF('dialogCadDesp').hide()"
 							actionListener="#{movimentacaoBean.salvar}"
 							update=":frm-cadastro-desp :frm-tabela">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>
 				<p:defaultCommand target="salvarCommandButtonDesp" />
+			</h:form>
+
+		</p:dialog>
+
+		<!-- LANÇAMENTO DE TRANSFERENCIA -->
+
+		<p:dialog header="Transferência entre conta(s)" widgetVar="dialogTransf"
+			modal="true" resizable="false" draggable="true" id="dgTransf"
+			closeOnEscape="true" width="530" height="205" appendTo="@(body)">
+
+			<h:form id="frmTransf" prependId="false">
+
+				<p:growl autoUpdate="true" />
+
+				<h:panelGrid id="panelTransf" columns="2"
+					columnClasses="rotuloDesRec,campoDesRec" style="margin-top:10px;">
+
+					<p:outputLabel for="txtTransf" value="Conta" />
+					<p:selectOneMenu id="txtTransf" required="true" autoWidth="false"
+						filter="true" filterMatchMode="contains" style="width:370px;"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{movimentacaoBean.movto.planoConta}"
+						requiredMessage="Selecione conta">
+						<f:selectItem itemLabel="Selecione uma conta destino"
+							itemValue="#{null}" />
+						<f:selectItems value="#{movimentacaoBean.contaCorrentes}"
+							var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel for="txtDescTransf" value="Descrição" />
+					<p:inputText id="txtDescTransf" size="45"
+						value="#{movimentacaoBean.movto.descricao}" required="true"
+						requiredMessage="Informe a descrição" />
+
+					<p:outputLabel for="txtDataTransf" value="Data Doc." />
+					<p:calendar id="txtDataTransf" size="15" pattern="dd/MM/yyyy"
+						locale="pt_BR" required="true"
+						onfocus="mascaraDtCalendar('txtDataTransf')"
+						value="#{movimentacaoBean.movto.dataDoc}"
+						requiredMessage="Informe a data" />
+
+					<p:outputLabel for="txtVlrEntradaTransf" value="Entrada" />
+					<p:inputText id="txtVlrEntradaTransf" required="true"
+						requiredMessage="Informe um valor"
+						onfocus="formatoMoeda('txtVlrEntradaTransf')"
+						value="#{movimentacaoBean.movto.vlrEntrada}" size="15">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+					<p:outputLabel value="Documento" />
+					<p:inputText size="15" value="#{movimentacaoBean.movto.documento}" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Cancelar" icon="fa fa-remove"
+							style="margin-right: 3px;"
+							oncomplete="PF('dialogTransf').hide()" immediate="true" />
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							id="salvarCommandButtonTransf"
+							oncomplete="if(args.sucesso == true) PF('dialogTransf').hide()"
+							actionListener="#{movimentacaoBean.salvar}"
+							update=":frmTransf :frm-tabela">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
+				<p:defaultCommand target="salvarCommandButtonTransf" />
 			</h:form>
 
 		</p:dialog>

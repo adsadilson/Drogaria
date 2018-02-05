@@ -13,6 +13,7 @@ import org.omnifaces.util.Messages;
 import org.primefaces.context.RequestContext;
 
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.PlanoContaService;
@@ -32,9 +33,12 @@ public class PlanoContaBean implements Serializable {
 
 	private List<PlanoConta> listaPlanoContas = new ArrayList<PlanoConta>();
 
+	private List<PlanoConta> listaContaPais;
+
+	private boolean clonarSimNao = false;
+
 	@Inject
 	private PlanoContaService planoContaService;
-	
 
 	/******************** Metodos ***********************/
 
@@ -47,24 +51,36 @@ public class PlanoContaBean implements Serializable {
 
 	public void salvar() {
 
-		PlanoConta planoContaExistente = planoContaService.porNomeTipo(planoConta.getNome(),planoConta.getTipo());
+		PlanoConta planoContaExistente = planoContaService.porMascara(planoConta.getMascara());
 		if (planoContaExistente != null && !planoContaExistente.equals(planoConta)) {
-			throw new NegocioException("Já existe um registro com essa nome informado.");
+			throw new NegocioException("Já existe um registro com essa mascara informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
 		planoContaService.salvar(planoConta);
+		filtro = new PlanoContaFilter();
+		clonarSimNao = false;
 		Messages.addGlobalInfo("Registro salvor com sucesso.");
 		pesquisar();
 	}
 
 	public void editar() {
 		this.planoConta = planoContaService.porId(this.planoContaSelecionado.getId());
+		carregarListaContaPai();
+	}
+
+	public void clonar() {
+		this.planoConta = planoContaService.porId(this.planoContaSelecionado.getId());
+		this.planoConta.setId(null);
+		clonarSimNao = true;
+		carregarListaContaPai();
 	}
 
 	public void novo() {
 		planoConta = new PlanoConta();
+		listaContaPais = new ArrayList<PlanoConta>();
+		carregarListaContaPai();
 	}
 
 	public void novoFiltro() {
@@ -84,17 +100,21 @@ public class PlanoContaBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
-	
-	public List<TipoConta> getTipoContas(){
+
+	public void carregarListaContaPai() {
+		filtro.setCategoria(TipoRelatorio.S);
+		listaContaPais = planoContaService.filtrados(filtro);
+	}
+
+	public List<TipoConta> getTipoContas() {
 		return Arrays.asList(TipoConta.values());
 	}
-	
+
+	public List<TipoRelatorio> getTipoRelat() {
+		return Arrays.asList(TipoRelatorio.values());
+	}
 
 	/******************** Getters e Setters ***************************/
-
-	public PlanoContaFilter getFiltro() {
-		return filtro;
-	}
 
 	public PlanoConta getPlanoConta() {
 		return planoConta;
@@ -102,10 +122,6 @@ public class PlanoContaBean implements Serializable {
 
 	public void setPlanoConta(PlanoConta planoConta) {
 		this.planoConta = planoConta;
-	}
-
-	public void setFiltro(PlanoContaFilter filtro) {
-		this.filtro = filtro;
 	}
 
 	public List<PlanoConta> getListaPlanoContas() {
@@ -122,6 +138,30 @@ public class PlanoContaBean implements Serializable {
 
 	public void setPlanoContaSelecionado(PlanoConta planoContaSelecionado) {
 		this.planoContaSelecionado = planoContaSelecionado;
+	}
+
+	public List<PlanoConta> getListaContaPais() {
+		return listaContaPais;
+	}
+
+	public void setListaContaPais(List<PlanoConta> listaContaPais) {
+		this.listaContaPais = listaContaPais;
+	}
+
+	public boolean isClonarSimNao() {
+		return clonarSimNao;
+	}
+
+	public void setClonarSimNao(boolean clonarSimNao) {
+		this.clonarSimNao = clonarSimNao;
+	}
+
+	public PlanoContaFilter getFiltro() {
+		return filtro;
+	}
+
+	public void setFiltro(PlanoContaFilter filtro) {
+		this.filtro = filtro;
 	}
 
 }

@@ -25,6 +25,7 @@ import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
+import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.Usuario;
@@ -41,19 +42,28 @@ public class MovimentacaoBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Movimentacao movto = new Movimentacao();
+	private Movimentacao movto;
+
 	private Movimentacao movtoSelecionado;
+
 	private MovimentacaoFilter filtro;
+
 	private List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
+
 	private List<PlanoConta> listaPlanoContas = new ArrayList<PlanoConta>();
+
+	private List<PlanoConta> listaCategorias = new ArrayList<PlanoConta>();
+
 	@DecimalMin(value = "0.01", message = "O 'VALOR' tem quer ser maior que 0,00")
 	private BigDecimal valor = BigDecimal.ZERO;
+
 	private LazyDataModel<Movimentacao> model;
+
 	private BigDecimal saldo;
 
-	private TipoConta tipoConta;
-
 	private List<TipoConta> listaTiposContas;
+
+	private PlanoConta planoConta;
 
 	private Long contaDestino;
 
@@ -80,6 +90,7 @@ public class MovimentacaoBean implements Serializable {
 	public List<PlanoConta> getContas() {
 		PlanoContaFilter cc = new PlanoContaFilter();
 		cc.setTipo(TipoConta.CC);
+		cc.setCategoria(TipoRelatorio.A);
 		return contaService.filtrados(cc);
 	}
 
@@ -224,31 +235,31 @@ public class MovimentacaoBean implements Serializable {
 		Messages.addGlobalInfo("Registro salvo com sucesso");
 
 	}
-	
-	public void carregarInfo(){
+
+	public void carregarInfo() {
 		this.movto = movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movtoSelecionado.getId());
 	}
 
 	public void editar() {
 		List<Movimentacao> m = movimentacaoService.porVinculo(movtoSelecionado.getVinculo());
 		movto = m.get(0);
+		movto.setTipoConta(this.movto.getPlanoConta().getTipo());
 		if (movto.getTipoLanc().getSigla().contains("CC")) {
-			tipoConta = movto.getPlanoConta().getTipo();
 			if (movto.getId().equals(movtoSelecionado.getId())) {
 				Movimentacao mm = movimentacaoService.porVinculo(movtoSelecionado.getVinculo(), movto.getId());
 				filtro.setPlanoConta(mm.getPlanoConta());
 			}
 		} else {
-			this.tipoConta = this.movto.getPlanoConta().getTipo();
-			if (this.tipoConta.getSigla().contains("R")) {
+			if (this.movto.getTipoConta().getSigla().contains("R")) {
 				this.movto.setVlrEntrada(this.movto.getVlrSaida());
 				this.movto.setVlrSaida(null);
-			} else if (this.tipoConta.getSigla().contains("D")) {
+			} else if (this.movto.getTipoConta().getSigla().contains("D")) {
 				this.movto.setVlrSaida(this.movto.getVlrEntrada());
 				this.movto.setVlrEntrada(null);
 			}
 		}
 		carregarListaTipoContas();
+		carregarCategorias();
 		carregarContasLanctos();
 
 	}
@@ -296,12 +307,12 @@ public class MovimentacaoBean implements Serializable {
 			this.movto.setVinculo(idVinculo.gerar(Movimentacao.class));
 			while (contador <= 1) {
 				if (contador == 0) {
-					if (this.tipoConta.getSigla().contains("R")) {
+					if (this.movto.getTipoConta().getSigla().contains("R")) {
 						this.movto.setVlrSaida(this.movto.getVlrEntrada());
 						this.valor = this.movto.getVlrEntrada();
 						this.movto.setVlrEntrada(null);
 						this.movto.setTipoLanc(TipoLanc.CR);
-					} else if (this.tipoConta.getSigla().contains("D")) {
+					} else if (this.movto.getTipoConta().getSigla().contains("D")) {
 						this.movto.setVlrEntrada(this.movto.getVlrSaida());
 						this.valor = this.movto.getVlrSaida();
 						this.movto.setVlrSaida(null);
@@ -312,11 +323,11 @@ public class MovimentacaoBean implements Serializable {
 						this.movto.setTipoLanc(TipoLanc.CC);
 					}
 				} else {
-					if (this.tipoConta.getSigla().contains("R")) {
+					if (this.movto.getTipoConta().getSigla().contains("R")) {
 						this.movto.setVlrEntrada(this.valor);
 						this.movto.setVlrSaida(null);
 						this.movto.setTipoLanc(TipoLanc.CR);
-					} else if (this.tipoConta.getSigla().contains("D")) {
+					} else if (this.movto.getTipoConta().getSigla().contains("D")) {
 						this.movto.setVlrSaida(this.valor);
 						this.movto.setVlrEntrada(null);
 						this.movto.setTipoLanc(TipoLanc.CD);
@@ -352,20 +363,29 @@ public class MovimentacaoBean implements Serializable {
 	}
 
 	public void carregarListaTipoContas() {
-		this.listaTiposContas = Arrays.asList(TipoConta.values());
+		this.listaTiposContas = Arrays.asList(TipoConta.D, TipoConta.R);
 	}
 
 	public void carregarContasLanctos() {
+		listaPlanoContas = new ArrayList<>();
+		if (null != this.movto.getTipoConta()) {
+			listaPlanoContas = contaService.listarContasPais(this.movto.getPlanoContaPai(),
+					this.movto.getTipoConta(), TipoRelatorio.A);
+		}
+	}
+
+	public void carregarCategorias() {
 		PlanoContaFilter cl = new PlanoContaFilter();
-		if (null != this.tipoConta) {
-			cl.setTipo(this.tipoConta);
+		listaCategorias = new ArrayList<>();
+		if (null != this.movto.getTipoConta()) {
+			cl.setTipo(this.movto.getTipoConta());
 			cl.setStatus(true);
-			listaPlanoContas = contaService.filtrados(cl);
-			if (cl.getTipo().getSigla().contains("CC")) {
-				listaPlanoContas = getContaCorrentes();
+			cl.setCategoria(TipoRelatorio.S);
+			listaCategorias = contaService.filtrados(cl);
+			if (movto.isInclusao()) {
+				listaPlanoContas.clear();
 			}
-		} else {
-			listaPlanoContas = new ArrayList<>();
+
 		}
 	}
 
@@ -474,12 +494,20 @@ public class MovimentacaoBean implements Serializable {
 		this.listaTiposContas = listaTiposContas;
 	}
 
-	public TipoConta getTipoConta() {
-		return tipoConta;
+	public PlanoConta getPlanoConta() {
+		return planoConta;
 	}
 
-	public void setTipoConta(TipoConta tipoConta) {
-		this.tipoConta = tipoConta;
+	public void setPlanoConta(PlanoConta planoConta) {
+		this.planoConta = planoConta;
+	}
+
+	public List<PlanoConta> getListaCategorias() {
+		return listaCategorias;
+	}
+
+	public void setListaCategorias(List<PlanoConta> listaCategorias) {
+		this.listaCategorias = listaCategorias;
 	}
 
 }
