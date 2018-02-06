@@ -126,7 +126,7 @@
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
 				scrollHeight="350" rowStyleClass="#{cp.dias le 0 ? null : 'red'}"
-				selection="#{contaAPagarBean.contaApagarSelecionadas}"
+				selection="#{contaAPagarBean.contaApagarSelecionadas}" 
 				rowKey="#{cp.id}">
 
 				<p:ajax event="rowSelect" update="toolbar-botoes toolbar-totais"
@@ -134,10 +134,10 @@
 				<p:ajax event="rowUnselect" update="toolbar-botoes toolbar-totais"
 					listener="#{contaAPagarBean.rowUnSelect}" />
 				<p:ajax event="toggleSelect" update="toolbar-botoes toolbar-totais"
-					listener="#{contaAPagarBean.rowToggleSelect}" />
+					listener="#{contaAPagarBean.onRowSelectAll}" />
 				<p:ajax event="rowSelectCheckbox"
 					update="toolbar-botoes toolbar-totais"
-					listener="#{contaAPagarBean.rowSelect}" />
+					listener="#{contaAPagarBean.rowSelectCheckBox}" />
 				<p:ajax event="rowUnselectCheckbox"
 					update="toolbar-botoes toolbar-totais"
 					listener="#{contaAPagarBean.rowUnSelect}" />

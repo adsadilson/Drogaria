@@ -31,7 +31,7 @@
 				<f:selectItems value="#{contaAPagarBean.listaTipoContas}" var="tipo"
 					itemLabel="#{tipo.sigla} - #{tipo.descricao}" itemValue="#{tipo}" />
 				<p:ajax event="change" process="@this"
-					listener="#{contaAPagarBean.carregarContasLanctos}"
+					listener="#{contaAPagarBean.carregarContasPorTipoCategorias}"
 					update="combConta" />
 			</p:selectOneMenu>
 

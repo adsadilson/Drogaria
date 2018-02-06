@@ -68,7 +68,7 @@ public class PlanoContaRepository implements Serializable {
 			return null;
 		}
 	}
-	
+
 	public PlanoConta porMascara(String mascara) {
 		try {
 			return manager.createQuery("from PlanoConta where mascara = :mascara", PlanoConta.class)
@@ -77,13 +77,20 @@ public class PlanoContaRepository implements Serializable {
 			return null;
 		}
 	}
-	
+
 	public List<PlanoConta> listarContasPais(PlanoConta contaPai, TipoConta tipo, TipoRelatorio categoria) {
-		return manager.createQuery("from PlanoConta where contaPai = :contaPai and tipo = :tipo "
-				+ "and categoria = :categoria", PlanoConta.class)
-				.setParameter("contaPai", contaPai)
-				.setParameter("tipo", tipo)
-				.setParameter("categoria", categoria).getResultList();
+		return manager
+				.createQuery(
+						"from PlanoConta where contaPai = :contaPai and tipo = :tipo " + "and categoria = :categoria",
+						PlanoConta.class)
+				.setParameter("contaPai", contaPai).setParameter("tipo", tipo).setParameter("categoria", categoria)
+				.getResultList();
+	}
+
+	public List<PlanoConta> listarContasPorTipoCategorias(TipoConta tipo, TipoRelatorio categoria) {
+		return manager
+				.createQuery("from PlanoConta where tipo = :tipo " + "and categoria = :categoria", PlanoConta.class)
+				.setParameter("tipo", tipo).setParameter("categoria", categoria).getResultList();
 	}
 
 	@SuppressWarnings({ "deprecation" })
@@ -99,7 +106,7 @@ public class PlanoContaRepository implements Serializable {
 		if (filtro.getTipo() != null) {
 			criteria.add(Restrictions.eq("tipo", filtro.getTipo()));
 		}
-		
+
 		if (filtro.getCategoria() != null) {
 			criteria.add(Restrictions.eq("categoria", filtro.getCategoria()));
 		}
@@ -107,14 +114,16 @@ public class PlanoContaRepository implements Serializable {
 		if (filtro.getStatus() != null) {
 			criteria.add(Restrictions.eq("status", filtro.getStatus()));
 		}
-		
-		/*if (filtro.getPlanoContaPai() != null) {
-			criteria.add(Restrictions.eq("contaPai", filtro.getPlanoContaPai()));
-		}
-		
-		if (filtro.getPlanoConta() != null) {
-			criteria.add(Restrictions.eq("id", filtro.getPlanoConta().getId()));
-		}*/
+
+		/*
+		 * if (filtro.getPlanoContaPai() != null) {
+		 * criteria.add(Restrictions.eq("contaPai", filtro.getPlanoContaPai()));
+		 * }
+		 * 
+		 * if (filtro.getPlanoConta() != null) {
+		 * criteria.add(Restrictions.eq("id", filtro.getPlanoConta().getId()));
+		 * }
+		 */
 
 		return criteria;
 	}

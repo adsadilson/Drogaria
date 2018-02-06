@@ -37,6 +37,10 @@ public class PlanoContaService implements Serializable {
 		return dao.listarContasPais(contaPaiId, tipo, categoria);
 	}
 
+	public List<PlanoConta> listarContasPorTipoCategorias(TipoConta tipo, TipoRelatorio categoria) {
+		return dao.listarContasPorTipoCategorias(tipo, categoria);
+	}
+
 	public List<PlanoConta> listarTodos() {
 		return dao.listarTodos();
 	}
