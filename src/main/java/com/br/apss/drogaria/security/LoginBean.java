@@ -42,7 +42,7 @@ public class LoginBean implements Serializable {
 		if (null != usuarioLogado) {
 			for (GrupoUsuario g : usuarioLogado.getGrupos()) {
 				for (Permissao p : g.getPermissoes()) {
-					System.out.println(p.getControleMenu().getFuncao());
+					//System.out.println(p.getControleMenu().getFuncao());
 				}
 			}
 		}

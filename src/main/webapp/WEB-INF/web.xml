@@ -35,6 +35,10 @@
 	<listener>
 		<listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
 	</listener>
+	
+	<listener>
+		<listener-class>com.br.apss.drogaria.util.jpa.HibernateContexto</listener-class>
+	</listener>
 
 	<resource-env-ref>
 		<resource-env-ref-name>BeanManager</resource-env-ref-name>
@@ -51,6 +55,7 @@
 	  <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
 	  <param-value>true</param-value>
 	</context-param>
+	
 
 
 

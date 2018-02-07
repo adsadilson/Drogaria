@@ -65,8 +65,6 @@ public class MovimentacaoBean implements Serializable {
 
 	private PlanoConta planoConta;
 
-	private Long contaDestino;
-
 	private String tela;
 
 	@Inject
@@ -94,21 +92,6 @@ public class MovimentacaoBean implements Serializable {
 		cc.setTipo(TipoConta.CC);
 		cc.setCategoria(TipoRelatorio.A);
 		return contaService.filtrados(cc);
-	}
-
-	public boolean desabilitarInfo(Movimentacao m) {
-		if (m.equals(this.movtoSelecionado)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public boolean desabilitar(Movimentacao m) {
-		if (m.equals(this.movtoSelecionado)) {
-			return true;
-		}
-		return false;
 	}
 
 	public Boolean validarDatas(Date ini, Date fim) {
@@ -293,16 +276,6 @@ public class MovimentacaoBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso");
 	}
 
-	/*
-	 * public String getContaDestino() { if (null != movtoSelecionado) { if
-	 * (null == movtoSelecionado.getSubConta() &&
-	 * movtoSelecionado.getContaTipo().getId() == 1) { return
-	 * movimentacaoService.porVinculo(movtoSelecionado.getVinculo(),
-	 * movtoSelecionado.getId()) .getConta().getNome(); } else { return
-	 * contaService.porId(movtoSelecionado.getSubConta().getId()).getNome(); } }
-	 * return null; }
-	 */
-
 	@SuppressWarnings("unused")
 	private Usuario obterUsuario2() {
 		Usuario usuario = loginBean.getUsuario();
@@ -391,7 +364,8 @@ public class MovimentacaoBean implements Serializable {
 		if (null != this.movto.getTipoConta()) {
 			list = contaService.listarContasPais(this.movto.getPlanoContaPai(), this.movto.getTipoConta(),
 					TipoRelatorio.A);
-
+			
+			/* Remover a propria conta para lançamento */
 			for (int i = 0; i < list.size(); i++) {
 				if (list.get(i).getId() == this.filtro.getPlanoConta().getId()) {
 					list.remove(i);
@@ -416,21 +390,6 @@ public class MovimentacaoBean implements Serializable {
 			}
 
 		}
-	}
-
-	/* Remover a propria conta para lançamento */
-	public List<PlanoConta> getContaCorrentes() {
-		List<PlanoConta> cts = new ArrayList<PlanoConta>();
-		List<PlanoConta> pc = getContas();
-		if (null != this.filtro.getPlanoConta()) {
-			for (int i = 0; i < pc.size(); i++) {
-				if (pc.get(i).getId() == this.filtro.getPlanoConta().getId()) {
-					pc.remove(i);
-				}
-			}
-			cts = pc;
-		}
-		return cts;
 	}
 
 	/********* Gett e Sett ************/
@@ -505,14 +464,6 @@ public class MovimentacaoBean implements Serializable {
 
 	public void setIdVinculo(GeradorVinculo idVinculo) {
 		this.idVinculo = idVinculo;
-	}
-
-	public Long getContaDestino() {
-		return contaDestino;
-	}
-
-	public void setContaDestino(Long contaDestino) {
-		this.contaDestino = contaDestino;
 	}
 
 	public List<TipoConta> getListaTiposContas() {

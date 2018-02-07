@@ -126,7 +126,7 @@
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
 				scrollHeight="350" rowStyleClass="#{cp.dias le 0 ? null : 'red'}"
-				selection="#{contaAPagarBean.contaApagarSelecionadas}" 
+				selection="#{contaAPagarBean.contaApagarSelecionadas}"
 				rowKey="#{cp.id}">
 
 				<p:ajax event="rowSelect" update="toolbar-botoes toolbar-totais"
@@ -257,6 +257,8 @@
 		</h:form>
 
 
+		
+
 
 
 		<!-- LANÇAMENTO DE CONTAS -->
@@ -286,8 +288,8 @@
 
 					<p:outputLabel for="txtEmissao" value="Data Entrada" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
-						id="txtEmissao"
-						onfocus="mascaraDtCalendar('txtEmissao')" styleClass="cssCalender"
+						id="txtEmissao" onfocus="mascaraDtCalendar('txtEmissao')"
+						styleClass="cssCalender"
 						value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
 						requiredMessage="Informe uma data de emissão">
 						<p:ajax event="dateSelect" process="@this" update="txtVencimento" />
@@ -435,6 +437,61 @@
 			</h:form>
 
 		</p:dialog>
+		
+		<p:dialog header="Edição de parcela(s)" widgetVar="dialogEdicaoParcela"
+		modal="true" resizable="false" draggable="true" id="dgEdicaoParcela"
+		closeOnEscape="true" width="350" height="190" appendTo="@(body)">
+
+		<p:ajax event="close" update="" />
+
+		<h:form id="edit" prependId="false">
+
+			<p:growl autoUpdate="true" />
+
+			<h:panelGrid id="panelEdicaoParcela" columns="2"
+				style="margin-top:10px;" columnClasses="rotulo">
+
+
+				<p:outputLabel value="Documento" />
+				<p:inputText value="#{contaAPagarBean.parcela.numDoc}" />
+
+				<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
+				<p:inputText size="11" id="txtEdicaoVencimento"
+					onfocus="mascaraDtInput('txtEdicaoVencimento')"
+					value="#{contaAPagarBean.parcela.dataVencto}" required="true"
+					requiredMessage="Informe uma data para a vencimento">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</p:inputText>
+
+				<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
+				<p:inputText id="txtEdicaoVlrPag" required="true"
+					requiredMessage="Informe um valor"
+					onfocus="formatoMoeda('txtEdicaoVlrPag')"
+					value="#{contaAPagarBean.parcela.valor}" placeholder="VALOR"
+					size="11">
+					<f:validateDoubleRange minimum="0.01" />
+					<f:convertNumber type="currency" />
+				</p:inputText>
+
+			</h:panelGrid>
+
+			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+				<p:toolbarGroup align="right" style="margin-right: 0px;">
+					<p:commandButton value="Salvar" icon="fa fa-save"
+						action="#{contaAPagarBean.editarParcela()}"
+						process="@this edit"
+						oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
+						update="edit tblPagto txtTotalPagto"
+						id="salvarCommandButtonParcela">
+					</p:commandButton>
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:defaultCommand target="salvarCommandButtonParcela" />
+
+		</h:form>
+
+	</p:dialog>
 
 	</ui:define>
 
