@@ -85,6 +85,9 @@ public class Movimentacao implements Serializable {
 	@Column(name = "tipo_conta", length = 10)
 	private TipoConta tipoConta;
 
+	@Transient
+	private BigDecimal totalRateio = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -221,6 +224,14 @@ public class Movimentacao implements Serializable {
 
 	public void setPlanoContaPai(PlanoConta planoContaPai) {
 		this.planoContaPai = planoContaPai;
+	}
+
+	public BigDecimal getTotalRateio() {
+		return totalRateio;
+	}
+
+	public void setTotalRateio(BigDecimal totalRateio) {
+		this.totalRateio = totalRateio;
 	}
 
 	@Override

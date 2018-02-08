@@ -126,9 +126,6 @@ public class ContaAPagar implements Serializable {
 	private int periodo = 30;
 
 	@Transient
-	private BigDecimal totalRateio = BigDecimal.ZERO;
-
-	@Transient
 	private BigDecimal totalFormaPg = BigDecimal.ZERO;
 
 	public Long getId() {
@@ -200,7 +197,7 @@ public class ContaAPagar implements Serializable {
 	}
 
 	public void setNumDoc(String numDoc) {
-		this.numDoc = numDoc;
+		this.numDoc = numDoc == null ? null : numDoc.toUpperCase();
 	}
 
 	public Pessoa getFornecedor() {
@@ -339,14 +336,6 @@ public class ContaAPagar implements Serializable {
 		this.periodo = periodo;
 	}
 
-	public BigDecimal getTotalRateio() {
-		return totalRateio;
-	}
-
-	public void setTotalRateio(BigDecimal totalRateio) {
-		this.totalRateio = totalRateio;
-	}
-
 	public BigDecimal getTotalFormaPg() {
 		return totalFormaPg;
 	}
@@ -375,12 +364,11 @@ public class ContaAPagar implements Serializable {
 		if (id == null) {
 			if (other.id != null)
 				return false;
-		} else if (!id.equals(other.id)){
+		} else if (!id.equals(other.id)) {
 			return false;
-		} else if (id.equals(null) && other.id.equals(null)){
-			if(! this.getDataVencto().equals(other.getDataVencto()) ||
-					! this.getNumDoc().equals(other.getNumDoc()) ||
-					! this.getValor().equals(other.getValor())){
+		} else if (id.equals(null) && other.id.equals(null)) {
+			if (!this.getDataVencto().equals(other.getDataVencto()) || !this.getNumDoc().equals(other.getNumDoc())
+					|| !this.getValor().equals(other.getValor())) {
 				return false;
 			}
 			return true;

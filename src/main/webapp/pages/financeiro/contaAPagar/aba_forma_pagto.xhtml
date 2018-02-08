@@ -71,8 +71,8 @@
 				<p:commandButton icon="ui-icon-pencil" title="Editar"
 					styleClass="semPreenchimento"
 					oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
-					update="edit"
-					actionListener="#{contaAPagarBean.abrirEdicao()}" >
+					update=":dgEdicaoParcela" 
+					action="#{contaAPagarBean.abrirEdicao()}" >
 					<f:setPropertyActionListener target="#{contaAPagarBean.parcela}"
 						value="#{p}"  />
 				</p:commandButton>

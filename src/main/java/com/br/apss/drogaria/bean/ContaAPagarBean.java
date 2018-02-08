@@ -66,7 +66,7 @@ public class ContaAPagarBean implements Serializable {
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
 
 	private ContaAPagar parcela;
-	
+
 	private ContaAPagar parcelaEditar;
 
 	private List<ContaAPagar> listaParcelas;
@@ -195,15 +195,16 @@ public class ContaAPagarBean implements Serializable {
 		}
 		this.parcela.setTotalFormaPg(t);
 		this.parcela.setValor(t);
-		this.parcela.setTotalRateio(t2);
+		this.movimentacao.setTotalRateio(t2);
 
 	}
-	
-	public void abrirEdicao(){
+
+	public void abrirEdicao() {
 		this.parcelaEditar = new ContaAPagar();
+		this.parcelaEditar.setParcela(this.parcela.getParcela());
 		this.parcelaEditar.setDataVencto(this.parcela.getDataVencto());
 		this.parcelaEditar.setNumDoc(this.parcela.getNumDoc());
-		this.parcelaEditar.setValor(this.parcela.getValor());		
+		this.parcelaEditar.setValor(this.parcela.getValor());
 	}
 
 	public void editarParcela() {
@@ -211,9 +212,9 @@ public class ContaAPagarBean implements Serializable {
 		BigDecimal recalculo = BigDecimal.ZERO;
 
 		if (!validarDatas(this.contaAPagar.getDataDoc(), this.parcelaEditar.getDataVencto())) {
-						
+
 			for (ContaAPagar pp : this.listaParcelas) {
-				if(pp.equals(this.parcela)){
+				if (pp.equals(this.parcela)) {
 					pp.setTotalFormaPg(recalculo);
 					pp.setDataVencto(this.parcelaEditar.getDataVencto());
 					pp.setNumDoc(this.parcelaEditar.getNumDoc());
@@ -231,16 +232,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e
-	 * soma com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
@@ -399,7 +400,7 @@ public class ContaAPagarBean implements Serializable {
 			for (Movimentacao m : this.listaMovimentacoes) {
 				t = t.add(m.getVlrSaida());
 			}
-			this.parcela.setTotalRateio(t);
+			this.movimentacao.setTotalRateio(t);
 			this.parcela.setValor(t);
 			if (this.listaMovimentacoes.size() == 00) {
 				this.listaParcelas.clear();
@@ -424,10 +425,10 @@ public class ContaAPagarBean implements Serializable {
 				for (Movimentacao m : this.listaMovimentacoes) {
 					t = t.add(m.getVlrSaida());
 				}
-				this.parcela.setTotalRateio(t);
+				this.movimentacao.setTotalRateio(t);
 				this.parcela.setValor(t);
 			} else {
-				Messages.addGlobalError("Conta j� cadastrada!");
+				Messages.addGlobalError("Conta j� cadastrada!");
 				RequestContext requestContext = RequestContext.getCurrentInstance();
 				requestContext.addCallbackParam("sucesso", true);
 			}
@@ -435,21 +436,21 @@ public class ContaAPagarBean implements Serializable {
 			Messages.addGlobalError("A data de entrada esta maior que a data de vencimento.");
 		}
 	}
-	
+
 	public void onCellEdit(CellEditEvent event) {
 		Object oldValue = event.getOldValue();
 		Object newValue = event.getNewValue();
 		// ArrayList<BigDecimal> valor = (ArrayList<BigDecimal>)newValue;
 
 		if (newValue != null && !newValue.equals(oldValue)) {
-			//calcularParcelas();
+			// calcularParcelas();
 			/*
-			 * DataTable dataModel = (DataTable) event.getSource(); ContaAPagar
-			 * parcela = (ContaAPagar) dataModel.getRowData();
+			 * DataTable dataModel = (DataTable) event.getSource(); ContaAPagar parcela =
+			 * (ContaAPagar) dataModel.getRowData();
 			 * 
 			 * for(ContaAPagar c : parcelas){
-			 * if(parcela.getParcela().equals(c.getParcela())){
-			 * c.setValor(valor.get(0)); break; } }
+			 * if(parcela.getParcela().equals(c.getParcela())){ c.setValor(valor.get(0));
+			 * break; } }
 			 */
 
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada",
@@ -464,7 +465,7 @@ public class ContaAPagarBean implements Serializable {
 
 			if (!this.parcela.getTotalFormaPg().equals(BigDecimal.ZERO)) {
 
-				if (this.parcela.getTotalRateio().equals(this.parcela.getTotalFormaPg())) {
+				if (this.movimentacao.getTotalRateio().equals(this.parcela.getTotalFormaPg())) {
 
 					if (this.contaAPagar.getId() == null) {
 						this.contaAPagar.setVinculo(gerarVinculo.gerar(ContaAPagar.class));
@@ -485,20 +486,21 @@ public class ContaAPagarBean implements Serializable {
 						this.listaMovimentacoes.get(i).setVlrEntrada(null);
 						this.listaMovimentacoes.get(i).setPessoa(this.contaAPagar.getFornecedor());
 						this.listaMovimentacoes.get(i).setUsuario(obterUsuario());
-						this.listaMovimentacoes.get(i).setDocumento(this.contaAPagar.getNumDoc());
 					}
 
+					this.listaMovimentacoes = this.movtoServico.salvar(this.listaMovimentacoes);
+					
 					for (int i = 0; i < this.listaParcelas.size(); i++) {
 						this.listaParcelas.get(i).setDataDoc(this.contaAPagar.getDataDoc());
 						this.listaParcelas.get(i).setDataLanc(new Date());
-						this.listaParcelas.get(i).setNumDoc(this.contaAPagar.getNumDoc());
+						if (this.contaAPagar.getId() == null) {
+							this.listaParcelas.get(i).setNumDoc(this.contaAPagar.getNumDoc());
+						}
 						this.listaParcelas.get(i).setStatus("ABERTO");
 						this.listaParcelas.get(i).setFornecedor(this.contaAPagar.getFornecedor());
 						this.listaParcelas.get(i).setUsuario(obterUsuario());
 						this.listaParcelas.get(i).setVinculo(this.contaAPagar.getVinculo());
 					}
-
-					this.listaMovimentacoes = this.movtoServico.salvar(this.listaMovimentacoes);
 
 					for (int i = 0; i < this.listaParcelas.size(); i++) {
 						this.listaParcelas.get(i).setMovimentacoes(this.listaMovimentacoes);
