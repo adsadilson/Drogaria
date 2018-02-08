@@ -148,7 +148,7 @@
 					style="width:1px;text-align:center" />
 
 				<p:column sortBy="#{cp.numDoc}"
-					style="text-align: right; width:25px;" headerText="Documento">
+					style="text-align: right; width:30px;" headerText="Documento">
 					<h:outputText value="#{cp.numDoc}">
 					</h:outputText>
 				</p:column>
@@ -159,7 +159,7 @@
 				</p:column>
 
 				<p:column sortBy="#{cp.fornecedor}" headerText="Favorecido"
-					width="230">
+					width="200">
 					<h:outputText value="#{cp.fornecedor.nome}" />
 				</p:column>
 
@@ -189,6 +189,14 @@
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
+
+				<p:column style="text-align: right;width:60px;"
+					headerText="À Receber">
+					<h:outputText value="#{cp.valor}">
+						<f:convertNumber type="currency" currencySymbol="R$" />
+					</h:outputText>
+				</p:column>
+
 			</p:dataTable>
 
 			<p:confirmDialog header="Confirmação de Exclusão"
@@ -257,7 +265,7 @@
 		</h:form>
 
 
-		
+
 
 
 
@@ -342,27 +350,120 @@
 
 		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
-			draggable="true" closeOnEscape="true" width="610" height="235"
+			draggable="true" closeOnEscape="true" width="650" height="390"
 			appendTo="@(body)">
 
 			<h:form prependId="false" id="frm-baixa-titulo">
 
+				<p:dataTable id="tabela-parcela" style="width:auto;"
+					rowIndexVar="idx" scrollable="true" scrollHeight="140"
+					var="r"
+					editable="true" editMode="cell">
 
-				<h:panelGrid columns="6" style="margin-top:15px;"
+					<p:ajax event="cellEdit" listener="#{contApagarBean.onCellEdit}" />
+
+					<p:column style="text-align:center; width:10px;"
+						headerText="Parc.">
+						<h:outputText value="#{p.parcela}" />
+					</p:column>
+					<p:column style="text-align:center; width:20px;"
+						headerText="Documento">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputLabel value="#{p.numDoc}">
+								</h:outputLabel>
+							</f:facet>
+							<f:facet name="input">
+								<h:inputText value="#{p.numDoc}" />
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column style="text-align:center; width:30px;"
+						headerText="Vencimento">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputLabel value="#{p.dataVencto}">
+									<f:convertDateTime pattern="dd/MM/yyyy" />
+								</h:outputLabel>
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText size="10" id="txtVencto" styleClass="formateData"
+									onfocus="mascaraDataEditImput();" value="#{p.dataVencto}">
+									<f:convertDateTime pattern="dd/MM/yyyy" />
+								</p:inputText>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column style="text-align:right; width:30px;" headerText="Multa/Juros">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputLabel value="#{p.valor}">
+									<!-- <f:convertNumber currencySymbol="R$" type="currency" /> -->
+									<f:convertNumber type="currency" />
+								</h:outputLabel>
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{p.valor}" style="width:96%"
+									styleClass="moeda" onfocus="configurarMoeda();">
+									<p:ajax event="blur" update="tabela-parcela" />
+								</p:inputText>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column style="text-align:right; width:30px;" headerText="Desconto">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputLabel value="#{p.valor}">
+									<!-- <f:convertNumber currencySymbol="R$" type="currency" /> -->
+									<f:convertNumber type="currency" />
+								</h:outputLabel>
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{p.valor}" style="width:96%"
+									styleClass="moeda" onfocus="configurarMoeda();">
+									<p:ajax event="blur" update="tabela-parcela" />
+								</p:inputText>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					<p:column style="text-align:right; width:70px;" headerText="Valor">
+						<p:cellEditor>
+							<f:facet name="output">
+								<h:outputLabel value="#{p.valor}">
+									<!-- <f:convertNumber currencySymbol="R$" type="currency" /> -->
+									<f:convertNumber type="currency" />
+								</h:outputLabel>
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{p.valor}" style="width:96%"
+									styleClass="moeda" onfocus="configurarMoeda();">
+									<p:ajax event="blur" update="tabela-parcela" />
+								</p:inputText>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+
+				</p:dataTable>
+
+
+				<h:panelGrid columns="6" style="margin-top:20px;"
 					columnClasses="rotuloBaixa1,campoBaixa1,
 					rotuloBaixa2,campoBaixa1, rotuloBaixa2">
-
+					
 					<p:outputLabel value="SubTotal" />
+					<p:outputLabel value="Multa" />
+					<p:outputLabel value="Juros" />
+					<p:outputLabel value="Desc." />
+					<p:outputLabel value="Total" />
+					<p:outputLabel value="Data Baixa" for="dtBaixa" />
+					
+					
 					<p:inputText readonly="true"
 						value="#{contaAPagarBean.contaAPagar.valor}" size="10">
 						<f:convertNumber type="currency" />
 					</p:inputText>
-					<p:spacer />
-					<p:spacer />
-					<p:spacer />
-					<p:spacer />
 
-					<p:outputLabel value="Multa" />
+					
 					<p:inputText id="txtMulta" onfocus="formatoMoeda('txtMulta')"
 						value="#{contaAPagarBean.contaAPagar.valorMulta}" size="10">
 						<f:convertNumber type="currency" />
@@ -370,7 +471,7 @@
 							listener="#{contaAPagarBean.calcJurDesMul()}" />
 					</p:inputText>
 
-					<p:outputLabel value="Juros" />
+					
 					<p:inputText id="txtJuro" onfocus="formatoMoeda('txtJuro')"
 						value="#{contaAPagarBean.contaAPagar.valorJuro}" size="10">
 						<f:convertNumber type="currency" />
@@ -378,33 +479,33 @@
 							listener="#{contaAPagarBean.calcJurDesMul()}" />
 					</p:inputText>
 
-					<p:outputLabel value="Desc." />
+					
 					<p:inputText id="txtDesc" onfocus="formatoMoeda('txtDesc')"
-						value="#{contaAPagarBean.contaAPagar.valorDesc}" size="8">
+						value="#{contaAPagarBean.contaAPagar.valorDesc}" size="10">
 						<f:convertNumber type="currency" />
 						<p:ajax event="keyup" update="txtVlrPago" process="@this"
 							listener="#{contaAPagarBean.calcJurDesMul()}" />
 					</p:inputText>
 
-					<p:outputLabel value="Data Baixa" for="dtBaixa" />
+					
+					<p:inputText id="txtVlrPago" readonly="true"
+						value="#{contaAPagarBean.contaAPagar.valorPago}" size="10">
+						<f:convertNumber type="currency" />
+					</p:inputText>
+					
+					
 					<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
 						value="#{contaAPagarBean.contaAPagar.dataPagto}" id="dtBaixa"
 						onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 						required="true" requiredMessage="Informe uma data da baixa">
 					</p:calendar>
 
-					<p:outputLabel value="Total" />
-					<p:inputText id="txtVlrPago" readonly="true"
-						value="#{contaAPagarBean.contaAPagar.valorPago}" size="10">
-						<f:convertNumber type="currency" />
-					</p:inputText>
-
 				</h:panelGrid>
 
 				<h:panelGrid columns="2" columnClasses="rotuloBaixa1, campoBaixa2">
 
 					<p:outputLabel value="Conta a debitar" for="combBaixaConta" />
-					<p:selectOneMenu autoWidth="false" style="width:98%;"
+					<p:selectOneMenu autoWidth="false" style="width:99%;"
 						id="combBaixaConta" converter="omnifaces.SelectItemsConverter"
 						required="true" requiredMessage="Selecione uma conta a debitar">
 						<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
@@ -414,7 +515,7 @@
 					</p:selectOneMenu>
 
 					<p:outputLabel value="Forma baixa" />
-					<p:selectOneMenu autoWidth="false" style="width:98%;"
+					<p:selectOneMenu autoWidth="false" style="width:99%;"
 						value="#{contaAPagarBean.contaAPagar.formaBaixa}"
 						converter="omnifaces.SelectItemsConverter" required="true"
 						requiredMessage="Selecione tipo">
@@ -437,61 +538,61 @@
 			</h:form>
 
 		</p:dialog>
-		
-		<p:dialog header="Edição de parcela(s)" widgetVar="dialogEdicaoParcela"
-		modal="true" resizable="false" draggable="true" id="dgEdicaoParcela"
-		closeOnEscape="true" width="350" height="190" appendTo="@(body)">
 
-		<p:ajax event="close" update="" />
+		<p:dialog header="Edição de parcela(s)"
+			widgetVar="dialogEdicaoParcela" modal="true" resizable="false"
+			draggable="true" id="dgEdicaoParcela" closeOnEscape="true"
+			width="350" height="190" appendTo="@(body)">
 
-		<h:form id="edit" prependId="false">
+			<p:ajax event="close" update="" />
 
-			<p:growl autoUpdate="true" />
+			<h:form id="edit" prependId="false">
 
-			<h:panelGrid id="panelEdicaoParcela" columns="2"
-				style="margin-top:10px;" columnClasses="rotulo">
+				<p:growl autoUpdate="true" />
+
+				<h:panelGrid id="panelEdicaoParcela" columns="2"
+					style="margin-top:10px;" columnClasses="rotulo">
 
 
-				<p:outputLabel value="Documento" />
-				<p:inputText value="#{contaAPagarBean.parcela.numDoc}" />
+					<p:outputLabel value="Documento" />
+					<p:inputText value="#{contaAPagarBean.parcelaEditar.numDoc}" />
 
-				<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
-				<p:inputText size="11" id="txtEdicaoVencimento"
-					onfocus="mascaraDtInput('txtEdicaoVencimento')"
-					value="#{contaAPagarBean.parcela.dataVencto}" required="true"
-					requiredMessage="Informe uma data para a vencimento">
-					<f:convertDateTime pattern="dd/MM/yyyy" />
-				</p:inputText>
+					<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
+					<p:inputText size="11" id="txtEdicaoVencimento"
+						onfocus="mascaraDtInput('txtEdicaoVencimento')"
+						value="#{contaAPagarBean.parcelaEditar.dataVencto}" required="true"
+						requiredMessage="Informe uma data para a vencimento">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</p:inputText>
 
-				<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
-				<p:inputText id="txtEdicaoVlrPag" required="true"
-					requiredMessage="Informe um valor"
-					onfocus="formatoMoeda('txtEdicaoVlrPag')"
-					value="#{contaAPagarBean.parcela.valor}" placeholder="VALOR"
-					size="11">
-					<f:validateDoubleRange minimum="0.01" />
-					<f:convertNumber type="currency" />
-				</p:inputText>
+					<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
+					<p:inputText id="txtEdicaoVlrPag" required="true"
+						requiredMessage="Informe um valor"
+						onfocus="formatoMoeda('txtEdicaoVlrPag')"
+						value="#{contaAPagarBean.parcelaEditar.valor}" placeholder="VALOR"
+						size="11">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
 
-			</h:panelGrid>
+				</h:panelGrid>
 
-			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
-				<p:toolbarGroup align="right" style="margin-right: 0px;">
-					<p:commandButton value="Salvar" icon="fa fa-save"
-						action="#{contaAPagarBean.editarParcela()}"
-						process="@this edit"
-						oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
-						update="edit tblPagto txtTotalPagto"
-						id="salvarCommandButtonParcela">
-					</p:commandButton>
-				</p:toolbarGroup>
-			</p:toolbar>
+				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							action="#{contaAPagarBean.editarParcela()}" process="@this edit"
+							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
+							update="edit tblPagto txtTotalPagto"
+							id="salvarCommandButtonParcela">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
 
-			<p:defaultCommand target="salvarCommandButtonParcela" />
+				<p:defaultCommand target="salvarCommandButtonParcela" />
 
-		</h:form>
+			</h:form>
 
-	</p:dialog>
+		</p:dialog>
 
 	</ui:define>
 

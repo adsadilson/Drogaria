@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.omnifaces.util.Messages;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.CellEditEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.UnselectEvent;
@@ -64,6 +66,8 @@ public class ContaAPagarBean implements Serializable {
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
 
 	private ContaAPagar parcela;
+	
+	private ContaAPagar parcelaEditar;
 
 	private List<ContaAPagar> listaParcelas;
 
@@ -194,21 +198,30 @@ public class ContaAPagarBean implements Serializable {
 		this.parcela.setTotalRateio(t2);
 
 	}
+	
+	public void abrirEdicao(){
+		this.parcelaEditar = new ContaAPagar();
+		this.parcelaEditar.setDataVencto(this.parcela.getDataVencto());
+		this.parcelaEditar.setNumDoc(this.parcela.getNumDoc());
+		this.parcelaEditar.setValor(this.parcela.getValor());		
+	}
 
 	public void editarParcela() {
 
 		BigDecimal recalculo = BigDecimal.ZERO;
 
-		if (!validarDatas(this.contaAPagar.getDataDoc(), this.parcela.getDataVencto())) {
+		if (!validarDatas(this.contaAPagar.getDataDoc(), this.parcelaEditar.getDataVencto())) {
+						
 			for (ContaAPagar pp : this.listaParcelas) {
-				if (this.parcela.getParcela().equals(pp.getParcela())) {
-
+				if(pp.equals(this.parcela)){
+					pp.setTotalFormaPg(recalculo);
+					pp.setDataVencto(this.parcelaEditar.getDataVencto());
+					pp.setNumDoc(this.parcelaEditar.getNumDoc());
+					pp.setValor(this.parcelaEditar.getValor());
 				}
 				recalculo = recalculo.add(pp.getValor());
 			}
-
 			this.parcela.setTotalFormaPg(recalculo);
-
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
 			throw new NegocioException("A data de vencimento dever ser maior que a data de entrada!");
@@ -422,6 +435,28 @@ public class ContaAPagarBean implements Serializable {
 			Messages.addGlobalError("A data de entrada esta maior que a data de vencimento.");
 		}
 	}
+	
+	public void onCellEdit(CellEditEvent event) {
+		Object oldValue = event.getOldValue();
+		Object newValue = event.getNewValue();
+		// ArrayList<BigDecimal> valor = (ArrayList<BigDecimal>)newValue;
+
+		if (newValue != null && !newValue.equals(oldValue)) {
+			//calcularParcelas();
+			/*
+			 * DataTable dataModel = (DataTable) event.getSource(); ContaAPagar
+			 * parcela = (ContaAPagar) dataModel.getRowData();
+			 * 
+			 * for(ContaAPagar c : parcelas){
+			 * if(parcela.getParcela().equals(c.getParcela())){
+			 * c.setValor(valor.get(0)); break; } }
+			 */
+
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada",
+					"Antigo: " + oldValue + ", Novo:" + newValue);
+			FacesContext.getCurrentInstance().addMessage(null, msg);
+		}
+	}
 
 	public void salvar() throws Exception {
 
@@ -617,6 +652,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setContaApagarSelecionadasEditar(List<ContaAPagar> contaApagarSelecionadasEditar) {
 		this.contaApagarSelecionadasEditar = contaApagarSelecionadasEditar;
+	}
+
+	public ContaAPagar getParcelaEditar() {
+		return parcelaEditar;
+	}
+
+	public void setParcelaEditar(ContaAPagar parcelaEditar) {
+		this.parcelaEditar = parcelaEditar;
 	}
 
 }

@@ -71,9 +71,10 @@
 				<p:commandButton icon="ui-icon-pencil" title="Editar"
 					styleClass="semPreenchimento"
 					oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
-					update="panelEdicaoParcela">
+					update="edit"
+					actionListener="#{contaAPagarBean.abrirEdicao()}" >
 					<f:setPropertyActionListener target="#{contaAPagarBean.parcela}"
-						value="#{p}" />
+						value="#{p}"  />
 				</p:commandButton>
 
 			</p:column>

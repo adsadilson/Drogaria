@@ -375,8 +375,16 @@ public class ContaAPagar implements Serializable {
 		if (id == null) {
 			if (other.id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!id.equals(other.id)){
 			return false;
+		} else if (id.equals(null) && other.id.equals(null)){
+			if(! this.getDataVencto().equals(other.getDataVencto()) ||
+					! this.getNumDoc().equals(other.getNumDoc()) ||
+					! this.getValor().equals(other.getValor())){
+				return false;
+			}
+			return true;
+		}
 		return true;
 	}
 
