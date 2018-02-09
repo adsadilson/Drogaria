@@ -67,7 +67,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Núcleo do Hibernate -->
+		<!-- Núcleo do Hibernate 5.2.4.Final-->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>

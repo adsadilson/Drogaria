@@ -31,20 +31,32 @@
 	color: red !important;
 }
 
-.rotuloBaixa1 {
-	width: 123px !important;
+.corLabel {
+	color: black !important;
 }
 
-.rotuloBaixa2 {
-	width: 50px !important;
+.rotuloInfTitulo1 {
+	width: 100px !important;
 }
 
-.campoBaixa1 {
+.campoInfTitulo1 {
 	width: 120px !important;
 }
 
-.campoBaixa2 {
-	width: 430px !important;
+.rotuloInfConta1 {
+	width: 130px !important;
+}
+
+.campoInfConta1 {
+	width: 270px !important;
+}
+
+.rotuloInfConta2 {
+	width: 107px !important;
+}
+
+.campoInfConta2 {
+	width: 150px !important;
 }
 -->
 </style>
@@ -121,7 +133,7 @@
 		<h:form id="frm-tabela" prependId="false">
 			<p:dataTable id="tbl-conta-apagar"
 				value="#{contaAPagarBean.listaContaAPagars}" var="cp"
-				style="margin-top: 10px; margin-bottom:20px;" rows="13"
+				style="margin-top: 10px; margin-bottom:10px;" rows="13"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
@@ -228,37 +240,39 @@
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
-			<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;"
-				id="toolbar-totais">
+			<p:toolbar styleClass="semPreenchimento">
 				<p:toolbarGroup align="right">
-					<p:outputLabel value="Total Avencer"
-						style="font-size:13px; margin-right:70px; color:black" />
-					<p:outputLabel
-						style="color:green; font-size:14px; margin-right:50px;"
-						value="#{contaAPagarBean.totalAVencer}">
-						<f:convertNumber type="currency" />
-					</p:outputLabel>
-					<p:outputLabel value="Total Vencido"
-						style="font-size:13px; margin-right:70px; color:black" />
-					<p:outputLabel
-						style="color:red; font-size:14px; margin-right:50px;"
-						value="#{contaAPagarBean.totalAVencido}">
-						<f:convertNumber type="currency" />
-					</p:outputLabel>
-					<p:outputLabel value="Total"
-						style="font-size:13px; margin-right:70px; color:black" />
-					<p:outputLabel
-						style="color:blue; font-size:14px; margin-right:50px;"
-						value="#{contaAPagarBean.totalGeral}">
-						<f:convertNumber type="currency" />
-					</p:outputLabel>
-					<p:outputLabel value="Total selecionado"
-						style="font-size:13px; margin-right:70px; color:black" />
-					<p:outputLabel
-						style="color:red; font-size:14px; margin-right:10px;"
-						value="#{contaAPagarBean.totalSelecionado}">
-						<f:convertNumber type="currency" />
-					</p:outputLabel>
+
+					<h:panelGrid id="toolbar-totais" columns="4">
+						<p:outputLabel value="Total Avencer:"
+							style="font-size:13px; margin-right:30px; color:black" />
+						<p:outputLabel
+							style="color:green; font-size:14px; margin-right:50px;"
+							value="#{contaAPagarBean.totalAVencer}">
+							<f:convertNumber type="currency" />
+						</p:outputLabel>
+						<p:outputLabel value="Total:"
+							style="font-size:13px; margin-right:30px; color:black" />
+						<p:outputLabel
+							style="color:blue; font-size:14px; margin-right:50px;"
+							value="#{contaAPagarBean.totalGeral}">
+							<f:convertNumber type="currency" />
+						</p:outputLabel>
+						<p:outputLabel value="Total Vencido:"
+							style="font-size:13px; margin-right:30px; color:black" />
+						<p:outputLabel
+							style="color:red; font-size:14px; margin-right:50px;"
+							value="#{contaAPagarBean.totalAVencido}">
+							<f:convertNumber type="currency" />
+						</p:outputLabel>
+						<p:outputLabel value="Total selecionado:"
+							style="font-size:13px; margin-right:30px; color:black" />
+						<p:outputLabel
+							style="color:red; font-size:14px; margin-right:10px;"
+							value="#{contaAPagarBean.totalSelecionado}">
+							<f:convertNumber type="currency" />
+						</p:outputLabel>
+					</h:panelGrid>
 				</p:toolbarGroup>
 			</p:toolbar>
 
@@ -357,11 +371,11 @@
 
 
 				<p:tabView prependId="false"
-					style="width: 99%; height: 340px; margin-top:10px; ">
+					style="width: 99%; height: 340px; margin-top:10px;">
 
 					<p:tab title="Informação do titulo">
 						<p:dataTable id="tabela-parcela" style="width:auto;"
-							rowIndexVar="idx" scrollable="true" scrollHeight="140" var="r"
+							rowIndexVar="idx" scrollable="true" scrollHeight="165" var="r"
 							editable="true" editMode="cell">
 
 							<p:ajax event="cellEdit" listener="#{contApagarBean.onCellEdit}" />
@@ -453,38 +467,37 @@
 						</p:dataTable>
 
 
-
-
-						<p:toolbar>
+						<p:toolbar style="margin-top:25px;" styleClass="semPreenchimento">
 
 							<p:toolbarGroup align="right">
-								<h:panelGrid columns="2">
 
-									<p:outputLabel value="SubTotal" />
-									<p:inputText readonly="true"
+								<hr />
+								<h:panelGrid columns="4"
+									columnClasses="rotuloInfTitulo1,campoInfTitulo1,rotuloInfTitulo1,campoInfTitulo2">
+
+									<p:outputLabel value="SubTotal" styleClass="corLabel" />
+									<p:inputText disabled="true"
 										value="#{contaAPagarBean.contaAPagar.valor}" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
 
-									<p:outputLabel value="Multa/Juros" />
+									<p:outputLabel value="Multa/Juros" styleClass="corLabel" />
 									<p:inputText id="txtJuro" onfocus="formatoMoeda('txtJuro')"
+										disabled="true"
 										value="#{contaAPagarBean.contaAPagar.valorJuro}" size="10">
 										<f:convertNumber type="currency" />
-										<p:ajax event="keyup" update="txtVlrPago" process="@this"
-											listener="#{contaAPagarBean.calcJurDesMul()}" />
 									</p:inputText>
 
-									<p:outputLabel value="Desc." />
+									<p:outputLabel value="Desconto" styleClass="corLabel" />
 									<p:inputText id="txtDesc" onfocus="formatoMoeda('txtDesc')"
+										disabled="true"
 										value="#{contaAPagarBean.contaAPagar.valorDesc}" size="10">
 										<f:convertNumber type="currency" />
-										<p:ajax event="keyup" update="txtVlrPago" process="@this"
-											listener="#{contaAPagarBean.calcJurDesMul()}" />
 									</p:inputText>
 
-									<p:outputLabel value="Total" />
-									<p:inputText id="txtVlrPago" readonly="true"
+									<p:outputLabel value="Total" styleClass="corLabel" />
+									<p:inputText id="txtVlrPago" disabled="true"
 										value="#{contaAPagarBean.contaAPagar.valorPago}" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
@@ -501,12 +514,11 @@
 
 					<p:tab title="Informação conta a debitar">
 
-						<h:panelGrid columns="4">
+						<h:panelGrid columns="4" style="margin-top:10px;"
+							columnClasses="rotuloInfConta1,campoInfConta1,rotuloInfConta2,campoInfConta2">
 
 							<p:outputLabel value="Forma baixa" />
-
-
-							<p:selectOneMenu autoWidth="false" style="width:150px;"
+							<p:selectOneMenu autoWidth="false" style="width:230px;"
 								value="#{contaAPagarBean.contaAPagar.formaBaixa}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo">
@@ -515,44 +527,69 @@
 							</p:selectOneMenu>
 
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
-							<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
+							<p:calendar size="9" pattern="dd/MM/yyyy" locale="pt_BR"
 								value="#{contaAPagarBean.contaAPagar.dataPagto}" id="dtBaixa"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
 							</p:calendar>
 
-							<p:outputLabel value="Conta a debitar" />
-							<p:selectOneMenu autoWidth="false" style="width:200px;"
-								value="#{contaAPagarBean.contaAPagar.formaBaixa}"
-								converter="omnifaces.SelectItemsConverter" required="true"
-								requiredMessage="Selecione tipo">
-								<f:selectItems value="#{contaAPagarBean.listaFormaBaixa}"
-									var="fp" itemLabel="#{fp.descricao}" itemValue="#{fp}" />
+							<p:outputLabel value="C/ a debitar" for="txtContaBaixar" />
+							<p:selectOneMenu autoWidth="false" style="width:230px;"
+								id="txtContaBaixar" required="true" filter="true"
+								requiredMessage="Selecione uma conta."
+								value="#{contaAPagarBean.movimentacao.planoConta}"
+								converter="omnifaces.SelectItemsConverter">
+								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+									noSelectionOption="true" />
+								<f:selectItems value="#{contaAPagarBean.listaContas}"
+									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 
-							<p:outputLabel value="Valor" />
-							<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
-								value="#{contaAPagarBean.contaAPagar.dataPagto}"
-								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
-								required="true" requiredMessage="Informe uma data da baixa">
-							</p:calendar>
+							<p:outputLabel value="Valor" for="txtConfirmaBaixar" />
+							<h:panelGroup>
+								<p:inputText id="txtConfirmaBaixar" size="9" required="true"
+									requiredMessage="Informe o valor."
+									onfocus="formatoMoeda('txtConfirmaBaixar')">
+									<f:convertNumber type="currency" />
+								</p:inputText>
+								<p:commandButton title="Add Conta" process="@this"
+									icon="fa fa-download" styleClass="semPreenchimento">
+								</p:commandButton>
+							</h:panelGroup>
 
 						</h:panelGrid>
 
 						<p:dataTable id="tabela-forma"
 							style="width:auto; margin-top:10px;" rowIndexVar="idx"
-							scrollable="true" scrollHeight="140" var="r">
+							scrollable="true" scrollHeight="145" var="r">
+
+							<p:column style="width:40px; text-align:center;"
+								headerText="Ação">
+								<p:commandButton title="Excluir" process="@this"
+									icon="ui-icon-trash" styleClass="semPreenchimento">
+								</p:commandButton>
+							</p:column>
 
 							<p:column style="text-align:center; width:300px;"
 								headerText="Conta a debitar">
 								<h:outputText />
 							</p:column>
+
 							<p:column style="text-align:rigth; width:100px;"
 								headerText="Valor">
 								<h:outputText />
 							</p:column>
 
 						</p:dataTable>
+
+						<p:toolbar style="margin-top:10px;" styleClass="semPreenchimento">
+							<p:toolbarGroup align="right">
+								<p:commandButton value="Confirmar" process="@this"
+									icon="ui-icon-check">
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
 
 					</p:tab>
 
