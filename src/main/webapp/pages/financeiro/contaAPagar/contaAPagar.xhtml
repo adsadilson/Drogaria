@@ -175,9 +175,9 @@
 					<h:outputText value="#{cp.fornecedor.nome}" />
 				</p:column>
 
-				<p:column sortBy="#{cp.dataDoc}"
-					style="text-align: center; width:50px;" headerText="Emissão">
-					<h:outputText value="#{cp.dataDoc}">
+				<p:column style="text-align: center; width:50px;"
+					headerText="Emissão">
+					<h:outputText>
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
@@ -299,7 +299,7 @@
 
 					<p:outputLabel for="combFavorecido" value="Fornecedor" />
 					<p:selectOneMenu id="combFavorecido" autoWidth="false"
-						filter="true" value="#{contaAPagarBean.contaAPagar.fornecedor}"
+						filter="true" value="#{contaAPagarBean.cabContaApagar.fornecedor}"
 						required="true" requiredMessage="Selecione um favorecido."
 						filterMatchMode="contains" style="width:250px;"
 						converter="omnifaces.SelectItemsConverter">
@@ -312,21 +312,22 @@
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
 						id="txtEmissao" onfocus="mascaraDtCalendar('txtEmissao')"
 						styleClass="cssCalender"
-						value="#{contaAPagarBean.contaAPagar.dataDoc}" required="true"
+						value="#{contaAPagarBean.cabContaApagar.dataDoc}" required="true"
 						requiredMessage="Informe uma data de emissão">
 						<p:ajax event="dateSelect" process="@this" update="txtVencimento" />
 					</p:calendar>
 
 					<p:outputLabel for="txtNum" value="Documento" />
 					<p:inputText id="txtNum" size="11"
-						value="#{contaAPagarBean.contaAPagar.numDoc}">
+						value="#{contaAPagarBean.cabContaApagar.documento}">
 					</p:inputText>
 
 					<p:outputLabel for="txtVencimento" value="Vencimento" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
 						id="txtVencimento" styleClass="cssCalender"
-						mindate="#{contaAPagarBean.contaAPagar.dataDoc}"
+						mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
 						onfocus="mascaraDtCalendar('txtVencimento')"
+						rendered="#{contaAPagarBean.cabContaApagar.id==null}"
 						value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
 						requiredMessage="Informe uma data para a vencimento">
 					</p:calendar>
@@ -350,7 +351,7 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
-							process="@this panelGridCabNota"
+							process="panelGridCabNota @this"
 							action="#{contaAPagarBean.salvar()}"
 							update=":frm-tabela :toolbar-totais panelGridCabNota"
 							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()">
@@ -484,15 +485,13 @@
 
 									<p:outputLabel value="Multa/Juros" styleClass="corLabel" />
 									<p:inputText id="txtJuro" onfocus="formatoMoeda('txtJuro')"
-										disabled="true"
-										value="#{contaAPagarBean.contaAPagar.valorJuro}" size="10">
+										disabled="true" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
 									<p:outputLabel value="Desconto" styleClass="corLabel" />
 									<p:inputText id="txtDesc" onfocus="formatoMoeda('txtDesc')"
-										disabled="true"
-										value="#{contaAPagarBean.contaAPagar.valorDesc}" size="10">
+										disabled="true" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
@@ -507,8 +506,6 @@
 							</p:toolbarGroup>
 
 						</p:toolbar>
-
-
 
 					</p:tab>
 
@@ -606,7 +603,7 @@
 			draggable="true" id="dgEdicaoParcela" closeOnEscape="true"
 			width="280" height="190" appendTo="@(body)">
 
-			<p:ajax event="close" update="" />
+			<p:ajax event="close" update="panelGridCabNota" />
 
 			<h:form id="edit" prependId="false">
 

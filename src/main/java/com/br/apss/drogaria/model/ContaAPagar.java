@@ -27,7 +27,6 @@ import javax.persistence.Transient;
 
 import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
-import com.br.apss.drogaria.enums.TipoConta;
 
 @Entity
 @Table(name = "conta_apagar")
@@ -40,22 +39,11 @@ public class ContaAPagar implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "CONTA_APAGAR_ID")
 	private Long id;
 
-	@Column(name = "origem_id")
-	private Long origemId;
-
 	@Column(name = "vinculo")
 	private Long vinculo;
 
 	@Column(name = "descricao", length = 255)
 	private String descricao;
-
-	@Temporal(TemporalType.DATE)
-	@Column(name = "data_lanc")
-	private Date dataLanc;
-
-	@Temporal(TemporalType.DATE)
-	@Column(name = "data_doc")
-	private Date dataDoc;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name = "data_vencto")
@@ -78,32 +66,15 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "valor", precision = 12, scale = 2)
 	private BigDecimal valor = BigDecimal.ZERO;
 
-	@Column(name = "vlr_apagar", precision = 12, scale = 2)
-	private BigDecimal vlrApagar = BigDecimal.ZERO;
+	@Column(name = "valor_apagar", precision = 12, scale = 2)
+	private BigDecimal valorApagar = BigDecimal.ZERO;
 
 	@Column(name = "vlr_pago", precision = 12, scale = 2)
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
-	@Column(name = "vlr_multa", precision = 12, scale = 2)
-	private BigDecimal valorMulta = BigDecimal.ZERO;
-
-	@Column(name = "vlr_juro", precision = 12, scale = 2)
-	private BigDecimal valorJuro = BigDecimal.ZERO;
-
-	@Column(name = "vlr_desc", precision = 12, scale = 2)
-	private BigDecimal valorDesc = BigDecimal.ZERO;
-
-	@ManyToOne
-	@JoinColumn(name = "usuario_id")
-	private Usuario usuario;
-
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "conta_apagar_movimentacao", joinColumns = @JoinColumn(name = "conta_apagar_id"), inverseJoinColumns = @JoinColumn(name = "movimentacao_id"))
 	private List<Movimentacao> movimentacoes = new ArrayList<Movimentacao>();
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "tipoConta", length = 20)
-	private TipoConta tipoConta;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_cobranca", length = 40)
@@ -125,23 +96,12 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private int periodo = 30;
 
-	@Transient
-	private BigDecimal totalFormaPg = BigDecimal.ZERO;
-
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Long getOrigemId() {
-		return origemId;
-	}
-
-	public void setOrigemId(Long origemId) {
-		this.origemId = origemId;
 	}
 
 	public Long getVinculo() {
@@ -158,22 +118,6 @@ public class ContaAPagar implements Serializable {
 
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
-	}
-
-	public Date getDataLanc() {
-		return dataLanc;
-	}
-
-	public void setDataLanc(Date dataLanc) {
-		this.dataLanc = dataLanc;
-	}
-
-	public Date getDataDoc() {
-		return dataDoc;
-	}
-
-	public void setDataDoc(Date dataDoc) {
-		this.dataDoc = dataDoc;
 	}
 
 	public Date getDataVencto() {
@@ -216,14 +160,6 @@ public class ContaAPagar implements Serializable {
 		this.valor = valor;
 	}
 
-	public BigDecimal getVlrApagar() {
-		return vlrApagar;
-	}
-
-	public void setVlrApagar(BigDecimal vlrApagar) {
-		this.vlrApagar = vlrApagar;
-	}
-
 	public BigDecimal getValorPago() {
 		return valorPago;
 	}
@@ -232,28 +168,12 @@ public class ContaAPagar implements Serializable {
 		this.valorPago = valorPago;
 	}
 
-	public Usuario getUsuario() {
-		return usuario;
-	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
-
 	public List<Movimentacao> getMovimentacoes() {
 		return movimentacoes;
 	}
 
 	public void setMovimentacoes(List<Movimentacao> movimentacoes) {
 		this.movimentacoes = movimentacoes;
-	}
-
-	public TipoConta getTipoConta() {
-		return tipoConta;
-	}
-
-	public void setTipoConta(TipoConta tipoConta) {
-		this.tipoConta = tipoConta;
 	}
 
 	public String getParcela() {
@@ -288,30 +208,6 @@ public class ContaAPagar implements Serializable {
 		this.dias = dias;
 	}
 
-	public BigDecimal getValorMulta() {
-		return valorMulta;
-	}
-
-	public void setValorMulta(BigDecimal valorMulta) {
-		this.valorMulta = valorMulta;
-	}
-
-	public BigDecimal getValorJuro() {
-		return valorJuro;
-	}
-
-	public void setValorJuro(BigDecimal valorJuro) {
-		this.valorJuro = valorJuro;
-	}
-
-	public BigDecimal getValorDesc() {
-		return valorDesc;
-	}
-
-	public void setValorDesc(BigDecimal valorDesc) {
-		this.valorDesc = valorDesc;
-	}
-
 	public FormaBaixa getFormaBaixa() {
 		return formaBaixa;
 	}
@@ -336,12 +232,12 @@ public class ContaAPagar implements Serializable {
 		this.periodo = periodo;
 	}
 
-	public BigDecimal getTotalFormaPg() {
-		return totalFormaPg;
+	public BigDecimal getValorApagar() {
+		return valorApagar;
 	}
 
-	public void setTotalFormaPg(BigDecimal totalFormaPg) {
-		this.totalFormaPg = totalFormaPg;
+	public void setValorApagar(BigDecimal valorApagar) {
+		this.valorApagar = valorApagar;
 	}
 
 	@Override

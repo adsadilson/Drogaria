@@ -23,7 +23,7 @@
 		<h:panelGrid id="panelGridRateio" columns="5">
 
 			<p:selectOneMenu id="txtTipo" autoWidth="false" style="width:35px;"
-				value="#{contaAPagarBean.contaAPagar.tipoConta}"
+				value="#{contaAPagarBean.tipoConta}"
 				disabled="#{movimentacaoBean.movto.notInclusao}"
 				converter="omnifaces.SelectItemsConverter" required="true"
 				requiredMessage="Selecione tipo">
