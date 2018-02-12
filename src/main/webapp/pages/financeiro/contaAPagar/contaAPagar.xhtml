@@ -177,7 +177,7 @@
 
 				<p:column style="text-align: center; width:50px;"
 					headerText="Emissão">
-					<h:outputText>
+					<h:outputText value="#{cp.movimentacoes.get(0).dataDoc}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
@@ -204,7 +204,7 @@
 
 				<p:column style="text-align: right;width:60px;"
 					headerText="À Receber">
-					<h:outputText value="#{cp.valor}">
+					<h:outputText value="#{cp.valorApagar}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
@@ -324,12 +324,12 @@
 
 					<p:outputLabel for="txtVencimento" value="Vencimento" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
-						id="txtVencimento" styleClass="cssCalender"
+						id="txtVencimento" styleClass="cssCalender" 
 						mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
 						onfocus="mascaraDtCalendar('txtVencimento')"
-						rendered="#{contaAPagarBean.cabContaApagar.id==null}"
-						value="#{contaAPagarBean.contaAPagar.dataVencto}" required="true"
+						value="#{contaAPagarBean.parcela.dataVencto}" required="true"
 						requiredMessage="Informe uma data para a vencimento">
+						<p:ajax process="@this" event="dateSelect"/>
 					</p:calendar>
 
 				</h:panelGrid>
@@ -645,7 +645,8 @@
 				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
-							action="#{contaAPagarBean.editarParcela()}" process="@this edit"
+							action="#{contaAPagarBean.salvarEdicaoParcela()}"
+							process="@this edit"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
 							update="edit tblPagto txtTotalPagto"
 							id="salvarCommandButtonParcela">

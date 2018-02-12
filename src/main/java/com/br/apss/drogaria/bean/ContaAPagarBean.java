@@ -16,7 +16,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.Transient;
 import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
@@ -78,8 +77,6 @@ public class ContaAPagarBean implements Serializable {
 
 	private List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
-	private List<ContaAPagar> contaApagarSelecionadasEditar = new ArrayList<ContaAPagar>();
-
 	@Inject
 	private ContaAPagarService contaAPagarService;
 
@@ -98,8 +95,9 @@ public class ContaAPagarBean implements Serializable {
 	@Inject
 	private CabContaApagarService cabContaApagarService;
 
-	@Transient
 	private BigDecimal totalDasParcelas = BigDecimal.ZERO;
+
+	private BigDecimal totalDaNotaMovimentacao = BigDecimal.ZERO;
 
 	private TipoConta tipoConta;
 
@@ -112,6 +110,9 @@ public class ContaAPagarBean implements Serializable {
 	private BigDecimal totalGeral = BigDecimal.ZERO;
 
 	private boolean isToggle = false;
+
+	@Inject
+	CabContaApagarService service;
 
 	/******************** Metodos ***********************/
 
@@ -130,6 +131,8 @@ public class ContaAPagarBean implements Serializable {
 		this.parcela = new ContaAPagar();
 		this.listaMovimentacoes = new ArrayList<Movimentacao>();
 		this.listaParcelas = new ArrayList<ContaAPagar>();
+		this.totalDasParcelas = BigDecimal.ZERO;
+		this.totalDaNotaMovimentacao = BigDecimal.ZERO;
 	}
 
 	public void excluirSelecionados() {
@@ -139,8 +142,8 @@ public class ContaAPagarBean implements Serializable {
 			this.contaApagarSelecionadas = new ArrayList<>();
 			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
 		} catch (Exception e) {
-			Messages.addGlobalError("Não é possivel excluir uma conta a pagar se existe outras listaParcelas, "
-					+ "selecionas todas para excluir!");
+			Messages.addGlobalError("Não é possivel excluir uma conta a pagar se existe outras Parcelas, "
+					+ "seleciona todas para excluir!");
 		}
 	}
 
@@ -152,21 +155,29 @@ public class ContaAPagarBean implements Serializable {
 		this.parcelaEditar.setValor(this.parcela.getValor());
 	}
 
-	public void editarParcela() {
+	public void salvarEdicaoParcela() {
 
 		BigDecimal recalculo = BigDecimal.ZERO;
 
 		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.parcelaEditar.getDataVencto())) {
 
 			for (ContaAPagar pp : this.listaParcelas) {
-				if (pp.equals(this.parcela)) {
+				this.parcela.setDataVencto(listaParcelas.get(0).getDataVencto());
+				/*
+				 * if (pp.equals(this.parcelaEditar)) {
+				 * pp.setDataVencto(this.parcelaEditar.getDataVencto());
+				 * pp.setNumDoc(this.parcelaEditar.getNumDoc());
+				 * pp.setValor(this.parcelaEditar.getValor()); }
+				 */
+				if (pp.getParcela().equals(this.parcelaEditar.getParcela())) {
 					pp.setDataVencto(this.parcelaEditar.getDataVencto());
 					pp.setNumDoc(this.parcelaEditar.getNumDoc());
 					pp.setValor(this.parcelaEditar.getValor());
 				}
+
 				recalculo = recalculo.add(pp.getValor());
 			}
-			this.cabContaApagar.setValor(recalculo);
+			this.setTotalDasParcelas(recalculo);
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
 			throw new NegocioException("A data de vencimento dever ser maior que a data de entrada!");
@@ -175,20 +186,21 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
+
 		this.parcela = new ContaAPagar();
+
 		this.movimentacao = new Movimentacao();
+
 		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
+
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
 			this.contaApagarSelecionadas = this.listaParcelas;
-			this.contaApagarSelecionadasEditar.addAll(this.listaParcelas);
 			this.listaMovimentacoes = cp.getMovimentacoes();
-			for (int i = 0; i < this.listaParcelas.size();) {
-				this.movimentacao = this.listaMovimentacoes.get(0);
-				this.contaAPagar = this.listaParcelas.get(0);
-				break;
-			}
+			this.cabContaApagar = cabContaApagarService.porVinculo(cp.getVinculo());
+			this.parcela.setDataVencto(this.listaParcelas.get(0).getDataVencto());
 		}
+
 		for (ContaAPagar c : this.listaParcelas) {
 			t = t.add(c.getValor());
 		}
@@ -196,8 +208,9 @@ public class ContaAPagarBean implements Serializable {
 		for (Movimentacao m : this.listaMovimentacoes) {
 			t2 = t2.add(m.getVlrSaida());
 		}
-		this.cabContaApagar.setValor(t);
+
 		this.parcela.setValor(t);
+		this.setTotalDasParcelas(t);
 		this.movimentacao.setTotalRateio(t2);
 	}
 
@@ -211,7 +224,7 @@ public class ContaAPagarBean implements Serializable {
 					if (this.contaAPagar.getId() == null) {
 						this.contaAPagar.setVinculo(gerarVinculo.gerar(ContaAPagar.class));
 					} else {
-						contaAPagarService.excluirContas(this.contaApagarSelecionadasEditar);
+						contaAPagarService.excluirContas(this.contaApagarSelecionadas);
 					}
 
 					for (int i = 0; i < this.listaMovimentacoes.size(); i++) {
@@ -234,13 +247,15 @@ public class ContaAPagarBean implements Serializable {
 						this.listaParcelas.get(i).setStatus("ABERTO");
 						this.listaParcelas.get(i).setFornecedor(this.cabContaApagar.getFornecedor());
 						this.listaParcelas.get(i).setVinculo(this.contaAPagar.getVinculo());
+						this.listaParcelas.get(i).setValorApagar(this.parcela.getValor());
 					}
 
 					for (int i = 0; i < this.listaParcelas.size(); i++) {
 						this.listaParcelas.get(i).setMovimentacoes(this.listaMovimentacoes);
-						//contaAPagarService.salvar(this.listaParcelas.get(i));
 					}
+
 					this.cabContaApagar.setListaContaAPagars(this.listaParcelas);
+					this.cabContaApagar.setVinculo(this.contaAPagar.getVinculo());
 					cabContaApagarService.salvar(this.cabContaApagar);
 
 					RequestContext request = RequestContext.getCurrentInstance();
@@ -423,16 +438,14 @@ public class ContaAPagarBean implements Serializable {
 		BigDecimal valorParcial = valorParcela.multiply(qtde_parcela.subtract(new BigDecimal(1)));
 		BigDecimal primeiraParcela = this.parcela.getValor().subtract(valorParcial);
 
-		this.listaParcelas = new ArrayList<ContaAPagar>();
+		this.listaParcelas.clear();
 		for (int i = 0; i < this.parcela.getNumVezes(); i++) {
 			ContaAPagar ap = new ContaAPagar();
 			ap.setTipoCobranca(this.parcela.getTipoCobranca());
 			ap.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
-			if (this.cabContaApagar.getId() == null) {
-				ap.setNumDoc(this.cabContaApagar.getDocumento());
-			}
-			ap.setDataVencto(i == 0 ? this.contaAPagar.getDataVencto()
-					: somaDias(this.contaAPagar.getDataVencto(), this.parcela.getPeriodo() * i));
+			ap.setNumDoc(this.cabContaApagar.getDocumento());
+			ap.setDataVencto(i == 0 ? this.parcela.getDataVencto()
+					: somaDias(this.parcela.getDataVencto(), this.parcela.getPeriodo() * i));
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
 			this.listaParcelas.add(ap);
 		}
@@ -456,6 +469,7 @@ public class ContaAPagarBean implements Serializable {
 			}
 			this.movimentacao.setTotalRateio(t);
 			this.parcela.setValor(t);
+			this.setTotalDaNotaMovimentacao(t);
 			if (this.listaMovimentacoes.size() == 00) {
 				this.listaParcelas.clear();
 				this.cabContaApagar.setValor(BigDecimal.ZERO);
@@ -464,7 +478,7 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void addConta() {
-		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.contaAPagar.getDataVencto())) {
+		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.parcela.getDataVencto())) {
 			int achou = -1;
 			for (int i = 0; i < this.listaMovimentacoes.size(); i++) {
 				if (this.listaMovimentacoes.get(i).getPlanoConta().getNome()
@@ -646,14 +660,6 @@ public class ContaAPagarBean implements Serializable {
 		this.parcela = parcela;
 	}
 
-	public List<ContaAPagar> getContaApagarSelecionadasEditar() {
-		return contaApagarSelecionadasEditar;
-	}
-
-	public void setContaApagarSelecionadasEditar(List<ContaAPagar> contaApagarSelecionadasEditar) {
-		this.contaApagarSelecionadasEditar = contaApagarSelecionadasEditar;
-	}
-
 	public ContaAPagar getParcelaEditar() {
 		return parcelaEditar;
 	}
@@ -676,6 +682,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setTotalDasParcelas(BigDecimal totalDasParcelas) {
 		this.totalDasParcelas = totalDasParcelas;
+	}
+
+	public BigDecimal getTotalDaNotaMovimentacao() {
+		return totalDaNotaMovimentacao;
+	}
+
+	public void setTotalDaNotaMovimentacao(BigDecimal totalDaNotaMovimentacao) {
+		this.totalDaNotaMovimentacao = totalDaNotaMovimentacao;
 	}
 
 	public TipoConta getTipoConta() {

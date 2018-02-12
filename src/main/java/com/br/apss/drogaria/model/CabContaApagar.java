@@ -19,6 +19,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "cab_conta_apagar")
@@ -55,6 +56,8 @@ public class CabContaApagar implements Serializable {
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<ContaAPagar> listaContaAPagars;
+
+	private Long vinculo;
 
 	public Long getId() {
 		return id;
@@ -118,6 +121,19 @@ public class CabContaApagar implements Serializable {
 
 	public void setValor(BigDecimal valor) {
 		this.valor = valor;
+	}
+
+	public Long getVinculo() {
+		return vinculo;
+	}
+
+	public void setVinculo(Long vinculo) {
+		this.vinculo = vinculo;
+	}
+
+	@Transient
+	public boolean isInclusao() {
+		return this.getId() == null;
 	}
 
 	@Override

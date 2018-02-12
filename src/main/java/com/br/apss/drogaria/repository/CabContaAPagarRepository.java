@@ -59,6 +59,15 @@ public class CabContaAPagarRepository implements Serializable {
 		}
 	}
 
+	public CabContaApagar porVinculo(Long vinculo) {
+		try {
+			return manager.createQuery("from CabContaApagar where vinculo = :vinculo", CabContaApagar.class)
+					.setParameter("vinculo", vinculo).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
 	@SuppressWarnings({ "deprecation" })
 	private Criteria criarCriteriaParaFiltro(CabContaApagarFilter filtro) {
 

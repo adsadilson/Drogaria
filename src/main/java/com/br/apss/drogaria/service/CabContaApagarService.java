@@ -23,8 +23,8 @@ public class CabContaApagarService implements Serializable {
 	}
 
 	@Transacional
-	public void excluir(CabContaApagar tarefa) {
-		dao.excluir(tarefa);
+	public void excluir(CabContaApagar cabContaApagar) {
+		dao.excluir(cabContaApagar);
 	}
 
 	public List<CabContaApagar> filtrados(CabContaApagarFilter filtro) {
@@ -37,6 +37,10 @@ public class CabContaApagarService implements Serializable {
 
 	public CabContaApagar porId(Long id) {
 		return dao.porId(id);
+	}
+
+	public CabContaApagar porVinculo(Long vinculo) {
+		return dao.porVinculo(vinculo);
 	}
 
 	public CabContaApagar porNome(String nome) {
