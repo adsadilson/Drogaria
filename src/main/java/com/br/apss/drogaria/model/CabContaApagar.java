@@ -43,6 +43,10 @@ public class CabContaApagar implements Serializable {
 	@Column(name = "data_doc", length = 10)
 	private Date dataDoc;
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "data_vencto", length = 10)
+	private Date dataVencto;
+
 	@ManyToOne
 	@JoinColumn(name = "fornecedor_id", nullable = false)
 	private Pessoa fornecedor;
@@ -129,6 +133,14 @@ public class CabContaApagar implements Serializable {
 
 	public void setVinculo(Long vinculo) {
 		this.vinculo = vinculo;
+	}
+
+	public Date getDataVencto() {
+		return dataVencto;
+	}
+
+	public void setDataVencto(Date dataVencto) {
+		this.dataVencto = dataVencto;
 	}
 
 	@Transient
