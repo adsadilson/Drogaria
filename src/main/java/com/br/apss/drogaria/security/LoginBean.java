@@ -18,6 +18,7 @@ import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.service.UsuarioService;
+import com.br.apss.drogaria.util.jpa.FlyWay;
 
 @Named
 @SessionScoped
@@ -31,7 +32,9 @@ public class LoginBean implements Serializable {
 
 	@Inject
 	private UsuarioService usuarioService;
-
+	
+	private FlyWay flyWay = new FlyWay();
+	
 	/******************** Metodos ***********************/
 
 	public void autenticar() {
@@ -53,8 +56,10 @@ public class LoginBean implements Serializable {
 				HttpSession session;
 				FacesContext ctx = FacesContext.getCurrentInstance();
 				session = (HttpSession) ctx.getExternalContext().getSession(false);
-
 				session.setAttribute("usuarioAutenticado", usuarioLogado);
+				
+				flyWay.uploadBaseDado();
+				
 				Faces.redirect("./");
 			} catch (IOException e) {
 				e.printStackTrace();

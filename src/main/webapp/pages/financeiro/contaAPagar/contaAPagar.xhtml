@@ -678,7 +678,7 @@
 					<p:outputLabel value="Fornecedor" />
 					<p:selectOneMenu id="combFornecedorFiltro" autoWidth="false"
 						filter="true" value="#{contaAPagarBean.filtro.fornecedor}"
-						filterMatchMode="contains" style="width:220px;"
+						filterMatchMode="contains" style="width:215px;"
 						converter="omnifaces.SelectItemsConverter">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
 						<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
@@ -714,7 +714,7 @@
 							<p:ajax event="dateSelect" process="@this" />
 						</p:calendar>
 						<p:outputLabel value="a"
-							style="margin-left:7px; margin-right:7px;" />
+							style="margin-left:8px; margin-right:8px;" />
 						<p:calendar value="#{contaAPagarBean.filtro.dataVenctoFim}"
 							size="10" id="txtFiltroDtVenctoFim" pattern="dd/MM/yyyy"
 							locale="pt_BR"
@@ -735,7 +735,7 @@
 						<p:inputNumber value="#{contaAPagarBean.filtro.valor1}" size="10"
 							decimalSeparator="," thousandSeparator="." />
 						<p:outputLabel value="a"
-							style="margin-left:7px; margin-right:7px;" />
+							style="margin-left:8px; margin-right:8px;" />
 						<p:inputNumber value="#{contaAPagarBean.filtro.valor2}" size="10"
 							decimalSeparator="," thousandSeparator="." />
 					</h:panelGroup>

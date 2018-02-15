@@ -184,7 +184,7 @@ public class ContaAPagarRepository implements Serializable {
 		}
 
 		if (filtro.getValor2() != null) {
-			criteria.add(Restrictions.ge("valor", filtro.getValor2()));
+			criteria.add(Restrictions.le("valor", filtro.getValor2()));
 		}
 
 		if (filtro.getStatus() != null) {

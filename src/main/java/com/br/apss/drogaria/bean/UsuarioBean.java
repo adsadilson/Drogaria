@@ -86,7 +86,7 @@ public class UsuarioBean implements Serializable {
 		Usuario usuarioExistente = usuarioService.porEmail(this.usuario.getEmail());
 		if (!hash.toHex().equals(usuarioExistente.getSenha())) {
 			this.aprovado = false;
-			throw new NegocioException("Senha atual inválida.");
+			throw new NegocioException("Senha atual invalida.");
 		} else {
 			this.aprovado = true;
 		}
