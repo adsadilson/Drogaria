@@ -50,6 +50,10 @@ public class ContaAPagar implements Serializable {
 	private Date dataVencto;
 
 	@Temporal(TemporalType.DATE)
+	@Column(name = "data_doc")
+	private Date dataDoc;
+
+	@Temporal(TemporalType.DATE)
 	@Column(name = "data_pagto")
 	private Date dataPagto;
 
@@ -238,6 +242,14 @@ public class ContaAPagar implements Serializable {
 
 	public void setValorApagar(BigDecimal valorApagar) {
 		this.valorApagar = valorApagar;
+	}
+
+	public Date getDataDoc() {
+		return dataDoc;
+	}
+
+	public void setDataDoc(Date dataDoc) {
+		this.dataDoc = dataDoc;
 	}
 
 	@Override

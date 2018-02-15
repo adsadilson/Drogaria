@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import com.br.apss.drogaria.enums.Estado;
+import com.br.apss.drogaria.model.Pessoa;
 
 public class ContaAPagarFilter {
 
@@ -15,12 +16,14 @@ public class ContaAPagarFilter {
 	private int quantidadeRegistros;
 	private String campoOrdernacao;
 	private boolean asc;
-	private Date dataIni = new Date();
-	private Date dataFim = new Date();
-	private BigDecimal entrada1;
-	private BigDecimal entrada2;
-	private BigDecimal saida1;
-	private BigDecimal saida2;
+	private Date dataEmissaoIni;
+	private Date dataEmissaoFim;
+	private Date dataVenctoIni;
+	private Date dataVenctoFim;
+	private BigDecimal valor1;
+	private BigDecimal valor2;
+	private String doc;
+	private Pessoa fornecedor;
 
 	public String getNome() {
 		return nome;
@@ -45,8 +48,6 @@ public class ContaAPagarFilter {
 	public void setStatus(Boolean status) {
 		this.status = status;
 	}
-
-	
 
 	public int getPrimerioRegistro() {
 		return primerioRegistro;
@@ -88,52 +89,68 @@ public class ContaAPagarFilter {
 		this.origem = origem;
 	}
 
-	public Date getDataIni() {
-		return dataIni;
+	public Date getDataEmissaoIni() {
+		return dataEmissaoIni;
 	}
 
-	public void setDataIni(Date dataIni) {
-		this.dataIni = dataIni;
+	public void setDataEmissaoIni(Date dataEmissaoIni) {
+		this.dataEmissaoIni = dataEmissaoIni;
 	}
 
-	public Date getDataFim() {
-		return dataFim;
+	public Date getDataEmissaoFim() {
+		return dataEmissaoFim;
 	}
 
-	public void setDataFim(Date dataFim) {
-		this.dataFim = dataFim;
+	public void setDataEmissaoFim(Date dataEmissaoFim) {
+		this.dataEmissaoFim = dataEmissaoFim;
 	}
 
-	public BigDecimal getEntrada1() {
-		return entrada1;
+	public Date getDataVenctoIni() {
+		return dataVenctoIni;
 	}
 
-	public void setEntrada1(BigDecimal entrada1) {
-		this.entrada1 = entrada1;
+	public void setDataVenctoIni(Date dataVenctoIni) {
+		this.dataVenctoIni = dataVenctoIni;
 	}
 
-	public BigDecimal getEntrada2() {
-		return entrada2;
+	public Date getDataVenctoFim() {
+		return dataVenctoFim;
 	}
 
-	public void setEntrada2(BigDecimal entrada2) {
-		this.entrada2 = entrada2;
+	public void setDataVenctoFim(Date dataVenctoFim) {
+		this.dataVenctoFim = dataVenctoFim;
 	}
 
-	public BigDecimal getSaida1() {
-		return saida1;
+	public BigDecimal getValor1() {
+		return valor1;
 	}
 
-	public void setSaida1(BigDecimal saida1) {
-		this.saida1 = saida1;
+	public void setValor1(BigDecimal valor1) {
+		this.valor1 = valor1;
 	}
 
-	public BigDecimal getSaida2() {
-		return saida2;
+	public BigDecimal getValor2() {
+		return valor2;
 	}
 
-	public void setSaida2(BigDecimal saida2) {
-		this.saida2 = saida2;
+	public void setValor2(BigDecimal valor2) {
+		this.valor2 = valor2;
+	}
+
+	public String getDoc() {
+		return doc;
+	}
+
+	public void setDoc(String doc) {
+		this.doc = doc;
+	}
+
+	public Pessoa getFornecedor() {
+		return fornecedor;
+	}
+
+	public void setFornecedor(Pessoa fornecedor) {
+		this.fornecedor = fornecedor;
 	}
 
 }

@@ -27,7 +27,7 @@ public class PrimeDateRangeValidator implements Validator {
 		Date startDate = (Date) startDateValue;
 		Date endDate = (Date) value;
 		if (endDate.before(startDate)) {
-			FacesMessage msg = new FacesMessage("A data final esta maior que a data inicial!");
+			FacesMessage msg = new FacesMessage("A data final esta menor que a data inicial!");
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(msg);
 		}

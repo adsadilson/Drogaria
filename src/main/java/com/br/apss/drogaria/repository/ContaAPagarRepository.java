@@ -11,7 +11,6 @@ import javax.persistence.NoResultException;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -58,8 +57,8 @@ public class ContaAPagarRepository implements Serializable {
 
 		// lista de movimentação
 		List<Movimentacao> m = new ArrayList<>();
-		
-		//Exclusão da tabela cab_conta_apagar 
+
+		// Exclusão da tabela cab_conta_apagar
 		for (ContaAPagar c : contas) {
 			excluirCabCContaApagar(c.getId());
 		}
@@ -89,13 +88,12 @@ public class ContaAPagarRepository implements Serializable {
 		manager.createNativeQuery("delete from conta_apagar_movimentacao where conta_apagar_id = :id")
 				.setParameter("id", id).executeUpdate();
 	}
-	
-	
+
 	public void excluirCabContaApagar(Long id) {
-		manager.createNativeQuery("delete from cab_conta_apagar where vinculo = :id")
-				.setParameter("id", id).executeUpdate();
+		manager.createNativeQuery("delete from cab_conta_apagar where vinculo = :id").setParameter("id", id)
+				.executeUpdate();
 	}
-	
+
 	public void excluirCabCContaApagar(Long id) {
 		manager.createNativeQuery("delete from cab_conta_apagar_conta_apagar where listacontaapagars_id = :id")
 				.setParameter("id", id).executeUpdate();
@@ -151,28 +149,51 @@ public class ContaAPagarRepository implements Serializable {
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
-		if (StringUtils.isNotBlank(filtro.getOrigem())) {
+		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);
 
-			if (filtro.getOrigem().equals("principal")) {
+		if (filtro.getFornecedor() != null) {
+			criteria.add(Restrictions.eq("fornecedor.id", filtro.getFornecedor().getId()));
+		}
 
-				Criterion p1 = Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE);
-				Criterion p2 = Restrictions.ilike("cpfCnpj", filtro.getNome(), MatchMode.ANYWHERE);
-				criteria.add(Restrictions.or(p1, p2));
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
+		}
 
+		if (StringUtils.isNotBlank(filtro.getDoc())) {
+			criteria.add(Restrictions.ilike("numDoc", filtro.getDoc(), MatchMode.ANYWHERE));
+		}
+
+		if (filtro.getDataEmissaoIni() != null) {
+			criteria.add(Restrictions.ge("dataDoc", filtro.getDataEmissaoIni()));
+		}
+
+		if (filtro.getDataEmissaoFim() != null) {
+			criteria.add(Restrictions.le("dataDoc", filtro.getDataEmissaoFim()));
+		}
+
+		if (filtro.getDataVenctoIni() != null) {
+			criteria.add(Restrictions.ge("dataVencto", filtro.getDataVenctoIni()));
+		}
+
+		if (filtro.getDataVenctoFim() != null) {
+			criteria.add(Restrictions.le("dataVencto", filtro.getDataVenctoFim()));
+		}
+
+		if (filtro.getValor1() != null) {
+			criteria.add(Restrictions.ge("valor", filtro.getValor1()));
+		}
+
+		if (filtro.getValor2() != null) {
+			criteria.add(Restrictions.ge("valor", filtro.getValor2()));
+		}
+
+		if (filtro.getStatus() != null) {
+			if (filtro.getStatus()) {
+				criteria.add(Restrictions.eq("status", true));
+			} else {
+				criteria.add(Restrictions.eq("status", false));
 			}
-		} else {
-			if (StringUtils.isNotBlank(filtro.getNome())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
-			}
 
-			if (filtro.getStatus() != null) {
-				if (filtro.getStatus()) {
-					criteria.add(Restrictions.eq("status", true));
-				} else {
-					criteria.add(Restrictions.eq("status", false));
-				}
-
-			}
 		}
 
 		return criteria;

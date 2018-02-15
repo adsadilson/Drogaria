@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,8 +140,9 @@ public class ContaAPagarBean implements Serializable {
 	public void excluirSelecionados() {
 		try {
 			contaAPagarService.excluirContas(this.contaApagarSelecionadas);
-			pesquisar();
 			this.contaApagarSelecionadas = new ArrayList<>();
+			pesquisar();
+			this.setTotalSelecionado(BigDecimal.ZERO);
 			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
 		} catch (Exception e) {
 			Messages.addGlobalError("Não é possivel excluir uma conta a pagar se existe outras Parcelas, "
@@ -236,6 +238,7 @@ public class ContaAPagarBean implements Serializable {
 					this.listaMovimentacoes = this.movtoServico.salvar(this.listaMovimentacoes);
 
 					for (int i = 0; i < this.listaParcelas.size(); i++) {
+						this.listaParcelas.get(i).setDataDoc(this.cabContaApagar.getDataDoc());
 						this.listaParcelas.get(i).setStatus("ABERTO");
 						this.listaParcelas.get(i).setFornecedor(this.cabContaApagar.getFornecedor());
 						this.listaParcelas.get(i).setVinculo(this.contaAPagar.getVinculo());
@@ -252,7 +255,7 @@ public class ContaAPagarBean implements Serializable {
 
 					RequestContext request = RequestContext.getCurrentInstance();
 					request.addCallbackParam("sucesso", true);
-					Messages.addGlobalInfo("Registro atualizado com sucesso.");
+					Messages.addGlobalInfo("Registro salvo com sucesso.");
 
 					pesquisar();
 
@@ -263,7 +266,7 @@ public class ContaAPagarBean implements Serializable {
 				Messages.addGlobalError("Não foi informado nenhum valor para forma de pagamento");
 			}
 		} else {
-			Messages.addGlobalInfo("Data da entrada est� maior que a data de vencimento.");
+			Messages.addGlobalInfo("Data da entrada está maior que a data de vencimento.");
 		}
 	}
 
@@ -353,8 +356,9 @@ public class ContaAPagarBean implements Serializable {
 	public void calcJurDesMul() {
 		/*
 		 * BigDecimal t = BigDecimal.ZERO; BigDecimal multa =
-		 * contaAPagar.getValorMulta(); BigDecimal juro = contaAPagar.getValorJuro();
-		 * BigDecimal desc = contaAPagar.getValorDesc(); t =
+		 * contaAPagar.getValorMulta(); BigDecimal juro =
+		 * contaAPagar.getValorJuro(); BigDecimal desc =
+		 * contaAPagar.getValorDesc(); t =
 		 * t.add(contaAPagar.getValor().add(multa).add(juro).subtract(desc));
 		 * contaAPagar.setValorPago(t);
 		 */
@@ -405,39 +409,51 @@ public class ContaAPagarBean implements Serializable {
 
 	public void pesquisar() {
 
+		listaContaAPagars.clear();
 		listaContaAPagars = contaAPagarService.filtrados(filtro);
 
 		BigDecimal t1 = BigDecimal.ZERO;
 		BigDecimal t2 = BigDecimal.ZERO;
 		BigDecimal t3 = BigDecimal.ZERO;
-		Date dataAtual = new Date();
-		System.out.println(Calendar.getInstance().getTime());
+		this.setTotalAVencido(t1);
+		this.setTotalAVencer(t2);
+		this.setTotalGeral(t3);
+
+		Date dataAtual = getDataAtualFormatada();
 
 		for (ContaAPagar c : listaContaAPagars) {
 			c.setDias(intervaloDias(c.getDataVencto(), new Date()));
 			if (c.getDataVencto().before(dataAtual)) {
-				//System.out.println("Data é inferior à ");
+				// System.out.println("Data é inferior à ");
 				t1 = t1.add(c.getValor());
 				this.setTotalAVencido(t1);
 			} else if (c.getDataVencto().after(dataAtual)) {
-				//System.out.println("Data é posterior à ");
+				// System.out.println("Data é posterior à ");
 				t2 = t2.add(c.getValor());
 				this.setTotalAVencer(t2);
 			} else {
-				//System.out.println("Data é igual à ");
+				// System.out.println("Data é igual à ");
 				t3 = t3.add(c.getValor());
 				this.setTotalGeral(t3);
 			}
 		}
+		
+		RequestContext request = RequestContext.getCurrentInstance();
+		request.addCallbackParam("sucesso", true);
 	}
-	
-	public Date dataAtualFormatada() {
+
+	public Date getDataAtualFormatada() {
 		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
 		Date dt = new Date();
-		formato.format(dt);
-		
-		
-		return dt;
+		String hoje = formato.format(dt);
+		Date data = null;
+		try {
+			data = formato.parse(hoje);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
 	}
 
 	public List<Status> getStatus() {
@@ -554,16 +570,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
-	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
-	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
-	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
-	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
-	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
-	 * c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
+	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
+	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
+	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
+	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
+	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
+	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
