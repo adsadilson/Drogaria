@@ -24,7 +24,7 @@ import org.hibernate.validator.constraints.Email;
 
 @Entity
 @Table(name = "usuario")
-@SequenceGenerator(name = "USUARIO_ID", sequenceName = "USUARIO_SEQ", allocationSize = 1)
+@SequenceGenerator(name = "USUARIO_ID", sequenceName = "USUARIO_SEQ", allocationSize = 1, initialValue=3)
 public class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "controle_menu")
-@SequenceGenerator(name = "CONTROLE_MENU_ID", sequenceName = "CONTROLE_MENU_SEQ", allocationSize = 1, initialValue = 1)
+@SequenceGenerator(name = "CONTROLE_MENU_ID", sequenceName = "CONTROLE_MENU_SEQ", allocationSize = 1, initialValue = 17)
 public class ControleMenu implements Serializable {
 
 	private static final long serialVersionUID = 1L;

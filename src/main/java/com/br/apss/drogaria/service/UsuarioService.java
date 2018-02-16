@@ -24,9 +24,10 @@ public class UsuarioService implements Serializable {
 	public void salvar(Usuario obj) {
 		if (null == obj.getId()) {
 			obj.setCadastro(new Date());
+			SimpleHash hash = new SimpleHash("md5",obj.getSenha());
+			obj.setSenha(hash.toHex());
 		}
-		SimpleHash hash = new SimpleHash("md5",obj.getSenha());
-		obj.setSenha(hash.toHex());
+		
 		dao.salvar(obj);
 	}
 

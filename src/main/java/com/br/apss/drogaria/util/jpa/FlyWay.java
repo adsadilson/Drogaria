@@ -1,11 +1,13 @@
 package com.br.apss.drogaria.util.jpa;
 
 import org.flywaydb.core.Flyway;
+import org.junit.Test;
 import org.postgresql.ds.PGPoolingDataSource;
 
 public class FlyWay {
-	
-	public static void uploadBaseDado() {
+
+	@Test
+	public void uploadBaseDado() {
 		PGPoolingDataSource dataSource = new PGPoolingDataSource();
 		dataSource.setUser("postgres");
 		dataSource.setPassword("postgres");

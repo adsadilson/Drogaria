@@ -17,7 +17,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "grupo_usuario")
-@SequenceGenerator(name = "GRUPO_USUARIO_ID", sequenceName = "GRUPO_USUARIO_SEQ", allocationSize = 1)
+@SequenceGenerator(name = "GRUPO_USUARIO_ID", sequenceName = "GRUPO_USUARIO_SEQ", allocationSize = 1, initialValue = 3)
 public class GrupoUsuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;

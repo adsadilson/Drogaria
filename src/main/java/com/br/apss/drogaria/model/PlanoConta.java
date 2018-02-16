@@ -19,7 +19,7 @@ import com.br.apss.drogaria.enums.TipoRelatorio;
 
 @Entity
 @Table(name = "plano_conta")
-@SequenceGenerator(name = "PLANO_CONTA_ID", sequenceName = "PLANO_CONTA_SEQ", allocationSize = 1, initialValue = 1)
+@SequenceGenerator(name = "PLANO_CONTA_ID", sequenceName = "PLANO_CONTA_SEQ", allocationSize = 1, initialValue = 26)
 public class PlanoConta implements Serializable {
 
 	private static final long serialVersionUID = 1L;

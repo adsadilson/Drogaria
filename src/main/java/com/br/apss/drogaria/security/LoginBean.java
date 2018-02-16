@@ -36,6 +36,11 @@ public class LoginBean implements Serializable {
 	private FlyWay flyWay = new FlyWay();
 	
 	/******************** Metodos ***********************/
+	
+	
+	public LoginBean() {
+		flyWay.uploadBaseDado();
+	}
 
 	public void autenticar() {
 
@@ -58,7 +63,7 @@ public class LoginBean implements Serializable {
 				session = (HttpSession) ctx.getExternalContext().getSession(false);
 				session.setAttribute("usuarioAutenticado", usuarioLogado);
 				
-				flyWay.uploadBaseDado();
+			
 				
 				Faces.redirect("./");
 			} catch (IOException e) {

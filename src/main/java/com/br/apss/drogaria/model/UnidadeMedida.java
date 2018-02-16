@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "unidade_medida")
-@SequenceGenerator(name = "UNIDADE_MEDIDA_ID", sequenceName = "UNIDADE_MEDIDA_SEQ", allocationSize = 1)
+@SequenceGenerator(name = "UNIDADE_MEDIDA_ID", sequenceName = "UNIDADE_MEDIDA_SEQ", allocationSize = 1, initialValue = 10)
 public class UnidadeMedida implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -53,6 +53,7 @@ public class AutenticacaoListener implements PhaseListener {
 							break;
 						}
 					}
+					break;
 				}
 				if(!possui){
 					try {

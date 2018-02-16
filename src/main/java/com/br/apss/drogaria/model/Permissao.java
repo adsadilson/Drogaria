@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "permissao")
-@SequenceGenerator(name = "PERMISSAO_ID", sequenceName = "PERMISSAO_SEQ", allocationSize = 1)
+@SequenceGenerator(name = "PERMISSAO_ID", sequenceName = "PERMISSAO_SEQ", allocationSize = 1, initialValue = 33)
 public class Permissao implements Serializable, Comparable<Permissao> {
 
 	private static final long serialVersionUID = 1L;
