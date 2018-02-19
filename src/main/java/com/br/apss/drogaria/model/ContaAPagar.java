@@ -100,6 +100,13 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private int periodo = 30;
 
+	@Transient
+	private BigDecimal valorMultaJuros = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal valorDesc = BigDecimal.ZERO;
+	
+
 	public Long getId() {
 		return id;
 	}
@@ -250,6 +257,22 @@ public class ContaAPagar implements Serializable {
 
 	public void setDataDoc(Date dataDoc) {
 		this.dataDoc = dataDoc;
+	}
+
+	public BigDecimal getValorMultaJuros() {
+		return valorMultaJuros;
+	}
+
+	public void setValorMultaJuros(BigDecimal valorMultaJuros) {
+		this.valorMultaJuros = valorMultaJuros;
+	}
+
+	public BigDecimal getValorDesc() {
+		return valorDesc;
+	}
+
+	public void setValorDesc(BigDecimal valorDesc) {
+		this.valorDesc = valorDesc;
 	}
 
 	@Override

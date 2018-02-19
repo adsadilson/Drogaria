@@ -39,7 +39,7 @@ public class LoginBean implements Serializable {
 	
 	
 	public LoginBean() {
-		flyWay.uploadBaseDado();
+		//flyWay.uploadBaseDado();
 	}
 
 	public void autenticar() {

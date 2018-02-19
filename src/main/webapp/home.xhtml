@@ -44,8 +44,8 @@ h2, .h2 {
 		<br />
 		<div style="margin-left: 150px; width: 550px;">
 			<h2>
-				Bem vindo ao sistema <span class="text-aqua"> <i>SGE</i></span>! <br /> <span class="small">Utilizando <p:link
-						value="CDI"
+				Bem vindo ao sistema <span class="text-aqua"> <i>SGE</i></span>! <br />
+				<span class="small">Utilizando <p:link value="CDI"
 						href="http://blog.caelum.com.br/use-cdi-no-seu-proximo-projeto-java/"
 						target="_blank" />, <p:link value="JPA"
 						href="https://www.dfilitto.com.br/java/jpa-o-que-e-para-que-serve-como-implementar-um-sistema/"
@@ -55,12 +55,14 @@ h2, .h2 {
 						target="_blank" />.
 				</span>
 			</h2>
-			<ui:remove>
-				<h:form>
-					<p:commandButton value="Error"
-						action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
-				</h:form>
-			</ui:remove>
+			<h:form prependId="false">
+				<p:inputText style="width:85%" id="txtBaixaMultaJuro"
+					styleClass="moeda" onfocus="configurarMoeda();"
+					converter="moedaConverter" />
+				<p:inputText style="width:85%" id="teste" onfocus="formatoMoeda('teste')" />
+				<p:commandButton value="Error"
+					action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
+			</h:form>
 		</div>
 
 

@@ -67,6 +67,8 @@ public class ContaAPagarBean implements Serializable {
 
 	private List<ContaAPagar> contaApagarSelecionadas = new ArrayList<ContaAPagar>();
 
+	private List<ContaAPagar> listaContasApagar = new ArrayList<ContaAPagar>();
+
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
 
 	private ContaAPagar parcela;
@@ -111,7 +113,15 @@ public class ContaAPagarBean implements Serializable {
 
 	private BigDecimal totalGeral = BigDecimal.ZERO;
 
+	private BigDecimal totalMultaJuros = BigDecimal.ZERO;
+
+	private BigDecimal totalDesc = BigDecimal.ZERO;
+
+	private BigDecimal totalApagar = BigDecimal.ZERO;
+
 	private boolean isToggle = false;
+
+	private Boolean permitirEditar;
 
 	@Inject
 	CabContaApagarService service;
@@ -181,31 +191,42 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
-
-		this.parcela = new ContaAPagar();
-
-		this.movimentacao = new Movimentacao();
-
-		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
-
+		this.permitirEditar = true;
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
+			this.listaParcelas = new ArrayList<ContaAPagar>();
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
-			this.contaApagarSelecionadas = this.listaParcelas;
-			this.listaMovimentacoes = cp.getMovimentacoes();
-			this.cabContaApagar = cabContaApagarService.porVinculo(cp.getVinculo());
-		}
 
-		for (ContaAPagar c : this.listaParcelas) {
-			t = t.add(c.getValor());
+			for (ContaAPagar par : this.listaParcelas) {
+				if (par.getDataPagto() != null) {
+					this.permitirEditar = false;
+					break;
+				}
+			}
 		}
-
-		for (Movimentacao m : this.listaMovimentacoes) {
-			t2 = t2.add(m.getVlrSaida());
-		}
-
-		this.parcela.setValor(t);
-		this.setTotalDasParcelas(t);
-		this.movimentacao.setTotalRateio(t2);
+		/*
+		 * this.parcela = new ContaAPagar(); this.movimentacao = new
+		 * Movimentacao(); BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
+		 * 
+		 * for (ContaAPagar cp : this.contaApagarSelecionadas) {
+		 * this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
+		 * 
+		 * for (ContaAPagar par : this.listaParcelas) {
+		 * 
+		 * if (par.getDataPagto() == null) { this.permitirEditar = true;
+		 * this.contaApagarSelecionadas = this.listaParcelas;
+		 * this.listaMovimentacoes = cp.getMovimentacoes(); this.cabContaApagar
+		 * = cabContaApagarService.porVinculo(cp.getVinculo());
+		 * 
+		 * t = t.add(par.getValor());
+		 * 
+		 * for (Movimentacao m : this.listaMovimentacoes) { t2 =
+		 * t2.add(m.getVlrSaida()); }
+		 * 
+		 * this.parcela.setValor(t); this.setTotalDasParcelas(t);
+		 * this.movimentacao.setTotalRateio(t2);
+		 * 
+		 * } else { this.permitirEditar = false; break; } } }
+		 */
 	}
 
 	public void salvar() throws Exception {
@@ -327,42 +348,31 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
-	public void carregarContasADebitar() {
+	public List<PlanoConta> getCarregarContasADebitar() {
 		PlanoContaFilter cl = new PlanoContaFilter();
 		cl.setTipo(TipoConta.CC);
+		cl.setCategoria(TipoRelatorio.A);
 		cl.setStatus(true);
-		this.listaContas = contaService.filtrados(cl);
+		return contaService.filtrados(cl);
 	}
 
 	public void iniciarBaixaTitulo() {
 		contaAPagar = new ContaAPagar();
 		contaAPagar.setDataPagto(new Date());
 
+		this.listaContasApagar = new ArrayList<>(this.contaApagarSelecionadas);
+
 		BigDecimal vlr = BigDecimal.ZERO;
-		for (ContaAPagar cp : this.contaApagarSelecionadas) {
+		for (ContaAPagar cp : this.listaContasApagar) {
 			vlr = vlr.add(cp.getValor());
 		}
 		contaAPagar.setValor(vlr);
 
-		carregarContasADebitar();
-		calcJurDesMul();
-
 	}
 
-	public void baixarTitulos() {
-
-	}
-
-	public void calcJurDesMul() {
-		/*
-		 * BigDecimal t = BigDecimal.ZERO; BigDecimal multa =
-		 * contaAPagar.getValorMulta(); BigDecimal juro =
-		 * contaAPagar.getValorJuro(); BigDecimal desc =
-		 * contaAPagar.getValorDesc(); t =
-		 * t.add(contaAPagar.getValor().add(multa).add(juro).subtract(desc));
-		 * contaAPagar.setValorPago(t);
-		 */
-
+	public void closeBaixaTitulo() {
+		this.contaApagarSelecionadas.clear();
+		rowToggleSelect();
 	}
 
 	public List<FormaBaixa> getListaFormaBaixa() {
@@ -437,7 +447,7 @@ public class ContaAPagarBean implements Serializable {
 				this.setTotalGeral(t3);
 			}
 		}
-		
+
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
 	}
@@ -540,10 +550,45 @@ public class ContaAPagarBean implements Serializable {
 		Object newValue = event.getNewValue();
 
 		if (newValue != null && !newValue.equals(oldValue)) {
+			// calcularParcelas();
+
+			DataTable dataModel = (DataTable) event.getSource();
+			ContaAPagar parcela = (ContaAPagar) dataModel.getRowData();
+
+			BigDecimal t1 = BigDecimal.ZERO;
+			BigDecimal t2 = BigDecimal.ZERO;
+			BigDecimal t3 = BigDecimal.ZERO;
+
+			for (ContaAPagar c : this.contaApagarSelecionadas) {
+				t1 = t1.add(c.getValorMultaJuros());
+				t2 = t2.add(c.getValorDesc());
+				if (parcela.getParcela().equals(c.getParcela())) {
+					c.setValorApagar(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+				}
+				t3 = t3.add(c.getValorApagar());
+			}
+
+			this.setTotalMultaJuros(t1);
+			this.setTotalDesc(t2);
+			this.setTotalApagar(t3);
+
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada",
 					"Antigo: " + oldValue + ", Novo:" + newValue);
 			FacesContext.getCurrentInstance().addMessage(null, msg);
 		}
+	}
+
+	public String calcularParcelas() {
+		BigDecimal totalParcelas = BigDecimal.ZERO;
+		BigDecimal dif = contaAPagar.getValor();
+		for (ContaAPagar cp : this.contaApagarSelecionadas) {
+			totalParcelas = totalParcelas.add(cp.getValor());
+		}
+		BigDecimal reslt = totalParcelas.subtract(dif);
+
+		NumberFormat nf = NumberFormat.getCurrencyInstance();
+		String formatado = nf.format(reslt);
+		return formatado;
 	}
 
 	public Date somaDias(Date data, int dias) {
@@ -740,6 +785,46 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setTipoConta(TipoConta tipoConta) {
 		this.tipoConta = tipoConta;
+	}
+
+	public Boolean getPermitirEditar() {
+		return permitirEditar;
+	}
+
+	public void setPermitirEditar(boolean permitirEditar) {
+		this.permitirEditar = permitirEditar;
+	}
+
+	public BigDecimal getTotalMultaJuros() {
+		return totalMultaJuros;
+	}
+
+	public void setTotalMultaJuros(BigDecimal totalMultaJuros) {
+		this.totalMultaJuros = totalMultaJuros;
+	}
+
+	public BigDecimal getTotalDesc() {
+		return totalDesc;
+	}
+
+	public void setTotalDesc(BigDecimal totalDesc) {
+		this.totalDesc = totalDesc;
+	}
+
+	public BigDecimal getTotalApagar() {
+		return totalApagar;
+	}
+
+	public void setTotalApagar(BigDecimal totalApagar) {
+		this.totalApagar = totalApagar;
+	}
+
+	public List<ContaAPagar> getListaContasApagar() {
+		return listaContasApagar;
+	}
+
+	public void setListaContasApagar(List<ContaAPagar> listaContasApagar) {
+		this.listaContasApagar = listaContasApagar;
 	}
 
 }

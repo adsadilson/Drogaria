@@ -20,6 +20,7 @@ public class ContaAPagarFilter {
 	private Date dataEmissaoFim;
 	private Date dataVenctoIni;
 	private Date dataVenctoFim;
+	private Date dataPagto;
 	private BigDecimal valor1;
 	private BigDecimal valor2;
 	private String doc;
@@ -151,6 +152,14 @@ public class ContaAPagarFilter {
 
 	public void setFornecedor(Pessoa fornecedor) {
 		this.fornecedor = fornecedor;
+	}
+
+	public Date getDataPagto() {
+		return dataPagto;
+	}
+
+	public void setDataPagto(Date dataPagto) {
+		this.dataPagto = dataPagto;
 	}
 
 }

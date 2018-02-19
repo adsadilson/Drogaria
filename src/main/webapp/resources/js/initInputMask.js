@@ -65,6 +65,10 @@ function mascaraDtCalendar(id){
 	});
 }
 
+function configurarMoeda(){
+	$(".moeda").maskMoney({decimal: ",", thousands: ".", allowZero: true, symbol : "R$ "});
+}
+
 function formatoMoeda(id){
 	$("#"+id).maskMoney({
 		showSymbol : true,

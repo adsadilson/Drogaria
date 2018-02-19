@@ -149,6 +149,10 @@ public class ContaAPagarRepository implements Serializable {
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
+		if (filtro.getDataPagto() == null) {
+			criteria.add(Restrictions.isNull("dataPagto"));
+		}
+
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);
 
 		if (filtro.getFornecedor() != null) {
