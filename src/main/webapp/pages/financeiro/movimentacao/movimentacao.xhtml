@@ -3,6 +3,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Movimentação de Contas</ui:define>
@@ -107,7 +108,6 @@
 		</h:form>
 
 		<!-- TABELA DE LANÇAMENTO EM CONTA -->
-
 		<h:form id="frm-tabela" prependId="false">
 			<p:dataTable id="tbl-desp" value="#{movimentacaoBean.model}"
 				var="desp" style="margin-top: 10px; margin-bottom:20px;"

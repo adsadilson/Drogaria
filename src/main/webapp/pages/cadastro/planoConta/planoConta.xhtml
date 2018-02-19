@@ -3,6 +3,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Pesquisa Plano de Conta</ui:define>
@@ -91,6 +92,15 @@
 				rowStyleClass="#{planoConta.categoria == 'S' ? 'red' : null}"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
 				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<ui:remove>
+					<f:facet name="header">
+						<h:outputText value="Existem " />
+						<h:outputText
+							value="#{fn:length(planoContaBean.listaPlanoContas)}" />
+						<h:outputText value=" plano de contas cadastradas. " />
+					</f:facet>
+				</ui:remove>
 
 				<p:column headerText="Ação" style="width: 100px; text-align: center"
 					exportable="false">

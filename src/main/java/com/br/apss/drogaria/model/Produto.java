@@ -22,7 +22,7 @@ import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Entity
 @Table(name = "produto")
-@SequenceGenerator(name = "PRODUTO_ID", sequenceName = "PRODUTO_SEQ", allocationSize = 1, initialValue = 1)
+@SequenceGenerator(name = "PRODUTO_ID", sequenceName = "PRODUTO_SEQ", allocationSize = 1, initialValue = 11)
 public class Produto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -31,7 +31,7 @@ public class Produto implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "PRODUTO_ID")
 	private Long id;
 
-	@Column(nullable = false, length = 80)
+	@Column(nullable = false, length = 255)
 	private String nome;
 
 	@Column(nullable = false, length = 20, unique = true)

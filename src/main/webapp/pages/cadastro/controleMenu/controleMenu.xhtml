@@ -3,7 +3,9 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Pesquisa Controle Menu</ui:define>
 
@@ -31,7 +33,8 @@
 
 			<p:focus for="txtPesquisar" />
 
-			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+			<p:toolbar style="margin-top: 20px; margin-bottom:10px;"
+				styleClass="semPreenchimento">
 				<p:toolbarGroup>
 					<p:commandButton value="Novo" icon="fa fa-file-o"
 						update="dgCadastro" action="#{controleMenuBean.novo()}"
@@ -73,9 +76,13 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
-			<p:dataTable id="tblMenu" value="#{controleMenuBean.controleMenus}" var="menu"
-				style="margin-top: 20px" emptyMessage="Nenhum registro encontrado."
-				rows="11" paginator="true" paginatorAlwaysVisible="false"
+			<h:outputText style="margin-left:2px; color:blue;"
+				value="Existem #{fn:length(controleMenuBean.controleMenus)} controle de menu cadastradas." />
+
+			<p:dataTable id="tblMenu" value="#{controleMenuBean.controleMenus}"
+				var="menu" style="margin-top: 3px"
+				emptyMessage="Nenhum registro encontrado." rows="11"
+				paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
 				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
@@ -83,10 +90,12 @@
 				<p:column headerText="Ação" style="width: 70px; text-align: center"
 					exportable="false">
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
-						styleClass="semPreenchimento" action="#{controleMenuBean.preparEdicao()}"
+						styleClass="semPreenchimento"
+						action="#{controleMenuBean.preparEdicao()}"
 						oncomplete="PF('dialogCadastro').show()" process="@this"
 						update="dgCadastro">
-						<f:setPropertyActionListener target="#{controleMenuBean.controleMenuSelecionado}"
+						<f:setPropertyActionListener
+							target="#{controleMenuBean.controleMenuSelecionado}"
 							value="#{menu}" />
 						<p:resetInput target="panelCadastro" />
 					</p:commandButton>
@@ -94,7 +103,8 @@
 						styleClass="semPreenchimento"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
-						<f:setPropertyActionListener target="#{controleMenuBean.controleMenuSelecionado}"
+						<f:setPropertyActionListener
+							target="#{controleMenuBean.controleMenuSelecionado}"
 							value="#{menu}" />
 					</p:commandButton>
 				</p:column>
@@ -126,7 +136,8 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText value="#{controleMenuBean.controleMenuSelecionado.formulario} ?" />
+					<h:outputText
+						value="#{controleMenuBean.controleMenuSelecionado.formulario} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
@@ -186,17 +197,19 @@
 					columnClasses="rotulo,campo" style="margin-top:10px;">
 
 					<p:outputLabel value="Função" for="txtNome" />
-					<p:inputText id="txtNome" value="#{controleMenuBean.controleMenu.funcao}"
-						style="width:98%;" required="true"
-						requiredMessage="Preencher o campo função!" />
+					<p:inputText id="txtNome"
+						value="#{controleMenuBean.controleMenu.funcao}" style="width:98%;"
+						required="true" requiredMessage="Preencher o campo função!" />
 
 					<p:outputLabel value="Formulario" for="txtForm" />
-					<p:inputText id="txtForm" value="#{controleMenuBean.controleMenu.formulario}"
+					<p:inputText id="txtForm"
+						value="#{controleMenuBean.controleMenu.formulario}"
 						style="width:98%; text-transform: none;" required="true"
 						requiredMessage="Preencher o campo formulario" />
 
 					<p:outputLabel value="URL" for="txtURL" />
-					<p:inputText id="txtURL" value="#{controleMenuBean.controleMenu.url}"
+					<p:inputText id="txtURL"
+						value="#{controleMenuBean.controleMenu.url}"
 						style="width:98%; text-transform: none;" required="true"
 						requiredMessage="Preencher o campo URL!" />
 
@@ -206,7 +219,8 @@
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
-							process="@this panelCadastro" action="#{controleMenuBean.salvar()}"
+							process="@this panelCadastro"
+							action="#{controleMenuBean.salvar()}"
 							oncomplete="PF('dialogFiltro').hide()"
 							update="tblMenu dgCadastro" />
 					</p:toolbarGroup>

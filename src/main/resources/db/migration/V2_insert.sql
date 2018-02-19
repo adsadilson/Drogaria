@@ -78,6 +78,60 @@ INSERT INTO unidade_medida(id, descricao, nome, status) VALUES (7, 'SACO','SC', 
 INSERT INTO unidade_medida(id, descricao, nome, status) VALUES (8, 'METRO','MT', true);
 INSERT INTO unidade_medida(id, descricao, nome, status) VALUES (9, 'BALDE','BD', true);
 
+/*Cadastro de Categoria*/
+INSERT INTO categoria(id, nome, status) VALUES (1, 'INFORMÁTICA', true);
+INSERT INTO categoria(id, nome, status) VALUES (2, 'ELETRÔNICOS', true);
+INSERT INTO categoria(id, nome, status) VALUES (3, 'ELETROPORTÁTEIS', true);
+INSERT INTO categoria(id, nome, status) VALUES (4, 'MOVEIS', true);
+INSERT INTO categoria(id, nome, status) VALUES (5, 'AUTOMOTIVO', true);
+
+
+/*Cadastro de SubCategoria*/
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (1, 'NOTEBOOK', 1, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (2, 'COMPUTADORES', 1, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (3, 'TABLETE', 1, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (4, 'ACESSORIOS', 1, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (5, 'TV', 2, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (6, 'HOME THEATER', 2, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (7, 'AUDIO', 2, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (8, 'GELADEIRA E REFRIGERADOR', 3, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (9, 'MAQUINA DE LAVAR / SECADORA', 3, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (10, 'FOGOES', 3, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (11, 'MICRO-ONDAS', 3, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (12, 'FRIGOBAR', 3, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (13, 'QUARTOS', 4, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (14, 'SALA DE JANTAR', 4, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (15, 'COZINHA', 4, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (16, 'ESCRITORIO', 4, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (17, 'PNEUS', 5, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (18, 'RODAS E CALOTAS', 5, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (19, 'SOM DE CARRO', 5, true);
+INSERT INTO subcategoria(id, nome, categoria_id, status) VALUES (20, 'ILUMINAÇÃO', 5, true);
+
+
+/*Cadastro de produto*/
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (1, '124645895145', 612, 35, 'Notebook Acer A515-51-56K6 Intel Core I5 8GB 1TB Tela LED 15.6" Windows 10 - Preto', 150, 'NO0154', true, 'REVENDA', 1750, 2362, 1, 1, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (2, '3244515485455', 699.65, 35, 'Notebook Dell Inspiron i15-5566-D10P Intel Core i3 4GB 1TB Tela LED 15.6" Linux - Preto', 350, 'NO0150', true, 'REVENDA', 1999, 2698.65, 1, 1, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (3, '1645154941545', 475.6, 40, 'Computador Com Monitor 18,5 Intel Dual Core 2.41GHZ 4GB HD 1TB 3GREEN Triumph Business Desktop', 350, 'CP0154', true, 'REVENDA', 1189, 1664.6, 1, 2, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (4, '1645544941545', 214.75, 25, 'Computador Intel Dual Core com Monitor 15,6 LED 2GB 320GB HDMI 3green', 500, 'CP1504', true, 'REVENDA', 859, 1073.75, 1, 2, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (5, '7899531819099', 134.7, 30, 'Cômoda Bartira Siena com 8 Gavetas', 500, 'CB1504', true, 'REVENDA', 314.3, 449, 4, 13, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (6, '7899531817842', 56.85, 15, 'Guarda-Roupa Bartira Olímpia com 6 Portas e 3 Gavetas', 250, 'GD1500', true, 'REVENDA', 322.19, 379.05, 4, 13, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (7, '7896659448972', 118.1, 25, 'Beliche Santos Andirá Havana Plus com Grade de Proteção', 312, 'BS004', true, 'REVENDA', 354.3, 472.41, 4, 13, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (8, '4032344697253', 44.75, 25, 'Pneu Aro 13 Altimax General Tire RT 175/70 R13 82T by Continental', 50, 'PE0104', true, 'REVENDA', 134.25, 179, 5, 17, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (9, '1000032263', 199, 25, 'Pneu General Tire Altimax RT 175/65 R14 4 Unidades by Continental', 100, 'CP1500', true, 'REVENDA', 597, 796, 5, 17, 1);
+INSERT INTO produto(id, codigo_barra, lucro, marg_lucro, nome, quantidade, sku, status, tipo_produto, vlr_custo, vlr_venda, categoria_id, subcategoria_id, unidade_medida_id)
+VALUES (10, '1000032253', 79.96, 20, 'Computador Intel Dual Core com Monitor 15,6 LED 2GB 320GB HDMI 3green', 500, 'CP2504', true, 'REVENDA', 319.84, 399.8, 5, 17, 1);
+
+
 /*Cadastro plano de conta*/
 INSERT INTO plano_conta(id, categoria, mascara, nome, status, tipo, conta_pai_id) VALUES (1,'S','1.00.00.00','CONTAS CORRENTES',TRUE,'CC',null);
 INSERT INTO plano_conta(id, categoria, mascara, nome, status, tipo, conta_pai_id) VALUES (2,'S','2.00.00.00','RECEITAS',TRUE,'R',null);

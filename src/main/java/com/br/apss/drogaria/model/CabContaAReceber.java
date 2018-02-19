@@ -23,14 +23,14 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 @Entity
-@Table(name = "cab_conta_apagar")
-@SequenceGenerator(name = "CAB_CONTA_APAGAR_ID", sequenceName = "CAB_CONTA_APAGAR_SEQ", allocationSize = 1, initialValue = 1)
-public class CabContaApagar implements Serializable {
+@Table(name = "cab_conta_areceber")
+@SequenceGenerator(name = "CAB_CONTA_ARECEBER_ID", sequenceName = "CAB_CONTA_ARECEBER_SEQ", allocationSize = 1, initialValue = 1)
+public class CabContaAReceber implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "CAB_CONTA_APAGAR_ID")
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "CAB_CONTA_ARECEBER_ID")
 	private Long id;
 
 	@Column(length = 150)
@@ -49,8 +49,8 @@ public class CabContaApagar implements Serializable {
 	private Date dataVencto;
 
 	@ManyToOne
-	@JoinColumn(name = "fornecedor_id", nullable = false)
-	private Pessoa fornecedor;
+	@JoinColumn(name = "cliente_id", nullable = false)
+	private Pessoa cliente;
 
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
@@ -60,8 +60,8 @@ public class CabContaApagar implements Serializable {
 	private BigDecimal valor = BigDecimal.ZERO;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-	@JoinTable(joinColumns = @JoinColumn(name = "cab_conta_apagar_id"), inverseJoinColumns = @JoinColumn(name = "conta_apagar_id"))
-	private List<ContaAPagar> listaContaAPagars;
+	@JoinTable(joinColumns = @JoinColumn(name = "cab_conta_areceber_id"), inverseJoinColumns = @JoinColumn(name = "conta_areceber_id"))
+	private List<ContaAReceber> listaContaARecebers;
 
 	private Long vinculo;
 
@@ -89,20 +89,20 @@ public class CabContaApagar implements Serializable {
 		this.dataLanc = dataLanc;
 	}
 
-	public Pessoa getFornecedor() {
-		return fornecedor;
+	public Pessoa getCliente() {
+		return cliente;
 	}
 
-	public void setFornecedor(Pessoa fornecedor) {
-		this.fornecedor = fornecedor;
+	public void setCliente(Pessoa cliente) {
+		this.cliente = cliente;
 	}
 
-	public List<ContaAPagar> getListaContaAPagars() {
-		return listaContaAPagars;
+	public List<ContaAReceber> getListaContaARecebers() {
+		return listaContaARecebers;
 	}
 
-	public void setListaContaAPagars(List<ContaAPagar> listaContaAPagars) {
-		this.listaContaAPagars = listaContaAPagars;
+	public void setListaContaARecebers(List<ContaAReceber> listaContaARecebers) {
+		this.listaContaARecebers = listaContaARecebers;
 	}
 
 	public Date getDataDoc() {
@@ -166,7 +166,7 @@ public class CabContaApagar implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CabContaApagar other = (CabContaApagar) obj;
+		CabContaAReceber other = (CabContaAReceber) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

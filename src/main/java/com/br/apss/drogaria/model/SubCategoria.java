@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "subcategoria")
-@SequenceGenerator(name = "SUBCATEGORIA_ID", sequenceName = "SUBCATEGORIA_SEQ", allocationSize = 1)
+@SequenceGenerator(name = "SUBCATEGORIA_ID", sequenceName = "SUBCATEGORIA_SEQ", allocationSize = 1, initialValue = 21)
 public class SubCategoria implements Serializable {
 
 	private static final long serialVersionUID = 1L;
