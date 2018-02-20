@@ -121,7 +121,7 @@ public class ContaAPagarBean implements Serializable {
 
 	private boolean isToggle = false;
 
-	private Boolean permitirEditar;
+	private String permitirEditar;
 
 	@Inject
 	CabContaApagarService service;
@@ -191,14 +191,14 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
-		this.permitirEditar = true;
+	this.permitirEditar = "true";
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
-			this.listaParcelas = new ArrayList<ContaAPagar>();
+			//this.listaParcelas = new ArrayList<ContaAPagar>();
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
 
 			for (ContaAPagar par : this.listaParcelas) {
 				if (par.getDataPagto() != null) {
-					this.permitirEditar = false;
+					this.permitirEditar = "false";
 					break;
 				}
 			}
@@ -292,6 +292,7 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void rowSelect(SelectEvent event) {
+		editar();
 		this.setTotalSelecionado(BigDecimal.ZERO);
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValor()));
 		if (this.contaApagarSelecionadas.size() > 1) {
@@ -304,10 +305,12 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void rowSelectCheckBox(SelectEvent event) {
+		editar();
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValor()));
 	}
 
 	public void rowUnSelect(UnselectEvent event) {
+		editar();
 		this.setTotalSelecionado(this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValor()));
 	}
 
@@ -787,11 +790,11 @@ public class ContaAPagarBean implements Serializable {
 		this.tipoConta = tipoConta;
 	}
 
-	public Boolean getPermitirEditar() {
+	public String getPermitirEditar() {
 		return permitirEditar;
 	}
 
-	public void setPermitirEditar(boolean permitirEditar) {
+	public void setPermitirEditar(String permitirEditar) {
 		this.permitirEditar = permitirEditar;
 	}
 

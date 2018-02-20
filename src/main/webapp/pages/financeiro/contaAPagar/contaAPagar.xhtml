@@ -77,7 +77,7 @@
 
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo"
+					<p:commandButton icon="fa fa-file-o" value="Novo" id="btnNovo"
 						update="dgCadastro" oncomplete="PF('dialogCadastro').show()"
 						process="@this" action="#{contaAPagarBean.novo}">
 						<p:resetInput target="dgCadastro" />
@@ -85,13 +85,12 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
-						process="@this"
-						oncomplete="#{contaAPagarBean.permitirEditar} ? PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
-						update="dgCadastro te" action="#{contaAPagarBean.editar()}"
+						process="@this frm-tabela"
+						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
+						update="dgCadastro dgInfoEdicao te" action="#{contaAPagarBean.editar()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
-					<p:commandButton id="te" value="#{contaAPagarBean.permitirEditar}">
-					</p:commandButton>
+					<p:commandButton id="te" value="#{contaAPagarBean.permitirEditar}"/>
 
 					<p:commandButton icon="fa fa-trash" value="Excluir" id="btnExcluir"
 						style="margin-right: 3px;" process="@this"
@@ -154,8 +153,8 @@
 					listener="#{contaAPagarBean.rowUnSelect}" />
 				<p:ajax event="toggleSelect" update="toolbar-botoes toolbar-totais"
 					listener="#{contaAPagarBean.onRowSelectAll}" />
-				<p:ajax event="rowSelectCheckbox"
-					update="toolbar-botoes toolbar-totais"
+				<p:ajax event="rowSelectCheckbox" 
+					update="toolbar-botoes toolbar-totais" 
 					listener="#{contaAPagarBean.rowSelectCheckBox}" />
 				<p:ajax event="rowUnselectCheckbox"
 					update="toolbar-botoes toolbar-totais"
