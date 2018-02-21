@@ -36,11 +36,11 @@
 }
 
 .rotuloInfTitulo1 {
-	width: 100px !important;
+	width: 110px !important;
 }
 
 .campoInfTitulo1 {
-	width: 120px !important;
+	width: 130px !important;
 }
 
 .rotuloInfConta1 {
@@ -399,12 +399,7 @@
 							<p:column style="width:25px;" headerText="Doc.">
 								<h:outputLabel value="#{contaApagar.numDoc}" />
 							</p:column>
-							<p:column style="text-align:center; width:30px;"
-								headerText="Vencto">
-								<h:outputLabel value="#{contaApagar.dataVencto}">
-									<f:convertDateTime pattern="dd/MM/yy" />
-								</h:outputLabel>
-							</p:column>
+
 							<p:column style="text-align:right; width:60px;"
 								headerText="Valor">
 								<h:outputLabel for="txtBaixaMultaJuro"
@@ -426,7 +421,7 @@
 											value="#{contaApagar.valorMultaJuros}" styleClass="moeda"
 											onfocus="configurarMoed();" converter="moedaConverter">
 											<p:ajax event="blur"
-												update="tabela-parcela txtJuro txtVlrPago" />
+												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar txtBaixaPago" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -444,25 +439,32 @@
 											value="#{contaApagar.valorDesc}" onfocus="configurarMoeda();"
 											converter="moedaConverter">
 											<p:ajax event="blur"
-												update="tabela-parcela txtDesc txtVlrPago" />
+												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar txtBaixaPago" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
 							</p:column>
 							<p:column style="text-align:right; width:60px;"
 								headerText="Valor à pagar">
+								<h:outputLabel value="#{contaApagar.valorApagar}">
+									<f:convertNumber type="currency" />
+								</h:outputLabel>
+							</p:column>
+
+							<p:column style="text-align:right; width:60px;"
+								headerText="Valor pago">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.valorApagar}">
+										<h:outputLabel value="#{contaApagar.valorPago}">
 											<!-- <f:convertNumber currencySymbol="R$" type="currency" /> -->
 											<f:convertNumber type="currency" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.valorApagar}"
+										<p:inputText value="#{contaApagar.valorPago}"
 											style="width:96%" styleClass="moeda"
 											onfocus="configurarMoeda();">
-											<p:ajax event="blur" update="tabela-parcela" />
+											<p:ajax event="blur" update="tabela-parcela txtBaixaPago txtVlrPago" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -476,15 +478,12 @@
 							<p:toolbarGroup align="right">
 
 								<hr />
-								<h:panelGrid columns="4"
-									columnClasses="rotuloInfTitulo1,campoInfTitulo1,rotuloInfTitulo1,campoInfTitulo2">
+								<h:panelGrid columns="6"
+									columnClasses="rotuloInfTitulo1, campoInfTitulo1,
+									rotuloInfTitulo1, campoInfTitulo1, rotuloInfTitulo1, campoInfTitulo2">
 
-									<p:outputLabel value="SubTotal" styleClass="corLabel" />
-									<p:inputText disabled="true"
-										value="#{contaAPagarBean.contaAPagar.valor}" size="10">
-										<f:convertNumber type="currency" />
-									</p:inputText>
-
+									<p:spacer />
+									<p:spacer />
 
 									<p:outputLabel value="Multa/Juros" styleClass="corLabel" />
 									<p:inputText id="txtJuro" onfocus="formatoMoeda('txtJuro')"
@@ -493,15 +492,28 @@
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
+									<p:outputLabel value="Total à pagar" styleClass="corLabel" />
+									<p:inputText id="txtVlrAPagar" disabled="true"
+										value="#{contaAPagarBean.totalApagar}" size="10">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="SubTotal" styleClass="corLabel" />
+									<p:inputText disabled="true"
+										value="#{contaAPagarBean.totalSelecionado}" size="10">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+
 									<p:outputLabel value="Desconto" styleClass="corLabel" />
 									<p:inputText id="txtDesc" value="#{contaAPagarBean.totalDesc}"
 										size="10" disabled="true">
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
-									<p:outputLabel value="Total à pagar" styleClass="corLabel" />
-									<p:inputText id="txtVlrPago" disabled="true"
-										value="#{contaAPagarBean.totalApagar}" size="10">
+									<p:outputLabel value="Total pago" styleClass="corLabel" />
+									<p:inputText disabled="true"  id="txtVlrPago" 
+										value="#{contaAPagarBean.totalPago}" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
@@ -529,7 +541,7 @@
 
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
 							<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
-								value="#{contaAPagarBean.contaAPagar.dataPagto}" id="dtBaixa"
+								value="#{contaAPagarBean.pagamento.dataPagto}" id="dtBaixa"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
 							</p:calendar>
@@ -538,7 +550,7 @@
 							<p:selectOneMenu autoWidth="false" style="width:250px;"
 								id="txtContaBaixar" required="true" filter="true"
 								requiredMessage="Selecione uma conta."
-								value="#{contaAPagarBean.movimentacao.planoConta}"
+								value="#{contaAPagarBean.pagamento.movimentacao}"
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
@@ -546,10 +558,11 @@
 									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 
-							<p:outputLabel value="Valor" for="txtConfirmaBaixar" />
+							<p:outputLabel value="Valor" for="txtBaixaPago" />
 							<h:panelGroup>
-								<p:inputText id="txtConfirmaBaixar" size="11" required="true"
-									requiredMessage="Informe o valor."
+								<p:inputText id="txtBaixaPago" size="11" required="true"
+									requiredMessage="Informe o valor." 
+									value="#{contaAPagarBean.pagamento.valorPago}"
 									onfocus="formatoMoeda('txtConfirmaBaixar')">
 									<f:convertNumber type="currency" />
 								</p:inputText>
@@ -764,7 +777,7 @@
 					value="Não é possivel editar Conta a pagar pois existem parcela(s) paga(s)" />
 				<ui:remove>
 					<h:graphicImage library="images" name="canceloFile48.png"
-						style="margin-left: 90px" height="45px" />
+						style="margin-left: 90px" height="45" />
 				</ui:remove>
 			</h:panelGrid>
 

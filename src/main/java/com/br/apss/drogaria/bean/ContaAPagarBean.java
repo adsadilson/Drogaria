@@ -36,6 +36,7 @@ import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaApagar;
 import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Movimentacao;
+import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.Usuario;
@@ -56,6 +57,8 @@ public class ContaAPagarBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private ContaAPagar contaAPagar;
+
+	private Pagamento pagamento;
 
 	private ContaAPagarFilter filtro;
 
@@ -80,7 +83,7 @@ public class ContaAPagarBean implements Serializable {
 	private Movimentacao movimentacao;
 
 	private List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
-	
+
 	@Inject
 	private ContaAPagarService contaAPagarService;
 
@@ -118,6 +121,8 @@ public class ContaAPagarBean implements Serializable {
 	private BigDecimal totalDesc = BigDecimal.ZERO;
 
 	private BigDecimal totalApagar = BigDecimal.ZERO;
+
+	private BigDecimal totalPago = BigDecimal.ZERO;
 
 	private boolean isToggle = false;
 
@@ -194,6 +199,10 @@ public class ContaAPagarBean implements Serializable {
 
 		this.permitirEditar = "true";
 
+		this.parcela = new ContaAPagar();
+		this.movimentacao = new Movimentacao();
+		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
+
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
 
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
@@ -203,40 +212,25 @@ public class ContaAPagarBean implements Serializable {
 					this.permitirEditar = "false";
 					break;
 				}
-
 				this.permitirEditar = "true";
+				t = t.add(par.getValor());
 			}
 
 			if (this.permitirEditar == "true") {
+
 				this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
 				this.listaMovimentacoes = cp.getMovimentacoes();
-			}
+				this.cabContaApagar = cabContaApagarService.porVinculo(cp.getVinculo());
 
+				for (Movimentacao m : this.listaMovimentacoes) {
+					t2 = t2.add(m.getVlrSaida());
+				}
+
+				this.parcela.setValor(t);
+				this.setTotalDasParcelas(t);
+				this.movimentacao.setTotalRateio(t2);
+			}
 		}
-		/*
-		 * this.parcela = new ContaAPagar(); this.movimentacao = new
-		 * Movimentacao(); BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
-		 * 
-		 * for (ContaAPagar cp : this.contaApagarSelecionadas) {
-		 * this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
-		 * 
-		 * for (ContaAPagar par : this.listaParcelas) {
-		 * 
-		 * if (par.getDataPagto() == null) { this.permitirEditar = true;
-		 * this.contaApagarSelecionadas = this.listaParcelas;
-		 * this.listaMovimentacoes = cp.getMovimentacoes(); this.cabContaApagar
-		 * = cabContaApagarService.porVinculo(cp.getVinculo());
-		 * 
-		 * t = t.add(par.getValor());
-		 * 
-		 * for (Movimentacao m : this.listaMovimentacoes) { t2 =
-		 * t2.add(m.getVlrSaida()); }
-		 * 
-		 * this.parcela.setValor(t); this.setTotalDasParcelas(t);
-		 * this.movimentacao.setTotalRateio(t2);
-		 * 
-		 * } else { this.permitirEditar = false; break; } } }
-		 */
 	}
 
 	public void salvar() throws Exception {
@@ -370,17 +364,37 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void iniciarBaixaTitulo() {
-		contaAPagar = new ContaAPagar();
-		contaAPagar.setDataPagto(new Date());
-		
 
-		this.listaContasApagar = new ArrayList<>(this.contaApagarSelecionadas);
+		pagamento = new Pagamento();
+		pagamento.setDataPagto(new Date());
 
+		this.listaContasApagar.clear();
 		BigDecimal vlr = BigDecimal.ZERO;
-		for (ContaAPagar cp : this.listaContasApagar) {
+		this.setTotalApagar(vlr);
+		this.setTotalPago(vlr);
+
+		for (ContaAPagar cp : this.contaApagarSelecionadas) {
+			contaAPagar = new ContaAPagar();
+			contaAPagar.setId(cp.getId());
+			contaAPagar.setDataVencto(cp.getDataVencto());
+			contaAPagar.setNumDoc(cp.getNumDoc());
+			contaAPagar.setParcela(cp.getParcela());
+			contaAPagar.setStatus(cp.getStatus());
+			contaAPagar.setTipoCobranca(cp.getTipoCobranca());
+			contaAPagar.setValor(cp.getValor());
+			contaAPagar.setValorApagar(cp.getValorApagar());
+			contaAPagar.setValorPago(cp.getValorApagar());
+			contaAPagar.setVinculo(cp.getVinculo());
+			contaAPagar.setFornecedor(cp.getFornecedor());
+			contaAPagar.setDataDoc(cp.getDataDoc());
+			this.listaContasApagar.add(contaAPagar);
 			vlr = vlr.add(cp.getValor());
 		}
-		contaAPagar.setValor(vlr);
+
+		this.pagamento.setValorPago(vlr);
+		this.setTotalApagar(vlr);
+		this.setTotalPago(vlr);
+		this.setTotalSelecionado(vlr);
 
 	}
 
@@ -572,19 +586,33 @@ public class ContaAPagarBean implements Serializable {
 			BigDecimal t1 = BigDecimal.ZERO;
 			BigDecimal t2 = BigDecimal.ZERO;
 			BigDecimal t3 = BigDecimal.ZERO;
+			BigDecimal t4 = BigDecimal.ZERO;
 
-			for (ContaAPagar c : this.contaApagarSelecionadas) {
+			/*for (ContaAPagar c : this.listaContasApagar) {
 				t1 = t1.add(c.getValorMultaJuros());
 				t2 = t2.add(c.getValorDesc());
 				if (parcela.getParcela().equals(c.getParcela())) {
 					c.setValorApagar(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+					c.setValorPago(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
 				}
 				t3 = t3.add(c.getValorApagar());
+				t4 = t4.add(c.getValorPago());
+			}*/
+			
+			for (ContaAPagar c : this.listaContasApagar) {
+				c.setValorApagar(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+				c.setValorPago(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+				t1 = t1.add(c.getValorMultaJuros());
+				t2 = t2.add(c.getValorDesc());
+				t3 = t3.add(c.getValorApagar());
+				t4 = t4.add(c.getValorPago());
 			}
 
 			this.setTotalMultaJuros(t1);
 			this.setTotalDesc(t2);
 			this.setTotalApagar(t3);
+			this.setTotalPago(t4);
+			this.pagamento.setValorPago(t4);
 
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada",
 					"Antigo: " + oldValue + ", Novo:" + newValue);
@@ -629,16 +657,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
@@ -839,6 +867,22 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setListaContasApagar(List<ContaAPagar> listaContasApagar) {
 		this.listaContasApagar = listaContasApagar;
+	}
+
+	public Pagamento getPagamento() {
+		return pagamento;
+	}
+
+	public void setPagamento(Pagamento pagamento) {
+		this.pagamento = pagamento;
+	}
+
+	public BigDecimal getTotalPago() {
+		return totalPago;
+	}
+
+	public void setTotalPago(BigDecimal totalPago) {
+		this.totalPago = totalPago;
 	}
 
 }
