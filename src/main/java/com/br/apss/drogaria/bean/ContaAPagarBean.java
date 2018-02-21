@@ -605,7 +605,6 @@ public class ContaAPagarBean implements Serializable {
 				t1 = t1.add(c.getValorMultaJuros());
 				t2 = t2.add(c.getValorDesc());
 				t3 = t3.add(c.getValorApagar());
-				t4 = t4.add(c.getValorPago());
 			}
 
 			this.setTotalMultaJuros(t1);
