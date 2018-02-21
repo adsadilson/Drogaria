@@ -87,10 +87,9 @@
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
 						process="@this frm-tabela"
 						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
-						update="dgCadastro dgInfoEdicao te" action="#{contaAPagarBean.editar()}"
+						update="dgCadastro dgInfoEdicao"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
-					<p:commandButton id="te" value="#{contaAPagarBean.permitirEditar}"/>
 
 					<p:commandButton icon="fa fa-trash" value="Excluir" id="btnExcluir"
 						style="margin-right: 3px;" process="@this"
@@ -153,8 +152,8 @@
 					listener="#{contaAPagarBean.rowUnSelect}" />
 				<p:ajax event="toggleSelect" update="toolbar-botoes toolbar-totais"
 					listener="#{contaAPagarBean.onRowSelectAll}" />
-				<p:ajax event="rowSelectCheckbox" 
-					update="toolbar-botoes toolbar-totais" 
+				<p:ajax event="rowSelectCheckbox"
+					update="toolbar-botoes toolbar-totais"
 					listener="#{contaAPagarBean.rowSelectCheckBox}" />
 				<p:ajax event="rowUnselectCheckbox"
 					update="toolbar-botoes toolbar-totais"
@@ -387,9 +386,9 @@
 
 					<p:tab title="Informação do titulo">
 						<p:dataTable id="tabela-parcela" style="width:auto;"
-							value="#{contaAPagarBean.listaContasApagar}"
-							var="contaApagar" rowIndexVar="idx" scrollable="true"
-							scrollHeight="165" editable="true" editMode="cell">
+							value="#{contaAPagarBean.listaContasApagar}" var="contaApagar"
+							rowIndexVar="idx" scrollable="true" scrollHeight="165"
+							editable="true" editMode="cell">
 
 							<p:ajax event="cellEdit" listener="#{contaAPagarBean.onCellEdit}" />
 
@@ -425,7 +424,7 @@
 									<f:facet name="input">
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
 											value="#{contaApagar.valorMultaJuros}" styleClass="moeda"
-											onfocus="configurarMoeda();" converter="moedaConverter">
+											onfocus="configurarMoed();" converter="moedaConverter">
 											<p:ajax event="blur"
 												update="tabela-parcela txtJuro txtVlrPago" />
 										</p:inputText>
@@ -758,10 +757,16 @@
 
 		<p:dialog header="Edição bloqueada" widgetVar="dialogInfoEdicao"
 			modal="true" resizable="false" draggable="true" id="dgInfoEdicao"
-			closeOnEscape="true" width="280" height="190" appendTo="@(body)">
+			closeOnEscape="true" width="280" height="75" appendTo="@(body)">
 
-			<p:outputLabel
-				value="Não é possivel editar Conta a pagar pois existem parcela(s) pagar" />
+			<h:panelGrid style="margin-top:15px;">
+				<p:outputLabel
+					value="Não é possivel editar Conta a pagar pois existem parcela(s) paga(s)" />
+				<ui:remove>
+					<h:graphicImage library="images" name="canceloFile48.png"
+						style="margin-left: 90px" height="45px" />
+				</ui:remove>
+			</h:panelGrid>
 
 		</p:dialog>
 

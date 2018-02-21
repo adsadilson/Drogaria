@@ -1,13 +1,18 @@
 package com.br.apss.drogaria.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "pagamento")
@@ -19,6 +24,26 @@ public class Pagamento implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "PAGAMENTO_ID")
 	private Long id;
+	
+	@Temporal(TemporalType.DATE)
+	@Column(name = "data_lanc", length = 10)
+	private Date dataLanc;
+	
+	@Temporal(TemporalType.DATE)
+	@Column(name = "data_pagto", length = 10)
+	private Date dataPagto;
+	
+	@Column(name = "valor", precision = 12, scale = 2)
+	private BigDecimal valor = BigDecimal.ZERO;
+	
+	@Column(name = "valor_multa_juros", precision = 12, scale = 2)
+	private BigDecimal valorMultaJuros = BigDecimal.ZERO;
+	
+	@Column(name = "valor_desc", precision = 12, scale = 2)
+	private BigDecimal valorDesc = BigDecimal.ZERO;
+	
+	@Column(name = "valor_pago", precision = 12, scale = 2)
+	private BigDecimal valorPago = BigDecimal.ZERO;
 
 
 

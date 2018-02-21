@@ -80,7 +80,7 @@ public class ContaAPagarBean implements Serializable {
 	private Movimentacao movimentacao;
 
 	private List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
-
+	
 	@Inject
 	private ContaAPagarService contaAPagarService;
 
@@ -191,9 +191,11 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void editar() {
-	this.permitirEditar = "true";
+
+		this.permitirEditar = "true";
+
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
-			//this.listaParcelas = new ArrayList<ContaAPagar>();
+
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
 
 			for (ContaAPagar par : this.listaParcelas) {
@@ -201,7 +203,15 @@ public class ContaAPagarBean implements Serializable {
 					this.permitirEditar = "false";
 					break;
 				}
+
+				this.permitirEditar = "true";
 			}
+
+			if (this.permitirEditar == "true") {
+				this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
+				this.listaMovimentacoes = cp.getMovimentacoes();
+			}
+
 		}
 		/*
 		 * this.parcela = new ContaAPagar(); this.movimentacao = new
@@ -362,6 +372,7 @@ public class ContaAPagarBean implements Serializable {
 	public void iniciarBaixaTitulo() {
 		contaAPagar = new ContaAPagar();
 		contaAPagar.setDataPagto(new Date());
+		
 
 		this.listaContasApagar = new ArrayList<>(this.contaApagarSelecionadas);
 
