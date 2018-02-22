@@ -1,13 +1,13 @@
 package com.br.apss.drogaria.enums;
 
-public enum FormaBaixa {
+public enum TipoBaixa {
 
-	BI("Baixa individual de lançamentos"),
-	BA("Baixa agrupada");
+	AP("Apenas uma conta"),
+	MC("Multiplas contas");
 	
 	private String descricao;
 
-	FormaBaixa(String descricao) {
+	TipoBaixa(String descricao) {
 		this.descricao = descricao;
 	}
 	

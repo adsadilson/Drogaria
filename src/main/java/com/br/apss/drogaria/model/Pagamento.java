@@ -6,6 +6,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +17,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.br.apss.drogaria.enums.FormaBaixa;
+import com.br.apss.drogaria.enums.TipoBaixa;
 
 @Entity
 @Table(name = "pagamento")
@@ -48,12 +53,22 @@ public class Pagamento implements Serializable {
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
 	@ManyToOne
-	@JoinColumn(name="conta_apagar_id")
+	@JoinColumn(name = "conta_apagar_id")
 	private ContaAPagar contaAPagar;
 
 	@ManyToOne
-	@JoinColumn(name="movimentacao_id")
-	private Movimentacao movimentacao;
+	@JoinColumn(name = "movimentacao_id")
+	private Movimentacao movimentacao = new Movimentacao();
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo_baixa", length = 5)
+	private TipoBaixa tipoBaixa;
+
+	private String historico;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "forma_baixa", length = 5)
+	private FormaBaixa formaBaixa;
 
 	public Long getId() {
 		return id;
@@ -125,6 +140,30 @@ public class Pagamento implements Serializable {
 
 	public void setMovimentacao(Movimentacao movimentacao) {
 		this.movimentacao = movimentacao;
+	}
+
+	public String getHistorico() {
+		return historico;
+	}
+
+	public void setHistorico(String historico) {
+		this.historico = historico;
+	}
+
+	public TipoBaixa getTipoBaixa() {
+		return tipoBaixa;
+	}
+
+	public void setTipoBaixa(TipoBaixa tipoBaixa) {
+		this.tipoBaixa = tipoBaixa;
+	}
+
+	public FormaBaixa getFormaBaixa() {
+		return formaBaixa;
+	}
+
+	public void setFormaBaixa(FormaBaixa formaBaixa) {
+		this.formaBaixa = formaBaixa;
 	}
 
 	public boolean isInclusao() {

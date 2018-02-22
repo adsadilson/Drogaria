@@ -30,6 +30,7 @@ import org.primefaces.event.UnselectEvent;
 
 import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.Status;
+import com.br.apss.drogaria.enums.TipoBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoRelatorio;
@@ -58,7 +59,7 @@ public class ContaAPagarBean implements Serializable {
 
 	private ContaAPagar contaAPagar;
 
-	private Pagamento pagamento;
+	private Pagamento pagamento = new Pagamento();
 
 	private ContaAPagarFilter filtro;
 
@@ -73,6 +74,8 @@ public class ContaAPagarBean implements Serializable {
 	private List<ContaAPagar> listaContasApagar = new ArrayList<ContaAPagar>();
 
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
+
+	private List<Pagamento> listaPagamentos;
 
 	private ContaAPagar parcela;
 
@@ -365,8 +368,8 @@ public class ContaAPagarBean implements Serializable {
 
 	public void iniciarBaixaTitulo() {
 
-		pagamento = new Pagamento();
-		pagamento.setDataPagto(new Date());
+		this.listaPagamentos = new ArrayList<Pagamento>();
+		this.pagamento.setDataPagto(new Date());
 
 		this.listaContasApagar.clear();
 		BigDecimal vlr = BigDecimal.ZERO;
@@ -403,10 +406,6 @@ public class ContaAPagarBean implements Serializable {
 		rowToggleSelect();
 	}
 
-	public List<FormaBaixa> getListaFormaBaixa() {
-		return Arrays.asList(FormaBaixa.values());
-	}
-
 	public List<Pessoa> getCarregarFornecedores() {
 		return pessoaService.listarTodos();
 	}
@@ -434,6 +433,18 @@ public class ContaAPagarBean implements Serializable {
 
 	public List<TipoCobranca> getListaTipoCobrancas() {
 		return Arrays.asList(TipoCobranca.values());
+	}
+
+	public List<Status> getStatus() {
+		return Arrays.asList(Status.values());
+	}
+
+	public List<FormaBaixa> getListaFormaBaixa() {
+		return Arrays.asList(FormaBaixa.values());
+	}
+
+	public List<TipoBaixa> getListaTipoBaixa() {
+		return Arrays.asList(TipoBaixa.values());
 	}
 
 	public Boolean validarDatas(Date ini, Date fim) {
@@ -492,10 +503,6 @@ public class ContaAPagarBean implements Serializable {
 			e.printStackTrace();
 		}
 		return data;
-	}
-
-	public List<Status> getStatus() {
-		return Arrays.asList(Status.values());
 	}
 
 	public void gerarParcelas() {
@@ -573,6 +580,23 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
+	public void addPagamento() {
+
+		if (this.pagamento.getTipoBaixa().equals(TipoBaixa.AP)) {
+			if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
+
+				for (ContaAPagar c : this.listaContasApagar) {
+					this.pagamento = new Pagamento();
+					this.pagamento
+							.setHistorico("PAGTO REF. NT de Nr. " + c.getNumDoc() + " - " + c.getFornecedor().getNome());
+					this.pagamento.setValorPago(c.getValorPago());
+					this.listaPagamentos.add(this.pagamento);
+				}
+			}
+		}
+
+	}
+
 	public void onCellEdit(CellEditEvent event) {
 		Object oldValue = event.getOldValue();
 		Object newValue = event.getNewValue();
@@ -589,14 +613,13 @@ public class ContaAPagarBean implements Serializable {
 			BigDecimal t4 = BigDecimal.ZERO;
 
 			for (ContaAPagar c : this.listaContasApagar) {
-				
-				
+
 				if (parcela.getParcela().equals(c.getParcela())) {
 					if (c.getValorApagar().intValue() == parcela.getValorPago().intValue()) {
 						c.setValorPago(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
 					}
 				}
-				
+
 				c.setValorApagar(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
 
 				t1 = t1.add(c.getValorMultaJuros());
@@ -654,16 +677,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
@@ -880,6 +903,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setTotalPago(BigDecimal totalPago) {
 		this.totalPago = totalPago;
+	}
+
+	public List<Pagamento> getListaPagamentos() {
+		return listaPagamentos;
+	}
+
+	public void setListaPagamentos(List<Pagamento> listaPagamentos) {
+		this.listaPagamentos = listaPagamentos;
 	}
 
 }

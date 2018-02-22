@@ -45,11 +45,11 @@
 }
 
 .rotuloInfConta1 {
-	width: 130px !important;
+	width: 85px !important;
 }
 
 .campoInfConta1 {
-	width: 300px !important;
+	width: 370px !important;
 }
 
 .rotuloInfConta2 {
@@ -87,7 +87,8 @@
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
 						process="@this frm-tabela"
-						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
+						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? 
+						PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
 						update="dgCadastro dgInfoEdicao"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
@@ -530,29 +531,40 @@
 					<p:tab title="Informação conta a debitar">
 
 						<h:panelGrid columns="4" style="margin-top:10px;"
+							id="panelGridPagamento"
 							columnClasses="rotuloInfConta1,campoInfConta1,rotuloInfConta2,campoInfConta2">
 
-							<p:outputLabel value="Forma baixa" />
-							<p:selectOneMenu autoWidth="false" style="width:250px;"
-								value="#{contaAPagarBean.contaAPagar.formaBaixa}"
-								converter="omnifaces.SelectItemsConverter" required="true"
-								requiredMessage="Selecione tipo">
-								<f:selectItems value="#{contaAPagarBean.listaFormaBaixa}"
-									var="fp" itemLabel="#{fp.descricao}" itemValue="#{fp}" />
-							</p:selectOneMenu>
+							<p:outputLabel value="Tipo" />
+							<h:panelGroup>
+								<p:selectOneMenu autoWidth="false" style="width:115px;"
+									value="#{contaAPagarBean.pagamento.tipoBaixa}">
+									<f:selectItems value="#{contaAPagarBean.listaTipoBaixa}"
+										var="tipo" itemLabel="#{tipo.descricao}" itemValue="#{tipo}" />
+									<p:ajax event="change" process="@this" />
+								</p:selectOneMenu>
+								<p:outputLabel value="F/baixa"
+									style="margin-left:10px; margin-right:10px;" />
+								<p:selectOneMenu autoWidth="false" style="width:110px;"
+									value="#{contaAPagarBean.pagamento.formaBaixa}"
+									converter="omnifaces.SelectItemsConverter" required="true"
+									requiredMessage="Selecione tipo">
+									<f:selectItems value="#{contaAPagarBean.listaFormaBaixa}"
+										var="fp" itemLabel="#{fp.descricao}" itemValue="#{fp}" />
+								</p:selectOneMenu>
+							</h:panelGroup>
 
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
-							<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
+							<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
 								value="#{contaAPagarBean.pagamento.dataPagto}" id="dtBaixa"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
 							</p:calendar>
 
-							<p:outputLabel value="Conta a debitar" for="txtContaBaixar" />
-							<p:selectOneMenu autoWidth="false" style="width:250px;"
+							<p:outputLabel value="C/debitar" for="txtContaBaixar" />
+							<p:selectOneMenu autoWidth="false" style="width:90%"
 								id="txtContaBaixar" required="true" filter="true"
 								requiredMessage="Selecione uma conta."
-								value="#{contaAPagarBean.pagamento.movimentacao}"
+								value="#{contaAPagarBean.pagamento.movimentacao.planoConta}"
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
@@ -562,38 +574,50 @@
 
 							<p:outputLabel value="Valor" for="txtBaixaPago" />
 							<h:panelGroup>
-								<p:inputText id="txtBaixaPago" size="11" required="true"
+								<p:inputText id="txtBaixaPago" size="10" required="true"
 									requiredMessage="Informe o valor."
 									value="#{contaAPagarBean.pagamento.valorPago}"
 									onfocus="formatoMoeda('txtBaixaPago');">
-									<f:convertNumber type="currency" currencySymbol="R$"/>
+									<f:convertNumber type="currency" currencySymbol="R$" />
 								</p:inputText>
-								<p:commandButton title="Add Conta" process="@this"
+								<p:commandButton title="Add Conta" style="margin-left:5px;"
+									process="@this panelGridPagamento"
+									action="#{contaAPagarBean.addPagamento}"
+									update="panelGridPagamento dataTablePagamento"
 									icon="fa fa-download" styleClass="semPreenchimento">
 								</p:commandButton>
 							</h:panelGroup>
 
 						</h:panelGrid>
 
-						<p:dataTable id="tabela-forma"
+						<p:dataTable id="dataTablePagamento"
 							style="width:auto; margin-top:10px;" rowIndexVar="idx"
-							scrollable="true" scrollHeight="145" var="r">
+							scrollable="true" scrollHeight="145"
+							value="#{contaAPagarBean.listaPagamentos}" var="listPago">
 
-							<p:column style="width:60px; text-align:center;"
+							<p:column style="width:25px; text-align:center;"
 								headerText="Ação">
 								<p:commandButton title="Excluir" process="@this"
 									icon="ui-icon-trash" styleClass="semPreenchimento">
 								</p:commandButton>
 							</p:column>
+							<ui:remove>
+								<p:column style="width:100px;" headerText="Conta a debitar">
+									<h:outputText
+										value="#{listPago.movimentacao.planoConta.id} #{listPago.movimentacao.planoConta.tipo} 
+									- #{listPago.movimentacao.planoConta.nome}" />
+								</p:column>
+							</ui:remove>
 
-							<p:column style="text-align:center; width:300px;"
-								headerText="Conta a debitar">
-								<h:outputText />
+							<p:column style="width:300px;" headerText="Historico">
+								<h:outputText value="#{fn:substring(listPago.historico,0,60)}" />
 							</p:column>
 
-							<p:column style="text-align:rigth; width:100px;"
+							<p:column style="text-align:right; width:100px;"
 								headerText="Valor">
-								<h:outputText />
+								<h:outputText value="#{listPago.valorPago}">
+									<f:convertNumber type="currency" />
+								</h:outputText>
 							</p:column>
 
 						</p:dataTable>
