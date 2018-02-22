@@ -2,6 +2,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 
 	<style>
@@ -67,48 +68,49 @@
 			</p:commandButton>
 
 		</h:panelGrid>
-		
-			<p:dataTable id="tblRateioDes" style="width:99%;"
-				emptyMessage="Nenhuma registro lançado" scrollable="true"
-				scrollHeight="160" value="#{contaAPagarBean.listaMovimentacoes}"
-				var="m">
 
-				<p:column style="width:35px; text-align:center;" headerText="Ação">
-					<p:commandButton title="Excluir" process="@this"
-						icon="ui-icon-trash" styleClass="semPreenchimento"
-						update="tblRateioDes panelGridCabNota @(.total)"
-						action="#{contaAPagarBean.removerConta()}">
-						<f:setPropertyActionListener value="#{m}"
-							target="#{contaAPagarBean.movimentacao}" />
-					</p:commandButton>
+		<p:dataTable id="tblRateioDes" style="width:99%;"
+			emptyMessage="Nenhuma registro lançado" scrollable="true"
+			scrollHeight="160" value="#{contaAPagarBean.listaMovimentacoes}"
+			var="m">
 
-				</p:column>
-				<p:column style="width:140px" headerText="Plano Conta">
-					<h:outputText
-						value="#{m.planoConta.id}#{m.planoConta.tipo} - #{m.planoConta.nome}" />
-				</p:column>
-				<p:column style="width:233px" headerText="Descrição">
-					<h:outputText value="#{m.descricao}" />
-				</p:column>
-				<p:column style="width:115px; text-align:right;"
-					headerText="Valor R$">
-					<h:outputText value="#{m.vlrSaida}">
-						<f:convertNumber type="currency" />
-					</h:outputText>
-				</p:column>
-			</p:dataTable>
+			<p:column style="width:35px; text-align:center;" headerText="Ação">
+				<p:commandButton title="Excluir" process="@this"
+					icon="ui-icon-trash" styleClass="semPreenchimento"
+					update="tblRateioDes panelGridCabNota @(.total)"
+					action="#{contaAPagarBean.removerConta()}">
+					<f:setPropertyActionListener value="#{m}"
+						target="#{contaAPagarBean.movimentacao}" />
+				</p:commandButton>
 
-			<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
-				<p:toolbarGroup align="right">
-					<p:outputLabel value="Total:"
-						style="font-size:13px; margin-right:70px; color:black" />
-					<p:outputLabel id="txtTotalRateio" styleClass="total"
-						style="color:red; font-size:14px; margin-right:10px;"
-						value="#{contaAPagarBean.movimentacao.totalRateio}">
-						<f:convertNumber type="currency" />
-					</p:outputLabel>
-				</p:toolbarGroup>
-			</p:toolbar>
+			</p:column>
+			<p:column style="width:140px" headerText="Plano Conta">
+				<h:outputText
+					value="#{m.planoConta.id}#{m.planoConta.tipo} 
+					- #{fn:substring(m.planoConta.nome,1,16)}" />
+			</p:column>
+			<p:column style="width:233px" headerText="Descrição">
+				<h:outputText value="#{fn:substring(m.descricao,1,31)}" />
+			</p:column>
+			<p:column style="width:115px; text-align:right;"
+				headerText="Valor R$">
+				<h:outputText value="#{m.vlrSaida}">
+					<f:convertNumber type="currency" />
+				</h:outputText>
+			</p:column>
+		</p:dataTable>
+
+		<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+			<p:toolbarGroup align="right">
+				<p:outputLabel value="Total:"
+					style="font-size:13px; margin-right:70px; color:black" />
+				<p:outputLabel id="txtTotalRateio" styleClass="total"
+					style="color:red; font-size:14px; margin-right:10px;"
+					value="#{contaAPagarBean.movimentacao.totalRateio}">
+					<f:convertNumber type="currency" />
+				</p:outputLabel>
+			</p:toolbarGroup>
+		</p:toolbar>
 
 	</p:panel>
 

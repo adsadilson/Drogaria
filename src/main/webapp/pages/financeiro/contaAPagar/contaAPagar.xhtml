@@ -3,6 +3,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Contas a Pagar</ui:define>
@@ -419,7 +420,7 @@
 									<f:facet name="input">
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
 											value="#{contaApagar.valorMultaJuros}" styleClass="moeda"
-											onfocus="configurarMoed();" converter="moedaConverter">
+											onfocus="mascaraMoeda();" converter="moedaConverter">
 											<p:ajax event="blur"
 												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar txtBaixaPago" />
 										</p:inputText>
@@ -436,7 +437,7 @@
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText style="width:85%" styleClass="moeda"
-											value="#{contaApagar.valorDesc}" onfocus="configurarMoeda();"
+											value="#{contaApagar.valorDesc}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
 											<p:ajax event="blur"
 												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar txtBaixaPago" />
@@ -456,15 +457,16 @@
 								<p:cellEditor>
 									<f:facet name="output">
 										<h:outputLabel value="#{contaApagar.valorPago}">
-											<!-- <f:convertNumber currencySymbol="R$" type="currency" /> -->
 											<f:convertNumber type="currency" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText value="#{contaApagar.valorPago}"
-											style="width:96%" styleClass="moeda"
-											onfocus="configurarMoeda();">
-											<p:ajax event="blur" update="tabela-parcela txtBaixaPago txtVlrPago" />
+											style="width:90%" styleClass="moeda"
+											converter="moedaConverter" onfocus="mascaraMoeda();">
+											<p:ajax event="blur"
+												update="@this tabela-parcela txtBaixaPago txtVlrPago"
+												process="@this" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -512,7 +514,7 @@
 									</p:inputText>
 
 									<p:outputLabel value="Total pago" styleClass="corLabel" />
-									<p:inputText disabled="true"  id="txtVlrPago" 
+									<p:inputText disabled="true" id="txtVlrPago"
 										value="#{contaAPagarBean.totalPago}" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
@@ -561,10 +563,10 @@
 							<p:outputLabel value="Valor" for="txtBaixaPago" />
 							<h:panelGroup>
 								<p:inputText id="txtBaixaPago" size="11" required="true"
-									requiredMessage="Informe o valor." 
+									requiredMessage="Informe o valor."
 									value="#{contaAPagarBean.pagamento.valorPago}"
-									onfocus="formatoMoeda('txtConfirmaBaixar')">
-									<f:convertNumber type="currency" />
+									onfocus="formatoMoeda('txtBaixaPago');">
+									<f:convertNumber type="currency" currencySymbol="R$"/>
 								</p:inputText>
 								<p:commandButton title="Add Conta" process="@this"
 									icon="fa fa-download" styleClass="semPreenchimento">
@@ -577,7 +579,7 @@
 							style="width:auto; margin-top:10px;" rowIndexVar="idx"
 							scrollable="true" scrollHeight="145" var="r">
 
-							<p:column style="width:40px; text-align:center;"
+							<p:column style="width:60px; text-align:center;"
 								headerText="Ação">
 								<p:commandButton title="Excluir" process="@this"
 									icon="ui-icon-trash" styleClass="semPreenchimento">

@@ -65,7 +65,7 @@ function mascaraDtCalendar(id){
 	});
 }
 
-function configurarMoed(){
+function mascaraMoeda(){
 	$(".moeda").maskMoney({decimal: ",", thousands: ".", allowZero: true, prefix: "R$ "});
 }
 
