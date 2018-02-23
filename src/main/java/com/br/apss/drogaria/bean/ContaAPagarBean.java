@@ -587,8 +587,8 @@ public class ContaAPagarBean implements Serializable {
 
 				for (ContaAPagar c : this.listaContasApagar) {
 					this.pagamento = new Pagamento();
-					this.pagamento
-							.setHistorico("PAGTO REF. NT de Nr. " + c.getNumDoc() + " - " + c.getFornecedor().getNome());
+					this.pagamento.setHistorico("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
+							+ c.getFornecedor().getNome());
 					this.pagamento.setValorPago(c.getValorPago());
 					this.listaPagamentos.add(this.pagamento);
 				}
@@ -598,14 +598,28 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void onCellEdit(CellEditEvent event) {
-		Object oldValue = event.getOldValue();
-		Object newValue = event.getNewValue();
+		String coluna = event.getColumn().getClientId();
+
+		BigDecimal oldValue = (BigDecimal) event.getOldValue();
+		BigDecimal newValue = (BigDecimal) event.getNewValue();
+
+		DataTable dataModel = (DataTable) event.getSource();
+		ContaAPagar parcela = (ContaAPagar) dataModel.getRowData();
+
+		if (coluna.indexOf("pago") > 0) {
+			if (newValue.compareTo(parcela.getValorApagar()) > 0) {
+				parcela.setValorPago(oldValue);
+
+				Integer row = event.getRowIndex();
+				dataModel.setRowIndex(row);
+
+				Messages.addGlobalError("Valor informando a pagar maior que o titulo");
+				return;
+			}
+		}
 
 		if (newValue != null && !newValue.equals(oldValue)) {
 			// calcularParcelas();
-
-			DataTable dataModel = (DataTable) event.getSource();
-			ContaAPagar parcela = (ContaAPagar) dataModel.getRowData();
 
 			BigDecimal t1 = BigDecimal.ZERO;
 			BigDecimal t2 = BigDecimal.ZERO;
@@ -634,7 +648,7 @@ public class ContaAPagarBean implements Serializable {
 			this.setTotalPago(t4);
 			this.pagamento.setValorPago(t4);
 
-			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada",
+			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada " + this.totalPago,
 					"Antigo: " + oldValue + ", Novo:" + newValue);
 			FacesContext.getCurrentInstance().addMessage(null, msg);
 		}
@@ -677,16 +691,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
-	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
-	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
-	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
-	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
-	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
-	 * c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
+	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
+	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
+	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
+	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
+	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
+	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }

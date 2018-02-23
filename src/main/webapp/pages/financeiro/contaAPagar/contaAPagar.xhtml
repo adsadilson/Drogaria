@@ -59,6 +59,10 @@
 .campoInfConta2 {
 	width: 150px !important;
 }
+
+.campoBaixaSimple1 {
+	width: 130px !important;
+}
 -->
 </style>
 
@@ -373,7 +377,7 @@
 
 		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
-			draggable="true" closeOnEscape="true" width="750" height="370"
+			draggable="true" closeOnEscape="true" width="750" height="400"
 			appendTo="@(body)">
 
 			<p:ajax event="close"
@@ -384,9 +388,96 @@
 
 
 				<p:tabView prependId="false"
-					style="width: 99%; height: 340px; margin-top:10px;">
+					style="width: 99%; height: 365px; margin-top:5px;">
 
-					<p:tab title="Informação do titulo">
+					<p:tab title="Baixa do titulo"
+						rendered="#{contaAPagarBean.listaContasApagar.size()==1}">
+
+						<h:panelGrid columns="3" id="panelGridBaixaSimples"
+							style="margin-left:10px;">
+
+							<p:outputLabel value="Conta Corrente" for="txtBaixaSimpleCC" />
+							<p:outputLabel value="Num / Parc" />
+							<p:outputLabel value="Data Pagamento"
+								for="txtBaixaSimpleDtPagamento" />
+
+
+							<p:selectOneMenu autoWidth="false" style="width:370px"
+								id="txtBaixaSimpleCC" required="true" filter="true"
+								requiredMessage="Selecione uma conta."
+								value="#{contaAPagarBean.pagamento.movimentacao.planoConta}"
+								converter="omnifaces.SelectItemsConverter">
+								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+									noSelectionOption="true" />
+								<f:selectItems value="#{contaAPagarBean.carregarContasADebitar}"
+									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
+							</p:selectOneMenu>
+
+							<p:inputText size="15"
+								value="#{contaAPagarBean.contaAPagar.numDoc} | #{contaAPagarBean.contaAPagar.parcela}" />
+
+							<p:calendar size="13" pattern="dd/MM/yyyy" locale="pt_BR"
+								value="#{contaAPagarBean.pagamento.dataPagto}"
+								id="txtBaixaSimpleDtPagamento"
+								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
+								required="true" requiredMessage="Informe uma data da baixa">
+							</p:calendar>
+
+						</h:panelGrid>
+
+
+						<p:panel style="width:96%; margin-left:10px; margin-top:5px;">
+							<p:repeat value="#{contaAPagarBean.listaContasApagar}" var="cp">
+								<h:panelGrid columns="2" id="panelGridBaixaSimples1"
+									columnClasses="campoBaixaSimple1">
+
+									<p:outputLabel value="Saldo Devedor" />
+									<p:inputText value="#{cp.valor}" size="12">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="Multa/Juros" />
+									<p:inputText value="#{cp.valorMultaJuros}" size="12">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="Desconto" />
+									<p:inputText value="#{cp.valorDesc}" size="12">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="Valor Apagar" />
+									<p:inputText value="#{cp.valorApagar}" size="12">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:spacer />
+									<hr />
+									<p:outputLabel value="Pagamento" />
+									<p:inputText value="#{cp.valorMultaJuros}" size="12">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+									<p:outputLabel value="Histórico" />
+									<p:inputText value="" size="60">
+									</p:inputText>
+								</h:panelGrid>
+							</p:repeat>
+						</p:panel>
+
+						<p:toolbar style="margin-top:10px; margin-right:10px;"
+							styleClass="semPreenchimento">
+							<p:toolbarGroup align="right">
+								<p:commandButton value="Confirmar" process="@this"
+									icon="ui-icon-check">
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+
+					</p:tab>
+
+					<p:tab title="Informação do titulo"
+						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
 						<p:dataTable id="tabela-parcela" style="width:auto;"
 							value="#{contaAPagarBean.listaContasApagar}" var="contaApagar"
 							rowIndexVar="idx" scrollable="true" scrollHeight="165"
@@ -454,7 +545,7 @@
 							</p:column>
 
 							<p:column style="text-align:right; width:60px;"
-								headerText="Valor pago">
+								headerText="Valor pago" id="pago">
 								<p:cellEditor>
 									<f:facet name="output">
 										<h:outputLabel value="#{contaApagar.valorPago}">
@@ -463,11 +554,10 @@
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText value="#{contaApagar.valorPago}"
-											style="width:90%" styleClass="moeda"
+											style="width:90%" styleClass="moeda" 
 											converter="moedaConverter" onfocus="mascaraMoeda();">
-											<p:ajax event="blur"
-												update="@this tabela-parcela txtBaixaPago txtVlrPago"
-												process="@this" />
+											<p:ajax event="blur" 
+												update="@this txtBaixaPago txtVlrPago"/>
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -528,7 +618,8 @@
 
 					</p:tab>
 
-					<p:tab title="Informação conta a debitar">
+					<p:tab title="Informação conta a debitar"
+						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
 
 						<h:panelGrid columns="4" style="margin-top:10px;"
 							id="panelGridPagamento"
