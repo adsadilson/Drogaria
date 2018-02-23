@@ -211,7 +211,7 @@ public class ContaAPagarBean implements Serializable {
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
 
 			for (ContaAPagar par : this.listaParcelas) {
-				if (par.getDataPagto() != null) {
+				if (par.getDataPago() != null) {
 					this.permitirEditar = "false";
 					break;
 				}
@@ -298,6 +298,13 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
+	public void salvarBaixaSimples() throws Exception {
+		if (validarDatas(this.pagamento.getDataPagto(), this.contaAPagar.getDataVencto())) {
+			contaAPagarService.baixaSimples(this.contaAPagar);
+			Messages.addGlobalInfo("Titulo baixado com sucesso!");
+		}
+	}
+
 	public void rowSelect(SelectEvent event) {
 		editar();
 		this.setTotalSelecionado(BigDecimal.ZERO);
@@ -373,6 +380,7 @@ public class ContaAPagarBean implements Serializable {
 
 		this.listaContasApagar.clear();
 		BigDecimal vlr = BigDecimal.ZERO;
+
 		this.setTotalApagar(vlr);
 		this.setTotalPago(vlr);
 
@@ -570,6 +578,7 @@ public class ContaAPagarBean implements Serializable {
 				}
 				this.movimentacao.setTotalRateio(t);
 				this.parcela.setValor(t);
+				this.cabContaApagar.setValor(t);
 			} else {
 				Messages.addGlobalError("Conta já cadastrada!");
 				RequestContext requestContext = RequestContext.getCurrentInstance();
@@ -654,6 +663,13 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
+	public void calcularValores() {
+		for (ContaAPagar c : this.listaContasApagar) {
+			c.setValorApagar(c.getValorApagar().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+			c.setValorPago(c.getValorApagar().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+		}
+	}
+
 	public String calcularParcelas() {
 		BigDecimal totalParcelas = BigDecimal.ZERO;
 		BigDecimal dif = contaAPagar.getValor();
@@ -691,16 +707,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }

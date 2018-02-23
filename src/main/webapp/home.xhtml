@@ -56,15 +56,17 @@ h2, .h2 {
 				</span>
 			</h2>
 			<h:form prependId="false">
-			<p:inputText style="width:96%"
-									styleClass="moeda" onfocus="mascaraMoeda();"
-									converter="moedaConverter">
-								</p:inputText>
-				<p:inputText  style="width:96%"
-								styleClass="moeda" onfocus="formatarMoeda(this)"/>
-				<p:inputText style="width:85%" id="teste" onfocus="formatoMoeda('teste')" />
-				<p:commandButton value="Error"
-					action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
+				<ui:remove>
+					<p:inputText style="width:96%" styleClass="moeda"
+						onfocus="mascaraMoeda();" converter="moedaConverter">
+					</p:inputText>
+					<p:inputText style="width:96%" styleClass="moeda"
+						onfocus="formatarMoeda(this)" />
+					<p:inputText style="width:85%" id="teste"
+						onfocus="formatoMoeda('teste')" />
+					<p:commandButton value="Error"
+						action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
+				</ui:remove>
 			</h:form>
 		</div>
 

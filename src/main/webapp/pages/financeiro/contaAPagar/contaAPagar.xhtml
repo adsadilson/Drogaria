@@ -397,10 +397,9 @@
 							style="margin-left:10px;">
 
 							<p:outputLabel value="Conta Corrente" for="txtBaixaSimpleCC" />
-							<p:outputLabel value="Num / Parc" />
+							<p:outputLabel value="Num | Parc" />
 							<p:outputLabel value="Data Pagamento"
 								for="txtBaixaSimpleDtPagamento" />
-
 
 							<p:selectOneMenu autoWidth="false" style="width:370px"
 								id="txtBaixaSimpleCC" required="true" filter="true"
@@ -413,7 +412,7 @@
 									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 
-							<p:inputText size="15"
+							<p:inputText size="15" disabled="true"
 								value="#{contaAPagarBean.contaAPagar.numDoc} | #{contaAPagarBean.contaAPagar.parcela}" />
 
 							<p:calendar size="13" pattern="dd/MM/yyyy" locale="pt_BR"
@@ -427,47 +426,73 @@
 
 
 						<p:panel style="width:96%; margin-left:10px; margin-top:5px;">
-							<p:repeat value="#{contaAPagarBean.listaContasApagar}" var="cp">
-								<h:panelGrid columns="2" id="panelGridBaixaSimples1"
-									columnClasses="campoBaixaSimple1">
 
-									<p:outputLabel value="Saldo Devedor" />
-									<p:inputText value="#{cp.valor}" size="12">
-										<f:convertNumber type="currency" />
-									</p:inputText>
+							<h:panelGrid columns="2" id="panelGridBaixaSimples1"
+								columnClasses="campoBaixaSimple1">
 
-									<p:outputLabel value="Multa/Juros" />
-									<p:inputText value="#{cp.valorMultaJuros}" size="12">
-										<f:convertNumber type="currency" />
-									</p:inputText>
+								<p:outputLabel value="Saldo Devedor" />
+								<p:inputText value="#{contaAPagarBean.contaAPagar.valorApagar}"
+									size="12" readonly="true" style="text-align:right">
+									<f:convertNumber type="currency" />
+								</p:inputText>
 
-									<p:outputLabel value="Desconto" />
-									<p:inputText value="#{cp.valorDesc}" size="12">
-										<f:convertNumber type="currency" />
-									</p:inputText>
+								<p:outputLabel value="Multa/Juros" />
+								<p:inputText style="text-align:right" size="12"
+									id="txtBaixaSimpleVlrMultaJuros"
+									value="#{contaAPagarBean.contaAPagar.valorMultaJuros}"
+									onfocus="formatoMoeda('txtBaixaSimpleVlrMultaJuros')">
+									<f:convertNumber type="currency" />
+									<p:ajax process="@this"
+										listener="#{contaAPagarBean.calcularValores}"
+										update="txtBaixaSimpleVlrApagar txtBaixaSimpleVlrPago" />
+								</p:inputText>
 
-									<p:outputLabel value="Valor Apagar" />
-									<p:inputText value="#{cp.valorApagar}" size="12">
-										<f:convertNumber type="currency" />
-									</p:inputText>
+								<p:outputLabel value="Desconto" />
+								<p:inputText style="text-align:right" size="12"
+									id="txtBaixaSimpleDesc"
+									value="#{contaAPagarBean.contaAPagar.valorDesc}"
+									onfocus="formatoMoeda('txtBaixaSimpleDesc')">
+									<f:convertNumber type="currency" />
+									<p:ajax process="@this"
+										listener="#{contaAPagarBean.calcularValores}"
+										update="txtBaixaSimpleVlrApagar txtBaixaSimpleVlrPago" />
+								</p:inputText>
 
-									<p:spacer />
-									<hr />
-									<p:outputLabel value="Pagamento" />
-									<p:inputText value="#{cp.valorMultaJuros}" size="12">
-										<f:convertNumber type="currency" />
-									</p:inputText>
-									<p:outputLabel value="Histórico" />
-									<p:inputText value="" size="60">
-									</p:inputText>
-								</h:panelGrid>
-							</p:repeat>
+								<p:outputLabel value="Valor Apagar" />
+								<p:inputText value="#{contaAPagarBean.contaAPagar.valorApagar}"
+									size="12" id="txtBaixaSimpleVlrApagar" style="text-align:right"
+									readonly="true">
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:spacer />
+								<hr />
+
+								<p:outputLabel value="Pagamento" />
+								<p:inputText style="text-align:right" size="12" required="true"
+									requiredMessage="Informe o valor Pagamento"
+									id="txtBaixaSimpleVlrPago"
+									value="#{contaAPagarBean.contaAPagar.valorPago}"
+									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:outputLabel value="Histórico" />
+								<p:inputText value="#{contaAPagarBean.contaAPagar.descricao}"
+									size="60">
+								</p:inputText>
+
+							</h:panelGrid>
 						</p:panel>
 
 						<p:toolbar style="margin-top:10px; margin-right:10px;"
 							styleClass="semPreenchimento">
 							<p:toolbarGroup align="right">
-								<p:commandButton value="Confirmar" process="@this"
+								<p:commandButton value="Confirmar"
+									action="#{contaAPagarBean.salvarBaixaSimples}"
+									process="@this panelGridBaixaSimples panelGridBaixaSimples1"
+									update="panelGridBaixaSimples panelGridBaixaSimples1"
 									icon="ui-icon-check">
 								</p:commandButton>
 							</p:toolbarGroup>
@@ -554,10 +579,9 @@
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText value="#{contaApagar.valorPago}"
-											style="width:90%" styleClass="moeda" 
+											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
-											<p:ajax event="blur" 
-												update="@this txtBaixaPago txtVlrPago"/>
+											<p:ajax event="blur" update="@this txtBaixaPago txtVlrPago" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>

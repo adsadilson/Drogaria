@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -20,6 +21,16 @@ public class ContaAPagarService implements Serializable {
 	@Transacional
 	public void salvar(ContaAPagar obj) {
 		dao.salvar(obj);
+	}
+
+	@Transacional
+	public void baixaSimples(ContaAPagar obj) {
+		obj.setValorApagar(obj.getValorApagar().subtract(obj.getValorPago()));
+		obj.setStatus("PENDENTE");
+		if (obj.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
+			obj.setStatus("PAGO");
+		}
+		dao.baixaSimples(obj);
 	}
 
 	@Transacional

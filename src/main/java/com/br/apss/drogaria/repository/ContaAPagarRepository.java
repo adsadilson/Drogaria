@@ -42,6 +42,14 @@ public class ContaAPagarRepository implements Serializable {
 		return retorno;
 	}
 
+	public void baixaSimples(ContaAPagar obj) {
+		manager.createNativeQuery(
+				"update conta_apagar set valor_pago = :valorPago, valor_apagar =:valorApagar, status =:status where id = :id")
+				.setParameter("id", obj.getId()).setParameter("valorPago", obj.getValorPago())
+				.setParameter("valorApagar", obj.getValorApagar()).setParameter("status", obj.getStatus())
+				.executeUpdate();
+	}
+
 	public void excluir(ContaAPagar obj) {
 		try {
 			obj = porId(obj.getId());
@@ -150,7 +158,7 @@ public class ContaAPagarRepository implements Serializable {
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
 		if (filtro.getDataPagto() == null) {
-			criteria.add(Restrictions.isNull("dataPagto"));
+			criteria.add(Restrictions.isNull("dataPago"));
 		}
 
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);

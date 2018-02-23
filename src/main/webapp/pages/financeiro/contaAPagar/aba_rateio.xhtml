@@ -87,7 +87,7 @@
 			<p:column style="width:140px" headerText="Plano Conta">
 				<h:outputText
 					value="#{m.planoConta.id}#{m.planoConta.tipo} 
-					- #{fn:substring(m.planoConta.nome,1,16)}" />
+					- #{fn:substring(m.planoConta.nome,0,12)}" />
 			</p:column>
 			<p:column style="width:233px" headerText="Descrição">
 				<h:outputText value="#{fn:substring(m.descricao,1,31)}" />

@@ -54,8 +54,8 @@ public class ContaAPagar implements Serializable {
 	private Date dataDoc;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "data_pagto")
-	private Date dataPagto;
+	@Column(name = "data_pago")
+	private Date dataPago;
 
 	@Column(name = "num_doc", length = 15)
 	private String numDoc;
@@ -73,7 +73,7 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "valor_apagar", precision = 12, scale = 2)
 	private BigDecimal valorApagar = BigDecimal.ZERO;
 
-	@Column(name = "vlr_pago", precision = 12, scale = 2)
+	@Column(name = "valor_pago", precision = 12, scale = 2)
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -100,12 +100,11 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private int periodo = 30;
 
-	@Transient
+	@Column(name = "valor_multa_juros", precision = 12, scale = 2)
 	private BigDecimal valorMultaJuros = BigDecimal.ZERO;
 
-	@Transient
+	@Column(name = "valor_desc", precision = 12, scale = 2)
 	private BigDecimal valorDesc = BigDecimal.ZERO;
-	
 
 	public Long getId() {
 		return id;
@@ -139,12 +138,12 @@ public class ContaAPagar implements Serializable {
 		this.dataVencto = dataVencto;
 	}
 
-	public Date getDataPagto() {
-		return dataPagto;
+	public Date getDataPago() {
+		return dataPago;
 	}
 
-	public void setDataPagto(Date dataPagto) {
-		this.dataPagto = dataPagto;
+	public void setDataPago(Date dataPago) {
+		this.dataPago = dataPago;
 	}
 
 	public String getNumDoc() {
