@@ -10,7 +10,7 @@ public class ContaAPagarFilter {
 
 	private String nome;
 	private Estado uf;
-	private Boolean status;
+	private String status;
 	private String origem;
 	private int primerioRegistro;
 	private int quantidadeRegistros;
@@ -42,11 +42,11 @@ public class ContaAPagarFilter {
 		this.uf = uf;
 	}
 
-	public Boolean getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Boolean status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 

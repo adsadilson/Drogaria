@@ -158,8 +158,8 @@ public class ContaAPagarRepository implements Serializable {
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
-		if (filtro.getDataPagto() == null) {
-			criteria.add(Restrictions.isNull("dataPago"));
+		if (StringUtils.isBlank(filtro.getStatus())) {
+			criteria.add(Restrictions.in("status", "ABERTO", "PENDENTE"));
 		}
 
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);
@@ -198,15 +198,6 @@ public class ContaAPagarRepository implements Serializable {
 
 		if (filtro.getValor2() != null) {
 			criteria.add(Restrictions.le("valor", filtro.getValor2()));
-		}
-
-		if (filtro.getStatus() != null) {
-			if (filtro.getStatus()) {
-				criteria.add(Restrictions.eq("status", true));
-			} else {
-				criteria.add(Restrictions.eq("status", false));
-			}
-
 		}
 
 		return criteria;

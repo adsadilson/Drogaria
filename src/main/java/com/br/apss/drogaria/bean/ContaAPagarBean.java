@@ -301,9 +301,9 @@ public class ContaAPagarBean implements Serializable {
 	public void salvarBaixaSimples() throws Exception {
 		if (!validarDatas(this.contaAPagar.getDataDoc(), this.pagamento.getDataPagto())) {
 
-			if (this.contaAPagar.getPago().compareTo(this.contaAPagar.getSaldoDevedor()) > 0) {
+			if (this.contaAPagar.getPago().compareTo(this.contaAPagar.getValorApagar()) > 0) {
 				FacesContext.getCurrentInstance().validationFailed();
-				throw new NegocioException("O valor do pagamento não dever ser maior que o saldo devedor!");
+				throw new NegocioException("O valor do pagamento não dever ser maior que o valor apagar!");
 			}
 
 			contaAPagarService.baixaSimples(this.contaAPagar);

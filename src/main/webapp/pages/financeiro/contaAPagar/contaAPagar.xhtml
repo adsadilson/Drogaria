@@ -183,7 +183,7 @@
 
 				<p:column sortBy="#{cp.fornecedor}" headerText="Fornecedor"
 					width="200">
-					<h:outputText value="#{cp.fornecedor.nome}" />
+					<h:outputText value="#{cp.fornecedor.id} - #{fn:substring(cp.fornecedor.nome,0,44)}" />
 				</p:column>
 
 				<p:column style="text-align: center; width:15px;" headerText="Tipo">
@@ -217,8 +217,7 @@
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: right;width:60px;"
-					headerText="À Receber">
+				<p:column style="text-align: right;width:60px;" headerText="À Pagar">
 					<h:outputText value="#{cp.valorApagar}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
