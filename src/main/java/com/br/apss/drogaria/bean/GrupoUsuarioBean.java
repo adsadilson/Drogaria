@@ -59,7 +59,7 @@ public class GrupoUsuarioBean implements Serializable {
 
 		GrupoUsuario grupoUsuarioExistente = grupoUsuarioService.porNome(grupoUsuario.getNome());
 		if (grupoUsuarioExistente != null && !grupoUsuarioExistente.equals(grupoUsuario)) {
-			throw new NegocioException("Já existe um Grupo de Usu�rio com esse nome informado.");
+			throw new NegocioException("Já existe um Grupo de Usuário com esse nome informado.");
 		}
 
 		grupoUsuarioService.salvar(grupoUsuario);

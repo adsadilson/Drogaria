@@ -25,8 +25,18 @@ public class ContaAPagarService implements Serializable {
 
 	@Transacional
 	public void baixaSimples(ContaAPagar obj) {
-		obj.setValorApagar(obj.getValorApagar().subtract(obj.getValorPago()));
+		BigDecimal m = BigDecimal.ZERO;
+		BigDecimal d = BigDecimal.ZERO;
+		BigDecimal p = BigDecimal.ZERO;
+		m = m.add(obj.getValorMultaJuros().add(obj.getMulta()));
+		d = d.add(obj.getValorDesc().add(obj.getDesc()));
+		p = p.add(obj.getValorPago().add(obj.getPago()));
+
+		obj.setValorApagar((obj.getValor().add(m).subtract(d)).subtract(p));
 		obj.setStatus("PENDENTE");
+		obj.setValorMultaJuros(m);
+		obj.setValorDesc(d);
+		obj.setValorPago(p);
 		if (obj.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
 			obj.setStatus("PAGO");
 		}

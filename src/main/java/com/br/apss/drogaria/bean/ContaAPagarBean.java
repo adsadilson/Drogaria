@@ -299,9 +299,18 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void salvarBaixaSimples() throws Exception {
-		if (validarDatas(this.pagamento.getDataPagto(), this.contaAPagar.getDataVencto())) {
+		if (!validarDatas(this.contaAPagar.getDataDoc(), this.pagamento.getDataPagto())) {
+
+			if (this.contaAPagar.getPago().compareTo(this.contaAPagar.getSaldoDevedor()) > 0) {
+				FacesContext.getCurrentInstance().validationFailed();
+				throw new NegocioException("O valor do pagamento não dever ser maior que o saldo devedor!");
+			}
+
 			contaAPagarService.baixaSimples(this.contaAPagar);
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
+		} else {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("A data de pagamento dever ser maior que a data de entrada!");
 		}
 	}
 
@@ -376,6 +385,7 @@ public class ContaAPagarBean implements Serializable {
 	public void iniciarBaixaTitulo() {
 
 		this.listaPagamentos = new ArrayList<Pagamento>();
+		this.pagamento = new  Pagamento();
 		this.pagamento.setDataPagto(new Date());
 
 		this.listaContasApagar.clear();
@@ -393,11 +403,16 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setStatus(cp.getStatus());
 			contaAPagar.setTipoCobranca(cp.getTipoCobranca());
 			contaAPagar.setValor(cp.getValor());
+			contaAPagar.setValorMultaJuros(cp.getValorMultaJuros());
+			contaAPagar.setValorDesc(cp.getValorDesc());
 			contaAPagar.setValorApagar(cp.getValorApagar());
-			contaAPagar.setValorPago(cp.getValorApagar());
+			contaAPagar.setValorPago(cp.getValorPago());
+			contaAPagar.setPago(cp.getValorApagar());
 			contaAPagar.setVinculo(cp.getVinculo());
 			contaAPagar.setFornecedor(cp.getFornecedor());
 			contaAPagar.setDataDoc(cp.getDataDoc());
+			contaAPagar.setSaldoDevedor((cp.getValor()
+					.add(cp.getValorMultaJuros().subtract(cp.getValorDesc()).subtract(cp.getValorPago()))));
 			this.listaContasApagar.add(contaAPagar);
 			vlr = vlr.add(cp.getValor());
 		}
@@ -406,11 +421,13 @@ public class ContaAPagarBean implements Serializable {
 		this.setTotalApagar(vlr);
 		this.setTotalPago(vlr);
 		this.setTotalSelecionado(vlr);
+		pesquisar();
 
 	}
 
 	public void closeBaixaTitulo() {
 		this.contaApagarSelecionadas.clear();
+		pesquisar();
 		rowToggleSelect();
 	}
 
@@ -665,8 +682,8 @@ public class ContaAPagarBean implements Serializable {
 
 	public void calcularValores() {
 		for (ContaAPagar c : this.listaContasApagar) {
-			c.setValorApagar(c.getValorApagar().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
-			c.setValorPago(c.getValorApagar().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
+			c.setValorApagar(c.getSaldoDevedor().add(c.getMulta().subtract(c.getDesc())));
+			c.setPago(c.getSaldoDevedor().add(c.getMulta().subtract(c.getDesc())));
 		}
 	}
 
@@ -707,16 +724,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
-	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
-	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
-	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
-	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
-	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
-	 * c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
+	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
+	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
+	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
+	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
+	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
+	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }

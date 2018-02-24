@@ -43,7 +43,7 @@ public class ControleMenuBean implements Serializable {
 
 		ControleMenu menuExistente = menuService.porNome(menu.getFormulario());
 		if (menuExistente != null && !menuExistente.equals(menu)) {
-			throw new NegocioException("J� existe um Menu com esse nome informado.");
+			throw new NegocioException("Já existe um Menu com esse nome informado.");
 		}
 
 		menuService.salvar(menu);

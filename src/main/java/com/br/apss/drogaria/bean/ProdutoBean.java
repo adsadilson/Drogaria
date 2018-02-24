@@ -74,7 +74,7 @@ public class ProdutoBean implements Serializable {
 
 		Produto produtoExistente = produtoService.porNome(produto.getNome());
 		if (produtoExistente != null && !produtoExistente.equals(produto)) {
-			throw new NegocioException("J� existe um registro com essa codigo de barra informado.");
+			throw new NegocioException("Já existe um registro com essa codigo de barra informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();

@@ -106,6 +106,18 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "valor_desc", precision = 12, scale = 2)
 	private BigDecimal valorDesc = BigDecimal.ZERO;
 
+	@Transient
+	private BigDecimal multa = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal desc = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal saldoDevedor = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal pago = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -272,6 +284,38 @@ public class ContaAPagar implements Serializable {
 
 	public void setValorDesc(BigDecimal valorDesc) {
 		this.valorDesc = valorDesc;
+	}
+
+	public BigDecimal getMulta() {
+		return multa;
+	}
+
+	public void setMulta(BigDecimal multa) {
+		this.multa = multa;
+	}
+
+	public BigDecimal getDesc() {
+		return desc;
+	}
+
+	public void setDesc(BigDecimal desc) {
+		this.desc = desc;
+	}
+
+	public BigDecimal getSaldoDevedor() {
+		return saldoDevedor;
+	}
+
+	public void setSaldoDevedor(BigDecimal saldoDevedor) {
+		this.saldoDevedor = saldoDevedor;
+	}
+
+	public BigDecimal getPago() {
+		return pago;
+	}
+
+	public void setPago(BigDecimal pago) {
+		this.pago = pago;
 	}
 
 	@Override

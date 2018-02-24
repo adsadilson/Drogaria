@@ -53,7 +53,7 @@ public class FuncionarioBean implements Serializable {
 
 		Pessoa funcionarioExistente = funcionarioService.porCpf(funcionario.getCpfCnpj());
 		if (funcionarioExistente != null && !funcionarioExistente.equals(funcionario)) {
-			throw new NegocioException("J· existe um Funcion·rio com esse cpf ou cnpj informado.");
+			throw new NegocioException("J√° existe um Funcion√°rio com esse cpf ou cnpj informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
