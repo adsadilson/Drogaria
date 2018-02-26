@@ -3,7 +3,9 @@ package com.br.apss.drogaria.enums;
 public enum TipoLanc {
 
 	CC("C/CORRENTES", "CC"), 
-	CR("C/CORRENTE X RECEITAS", "CR"), 
+	CR("C/CORRENTE X RECEITAS", "CR"),
+	CA("CONTA A PAGAR", "CA"),
+	PC("PAGMANENTO CONTA A PAGAR", "PC"),
 	CD("C/CORRENTE X DESPESAS", "CD");
 
 	private String descricao;

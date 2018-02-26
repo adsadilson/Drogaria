@@ -49,7 +49,7 @@ public class MovimentacaoRepository implements Serializable {
 			manager.remove(movto);
 			manager.flush();
 		} catch (PersistenceException e) {
-			throw new NegocioException("MovimentaÁ„o n„o pode ser excluÌdo pois possui vinculo com outra tabela.");
+			throw new NegocioException("Movimenta√ß√£o n√£o pode ser exclu√≠do pois possui vinculo com outra tabela.");
 		}
 	}
 

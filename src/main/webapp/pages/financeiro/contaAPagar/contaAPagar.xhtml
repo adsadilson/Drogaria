@@ -419,7 +419,7 @@
 								value="#{contaAPagarBean.contaAPagar.numDoc} | #{contaAPagarBean.contaAPagar.parcela}" />
 
 							<p:calendar size="13" pattern="dd/MM/yyyy" locale="pt_BR"
-								value="#{contaAPagarBean.pagamento.dataPagto}"
+								value="#{contaAPagarBean.pagamento.dataPago}"
 								id="txtBaixaSimpleDtPagamento"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
@@ -484,7 +484,7 @@
 								</p:inputText>
 
 								<p:outputLabel value="Histórico" />
-								<p:inputText value="#{contaAPagarBean.contaAPagar.descricao}"
+								<p:inputText value="#{contaAPagarBean.pagamento.descricao}"
 									size="60">
 								</p:inputText>
 
@@ -676,7 +676,7 @@
 
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
 							<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
-								value="#{contaAPagarBean.pagamento.dataPagto}" id="dtBaixa"
+								value="#{contaAPagarBean.pagamento.dataPago}" id="dtBaixa"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
 							</p:calendar>
@@ -731,7 +731,7 @@
 							</ui:remove>
 
 							<p:column style="width:300px;" headerText="Historico">
-								<h:outputText value="#{fn:substring(listPago.historico,0,60)}" />
+								<h:outputText value="#{fn:substring(listPago.descricao,0,60)}" />
 							</p:column>
 
 							<p:column style="text-align:right; width:100px;"

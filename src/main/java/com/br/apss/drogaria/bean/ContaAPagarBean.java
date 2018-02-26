@@ -33,6 +33,7 @@ import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.enums.TipoBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaApagar;
 import com.br.apss.drogaria.model.ContaAPagar;
@@ -211,7 +212,7 @@ public class ContaAPagarBean implements Serializable {
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
 
 			for (ContaAPagar par : this.listaParcelas) {
-				if (par.getDataPago() != null) {
+				if (par.getStatus().contains("ABERTO")) {
 					this.permitirEditar = "false";
 					break;
 				}
@@ -259,6 +260,9 @@ public class ContaAPagarBean implements Serializable {
 						this.listaMovimentacoes.get(i).setDataLanc(new Date());
 						this.listaMovimentacoes.get(i).setDocumento(this.cabContaApagar.getDocumento());
 						this.listaMovimentacoes.get(i).setVlrEntrada(null);
+						this.listaMovimentacoes.get(i).setTipoLanc(TipoLanc.CA);
+						this.listaMovimentacoes.get(i).setTipoConta(TipoConta.D);
+						this.listaMovimentacoes.get(i).setVinculo(contaAPagar.getVinculo());
 						this.listaMovimentacoes.get(i).setPessoa(this.cabContaApagar.getFornecedor());
 						this.listaMovimentacoes.get(i).setUsuario(obterUsuario());
 					}
@@ -268,6 +272,7 @@ public class ContaAPagarBean implements Serializable {
 					for (int i = 0; i < this.listaParcelas.size(); i++) {
 						this.listaParcelas.get(i).setDataDoc(this.cabContaApagar.getDataDoc());
 						this.listaParcelas.get(i).setStatus("ABERTO");
+						this.listaParcelas.get(i).setUsuario(obterUsuario());
 						this.listaParcelas.get(i).setFornecedor(this.cabContaApagar.getFornecedor());
 						this.listaParcelas.get(i).setVinculo(this.contaAPagar.getVinculo());
 						this.listaParcelas.get(i).setValorApagar(this.listaParcelas.get(i).getValor());
@@ -299,14 +304,15 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void salvarBaixaSimples() throws Exception {
-		if (!validarDatas(this.contaAPagar.getDataDoc(), this.pagamento.getDataPagto())) {
+		if (!validarDatas(this.contaAPagar.getDataDoc(), this.pagamento.getDataPago())) {
+			this.pagamento.setUsuario(obterUsuario());
 
 			if (this.contaAPagar.getPago().compareTo(this.contaAPagar.getValorApagar()) > 0) {
 				FacesContext.getCurrentInstance().validationFailed();
 				throw new NegocioException("O valor do pagamento não dever ser maior que o valor apagar!");
 			}
 
-			contaAPagarService.baixaSimples(this.contaAPagar);
+			contaAPagarService.baixaSimples(this.contaAPagar, this.pagamento);
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
@@ -385,8 +391,8 @@ public class ContaAPagarBean implements Serializable {
 	public void iniciarBaixaTitulo() {
 
 		this.listaPagamentos = new ArrayList<Pagamento>();
-		this.pagamento = new  Pagamento();
-		this.pagamento.setDataPagto(new Date());
+		this.pagamento = new Pagamento();
+		this.pagamento.setDataPago(new Date());
 
 		this.listaContasApagar.clear();
 		BigDecimal vlr = BigDecimal.ZERO;
@@ -411,6 +417,8 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setVinculo(cp.getVinculo());
 			contaAPagar.setFornecedor(cp.getFornecedor());
 			contaAPagar.setDataDoc(cp.getDataDoc());
+			this.pagamento.setDescricao(
+					"PG. NT." + cp.getNumDoc() + " Parc." + cp.getParcela() + " - " + cp.getFornecedor().getNome());
 			contaAPagar.setSaldoDevedor((cp.getValor()
 					.add(cp.getValorMultaJuros().subtract(cp.getValorDesc()).subtract(cp.getValorPago()))));
 			this.listaContasApagar.add(contaAPagar);
@@ -608,18 +616,16 @@ public class ContaAPagarBean implements Serializable {
 
 	public void addPagamento() {
 
-		if (this.pagamento.getTipoBaixa().equals(TipoBaixa.AP)) {
 			if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
 
 				for (ContaAPagar c : this.listaContasApagar) {
 					this.pagamento = new Pagamento();
-					this.pagamento.setHistorico("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
+					this.pagamento.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
 							+ c.getFornecedor().getNome());
 					this.pagamento.setValorPago(c.getValorPago());
 					this.listaPagamentos.add(this.pagamento);
 				}
 			}
-		}
 
 	}
 

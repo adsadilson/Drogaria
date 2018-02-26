@@ -37,8 +37,8 @@ public class Pagamento implements Serializable {
 	private Date dataLanc;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "data_pagto", length = 10)
-	private Date dataPagto;
+	@Column(name = "data_pago", length = 10)
+	private Date dataPago;
 
 	@Column(name = "valor", precision = 12, scale = 2)
 	private BigDecimal valor = BigDecimal.ZERO;
@@ -61,14 +61,18 @@ public class Pagamento implements Serializable {
 	private Movimentacao movimentacao = new Movimentacao();
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "tipo_baixa", length = 5)
+	@Column(name = "tipo_baixa", length = 25)
 	private TipoBaixa tipoBaixa;
 
-	private String historico;
+	private String descricao;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "forma_baixa", length = 5)
+	@Column(name = "forma_baixa", length = 35)
 	private FormaBaixa formaBaixa;
+
+	@ManyToOne
+	@JoinColumn(name = "usuario_id")
+	private Usuario usuario;
 
 	public Long getId() {
 		return id;
@@ -84,14 +88,6 @@ public class Pagamento implements Serializable {
 
 	public void setDataLanc(Date dataLanc) {
 		this.dataLanc = dataLanc;
-	}
-
-	public Date getDataPagto() {
-		return dataPagto;
-	}
-
-	public void setDataPagto(Date dataPagto) {
-		this.dataPagto = dataPagto;
 	}
 
 	public BigDecimal getValor() {
@@ -142,12 +138,20 @@ public class Pagamento implements Serializable {
 		this.movimentacao = movimentacao;
 	}
 
-	public String getHistorico() {
-		return historico;
+	public Date getDataPago() {
+		return dataPago;
 	}
 
-	public void setHistorico(String historico) {
-		this.historico = historico;
+	public void setDataPago(Date dataPago) {
+		this.dataPago = dataPago;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
 	}
 
 	public TipoBaixa getTipoBaixa() {
@@ -164,6 +168,14 @@ public class Pagamento implements Serializable {
 
 	public void setFormaBaixa(FormaBaixa formaBaixa) {
 		this.formaBaixa = formaBaixa;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 
 	public boolean isInclusao() {

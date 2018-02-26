@@ -2,8 +2,8 @@ package com.br.apss.drogaria.enums;
 
 public enum TipoBaixa {
 
-	AP("Apenas uma conta"),
-	MC("Multiplas contas");
+	TOTAL("TOTAL"),
+	PARCIAL("PARCIAL");
 	
 	private String descricao;
 

@@ -6,7 +6,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.br.apss.drogaria.enums.TipoBaixa;
+import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.Movimentacao;
+import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
 import com.br.apss.drogaria.util.jpa.Transacional;
@@ -18,29 +23,66 @@ public class ContaAPagarService implements Serializable {
 	@Inject
 	private ContaAPagarRepository dao;
 
+	@Inject
+	private MovimentacaoService movtoDao;
+
+	@Inject
+	private PagamentoService pagamentoService;
+
 	@Transacional
-	public void salvar(ContaAPagar obj) {
-		dao.salvar(obj);
+	public void salvar(ContaAPagar contaAPagar) {
+		dao.salvar(contaAPagar);
 	}
 
 	@Transacional
-	public void baixaSimples(ContaAPagar obj) {
+	public void baixaSimples(ContaAPagar contaAPagar, Pagamento pagamento) {
 		BigDecimal m = BigDecimal.ZERO;
 		BigDecimal d = BigDecimal.ZERO;
 		BigDecimal p = BigDecimal.ZERO;
-		m = m.add(obj.getValorMultaJuros().add(obj.getMulta()));
-		d = d.add(obj.getValorDesc().add(obj.getDesc()));
-		p = p.add(obj.getValorPago().add(obj.getPago()));
+		m = m.add(contaAPagar.getValorMultaJuros().add(contaAPagar.getMulta()));
+		d = d.add(contaAPagar.getValorDesc().add(contaAPagar.getDesc()));
+		p = p.add(contaAPagar.getValorPago().add(contaAPagar.getPago()));
 
-		obj.setValorApagar((obj.getValor().add(m).subtract(d)).subtract(p));
-		obj.setStatus("PENDENTE");
-		obj.setValorMultaJuros(m);
-		obj.setValorDesc(d);
-		obj.setValorPago(p);
-		if (obj.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
-			obj.setStatus("PAGO");
+		contaAPagar.setValorApagar((contaAPagar.getValor().add(m).subtract(d)).subtract(p));
+		contaAPagar.setStatus("PENDENTE");
+		pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
+		contaAPagar.setValorMultaJuros(m);
+		contaAPagar.setValorDesc(d);
+		contaAPagar.setValorPago(p);
+		if (contaAPagar.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
+			contaAPagar.setStatus("PAGO");
+			pagamento.setTipoBaixa(TipoBaixa.TOTAL);
 		}
-		dao.baixaSimples(obj);
+
+		dao.baixaSimples(contaAPagar);
+
+		Movimentacao movto = new Movimentacao();
+		movto.setDataDoc(pagamento.getDataPago());
+		movto.setDataLanc(pagamento.getDataPago());
+		movto.setUsuario(pagamento.getUsuario());
+		movto.setDescricao(pagamento.getDescricao());
+		movto.setDocumento(contaAPagar.getNumDoc());
+		movto.setVinculo(contaAPagar.getVinculo());
+		movto.setPessoa(contaAPagar.getFornecedor());
+		movto.setVlrEntrada(contaAPagar.getPago());
+		movto.setVlrSaida(null);
+		movto.setTipoLanc(TipoLanc.PC);
+		movto.setTipoConta(TipoConta.CC);
+		movto.setPlanoConta(pagamento.getMovimentacao().getPlanoConta());
+		movto.setPlanoContaPai(pagamento.getMovimentacao().getPlanoConta().getContaPai());
+		movto = movtoDao.salvar(movto);
+
+		pagamento.setValor(contaAPagar.getValor());
+		pagamento.setValorDesc(d);
+		pagamento.setValorMultaJuros(m);
+		pagamento.setValorPago(contaAPagar.getPago());
+		pagamento.setDataLanc(pagamento.getDataPago());
+		pagamento.setContaAPagar(contaAPagar);
+		pagamento.setUsuario(movto.getUsuario());
+		pagamento.setMovimentacao(movto);
+
+		pagamentoService.salvar(pagamento);
+
 	}
 
 	@Transacional
@@ -49,8 +91,8 @@ public class ContaAPagarService implements Serializable {
 	}
 
 	@Transacional
-	public void excluir(ContaAPagar obj) {
-		dao.excluir(obj);
+	public void excluir(ContaAPagar contaAPagar) {
+		dao.excluir(contaAPagar);
 	}
 
 	@Transacional

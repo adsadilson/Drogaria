@@ -19,8 +19,8 @@ public class MovimentacaoService implements Serializable {
 	private MovimentacaoRepository dao;
 
 	@Transacional
-	public void salvar(Movimentacao obj) {
-		dao.save(obj);
+	public Movimentacao salvar(Movimentacao obj) {
+		return dao.save(obj);
 	}
 
 	@Transacional

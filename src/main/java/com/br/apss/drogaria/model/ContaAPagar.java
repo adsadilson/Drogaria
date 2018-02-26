@@ -25,7 +25,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
 
 @Entity
@@ -42,9 +41,6 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "vinculo")
 	private Long vinculo;
 
-	@Column(name = "descricao", length = 255)
-	private String descricao;
-
 	@Temporal(TemporalType.DATE)
 	@Column(name = "data_vencto")
 	private Date dataVencto;
@@ -52,10 +48,6 @@ public class ContaAPagar implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@Column(name = "data_doc")
 	private Date dataDoc;
-
-	@Temporal(TemporalType.DATE)
-	@Column(name = "data_pago")
-	private Date dataPago;
 
 	@Column(name = "num_doc", length = 15)
 	private String numDoc;
@@ -84,9 +76,9 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "tipo_cobranca", length = 40)
 	private TipoCobranca tipoCobranca;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "forma_baixa", length = 45)
-	private FormaBaixa formaBaixa;
+	@ManyToOne
+	@JoinColumn(name = "usuario_id")
+	private Usuario usuario;
 
 	@Column(length = 20)
 	private String status;
@@ -134,28 +126,12 @@ public class ContaAPagar implements Serializable {
 		this.vinculo = vinculo;
 	}
 
-	public String getDescricao() {
-		return descricao;
-	}
-
-	public void setDescricao(String descricao) {
-		this.descricao = descricao;
-	}
-
 	public Date getDataVencto() {
 		return dataVencto;
 	}
 
 	public void setDataVencto(Date dataVencto) {
 		this.dataVencto = dataVencto;
-	}
-
-	public Date getDataPago() {
-		return dataPago;
-	}
-
-	public void setDataPago(Date dataPago) {
-		this.dataPago = dataPago;
 	}
 
 	public String getNumDoc() {
@@ -228,14 +204,6 @@ public class ContaAPagar implements Serializable {
 
 	public void setDias(int dias) {
 		this.dias = dias;
-	}
-
-	public FormaBaixa getFormaBaixa() {
-		return formaBaixa;
-	}
-
-	public void setFormaBaixa(FormaBaixa formaBaixa) {
-		this.formaBaixa = formaBaixa;
 	}
 
 	public int getNumVezes() {
@@ -316,6 +284,14 @@ public class ContaAPagar implements Serializable {
 
 	public void setPago(BigDecimal pago) {
 		this.pago = pago;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 
 	@Override
