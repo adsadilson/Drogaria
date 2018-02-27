@@ -3,6 +3,7 @@ package com.br.apss.drogaria.bean;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -224,6 +225,10 @@ public class MovimentacaoBean implements Serializable {
 				}
 			}
 
+			Date d = new Date();
+			SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			String dt = f.format(d);
+			this.movtoSelecionado.setUserEdicao(dt + " - " + obterUsuario().getNome());
 			movimentacaoService.salvar(this.movtoSelecionado);
 
 		}
@@ -364,7 +369,7 @@ public class MovimentacaoBean implements Serializable {
 		if (null != this.movto.getTipoConta()) {
 			list = contaService.listarContasPais(this.movto.getPlanoContaPai(), this.movto.getTipoConta(),
 					TipoRelatorio.A);
-			
+
 			/* Remover a propria conta para lançamento */
 			for (int i = 0; i < list.size(); i++) {
 				if (list.get(i).getId() == this.filtro.getPlanoConta().getId()) {

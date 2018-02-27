@@ -85,6 +85,9 @@ public class Movimentacao implements Serializable {
 	@Column(name = "tipo_conta", length = 10)
 	private TipoConta tipoConta;
 
+	@Column(name = "user_edicao", length = 50)
+	private String userEdicao;
+
 	@Transient
 	private BigDecimal totalRateio = BigDecimal.ZERO;
 
@@ -232,6 +235,14 @@ public class Movimentacao implements Serializable {
 
 	public void setTotalRateio(BigDecimal totalRateio) {
 		this.totalRateio = totalRateio;
+	}
+
+	public String getUserEdicao() {
+		return userEdicao;
+	}
+
+	public void setUserEdicao(String userEdicao) {
+		this.userEdicao = userEdicao;
 	}
 
 	@Override

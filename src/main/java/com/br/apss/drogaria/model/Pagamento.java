@@ -49,6 +49,9 @@ public class Pagamento implements Serializable {
 	@Column(name = "valor_desc", precision = 12, scale = 2)
 	private BigDecimal valorDesc = BigDecimal.ZERO;
 
+	@Column(name = "valor_apagar", precision = 12, scale = 2)
+	private BigDecimal valorAPagar = BigDecimal.ZERO;
+
 	@Column(name = "valor_pago", precision = 12, scale = 2)
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
@@ -176,6 +179,14 @@ public class Pagamento implements Serializable {
 
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
+	}
+
+	public BigDecimal getValorAPagar() {
+		return valorAPagar;
+	}
+
+	public void setValorAPagar(BigDecimal valorAPagar) {
+		this.valorAPagar = valorAPagar;
 	}
 
 	public boolean isInclusao() {

@@ -36,15 +36,20 @@ public class ContaAPagarService implements Serializable {
 
 	@Transacional
 	public void baixaSimples(ContaAPagar contaAPagar, Pagamento pagamento) {
+		
 		BigDecimal m = BigDecimal.ZERO;
 		BigDecimal d = BigDecimal.ZERO;
 		BigDecimal p = BigDecimal.ZERO;
+		BigDecimal vApagar = contaAPagar.getValorApagar();
+		String descricao = pagamento.getDescricao();
+		
 		m = m.add(contaAPagar.getValorMultaJuros().add(contaAPagar.getMulta()));
 		d = d.add(contaAPagar.getValorDesc().add(contaAPagar.getDesc()));
 		p = p.add(contaAPagar.getValorPago().add(contaAPagar.getPago()));
 
 		contaAPagar.setValorApagar((contaAPagar.getValor().add(m).subtract(d)).subtract(p));
 		contaAPagar.setStatus("PENDENTE");
+		pagamento.setDescricao(pagamento.getDescricao()+" (P)");
 		pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
 		contaAPagar.setValorMultaJuros(m);
 		contaAPagar.setValorDesc(d);
@@ -52,6 +57,7 @@ public class ContaAPagarService implements Serializable {
 		if (contaAPagar.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
 			contaAPagar.setStatus("PAGO");
 			pagamento.setTipoBaixa(TipoBaixa.TOTAL);
+			pagamento.setDescricao(descricao);
 		}
 
 		dao.baixaSimples(contaAPagar);
@@ -62,10 +68,10 @@ public class ContaAPagarService implements Serializable {
 		movto.setUsuario(pagamento.getUsuario());
 		movto.setDescricao(pagamento.getDescricao());
 		movto.setDocumento(contaAPagar.getNumDoc());
-		movto.setVinculo(contaAPagar.getVinculo());
+		movto.setVinculo(null);
 		movto.setPessoa(contaAPagar.getFornecedor());
-		movto.setVlrEntrada(contaAPagar.getPago());
-		movto.setVlrSaida(null);
+		movto.setVlrEntrada(null);
+		movto.setVlrSaida(contaAPagar.getPago());
 		movto.setTipoLanc(TipoLanc.PC);
 		movto.setTipoConta(TipoConta.CC);
 		movto.setPlanoConta(pagamento.getMovimentacao().getPlanoConta());
@@ -73,13 +79,15 @@ public class ContaAPagarService implements Serializable {
 		movto = movtoDao.salvar(movto);
 
 		pagamento.setValor(contaAPagar.getValor());
-		pagamento.setValorDesc(d);
-		pagamento.setValorMultaJuros(m);
+		pagamento.setValorDesc(contaAPagar.getDesc());
+		pagamento.setValorMultaJuros(contaAPagar.getMulta());
 		pagamento.setValorPago(contaAPagar.getPago());
 		pagamento.setDataLanc(pagamento.getDataPago());
-		pagamento.setContaAPagar(contaAPagar);
 		pagamento.setUsuario(movto.getUsuario());
+		pagamento.setValorAPagar(vApagar);
+		pagamento.setContaAPagar(contaAPagar);
 		pagamento.setMovimentacao(movto);
+		
 
 		pagamentoService.salvar(pagamento);
 
