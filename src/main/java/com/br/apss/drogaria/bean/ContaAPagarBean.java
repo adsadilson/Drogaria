@@ -106,6 +106,8 @@ public class ContaAPagarBean implements Serializable {
 	@Inject
 	private CabContaApagarService cabContaApagarService;
 
+	SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
 	private BigDecimal totalDasParcelas = BigDecimal.ZERO;
 
 	private BigDecimal totalDaNotaMovimentacao = BigDecimal.ZERO;
@@ -131,6 +133,8 @@ public class ContaAPagarBean implements Serializable {
 	private boolean isToggle = false;
 
 	private String permitirEditar;
+
+	private String descricao;
 
 	@Inject
 	CabContaApagarService service;
@@ -316,8 +320,54 @@ public class ContaAPagarBean implements Serializable {
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
-			throw new NegocioException("A data de pagamento dever ser maior que a data de entrada!");
+			throw new NegocioException("A data de pagamento dever ser maior que a data de lançamento ("
+					+ formato.format(this.contaAPagar.getDataDoc()) + ") !");
 		}
+	}
+
+	public void formaBaixa() {
+
+		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
+			this.pagamento.setDescricao(null);
+		} else {
+			this.listaPagamentos.clear();
+		}
+	}
+
+	public void addPagamento() {
+
+		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
+
+			this.listaPagamentos.clear();
+
+			for (ContaAPagar c : this.listaContasApagar) {
+				Pagamento p = new Pagamento();
+
+				p.setMovimentacao(this.pagamento.getMovimentacao());
+				p.setDescricao(
+						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
+
+				if (c.getValorApagar().compareTo(c.getValorPago()) > 0) {
+					p.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
+							+ c.getFornecedor().getNome() + " (P)");
+				}
+
+				p.setValorPago(c.getValorPago());
+
+				this.listaPagamentos.add(p);
+			}
+		} else {
+
+			Pagamento p2 = new Pagamento();
+			p2.setMovimentacao(this.movimentacao);
+			p2.setValorPago(this.pagamento.getValorPago());
+			p2.setDescricao(descricao);
+			this.listaPagamentos.add(p2);
+			this.movimentacao = new Movimentacao();
+			this.pagamento.setValorPago(BigDecimal.ZERO);
+
+		}
+
 	}
 
 	public void rowSelect(SelectEvent event) {
@@ -393,12 +443,16 @@ public class ContaAPagarBean implements Serializable {
 		this.listaPagamentos = new ArrayList<Pagamento>();
 		this.pagamento = new Pagamento();
 		this.pagamento.setDataPago(new Date());
+		this.pagamento.setFormaBaixa(FormaBaixa.BI);
+		this.movimentacao = new Movimentacao();
 
 		this.listaContasApagar.clear();
 		BigDecimal vlr = BigDecimal.ZERO;
 
 		this.setTotalApagar(vlr);
 		this.setTotalPago(vlr);
+		this.setTotalMultaJuros(vlr);
+		this.setTotalDesc(vlr);
 
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
 			contaAPagar = new ContaAPagar();
@@ -412,13 +466,15 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setValorMultaJuros(cp.getValorMultaJuros());
 			contaAPagar.setValorDesc(cp.getValorDesc());
 			contaAPagar.setValorApagar(cp.getValorApagar());
-			contaAPagar.setValorPago(cp.getValorPago());
+			contaAPagar.setValorPago(cp.getValorApagar());
 			contaAPagar.setPago(cp.getValorApagar());
 			contaAPagar.setVinculo(cp.getVinculo());
 			contaAPagar.setFornecedor(cp.getFornecedor());
 			contaAPagar.setDataDoc(cp.getDataDoc());
+
 			this.pagamento.setDescricao(
 					"PG. NT." + cp.getNumDoc() + " Parc." + cp.getParcela() + " - " + cp.getFornecedor().getNome());
+
 			contaAPagar.setSaldoDevedor((cp.getValor()
 					.add(cp.getValorMultaJuros().subtract(cp.getValorDesc()).subtract(cp.getValorPago()))));
 			this.listaContasApagar.add(contaAPagar);
@@ -525,7 +581,7 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public Date getDataAtualFormatada() {
-		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
 		Date dt = new Date();
 		String hoje = formato.format(dt);
 		Date data = null;
@@ -612,21 +668,6 @@ public class ContaAPagarBean implements Serializable {
 		} else {
 			Messages.addGlobalError("A data de entrada esta maior que a data de vencimento.");
 		}
-	}
-
-	public void addPagamento() {
-
-			if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
-
-				for (ContaAPagar c : this.listaContasApagar) {
-					this.pagamento = new Pagamento();
-					this.pagamento.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
-							+ c.getFornecedor().getNome());
-					this.pagamento.setValorPago(c.getValorPago());
-					this.listaPagamentos.add(this.pagamento);
-				}
-			}
-
 	}
 
 	public void onCellEdit(CellEditEvent event) {
@@ -964,6 +1005,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setListaPagamentos(List<Pagamento> listaPagamentos) {
 		this.listaPagamentos = listaPagamentos;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao.toUpperCase();
 	}
 
 }
