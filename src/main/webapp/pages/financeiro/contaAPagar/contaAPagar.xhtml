@@ -546,7 +546,8 @@
 											value="#{contaApagar.valorMultaJuros}" styleClass="moeda"
 											onfocus="mascaraMoeda();" converter="moedaConverter">
 											<p:ajax event="blur"
-												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar txtBaixaPago" />
+												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
+												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -564,7 +565,8 @@
 											value="#{contaApagar.valorDesc}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
 											<p:ajax event="blur"
-												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar txtBaixaPago" />
+												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
+												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -588,7 +590,8 @@
 										<p:inputText value="#{contaApagar.valorPago}"
 											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
-											<p:ajax event="blur" update="@this txtBaixaPago txtVlrPago" />
+											<p:ajax event="blur"
+												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -656,7 +659,6 @@
 							id="panelGridPagamento"
 							columnClasses="rotuloInfConta1,campoInfConta1,rotuloInfConta2,campoInfConta2">
 
-
 							<p:outputLabel value="Forma da baixa" />
 
 							<p:outputLabel value="Conta à debitar" for="txtContaBaixar" />
@@ -718,7 +720,8 @@
 								<p:commandButton title="Add Conta" style="margin-left:2px;"
 									process="@this panelGridPagamento panelGridPagamento2"
 									action="#{contaAPagarBean.addPagamento}"
-									update="panelGridPagamento panelGridPagamento2 dataTablePagamento"
+									update="panelGridPagamento panelGridPagamento2 dataTablePagamento 
+									labelVlrApagarBaixaMultipla"
 									icon="fa fa-download" styleClass="semPreenchimento">
 								</p:commandButton>
 
@@ -760,7 +763,12 @@
 
 						<p:toolbar style="margin-top:10px;" styleClass="semPreenchimento">
 							<p:toolbarGroup>
-								<p:outputLabel value="Valor à pagar " styleClass="corLabel" />
+								<p:outputLabel value="Valor à pagar:" styleClass="corLabel"
+									style="margin-left:20px; margin-right:10px;" />
+								<p:outputLabel value="#{contaAPagarBean.saldo}"
+									id="labelVlrApagarBaixaMultipla" styleClass="red">
+									<f:convertNumber type="currency" />
+								</p:outputLabel>
 							</p:toolbarGroup>
 							<p:toolbarGroup align="right">
 								<p:commandButton value="Confirmar" process="@this"

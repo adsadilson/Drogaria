@@ -324,6 +324,11 @@ public class ContaAPagarBean implements Serializable {
 					+ formato.format(this.contaAPagar.getDataDoc()) + ") !");
 		}
 	}
+	
+	public void salvarBaixaMultiplas() {
+		
+	}
+	
 
 	public void formaBaixa() {
 
@@ -343,7 +348,7 @@ public class ContaAPagarBean implements Serializable {
 			for (ContaAPagar c : this.listaContasApagar) {
 				Pagamento p = new Pagamento();
 
-				p.setMovimentacao(this.pagamento.getMovimentacao());
+				p.setMovimentacao(this.movimentacao);
 				p.setDescricao(
 						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
 
@@ -355,9 +360,11 @@ public class ContaAPagarBean implements Serializable {
 				p.setValorPago(c.getValorPago());
 
 				this.listaPagamentos.add(p);
+				calcularValorApagar();
 			}
 		} else {
 
+			calcularValorApagar();
 			Pagamento p2 = new Pagamento();
 			p2.setMovimentacao(this.movimentacao);
 			p2.setValorPago(this.pagamento.getValorPago());
@@ -365,9 +372,31 @@ public class ContaAPagarBean implements Serializable {
 			this.listaPagamentos.add(p2);
 			this.movimentacao = new Movimentacao();
 			this.pagamento.setValorPago(BigDecimal.ZERO);
-
 		}
 
+	}
+
+	public void calcularValorApagar() {
+		BigDecimal c = BigDecimal.ZERO;
+		BigDecimal p = BigDecimal.ZERO;
+
+		for (ContaAPagar cp : this.listaContasApagar) {
+			c = c.add(cp.getValorPago());
+		}
+
+		for (Pagamento pg : this.listaPagamentos) {
+			p = p.add(pg.getValorPago());
+		}
+
+		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BA)) {
+			p = p.add(this.pagamento.getValorPago());
+			if (p.compareTo(c) > 0) {
+				FacesContext.getCurrentInstance().validationFailed();
+				throw new NegocioException("O valor do pagamento não dever ser maior que o valor apagar!");
+			}
+		}
+
+		saldo = p.subtract(c);
 	}
 
 	public void rowSelect(SelectEvent event) {
@@ -479,6 +508,7 @@ public class ContaAPagarBean implements Serializable {
 					.add(cp.getValorMultaJuros().subtract(cp.getValorDesc()).subtract(cp.getValorPago()))));
 			this.listaContasApagar.add(contaAPagar);
 			vlr = vlr.add(cp.getValor());
+			calcularValorApagar();
 		}
 
 		this.pagamento.setValorPago(vlr);
@@ -721,6 +751,8 @@ public class ContaAPagarBean implements Serializable {
 			this.setTotalPago(t4);
 			this.pagamento.setValorPago(t4);
 
+			calcularValorApagar();
+
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada " + this.totalPago,
 					"Antigo: " + oldValue + ", Novo:" + newValue);
 			FacesContext.getCurrentInstance().addMessage(null, msg);
@@ -771,16 +803,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
