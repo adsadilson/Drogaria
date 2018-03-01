@@ -29,8 +29,13 @@ public class MovimentacaoService implements Serializable {
 	}
 
 	@Transacional
-	public void excluir(Movimentacao obj) {
+	public void excluirPorVinculo(Movimentacao obj) {
 		dao.excluirPorVinculo(obj.getId());
+	}
+
+	@Transacional
+	public void excluirID(Movimentacao obj) {
+		dao.remover(obj);
 	}
 
 	public List<Movimentacao> filtrados(MovimentacaoFilter filtro) {

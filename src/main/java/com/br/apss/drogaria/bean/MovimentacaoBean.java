@@ -274,7 +274,7 @@ public class MovimentacaoBean implements Serializable {
 		if (this.movtoSelecionado.getVinculo() != null) {
 			movimentacaoService.excluirPorVinculo(this.movtoSelecionado.getVinculo());
 		} else {
-			movimentacaoService.excluir(this.movtoSelecionado);
+			movimentacaoService.excluirID(this.movtoSelecionado);
 		}
 		this.movtoSelecionado = null;
 		pesquisar();

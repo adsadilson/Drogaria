@@ -213,7 +213,7 @@
 				</p:column>
 
 				<p:column style="text-align: right;width:60px;" headerText="Valor">
-					<h:outputText value="#{cp.valorApagar}">
+					<h:outputText value="#{cp.valor}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
@@ -526,9 +526,9 @@
 							</p:column>
 
 							<p:column style="text-align:right; width:60px;"
-								headerText="Valor">
+								headerText="Saldo devedor">
 								<h:outputLabel for="txtBaixaMultaJuro"
-									value="#{contaApagar.valor}">
+									value="#{contaApagar.valorApagar}">
 									<f:convertNumber type="currency" />
 								</h:outputLabel>
 							</p:column>
@@ -587,9 +587,9 @@
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.pagoTB}"
-											style="width:90%" styleClass="moeda"
-											converter="moedaConverter" onfocus="mascaraMoeda();">
+										<p:inputText value="#{contaApagar.pagoTB}" style="width:90%"
+											styleClass="moeda" converter="moedaConverter"
+											onfocus="mascaraMoeda();">
 											<p:ajax event="blur"
 												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -772,6 +772,7 @@
 							</p:toolbarGroup>
 							<p:toolbarGroup align="right">
 								<p:commandButton value="Confirmar" process="@this dtBaixa"
+									oncomplete="if(args.sucesso == true) PF('baixaTitulo').hide()"
 									action="#{contaAPagarBean.salvarBaixaMultiplas}"
 									icon="ui-icon-check">
 								</p:commandButton>

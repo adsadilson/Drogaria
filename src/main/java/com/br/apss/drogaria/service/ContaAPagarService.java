@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoBaixa;
 import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
@@ -102,9 +103,9 @@ public class ContaAPagarService implements Serializable {
 			BigDecimal d = BigDecimal.ZERO;
 			BigDecimal p = BigDecimal.ZERO;
 
-			m = m.add(cp.getValorMultaJuros());
-			d = d.add(cp.getValorDesc());
-			p = p.add(cp.getValorPago());
+			m = m.add(cp.getValorMultaJuros().add(cp.getMultaTB()));
+			d = d.add(cp.getValorDesc().add(cp.getDescTB()));
+			p = p.add(cp.getValorPago().add(cp.getPagoTB()));
 
 			ContaAPagar c = new ContaAPagar();
 			c.setId(cp.getId());
@@ -112,14 +113,39 @@ public class ContaAPagarService implements Serializable {
 			c.setValorMultaJuros(m);
 			c.setValorDesc(d);
 			c.setValorPago(p);
-			c.setValorApagar((cp.getValor().add(m).subtract(d)).subtract(cp.getValorPago()));
+			c.setValorApagar((cp.getValor().add(m).subtract(d)).subtract(p));
 
 			if (cp.getValorApagar().compareTo(cp.getPagoTB()) == 0) {
 				c.setStatus("PAGO");
 			}
-
 			dao.baixaSimples(c);
 		}
+
+		for (Pagamento pagto : listaPagamentos) {
+
+			Movimentacao movto = new Movimentacao();
+
+			movto.setDataDoc(pagto.getDataPago());
+			movto.setDataLanc(pagto.getDataPago());
+			movto.setUsuario(pagto.getUsuario());
+			movto.setDescricao(pagto.getDescricao());
+			
+			if (null != pagto.getContaAPagar()) {
+				movto.setDocumento(pagto.getContaAPagar().getNumDoc());
+				movto.setPessoa(pagto.getContaAPagar().getFornecedor());
+			}
+			
+			movto.setVinculo(null);
+			movto.setVlrEntrada(null);
+			movto.setVlrSaida(pagto.getValorPago());
+			movto.setTipoLanc(TipoLanc.PC);
+			movto.setTipoConta(TipoConta.CC);
+			movto.setPlanoConta(pagto.getMovimentacao().getPlanoConta());
+			movto.setPlanoContaPai(pagto.getMovimentacao().getPlanoConta().getContaPai());
+
+			movto = movtoDao.salvar(movto);
+		}
+
 	}
 
 	@Transacional

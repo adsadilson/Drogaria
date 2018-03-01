@@ -52,9 +52,6 @@ public class Movimentacao implements Serializable {
 	@JoinColumn(name = "conta_pai_id")
 	private PlanoConta planoContaPai = new PlanoConta();
 
-	@Transient
-	private PlanoConta contaOrigem = new PlanoConta();
-
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
@@ -177,14 +174,6 @@ public class Movimentacao implements Serializable {
 
 	public void setVlrSaldo(BigDecimal vlrSaldo) {
 		this.vlrSaldo = vlrSaldo;
-	}
-
-	public PlanoConta getContaOrigem() {
-		return contaOrigem;
-	}
-
-	public void setContaOrigem(PlanoConta contaOrigem) {
-		this.contaOrigem = contaOrigem;
 	}
 
 	public TipoLanc getTipoLanc() {
