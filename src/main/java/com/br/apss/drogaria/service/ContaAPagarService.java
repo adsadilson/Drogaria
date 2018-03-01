@@ -36,20 +36,21 @@ public class ContaAPagarService implements Serializable {
 
 	@Transacional
 	public void baixaSimples(ContaAPagar contaAPagar, Pagamento pagamento) {
-		
+
 		BigDecimal m = BigDecimal.ZERO;
 		BigDecimal d = BigDecimal.ZERO;
 		BigDecimal p = BigDecimal.ZERO;
+
 		BigDecimal vApagar = contaAPagar.getValorApagar();
 		String descricao = pagamento.getDescricao();
-		
+
 		m = m.add(contaAPagar.getValorMultaJuros().add(contaAPagar.getMulta()));
 		d = d.add(contaAPagar.getValorDesc().add(contaAPagar.getDesc()));
 		p = p.add(contaAPagar.getValorPago().add(contaAPagar.getPago()));
 
 		contaAPagar.setValorApagar((contaAPagar.getValor().add(m).subtract(d)).subtract(p));
 		contaAPagar.setStatus("PENDENTE");
-		pagamento.setDescricao(pagamento.getDescricao()+" (P)");
+		pagamento.setDescricao(pagamento.getDescricao() + " (P)");
 		pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
 		contaAPagar.setValorMultaJuros(m);
 		contaAPagar.setValorDesc(d);
@@ -87,10 +88,38 @@ public class ContaAPagarService implements Serializable {
 		pagamento.setValorAPagar(vApagar);
 		pagamento.setContaAPagar(contaAPagar);
 		pagamento.setMovimentacao(movto);
-		
 
 		pagamentoService.salvar(pagamento);
 
+	}
+
+	@Transacional
+	public void baixaMultiplas(List<ContaAPagar> listaContaAPagars, List<Pagamento> listaPagamentos) {
+
+		for (ContaAPagar cp : listaContaAPagars) {
+
+			BigDecimal m = BigDecimal.ZERO;
+			BigDecimal d = BigDecimal.ZERO;
+			BigDecimal p = BigDecimal.ZERO;
+
+			m = m.add(cp.getValorMultaJuros());
+			d = d.add(cp.getValorDesc());
+			p = p.add(cp.getValorPago());
+
+			ContaAPagar c = new ContaAPagar();
+			c.setId(cp.getId());
+			c.setStatus("PENDENTE");
+			c.setValorMultaJuros(m);
+			c.setValorDesc(d);
+			c.setValorPago(p);
+			c.setValorApagar((cp.getValor().add(m).subtract(d)).subtract(cp.getValorPago()));
+
+			if (cp.getValorApagar().compareTo(cp.getPagoTB()) == 0) {
+				c.setStatus("PAGO");
+			}
+
+			dao.baixaSimples(c);
+		}
 	}
 
 	@Transacional

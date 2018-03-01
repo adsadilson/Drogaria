@@ -110,6 +110,15 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private BigDecimal pago = BigDecimal.ZERO;
 
+	@Transient
+	private BigDecimal multaTB = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal descTB = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal pagoTB = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -292,6 +301,30 @@ public class ContaAPagar implements Serializable {
 
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
+	}
+
+	public BigDecimal getMultaTB() {
+		return multaTB;
+	}
+
+	public void setMultaTB(BigDecimal multaTB) {
+		this.multaTB = multaTB;
+	}
+
+	public BigDecimal getDescTB() {
+		return descTB;
+	}
+
+	public void setDescTB(BigDecimal descTB) {
+		this.descTB = descTB;
+	}
+
+	public BigDecimal getPagoTB() {
+		return pagoTB;
+	}
+
+	public void setPagoTB(BigDecimal pagoTB) {
+		this.pagoTB = pagoTB;
 	}
 
 	@Override

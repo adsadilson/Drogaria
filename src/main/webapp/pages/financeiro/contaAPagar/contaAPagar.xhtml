@@ -213,7 +213,7 @@
 				</p:column>
 
 				<p:column style="text-align: right;width:60px;" headerText="Valor">
-					<h:outputText value="#{cp.valor}">
+					<h:outputText value="#{cp.valorApagar}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
@@ -537,13 +537,13 @@
 								<p:cellEditor>
 									<f:facet name="output">
 										<h:outputLabel for="txtBaixaMultaJuro"
-											value="#{contaApagar.valorMultaJuros}">
+											value="#{contaApagar.multaTB}">
 											<f:convertNumber type="currency" currencySymbol="" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
-											value="#{contaApagar.valorMultaJuros}" styleClass="moeda"
+											value="#{contaApagar.multaTB}" styleClass="moeda"
 											onfocus="mascaraMoeda();" converter="moedaConverter">
 											<p:ajax event="blur"
 												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
@@ -556,13 +556,13 @@
 								headerText="Desconto">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.valorDesc}">
+										<h:outputLabel value="#{contaApagar.descTB}">
 											<f:convertNumber type="currency" currencySymbol="" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText style="width:85%" styleClass="moeda"
-											value="#{contaApagar.valorDesc}" onfocus="mascaraMoeda();"
+											value="#{contaApagar.descTB}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
 											<p:ajax event="blur"
 												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
@@ -582,12 +582,12 @@
 								headerText="Valor pago" id="pago">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.valorPago}">
+										<h:outputLabel value="#{contaApagar.pagoTB}">
 											<f:convertNumber type="currency" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.valorPago}"
+										<p:inputText value="#{contaApagar.pagoTB}"
 											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
 											<p:ajax event="blur"
@@ -771,7 +771,8 @@
 								</p:outputLabel>
 							</p:toolbarGroup>
 							<p:toolbarGroup align="right">
-								<p:commandButton value="Confirmar" process="@this"
+								<p:commandButton value="Confirmar" process="@this dtBaixa"
+									action="#{contaAPagarBean.salvarBaixaMultiplas}"
 									icon="ui-icon-check">
 								</p:commandButton>
 							</p:toolbarGroup>

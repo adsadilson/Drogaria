@@ -324,11 +324,31 @@ public class ContaAPagarBean implements Serializable {
 					+ formato.format(this.contaAPagar.getDataDoc()) + ") !");
 		}
 	}
-	
+
 	public void salvarBaixaMultiplas() {
-		
+
+		BigDecimal c = BigDecimal.ZERO;
+		BigDecimal p = BigDecimal.ZERO;
+
+		for (ContaAPagar cp : this.listaContasApagar) {
+			if (cp.getDataDoc().compareTo(this.pagamento.getDataPago()) > 0) {
+				throw new NegocioException("A data de pagamento dever ser maior ou igual a data de lançamento ("
+						+ formato.format(cp.getDataDoc()) + ") !");
+			}
+			c = c.add(cp.getPagoTB());
+		}
+
+		for (Pagamento pg : this.listaPagamentos) {
+			p = p.add(pg.getValorPago());
+		}
+
+		if (p.compareTo(c) < 0) {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("Ainda faltar lançar valor a pagar!");
+		}
+
+		contaAPagarService.baixaMultiplas(this.listaContasApagar, this.listaPagamentos);
 	}
-	
 
 	public void formaBaixa() {
 
@@ -352,12 +372,12 @@ public class ContaAPagarBean implements Serializable {
 				p.setDescricao(
 						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
 
-				if (c.getValorApagar().compareTo(c.getValorPago()) > 0) {
+				if (c.getValorApagar().compareTo(c.getPagoTB()) > 0) {
 					p.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
 							+ c.getFornecedor().getNome() + " (P)");
 				}
 
-				p.setValorPago(c.getValorPago());
+				p.setValorPago(c.getPagoTB());
 
 				this.listaPagamentos.add(p);
 				calcularValorApagar();
@@ -381,7 +401,7 @@ public class ContaAPagarBean implements Serializable {
 		BigDecimal p = BigDecimal.ZERO;
 
 		for (ContaAPagar cp : this.listaContasApagar) {
-			c = c.add(cp.getValorPago());
+			c = c.add(cp.getPagoTB());
 		}
 
 		for (Pagamento pg : this.listaPagamentos) {
@@ -495,7 +515,8 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setValorMultaJuros(cp.getValorMultaJuros());
 			contaAPagar.setValorDesc(cp.getValorDesc());
 			contaAPagar.setValorApagar(cp.getValorApagar());
-			contaAPagar.setValorPago(cp.getValorApagar());
+			contaAPagar.setValorPago(cp.getValorPago());
+			contaAPagar.setPagoTB(cp.getValorApagar());
 			contaAPagar.setPago(cp.getValorApagar());
 			contaAPagar.setVinculo(cp.getVinculo());
 			contaAPagar.setFornecedor(cp.getFornecedor());
@@ -506,8 +527,11 @@ public class ContaAPagarBean implements Serializable {
 
 			contaAPagar.setSaldoDevedor((cp.getValor()
 					.add(cp.getValorMultaJuros().subtract(cp.getValorDesc()).subtract(cp.getValorPago()))));
+
 			this.listaContasApagar.add(contaAPagar);
-			vlr = vlr.add(cp.getValor());
+
+			vlr = vlr.add(contaAPagar.getSaldoDevedor());
+
 			calcularValorApagar();
 		}
 
@@ -515,7 +539,6 @@ public class ContaAPagarBean implements Serializable {
 		this.setTotalApagar(vlr);
 		this.setTotalPago(vlr);
 		this.setTotalSelecionado(vlr);
-		pesquisar();
 
 	}
 
@@ -731,18 +754,24 @@ public class ContaAPagarBean implements Serializable {
 
 			for (ContaAPagar c : this.listaContasApagar) {
 
-				if (parcela.getParcela().equals(c.getParcela())) {
-					if (c.getValorApagar().intValue() == parcela.getValorPago().intValue()) {
-						c.setValorPago(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
-					}
+				if (coluna.indexOf("pago") < 0) {
+					BigDecimal t5 = BigDecimal.ZERO;
+
+					t5 = t5.add(c.getValor().add(c.getValorMultaJuros().add(c.getMultaTB()))
+							.subtract(c.getValorDesc().subtract(c.getDescTB().subtract(c.getValorPago()))));
+
+					c.setValorApagar(t5);
+
+					c.setPagoTB(t5);
+
+					t1 = t1.add(c.getMultaTB());
+					t2 = t2.add(c.getDescTB());
+					t3 = t3.add(c.getValorApagar());
+					t4 = t4.add(c.getPagoTB());
+					
+				} else {
+					t4 = t4.add(c.getPagoTB());
 				}
-
-				c.setValorApagar(c.getValor().add(c.getValorMultaJuros().subtract(c.getValorDesc())));
-
-				t1 = t1.add(c.getValorMultaJuros());
-				t2 = t2.add(c.getValorDesc());
-				t3 = t3.add(c.getValorApagar());
-				t4 = t4.add(c.getValorPago());
 			}
 
 			this.setTotalMultaJuros(t1);
@@ -756,6 +785,8 @@ public class ContaAPagarBean implements Serializable {
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada " + this.totalPago,
 					"Antigo: " + oldValue + ", Novo:" + newValue);
 			FacesContext.getCurrentInstance().addMessage(null, msg);
+			
+			this.setTotalPago(this.totalPago);
 		}
 	}
 
@@ -803,16 +834,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
-	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
-	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
-	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
-	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
-	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
-	 * c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
+	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
+	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
+	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
+	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
+	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
+	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
