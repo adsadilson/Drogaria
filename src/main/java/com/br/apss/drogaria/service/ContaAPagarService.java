@@ -2,6 +2,7 @@ package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -129,12 +130,12 @@ public class ContaAPagarService implements Serializable {
 			movto.setDataLanc(pagto.getDataPago());
 			movto.setUsuario(pagto.getUsuario());
 			movto.setDescricao(pagto.getDescricao());
-			
+
 			if (null != pagto.getContaAPagar()) {
 				movto.setDocumento(pagto.getContaAPagar().getNumDoc());
 				movto.setPessoa(pagto.getContaAPagar().getFornecedor());
 			}
-			
+
 			movto.setVinculo(null);
 			movto.setVlrEntrada(null);
 			movto.setVlrSaida(pagto.getValorPago());
@@ -144,6 +145,29 @@ public class ContaAPagarService implements Serializable {
 			movto.setPlanoContaPai(pagto.getMovimentacao().getPlanoConta().getContaPai());
 
 			movto = movtoDao.salvar(movto);
+
+			Pagamento pagamento = new Pagamento();
+			
+			pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
+			if (pagto.getContaAPagar().getValorApagar().compareTo(pagto.getContaAPagar().getPagoTB()) == 0) {
+				pagamento.setTipoBaixa(TipoBaixa.TOTAL);
+			}
+			
+			pagamento.setDataLanc(pagto.getDataLanc());
+			pagamento.setDataPago(pagto.getDataPago());
+			pagamento.setDescricao(pagto.getDescricao());
+			pagamento.setFormaBaixa(pagto.getFormaBaixa());
+			pagamento.setValor(pagto.getContaAPagar().getValor());
+			pagamento.setValorAPagar(pagto.getContaAPagar().getValorApagar());
+			pagamento.setValorDesc(pagto.getContaAPagar().getDescTB());
+			pagamento.setValorMultaJuros(pagto.getContaAPagar().getMultaTB());
+			pagamento.setValorPago(pagto.getValorPago());
+			pagamento.setUsuario(pagto.getUsuario());
+			pagamento.setContaAPagar(pagto.getContaAPagar());
+			pagamento.setMovimentacao(movto);
+
+			pagamentoService.salvar(pagamento);
+
 		}
 
 	}

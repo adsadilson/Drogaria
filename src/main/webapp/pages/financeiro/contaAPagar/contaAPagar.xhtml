@@ -772,7 +772,7 @@
 							</p:toolbarGroup>
 							<p:toolbarGroup align="right">
 								<p:commandButton value="Confirmar" process="@this dtBaixa"
-									oncomplete="if(args.sucesso == true) PF('baixaTitulo').hide()"
+									oncomplete="if(!args.validationFailed) PF('baixaTitulo').hide()"
 									action="#{contaAPagarBean.salvarBaixaMultiplas}"
 									icon="ui-icon-check">
 								</p:commandButton>

@@ -371,6 +371,7 @@ public class ContaAPagarBean implements Serializable {
 				p.setDataLanc(new Date());
 				p.setDataPago(this.pagamento.getDataPago());
 				p.setUsuario(obterUsuario());
+				p.setFormaBaixa(FormaBaixa.BI);
 
 				p.setMovimentacao(this.movimentacao);
 				p.setDescricao(
@@ -391,8 +392,12 @@ public class ContaAPagarBean implements Serializable {
 			calcularValorApagar();
 			Pagamento p2 = new Pagamento();
 			p2.setMovimentacao(this.movimentacao);
+			p2.setFormaBaixa(FormaBaixa.BA);
 			p2.setValorPago(this.pagamento.getValorPago());
 			p2.setDescricao(descricao);
+			p2.setDataLanc(new Date());
+			p2.setDataPago(this.pagamento.getDataPago());
+			p2.setUsuario(obterUsuario());
 			this.listaPagamentos.add(p2);
 			this.movimentacao = new Movimentacao();
 			this.pagamento.setValorPago(BigDecimal.ZERO);
