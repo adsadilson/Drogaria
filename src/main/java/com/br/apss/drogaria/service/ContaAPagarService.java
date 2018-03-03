@@ -2,11 +2,15 @@ package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
@@ -20,7 +24,7 @@ public class ContaAPagarService implements Serializable {
 	private ContaAPagarRepository dao;
 
 	@Inject
-	private MovimentacaoService movtoDao;
+	private MovimentacaoService movtoService;
 
 	@Inject
 	private PagamentoService pagamentoService;
@@ -33,65 +37,67 @@ public class ContaAPagarService implements Serializable {
 	@Transacional
 	public void baixaSimples(List<ContaAPagar> listaContaAPagars, List<Pagamento> listaPagamentos) {
 
-//		BigDecimal m = BigDecimal.ZERO;
-//		BigDecimal d = BigDecimal.ZERO;
-//		BigDecimal p = BigDecimal.ZERO;
-//
-//		BigDecimal vApagar = contaAPagar.getValorApagar();
-//		String descricao = pagamento.getDescricao();
-//
-//		m = m.add(contaAPagar.getValorMultaJuros().add(contaAPagar.getMulta()));
-//		d = d.add(contaAPagar.getValorDesc().add(contaAPagar.getDesc()));
-//		p = p.add(contaAPagar.getValorPago().add(contaAPagar.getPago()));
-//
-//		contaAPagar.setValorApagar((contaAPagar.getValor().add(m).subtract(d)).subtract(p));
-//		contaAPagar.setStatus("PENDENTE");
-//		pagamento.setDescricao(pagamento.getDescricao() + " (P)");
-//		pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
-//		contaAPagar.setValorMultaJuros(m);
-//		contaAPagar.setValorDesc(d);
-//		contaAPagar.setValorPago(p);
-//		if (contaAPagar.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
-//			contaAPagar.setStatus("PAGO");
-//			pagamento.setTipoBaixa(TipoBaixa.TOTAL);
-//			pagamento.setDescricao(descricao);
-//		}
-//
-//		dao.baixaSimples(contaAPagar);
-//
-//		Movimentacao movto = new Movimentacao();
-//		movto.setDataDoc(pagamento.getDataPago());
-//		movto.setDataLanc(pagamento.getDataPago());
-//		movto.setUsuario(pagamento.getUsuario());
-//		movto.setDescricao(pagamento.getDescricao());
-//		movto.setDocumento(contaAPagar.getNumDoc());
-//		movto.setVinculo(null);
-//		movto.setPessoa(contaAPagar.getFornecedor());
-//		movto.setVlrEntrada(null);
-//		movto.setVlrSaida(contaAPagar.getPago());
-//		movto.setTipoLanc(TipoLanc.PC);
-//		movto.setTipoConta(TipoConta.CC);
-//		movto.setPlanoConta(pagamento.getMovimentacao().getPlanoConta());
-//		movto.setPlanoContaPai(pagamento.getMovimentacao().getPlanoConta().getContaPai());
-//		movto = movtoDao.salvar(movto);
-//
-//		pagamento.setValor(contaAPagar.getValor());
-//		pagamento.setValorDesc(contaAPagar.getDesc());
-//		pagamento.setValorMultaJuros(contaAPagar.getMulta());
-//		pagamento.setValorPago(contaAPagar.getPago());
-//		pagamento.setDataLanc(pagamento.getDataPago());
-//		pagamento.setUsuario(movto.getUsuario());
-//		pagamento.setValorAPagar(vApagar);
-//		pagamento.setContaAPagar(contaAPagar);
-//		pagamento.setMovimentacao(movto);
-//
-//		pagamentoService.salvar(pagamento);
+		// BigDecimal m = BigDecimal.ZERO;
+		// BigDecimal d = BigDecimal.ZERO;
+		// BigDecimal p = BigDecimal.ZERO;
+		//
+		// BigDecimal vApagar = contaAPagar.getValorApagar();
+		// String descricao = pagamento.getDescricao();
+		//
+		// m = m.add(contaAPagar.getValorMultaJuros().add(contaAPagar.getMulta()));
+		// d = d.add(contaAPagar.getValorDesc().add(contaAPagar.getDesc()));
+		// p = p.add(contaAPagar.getValorPago().add(contaAPagar.getPago()));
+		//
+		// contaAPagar.setValorApagar((contaAPagar.getValor().add(m).subtract(d)).subtract(p));
+		// contaAPagar.setStatus("PENDENTE");
+		// pagamento.setDescricao(pagamento.getDescricao() + " (P)");
+		// pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
+		// contaAPagar.setValorMultaJuros(m);
+		// contaAPagar.setValorDesc(d);
+		// contaAPagar.setValorPago(p);
+		// if (contaAPagar.getValorApagar().compareTo(BigDecimal.ZERO) == 0) {
+		// contaAPagar.setStatus("PAGO");
+		// pagamento.setTipoBaixa(TipoBaixa.TOTAL);
+		// pagamento.setDescricao(descricao);
+		// }
+		//
+		// dao.baixaSimples(contaAPagar);
+		//
+		// Movimentacao movto = new Movimentacao();
+		// movto.setDataDoc(pagamento.getDataPago());
+		// movto.setDataLanc(pagamento.getDataPago());
+		// movto.setUsuario(pagamento.getUsuario());
+		// movto.setDescricao(pagamento.getDescricao());
+		// movto.setDocumento(contaAPagar.getNumDoc());
+		// movto.setVinculo(null);
+		// movto.setPessoa(contaAPagar.getFornecedor());
+		// movto.setVlrEntrada(null);
+		// movto.setVlrSaida(contaAPagar.getPago());
+		// movto.setTipoLanc(TipoLanc.PC);
+		// movto.setTipoConta(TipoConta.CC);
+		// movto.setPlanoConta(pagamento.getMovimentacao().getPlanoConta());
+		// movto.setPlanoContaPai(pagamento.getMovimentacao().getPlanoConta().getContaPai());
+		// movto = movtoDao.salvar(movto);
+		//
+		// pagamento.setValor(contaAPagar.getValor());
+		// pagamento.setValorDesc(contaAPagar.getDesc());
+		// pagamento.setValorMultaJuros(contaAPagar.getMulta());
+		// pagamento.setValorPago(contaAPagar.getPago());
+		// pagamento.setDataLanc(pagamento.getDataPago());
+		// pagamento.setUsuario(movto.getUsuario());
+		// pagamento.setValorAPagar(vApagar);
+		// pagamento.setContaAPagar(contaAPagar);
+		// pagamento.setMovimentacao(movto);
+		//
+		// pagamentoService.salvar(pagamento);
 
 	}
 
 	@Transacional
-	public void baixaMultiplas(List<ContaAPagar> listaContaAPagars, List<Pagamento> listaPagamentos) {
+	public void baixaMultiplas(List<ContaAPagar> listaContaAPagars, List<Movimentacao> listaMovimentacoes,
+				List<Pagamento> listaPagamentos) {
 
+		
 		for (ContaAPagar cp : listaContaAPagars) {
 
 			BigDecimal m = BigDecimal.ZERO;
@@ -115,26 +121,72 @@ public class ContaAPagarService implements Serializable {
 			}
 			dao.baixaSimples(c);
 		}
-
-
-			pagamentoService.salvar(listaPagamentos);
-
+		
+		
+		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
+		
+		
+		List<Pagamento> list = new ArrayList<>();
+		
+		for (Pagamento pagamento : listaPagamentos) {
 			
+			Pagamento p = new Pagamento();
 			
-			/*pagamento.setDataLanc(pagto.getDataLanc());
-			pagamento.setDataPago(pagto.getDataPago());
-			pagamento.setDescricao(pagto.getDescricao());
-			pagamento.setFormaBaixa(pagto.getFormaBaixa());
-			pagamento.setValor(pagto.getContaAPagar().getValor());
-			pagamento.setValorAPagar(pagto.getContaAPagar().getValorApagar());
-			pagamento.setValorDesc(pagto.getContaAPagar().getDescTB());
-			pagamento.setValorMultaJuros(pagto.getContaAPagar().getMultaTB());
-			pagamento.setValorPago(pagto.getValorPago());
-			pagamento.setUsuario(pagto.getUsuario());
-			pagamento.setContaAPagar(pagto.getContaAPagar());
-			pagamento.setMovimentacao(movto);
+			p.setDataLanc(new Date());
+			p.setDataPago(pagamento.getDataPago());
+			p.setDescricao(pagamento.getDescricao());
+			p.setFormaBaixa(pagamento.getFormaBaixa());
+			p.setValor(pagamento.getValor());
+			p.setValorAPagar(pagamento.getValorAPagar());
+			p.setValorDesc(pagamento.getValorDesc());
+			p.setValorMultaJuros(pagamento.getValorMultaJuros());
+			p.setValorPago(pagamento.getValorPago());
+			p.setUsuario(pagamento.getUsuario());
+			p.setListaContaAPagars(listaContaAPagars);
+			p.setListaMovimentacoes(listaMovimentacoes);
+			list.add(p);
+		}
+		
+		pagamentoService.salvar(list);
+		
+		
+		
+		/*Pagamento p = new Pagamento()
+		
+		
+		p.setDataLanc(new Date());
+		p.setDataPago(this.pagamento.getDataPago());
+		p.setDescricao(movto.getDescricao());
+		p.setFormaBaixa(FormaBaixa.BI);
+		p.setValor(c.getValor());
+		p.setValorAPagar(c.getValorApagar());
+		p.setValorDesc(c.getDescTB());
+		p.setValorMultaJuros(c.getMultaTB());
+		p.setValorPago(c.getPagoTB());
+		p.setUsuario(movto.getUsuario());
 
-			*/
+		p.setListaContaAPagars(listaContaAPagars);
+		p.setListaMovimentacoes(listaMovimentacoes);
+
+		this.listaPagamentos.add(p);
+
+		pagamentoService.salvar(listaPagamentos);
+*/
+		/*
+		 * pagamento.setDataLanc(pagto.getDataLanc());
+		 * pagamento.setDataPago(pagto.getDataPago());
+		 * pagamento.setDescricao(pagto.getDescricao());
+		 * pagamento.setFormaBaixa(pagto.getFormaBaixa());
+		 * pagamento.setValor(pagto.getContaAPagar().getValor());
+		 * pagamento.setValorAPagar(pagto.getContaAPagar().getValorApagar());
+		 * pagamento.setValorDesc(pagto.getContaAPagar().getDescTB());
+		 * pagamento.setValorMultaJuros(pagto.getContaAPagar().getMultaTB());
+		 * pagamento.setValorPago(pagto.getValorPago());
+		 * pagamento.setUsuario(pagto.getUsuario());
+		 * pagamento.setContaAPagar(pagto.getContaAPagar());
+		 * pagamento.setMovimentacao(movto);
+		 * 
+		 */
 
 	}
 

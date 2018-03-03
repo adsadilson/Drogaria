@@ -347,7 +347,7 @@ public class ContaAPagarBean implements Serializable {
 			throw new NegocioException("Valor de pagamento a menor!");
 		}
 
-		contaAPagarService.baixaMultiplas(this.listaContasApagar, this.listaPagamentos);
+		contaAPagarService.baixaMultiplas(this.listaContasApagar, this.listaMovimentacoes, this.listaPagamentos);
 	}
 
 	public void formaBaixa() {
@@ -361,16 +361,19 @@ public class ContaAPagarBean implements Serializable {
 
 	public void addPagamento() {
 
-			this.listaPagamentos.clear();
+		this.listaPagamentos.clear();
+
+		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
 
 			for (ContaAPagar c : this.listaContasApagar) {
-				
+
 				Movimentacao movto = new Movimentacao();
 				PlanoConta pl1 = new PlanoConta();
-				PlanoConta pl2 = new PlanoConta();
-				pl1.setId(55L);
-				pl2.setId(54L);
+				pl1 = contaService.porId(this.movimentacao.getPlanoConta().getId());
 				
+				PlanoConta pl2 = new PlanoConta();
+				pl2 = contaService.porId(pl1.getContaPai().getId());
+
 				if (c.getValorApagar().compareTo(c.getPagoTB()) > 0) {
 					movto.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
 							+ c.getFornecedor().getNome() + " (P)");
@@ -382,28 +385,77 @@ public class ContaAPagarBean implements Serializable {
 				movto.setVinculo(null);
 				movto.setVlrEntrada(null);
 				movto.setVlrSaida(c.getPagoTB());
+				movto.setDocumento(c.getNumDoc());
+				movto.setPessoa(c.getFornecedor());
 				movto.setTipoLanc(TipoLanc.PC);
 				movto.setTipoConta(TipoConta.CC);
 				movto.setPlanoConta(pl1);
 				movto.setPlanoContaPai(pl2);
+
 				listaMovimentacoes.add(movto);
 				
 				Pagamento p = new Pagamento();
-				p.setListaContaAPagars(listaContaAPagars);
+				
 				p.setDataLanc(new Date());
 				p.setDataPago(this.pagamento.getDataPago());
-				p.setUsuario(obterUsuario());
+				p.setDescricao(movto.getDescricao());
 				p.setFormaBaixa(FormaBaixa.BI);
-
-				p.setListaMovimentacoes(listaMovimentacoes);
-				p.setDescricao(
-						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
-
+				p.setValor(c.getValor());
+				p.setValorAPagar(c.getValorApagar());
+				p.setValorDesc(c.getDescTB());
+				p.setValorMultaJuros(c.getMultaTB());
 				p.setValorPago(c.getPagoTB());
+				p.setUsuario(movto.getUsuario());
+
+				p.setListaContaAPagars(listaContaAPagars);
+				p.setListaMovimentacoes(listaMovimentacoes);
 
 				this.listaPagamentos.add(p);
+				
 				calcularValorApagar();
 			}
+		}else {
+			
+			Movimentacao movto = new Movimentacao();
+			PlanoConta pl1 = new PlanoConta();
+			pl1 = contaService.porId(this.movimentacao.getPlanoConta().getId());
+			
+			PlanoConta pl2 = new PlanoConta();
+			pl2 = contaService.porId(pl1.getContaPai().getId());
+
+			movto.setDataDoc(this.pagamento.getDataPago());
+			movto.setDataLanc(this.pagamento.getDataPago());
+			movto.setUsuario(obterUsuario());
+			movto.setVinculo(null);
+			movto.setVlrSaida(this.pagamento.getValor());
+			movto.setDescricao(descricao);
+			movto.setVlrEntrada(null);
+			movto.setVlrSaida(this.pagamento.getValorPago());
+			movto.setTipoLanc(TipoLanc.PC);
+			movto.setTipoConta(TipoConta.CC);
+			movto.setPlanoConta(pl1);
+			movto.setPlanoContaPai(pl2);
+			
+			listaMovimentacoes.add(movto);
+			
+			Pagamento p = new Pagamento();
+			
+			p.setDataLanc(new Date());
+			p.setDataPago(this.pagamento.getDataPago());
+			p.setDescricao(movto.getDescricao());
+			p.setFormaBaixa(FormaBaixa.BI);
+			p.setValor(pagamento.getValor());
+			/*p.setValorAPagar(c.getValorApagar());
+			p.setValorDesc(c.getDescTB());
+			p.setValorMultaJuros(c.getMultaTB());*/
+			p.setValorPago(pagamento.getValorPago());
+			p.setUsuario(movto.getUsuario());
+
+			p.setListaContaAPagars(listaContaAPagars);
+			p.setListaMovimentacoes(listaMovimentacoes);
+
+			this.listaPagamentos.add(p);
+		}
 	}
 
 	public void calcularValorApagar() {
@@ -449,7 +501,8 @@ public class ContaAPagarBean implements Serializable {
 
 	public void rowUnSelect(UnselectEvent event) {
 		editar();
-		this.setTotalSelecionado(this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValorApagar()));
+		this.setTotalSelecionado(
+				this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValorApagar()));
 	}
 
 	@SuppressWarnings("unchecked")
