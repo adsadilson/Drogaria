@@ -316,7 +316,7 @@ public class ContaAPagarBean implements Serializable {
 				throw new NegocioException("O valor do pagamento não dever ser maior que o valor à pagar!");
 			}
 
-			contaAPagarService.baixaSimples(this.contaAPagar, this.pagamento);
+			contaAPagarService.baixaSimples(this.listaContaAPagars, this.listaPagamentos);
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
@@ -361,48 +361,49 @@ public class ContaAPagarBean implements Serializable {
 
 	public void addPagamento() {
 
-		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
-
 			this.listaPagamentos.clear();
 
 			for (ContaAPagar c : this.listaContasApagar) {
+				
+				Movimentacao movto = new Movimentacao();
+				PlanoConta pl1 = new PlanoConta();
+				PlanoConta pl2 = new PlanoConta();
+				pl1.setId(55L);
+				pl2.setId(54L);
+				
+				if (c.getValorApagar().compareTo(c.getPagoTB()) > 0) {
+					movto.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
+							+ c.getFornecedor().getNome() + " (P)");
+				}
+
+				movto.setDataDoc(this.pagamento.getDataPago());
+				movto.setDataLanc(this.pagamento.getDataPago());
+				movto.setUsuario(obterUsuario());
+				movto.setVinculo(null);
+				movto.setVlrEntrada(null);
+				movto.setVlrSaida(c.getPagoTB());
+				movto.setTipoLanc(TipoLanc.PC);
+				movto.setTipoConta(TipoConta.CC);
+				movto.setPlanoConta(pl1);
+				movto.setPlanoContaPai(pl2);
+				listaMovimentacoes.add(movto);
+				
 				Pagamento p = new Pagamento();
-				p.setContaAPagar(c);
+				p.setListaContaAPagars(listaContaAPagars);
 				p.setDataLanc(new Date());
 				p.setDataPago(this.pagamento.getDataPago());
 				p.setUsuario(obterUsuario());
 				p.setFormaBaixa(FormaBaixa.BI);
 
-				p.setMovimentacao(this.movimentacao);
+				p.setListaMovimentacoes(listaMovimentacoes);
 				p.setDescricao(
 						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
-
-				if (c.getValorApagar().compareTo(c.getPagoTB()) > 0) {
-					p.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
-							+ c.getFornecedor().getNome() + " (P)");
-				}
 
 				p.setValorPago(c.getPagoTB());
 
 				this.listaPagamentos.add(p);
 				calcularValorApagar();
 			}
-		} else {
-
-			calcularValorApagar();
-			Pagamento p2 = new Pagamento();
-			p2.setMovimentacao(this.movimentacao);
-			p2.setFormaBaixa(FormaBaixa.BA);
-			p2.setValorPago(this.pagamento.getValorPago());
-			p2.setDescricao(descricao);
-			p2.setDataLanc(new Date());
-			p2.setDataPago(this.pagamento.getDataPago());
-			p2.setUsuario(obterUsuario());
-			this.listaPagamentos.add(p2);
-			this.movimentacao = new Movimentacao();
-			this.pagamento.setValorPago(BigDecimal.ZERO);
-		}
-
 	}
 
 	public void calcularValorApagar() {

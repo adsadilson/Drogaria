@@ -21,6 +21,11 @@ public class PagamentoService implements Serializable {
 	public void salvar(Pagamento obj) {
 		dao.salvar(obj);
 	}
+	
+	@Transacional
+	public void salvar(List<Pagamento> list) {
+		dao.save(list);
+	}
 
 	@Transacional
 	public void excluir(Pagamento obj) {

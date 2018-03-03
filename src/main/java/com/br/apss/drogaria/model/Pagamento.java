@@ -2,16 +2,22 @@ package com.br.apss.drogaria.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -55,13 +61,12 @@ public class Pagamento implements Serializable {
 	@Column(name = "valor_pago", precision = 12, scale = 2)
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
-	@ManyToOne
-	@JoinColumn(name = "conta_apagar_id")
-	private ContaAPagar contaAPagar;
+	@ManyToMany
+	private List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
 
-	@ManyToOne
-	@JoinColumn(name = "movimentacao_id")
-	private Movimentacao movimentacao = new Movimentacao();
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinTable(name = "pagamento_movimentacao", joinColumns = @JoinColumn(name = "pagamento_id"), inverseJoinColumns = @JoinColumn(name = "movimentacao_id"))
+	private List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_baixa", length = 25)
@@ -125,20 +130,20 @@ public class Pagamento implements Serializable {
 		this.valorPago = valorPago;
 	}
 
-	public ContaAPagar getContaAPagar() {
-		return contaAPagar;
+	public List<ContaAPagar> getListaContaAPagars() {
+		return listaContaAPagars;
 	}
 
-	public void setContaAPagar(ContaAPagar contaAPagar) {
-		this.contaAPagar = contaAPagar;
+	public void setListaContaAPagars(List<ContaAPagar> listaContaAPagars) {
+		this.listaContaAPagars = listaContaAPagars;
 	}
 
-	public Movimentacao getMovimentacao() {
-		return movimentacao;
+	public List<Movimentacao> getListaMovimentacoes() {
+		return listaMovimentacoes;
 	}
 
-	public void setMovimentacao(Movimentacao movimentacao) {
-		this.movimentacao = movimentacao;
+	public void setListaMovimentacoes(List<Movimentacao> listaMovimentacoes) {
+		this.listaMovimentacoes = listaMovimentacoes;
 	}
 
 	public Date getDataPago() {

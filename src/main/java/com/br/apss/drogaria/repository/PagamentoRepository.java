@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.repository;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -28,6 +30,14 @@ public class PagamentoRepository implements Serializable {
 
 	public Pagamento salvar(Pagamento obj) {
 		return manager.merge(obj);
+	}
+	
+	public List<Pagamento> save(List<Pagamento> list) {
+		List<Pagamento> retorno = new ArrayList<>();
+		for (Pagamento m : list) {
+			retorno.add(manager.merge(m));
+		}
+		return retorno;
 	}
 
 	public void excluir(Pagamento obj) {
