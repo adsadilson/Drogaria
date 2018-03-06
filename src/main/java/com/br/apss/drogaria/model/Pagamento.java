@@ -23,6 +23,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoBaixa;
@@ -81,6 +82,11 @@ public class Pagamento implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
+
+	@Transient
+	private PlanoConta conta;
+
+	private Long vinculo;
 
 	public Long getId() {
 		return id;
@@ -196,6 +202,22 @@ public class Pagamento implements Serializable {
 
 	public boolean isInclusao() {
 		return this.getId() == null;
+	}
+
+	public PlanoConta getConta() {
+		return conta;
+	}
+
+	public void setConta(PlanoConta conta) {
+		this.conta = conta;
+	}
+
+	public Long getVinculo() {
+		return vinculo;
+	}
+
+	public void setVinculo(Long vinculo) {
+		this.vinculo = vinculo;
 	}
 
 	@Override

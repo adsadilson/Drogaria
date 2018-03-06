@@ -103,6 +103,8 @@ public class ContaAPagarBean implements Serializable {
 	@Inject
 	private GeradorVinculo gerarVinculo;
 
+	private Long idVinculo = null;
+
 	@Inject
 	private CabContaApagarService cabContaApagarService;
 
@@ -160,7 +162,7 @@ public class ContaAPagarBean implements Serializable {
 		this.totalDaNotaMovimentacao = BigDecimal.ZERO;
 	}
 
-	public void excluirSelecionados() {
+	public void rSelecionados() {
 		try {
 			contaAPagarService.excluirContas(this.contaApagarSelecionadas);
 			this.contaApagarSelecionadas = new ArrayList<>();
@@ -171,6 +173,13 @@ public class ContaAPagarBean implements Serializable {
 			Messages.addGlobalError("Não é possivel excluir uma conta a pagar se existe outras Parcelas, "
 					+ "seleciona todas para excluir!");
 		}
+	}
+
+	public void excluirPagamentoAbaixar() {
+		this.listaMovimentacoes.clear();
+		this.listaPagamentos.clear();
+		this.pagamento.setValorPago(BigDecimal.ZERO);
+		calcularValorApagar();
 	}
 
 	public void abrirEdicao() {
@@ -355,24 +364,29 @@ public class ContaAPagarBean implements Serializable {
 		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
 			this.pagamento.setDescricao(null);
 		} else {
+			this.listaMovimentacoes.clear();
 			this.listaPagamentos.clear();
+
 		}
 	}
 
 	public void addPagamento() {
 
-		this.listaPagamentos.clear();
-
 		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
+
+			this.listaPagamentos.clear();
 
 			for (ContaAPagar c : this.listaContasApagar) {
 
 				Movimentacao movto = new Movimentacao();
 				PlanoConta pl1 = new PlanoConta();
 				pl1 = contaService.porId(this.movimentacao.getPlanoConta().getId());
-				
+
 				PlanoConta pl2 = new PlanoConta();
 				pl2 = contaService.porId(pl1.getContaPai().getId());
+
+				movto.setDescricao(
+						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
 
 				if (c.getValorApagar().compareTo(c.getPagoTB()) > 0) {
 					movto.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
@@ -393,9 +407,9 @@ public class ContaAPagarBean implements Serializable {
 				movto.setPlanoContaPai(pl2);
 
 				listaMovimentacoes.add(movto);
-				
+
 				Pagamento p = new Pagamento();
-				
+
 				p.setDataLanc(new Date());
 				p.setDataPago(this.pagamento.getDataPago());
 				p.setDescricao(movto.getDescricao());
@@ -406,55 +420,66 @@ public class ContaAPagarBean implements Serializable {
 				p.setValorMultaJuros(c.getMultaTB());
 				p.setValorPago(c.getPagoTB());
 				p.setUsuario(movto.getUsuario());
+				p.setConta(movto.getPlanoConta());
 
 				p.setListaContaAPagars(listaContaAPagars);
 				p.setListaMovimentacoes(listaMovimentacoes);
 
 				this.listaPagamentos.add(p);
-				
+
 				calcularValorApagar();
 			}
-		}else {
-			
+		} else {
+
+			calcularValorApagar();
+
 			Movimentacao movto = new Movimentacao();
+
+			if (listaMovimentacoes.isEmpty()) {
+				idVinculo = gerarVinculo.gerar(ContaAPagar.class);
+			}
+
 			PlanoConta pl1 = new PlanoConta();
 			pl1 = contaService.porId(this.movimentacao.getPlanoConta().getId());
-			
+
 			PlanoConta pl2 = new PlanoConta();
 			pl2 = contaService.porId(pl1.getContaPai().getId());
 
 			movto.setDataDoc(this.pagamento.getDataPago());
 			movto.setDataLanc(this.pagamento.getDataPago());
 			movto.setUsuario(obterUsuario());
-			movto.setVinculo(null);
 			movto.setVlrSaida(this.pagamento.getValor());
 			movto.setDescricao(descricao);
 			movto.setVlrEntrada(null);
+			movto.setVinculo(idVinculo);
 			movto.setVlrSaida(this.pagamento.getValorPago());
 			movto.setTipoLanc(TipoLanc.PC);
 			movto.setTipoConta(TipoConta.CC);
 			movto.setPlanoConta(pl1);
 			movto.setPlanoContaPai(pl2);
-			
+
 			listaMovimentacoes.add(movto);
-			
+
 			Pagamento p = new Pagamento();
-			
+
 			p.setDataLanc(new Date());
 			p.setDataPago(this.pagamento.getDataPago());
 			p.setDescricao(movto.getDescricao());
-			p.setFormaBaixa(FormaBaixa.BI);
-			p.setValor(pagamento.getValor());
-			/*p.setValorAPagar(c.getValorApagar());
-			p.setValorDesc(c.getDescTB());
-			p.setValorMultaJuros(c.getMultaTB());*/
+			p.setFormaBaixa(FormaBaixa.BA);
+			p.setValor(totalSelecionado);
+			p.setValorAPagar(totalApagar);
+			p.setValorDesc(totalDesc);
+			p.setValorMultaJuros(totalMultaJuros);
 			p.setValorPago(pagamento.getValorPago());
 			p.setUsuario(movto.getUsuario());
+			p.setConta(movto.getPlanoConta());
+			p.setVinculo(idVinculo);
 
 			p.setListaContaAPagars(listaContaAPagars);
 			p.setListaMovimentacoes(listaMovimentacoes);
 
 			this.listaPagamentos.add(p);
+
 		}
 	}
 
@@ -901,16 +926,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
-	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
-	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
-	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
-	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
-	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
-	 * c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
+	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
+	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
+	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
+	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
+	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
+	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }

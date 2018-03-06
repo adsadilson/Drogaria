@@ -528,7 +528,7 @@
 							<p:column style="text-align:right; width:60px;"
 								headerText="Saldo devedor">
 								<h:outputLabel for="txtBaixaMultaJuro"
-									value="#{contaApagar.valorApagar}">
+									value="#{contaApagar.saldoDevedor}">
 									<f:convertNumber type="currency" />
 								</h:outputLabel>
 							</p:column>
@@ -738,11 +738,14 @@
 							<p:column style="width:25px; text-align:center;"
 								headerText="Ação">
 								<p:commandButton title="Excluir" process="@this"
+									update="dataTablePagamento labelVlrApagarBaixaMultipla txtBaixaPago"
+									action="#{contaAPagarBean.excluirPagamentoAbaixar()}"
 									icon="ui-icon-trash" styleClass="semPreenchimento">
 								</p:commandButton>
 							</p:column>
 
 							<p:column style="width:100px;" headerText="Conta à debitar">
+								<h:outputText value="#{fn:substring(listPago.conta.nome,0,12)}" />
 							</p:column>
 
 							<p:column style="width:300px;" headerText="Descrição">

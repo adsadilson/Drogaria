@@ -143,6 +143,7 @@ public class ContaAPagarService implements Serializable {
 			p.setValorPago(pagamento.getValorPago());
 			p.setUsuario(pagamento.getUsuario());
 			p.setListaContaAPagars(listaContaAPagars);
+			p.setVinculo(pagamento.getVinculo());
 			p.setListaMovimentacoes(listaMovimentacoes);
 			list.add(p);
 		}
