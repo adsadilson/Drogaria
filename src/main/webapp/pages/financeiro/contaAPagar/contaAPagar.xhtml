@@ -380,12 +380,12 @@
 		</p:dialog>
 
 		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
-			modal="true" resizable="false" id="dialogBaixaTitulo"
+			modal="true" resizable="false" id="dialogBaixaTitulo" 
 			draggable="true" closeOnEscape="true" width="750" height="400"
 			appendTo="@(body)">
 
 			<p:ajax event="close"
-				update="frm-baixa-titulo :frm-tabela :toolbar-totais"
+				update="frm-baixa-titulo :frm-tabela :toolbar-totais :toolbar-botoes"
 				listener="#{contaAPagarBean.closeBaixaTitulo()}" />
 
 			<h:form prependId="false" id="frm-baixa-titulo">
@@ -408,7 +408,7 @@
 							<p:selectOneMenu autoWidth="false" style="width:370px"
 								id="txtBaixaSimpleCC" required="true" filter="true"
 								requiredMessage="Selecione uma conta."
-								value="#{contaAPagarBean.pagamento.movimentacao.planoConta}"
+								value="#{contaAPagarBean.pagamento.conta}"
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
@@ -465,7 +465,7 @@
 								<p:outputLabel value="Valor Apagar" />
 								<p:inputText value="#{contaAPagarBean.contaAPagar.valorApagar}"
 									size="12" id="txtBaixaSimpleVlrApagar" style="text-align:right"
-									readonly="true">
+									disabled="true">
 									<f:convertNumber type="currency" />
 								</p:inputText>
 
@@ -510,7 +510,7 @@
 
 					<p:tab title="Informações dos titulos"
 						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
-						<p:dataTable id="tabela-parcela" style="width:auto;"
+						<p:dataTable id="tabela-parcela" style="width:auto;" 
 							value="#{contaAPagarBean.listaContasApagar}" var="contaApagar"
 							rowIndexVar="idx" scrollable="true" scrollHeight="165"
 							editable="true" editMode="cell">
@@ -741,6 +741,8 @@
 									update="dataTablePagamento labelVlrApagarBaixaMultipla txtBaixaPago"
 									action="#{contaAPagarBean.excluirPagamentoAbaixar()}"
 									icon="ui-icon-trash" styleClass="semPreenchimento">
+									<f:setPropertyActionListener value="#{listPago}"
+										target="#{contaAPagarBean.pagamento}" />
 								</p:commandButton>
 							</p:column>
 

@@ -88,6 +88,9 @@ public class Movimentacao implements Serializable {
 	@Transient
 	private BigDecimal totalRateio = BigDecimal.ZERO;
 
+	@Transient
+	private Integer contador;
+
 	public Long getId() {
 		return id;
 	}
@@ -232,6 +235,14 @@ public class Movimentacao implements Serializable {
 
 	public void setUserEdicao(String userEdicao) {
 		this.userEdicao = userEdicao;
+	}
+
+	public Integer getContador() {
+		return contador;
+	}
+
+	public void setContador(Integer contador) {
+		this.contador = contador;
 	}
 
 	@Override

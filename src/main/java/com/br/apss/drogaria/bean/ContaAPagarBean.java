@@ -162,7 +162,7 @@ public class ContaAPagarBean implements Serializable {
 		this.totalDaNotaMovimentacao = BigDecimal.ZERO;
 	}
 
-	public void rSelecionados() {
+	public void excluirSelecionados() {
 		try {
 			contaAPagarService.excluirContas(this.contaApagarSelecionadas);
 			this.contaApagarSelecionadas = new ArrayList<>();
@@ -176,10 +176,25 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void excluirPagamentoAbaixar() {
-		this.listaMovimentacoes.clear();
-		this.listaPagamentos.clear();
-		this.pagamento.setValorPago(BigDecimal.ZERO);
-		calcularValorApagar();
+		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
+			this.listaMovimentacoes.clear();
+			this.listaPagamentos.clear();
+			this.pagamento.setValorPago(BigDecimal.ZERO);
+			calcularValorApagar();
+		} else {
+			int achou = -1;
+			for (int i = 0; i < this.listaMovimentacoes.size(); i++) {
+				if (this.listaMovimentacoes.get(i).getPlanoConta().getNome()
+						.equals(pagamento.getListaMovimentacoes().get(i).getPlanoConta().getNome())) {
+					achou = i;
+					break;
+				}
+			}
+			if (achou > -1) {
+				this.listaMovimentacoes.remove(achou);
+				this.listaPagamentos.remove(achou);
+			}
+		}
 	}
 
 	public void abrirEdicao() {
@@ -325,7 +340,8 @@ public class ContaAPagarBean implements Serializable {
 				throw new NegocioException("O valor do pagamento não dever ser maior que o valor à pagar!");
 			}
 
-			contaAPagarService.baixaSimples(this.listaContaAPagars, this.listaPagamentos);
+			this.pagamento.setVinculo(gerarVinculo.gerar(Pagamento.class));
+			contaAPagarService.baixaSimples(this.contaAPagar, this.pagamento);
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
@@ -378,6 +394,8 @@ public class ContaAPagarBean implements Serializable {
 
 			for (ContaAPagar c : this.listaContasApagar) {
 
+				idVinculo = gerarVinculo.gerar(ContaAPagar.class);
+
 				Movimentacao movto = new Movimentacao();
 				PlanoConta pl1 = new PlanoConta();
 				pl1 = contaService.porId(this.movimentacao.getPlanoConta().getId());
@@ -396,7 +414,7 @@ public class ContaAPagarBean implements Serializable {
 				movto.setDataDoc(this.pagamento.getDataPago());
 				movto.setDataLanc(this.pagamento.getDataPago());
 				movto.setUsuario(obterUsuario());
-				movto.setVinculo(null);
+				movto.setVinculo(idVinculo);
 				movto.setVlrEntrada(null);
 				movto.setVlrSaida(c.getPagoTB());
 				movto.setDocumento(c.getNumDoc());
@@ -418,6 +436,7 @@ public class ContaAPagarBean implements Serializable {
 				p.setValorAPagar(c.getValorApagar());
 				p.setValorDesc(c.getDescTB());
 				p.setValorMultaJuros(c.getMultaTB());
+				p.setVinculo(idVinculo);
 				p.setValorPago(c.getPagoTB());
 				p.setUsuario(movto.getUsuario());
 				p.setConta(movto.getPlanoConta());
