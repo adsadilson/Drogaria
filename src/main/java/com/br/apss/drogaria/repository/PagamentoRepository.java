@@ -8,15 +8,13 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -31,7 +29,7 @@ public class PagamentoRepository implements Serializable {
 	public Pagamento salvar(Pagamento obj) {
 		return manager.merge(obj);
 	}
-	
+
 	public List<Pagamento> save(List<Pagamento> list) {
 		List<Pagamento> retorno = new ArrayList<>();
 		for (Pagamento m : list) {
@@ -73,17 +71,30 @@ public class PagamentoRepository implements Serializable {
 
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(Pagamento.class);
+		
+		/*criteria.createAlias("listaContaAPagars", "listaContaAPagars", Criteria.INNER_JOIN);
+		
+		Criterion p1 = Restrictions.eq("listaContaAPagars.conta_apagar_id", filtro.getPlanoConta().getId());
+		criteria.add(p1);*/
 
-		if (null != filtro) {
-			if (null != filtro) {
-				if (StringUtils.isNotBlank(filtro.getNome())) {
-					criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
-				}
+		if (null != filtro.getFornecedor()) {
+			criteria.add(Restrictions.eq("fornecedor", true));
+		}
 
-				if (filtro.getStatus() != null) {
-					criteria.add(Restrictions.eq("status", filtro.getStatus()));
-				}
-			}
+		if (filtro.getDtIni() != null) {
+			criteria.add(Restrictions.ge("dataPago", filtro.getDtIni()));
+		}
+
+		if (filtro.getDtFim() != null) {
+			criteria.add(Restrictions.le("dataPago", filtro.getDtFim()));
+		}
+
+		if (filtro.getValor1() != null) {
+			criteria.add(Restrictions.ge("valorPago", filtro.getValor1()));
+		}
+
+		if (filtro.getValor2() != null) {
+			criteria.add(Restrictions.le("valorPago", filtro.getValor2()));
 		}
 
 		return criteria;
@@ -92,7 +103,7 @@ public class PagamentoRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<Pagamento> filtrados(PagamentoFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
-		return criteria.addOrder(Order.asc("nome")).list();
+		return criteria.addOrder(Order.asc("dataPago")).list();
 	}
 
 	public int quantidadeFiltrados(PagamentoFilter filtro) {

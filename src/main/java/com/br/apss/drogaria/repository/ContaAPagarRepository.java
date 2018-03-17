@@ -45,10 +45,9 @@ public class ContaAPagarRepository implements Serializable {
 	public void baixaSimples(ContaAPagar obj) {
 		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, valor_apagar =:valorApagar, "
 				+ "valor_multa_juros = :valorMultaJuros, valor_desc = :valorDesc, status =:status where id = :id")
-				.setParameter("id", obj.getId()).setParameter("valorPago", obj.getValorPago())
-				.setParameter("valorApagar", obj.getValorApagar()).setParameter("status", obj.getStatus())
+				.setParameter("valorPago", obj.getValorPago()).setParameter("valorApagar", obj.getValorApagar())
 				.setParameter("valorMultaJuros", obj.getValorMultaJuros()).setParameter("valorDesc", obj.getValorDesc())
-				.executeUpdate();
+				.setParameter("status", obj.getStatus()).setParameter("id", obj.getId()).executeUpdate();
 	}
 
 	public void excluir(ContaAPagar obj) {

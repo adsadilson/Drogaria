@@ -63,6 +63,7 @@ public class Pagamento implements Serializable {
 	private BigDecimal valorPago = BigDecimal.ZERO;
 
 	@ManyToMany
+	@JoinTable(name = "pagamento_conta_apagar", joinColumns = @JoinColumn(name = "pagamento_id"), inverseJoinColumns = @JoinColumn(name = "conta_apagar_id"))
 	private List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -27,6 +28,8 @@ import org.primefaces.event.CellEditEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.UnselectEvent;
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.Status;
@@ -43,10 +46,12 @@ import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
+import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.CabContaApagarService;
 import com.br.apss.drogaria.service.ContaAPagarService;
 import com.br.apss.drogaria.service.MovimentacaoService;
+import com.br.apss.drogaria.service.PagamentoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
@@ -62,7 +67,11 @@ public class ContaAPagarBean implements Serializable {
 
 	private Pagamento pagamento = new Pagamento();
 
+	private Pagamento pagamentoSelecionado = new Pagamento();
+
 	private ContaAPagarFilter filtro;
+
+	private PagamentoFilter filtroPagamento;
 
 	private BigDecimal saldo;
 
@@ -77,6 +86,8 @@ public class ContaAPagarBean implements Serializable {
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
 
 	private List<Pagamento> listaPagamentos;
+
+	private LazyDataModel<Pagamento> model;
 
 	private ContaAPagar parcela;
 
@@ -93,6 +104,9 @@ public class ContaAPagarBean implements Serializable {
 
 	@Inject
 	private PlanoContaService contaService;
+
+	@Inject
+	private PagamentoService pagamentoService;
 
 	@Inject
 	private PessoaService pessoaService;
@@ -143,9 +157,54 @@ public class ContaAPagarBean implements Serializable {
 
 	/******************** Metodos ***********************/
 
+	public void pesquisarPagamento() {
+		
+		if (!validarDatas(filtroPagamento.getDtIni(), filtroPagamento.getDtFim())) {
+			
+			model = new LazyDataModel<Pagamento>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public List<Pagamento> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+						Map<String, Object> filters) {
+
+					setRowCount(pagamentoService.quantidadeFiltrados(filtroPagamento));
+
+					filtroPagamento.setPrimeiroRegistro(first);
+					filtroPagamento.setQtdeRegistro(pageSize);
+					filtroPagamento.setOrdenacao(sortField);
+					filtroPagamento.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+
+					return pagamentoService.filtrados(filtroPagamento);
+
+				}
+
+				@Override
+				public Pagamento getRowData(String rowKey) {
+					pagamentoSelecionado = pagamentoService.porId(Long.valueOf(rowKey));
+					return pagamentoSelecionado;
+				}
+
+				@Override
+				public String getRowKey(Pagamento objeto) {
+					return pagamentoSelecionado.getId().toString();
+				}
+
+			};
+
+			RequestContext request = RequestContext.getCurrentInstance();
+			request.addCallbackParam("sucesso", true);
+		} else {
+			Messages.addGlobalError("Data inicio maior do que data final!");
+		}
+
+	}
+
 	public void inicializar() {
 		contaAPagar = new ContaAPagar();
 		filtro = new ContaAPagarFilter();
+		filtroPagamento = new PagamentoFilter();
 		movimentacao = new Movimentacao();
 		pesquisar();
 	}
@@ -1187,6 +1246,30 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setDescricao(String descricao) {
 		this.descricao = descricao.toUpperCase();
+	}
+
+	public PagamentoFilter getFiltroPagamento() {
+		return filtroPagamento;
+	}
+
+	public void setFiltroPagamento(PagamentoFilter filtroPagamento) {
+		this.filtroPagamento = filtroPagamento;
+	}
+
+	public LazyDataModel<Pagamento> getModel() {
+		return model;
+	}
+
+	public void setModel(LazyDataModel<Pagamento> model) {
+		this.model = model;
+	}
+
+	public Pagamento getPagamentoSelecionado() {
+		return pagamentoSelecionado;
+	}
+
+	public void setPagamentoSelecionado(Pagamento pagamentoSelecionado) {
+		this.pagamentoSelecionado = pagamentoSelecionado;
 	}
 
 }

@@ -60,6 +60,7 @@ public class ContaAPagarService implements Serializable {
 		contaAPagar.setValorMultaJuros(m);
 		contaAPagar.setValorDesc(d);
 		contaAPagar.setValorPago(p);
+		contaAPagar.setUsuario(pagamento.getUsuario());
 		if (contaAPagar.getValorApagar().compareTo(BigDecimal.ZERO) > 0) {
 			contaAPagar.setStatus("PENDENTE");
 			pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
@@ -136,18 +137,18 @@ public class ContaAPagarService implements Serializable {
 			d = d.add(cp.getValorDesc().add(cp.getDescTB()));
 			p = p.add(cp.getValorPago().add(cp.getPagoTB()));
 
-			ContaAPagar c = new ContaAPagar();
-			c.setId(cp.getId());
-			c.setStatus("PENDENTE");
-			c.setValorMultaJuros(m);
-			c.setValorDesc(d);
-			c.setValorPago(p);
-			c.setValorApagar((cp.getValor().add(m).subtract(d)).subtract(p));
+			ContaAPagar contaAPagar = new ContaAPagar();
+			contaAPagar.setId(cp.getId());
+			contaAPagar.setStatus("PENDENTE");
+			contaAPagar.setValorMultaJuros(m);
+			contaAPagar.setValorDesc(d);
+			contaAPagar.setValorPago(p);
+			contaAPagar.setValorApagar((cp.getValor().add(m).subtract(d)).subtract(p));
 
 			if (cp.getValorApagar().compareTo(cp.getPagoTB()) == 0) {
-				c.setStatus("PAGO");
+				contaAPagar.setStatus("PAGO");
 			}
-			dao.baixaSimples(c);
+			dao.baixaSimples(contaAPagar);
 		}
 
 		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
