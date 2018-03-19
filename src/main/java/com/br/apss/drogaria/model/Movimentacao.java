@@ -2,7 +2,9 @@ package com.br.apss.drogaria.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -55,6 +58,9 @@ public class Movimentacao implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
+
+	@ManyToMany
+	private List<Pagamento> listaPagamentos = new ArrayList<Pagamento>();
 
 	@ManyToOne
 	@JoinColumn(name = "pessoa_id")
@@ -243,6 +249,14 @@ public class Movimentacao implements Serializable {
 
 	public void setContador(Integer contador) {
 		this.contador = contador;
+	}
+
+	public List<Pagamento> getListaPagamentos() {
+		return listaPagamentos;
+	}
+
+	public void setListaPagamentos(List<Pagamento> listaPagamentos) {
+		this.listaPagamentos = listaPagamentos;
 	}
 
 	@Override

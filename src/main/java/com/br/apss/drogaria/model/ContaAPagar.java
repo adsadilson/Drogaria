@@ -92,23 +92,8 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private int periodo = 30;
 
-	@Column(name = "valor_multa_juros", precision = 12, scale = 2)
-	private BigDecimal valorMultaJuros = BigDecimal.ZERO;
-
-	@Column(name = "valor_desc", precision = 12, scale = 2)
-	private BigDecimal valorDesc = BigDecimal.ZERO;
-
-	@Transient
-	private BigDecimal multa = BigDecimal.ZERO;
-
-	@Transient
-	private BigDecimal desc = BigDecimal.ZERO;
-
 	@Transient
 	private BigDecimal saldoDevedor = BigDecimal.ZERO;
-
-	@Transient
-	private BigDecimal pago = BigDecimal.ZERO;
 
 	@Transient
 	private BigDecimal multaTB = BigDecimal.ZERO;
@@ -251,52 +236,12 @@ public class ContaAPagar implements Serializable {
 		this.dataDoc = dataDoc;
 	}
 
-	public BigDecimal getValorMultaJuros() {
-		return valorMultaJuros;
-	}
-
-	public void setValorMultaJuros(BigDecimal valorMultaJuros) {
-		this.valorMultaJuros = valorMultaJuros;
-	}
-
-	public BigDecimal getValorDesc() {
-		return valorDesc;
-	}
-
-	public void setValorDesc(BigDecimal valorDesc) {
-		this.valorDesc = valorDesc;
-	}
-
-	public BigDecimal getMulta() {
-		return multa;
-	}
-
-	public void setMulta(BigDecimal multa) {
-		this.multa = multa;
-	}
-
-	public BigDecimal getDesc() {
-		return desc;
-	}
-
-	public void setDesc(BigDecimal desc) {
-		this.desc = desc;
-	}
-
 	public BigDecimal getSaldoDevedor() {
 		return saldoDevedor;
 	}
 
 	public void setSaldoDevedor(BigDecimal saldoDevedor) {
 		this.saldoDevedor = saldoDevedor;
-	}
-
-	public BigDecimal getPago() {
-		return pago;
-	}
-
-	public void setPago(BigDecimal pago) {
-		this.pago = pago;
 	}
 
 	public Usuario getUsuario() {

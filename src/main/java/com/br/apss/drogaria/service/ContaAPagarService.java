@@ -104,6 +104,32 @@ public class ContaAPagarService implements Serializable {
 
 		listaMovimentacoes.add(movto);
 
+		if (contaAPagar.getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
+
+			Movimentacao movtoMulta = new Movimentacao();
+
+			PlanoConta pl1Multa = new PlanoConta();
+			pl1Multa = contaService.porNome("JUROS/MULTA CP");
+
+			PlanoConta pl2Multa = new PlanoConta();
+			pl2Multa = contaService.porId(pl1Multa.getContaPai().getId());
+
+			movtoMulta.setDataDoc(pagamento.getDataPago());
+			movtoMulta.setDataLanc(pagamento.getDataPago());
+			movtoMulta.setUsuario(pagamento.getUsuario());
+			movtoMulta.setDescricao("PG JURUOS/MULTA "+pagamento.getDescricao());
+			movtoMulta.setVinculo(pagamento.getVinculo());
+			movtoMulta.setDocumento(contaAPagar.getNumDoc());
+			movtoMulta.setPessoa(contaAPagar.getFornecedor());
+			movtoMulta.setVlrEntrada(null);
+			movtoMulta.setVlrSaida(contaAPagar.getMultaTB());
+			movtoMulta.setTipoLanc(TipoLanc.PC);
+			movtoMulta.setTipoConta(TipoConta.D);
+			movtoMulta.setPlanoConta(pl1Multa);
+			movtoMulta.setPlanoContaPai(pl2Multa);
+			listaMovimentacoes.add(movtoMulta);
+		}
+
 		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
 
 		List<Pagamento> list = new ArrayList<Pagamento>();
@@ -167,123 +193,84 @@ public class ContaAPagarService implements Serializable {
 			}
 		}
 
-		for (int i = 0; i < listaMovimentacoes.size(); i++) {
-			
-			Movimentacao movto = new Movimentacao();
-			Pagamento pagto = new Pagamento();
-			ContaAPagar cp = new ContaAPagar();
-			
-			List<Pagamento> list = new ArrayList<Pagamento>();
-			List<Movimentacao> listM = new ArrayList<Movimentacao>();
-			List<ContaAPagar> listCP = new ArrayList<ContaAPagar>();
-			
-			
-			cp.setId(listaContaAPagars.get(i).getId());
-			listCP.add(cp);
-						
+		if (formaBaixa == FormaBaixa.BI) {
 
-			movto.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
-			movto.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
-			movto.setUsuario(listaMovimentacoes.get(i).getUsuario());
-			movto.setDescricao(listaMovimentacoes.get(i).getDescricao());
-			movto.setVinculo(listaMovimentacoes.get(i).getVinculo());
-			movto.setDocumento(listaMovimentacoes.get(i).getDocumento());
-			movto.setPessoa(listaMovimentacoes.get(i).getPessoa());
-			movto.setVlrEntrada(null);
-			movto.setVlrSaida(listaMovimentacoes.get(i).getVlrSaida());
-			movto.setTipoLanc(TipoLanc.PC);
-			movto.setTipoConta(TipoConta.CC);
-			movto.setPlanoConta(listaMovimentacoes.get(i).getPlanoConta());
-			movto.setPlanoContaPai(listaMovimentacoes.get(i).getPlanoContaPai());
-			
-			listM.add(movto);
+			for (int i = 0; i < listaMovimentacoes.size(); i++) {
 
-			listM = movtoService.salvar(listM);
+				Movimentacao movto = new Movimentacao();
+				Pagamento pagto = new Pagamento();
+				ContaAPagar cp = new ContaAPagar();
 
-			pagto.setDataLanc(new Date());
-			pagto.setDataPago(listaPagamentos.get(i).getDataPago());
-			pagto.setDescricao(listaPagamentos.get(i).getDescricao());
-			pagto.setFormaBaixa(FormaBaixa.BI);
-			pagto.setValor(listaPagamentos.get(i).getValor());
-			pagto.setValorDesc(listaContaAPagars.get(i).getDescTB());
-			pagto.setValorMultaJuros(listaContaAPagars.get(i).getMultaTB());
-			pagto.setValorPago(listaPagamentos.get(i).getValorPago());
-			pagto.setUsuario(listaPagamentos.get(i).getUsuario());
-			pagto.setListaContaAPagars(listCP);
-			pagto.setVinculo(listaPagamentos.get(i).getVinculo());
-			pagto.setTipoBaixa(listaPagamentos.get(i).getTipoBaixa());
-			pagto.setListaMovimentacoes(listM);
-			list.add(pagto);
+				List<Pagamento> list = new ArrayList<Pagamento>();
+				List<Movimentacao> listM = new ArrayList<Movimentacao>();
+				List<ContaAPagar> listCP = new ArrayList<ContaAPagar>();
+
+				cp.setId(listaContaAPagars.get(i).getId());
+				listCP.add(cp);
+
+				movto.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
+				movto.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
+				movto.setUsuario(listaMovimentacoes.get(i).getUsuario());
+				movto.setDescricao(listaMovimentacoes.get(i).getDescricao());
+				movto.setVinculo(listaMovimentacoes.get(i).getVinculo());
+				movto.setDocumento(listaMovimentacoes.get(i).getDocumento());
+				movto.setPessoa(listaMovimentacoes.get(i).getPessoa());
+				movto.setVlrEntrada(null);
+				movto.setVlrSaida(listaMovimentacoes.get(i).getVlrSaida());
+				movto.setTipoLanc(TipoLanc.PC);
+				movto.setTipoConta(TipoConta.CC);
+				movto.setPlanoConta(listaMovimentacoes.get(i).getPlanoConta());
+				movto.setPlanoContaPai(listaMovimentacoes.get(i).getPlanoContaPai());
+
+				listM.add(movto);
+
+				listM = movtoService.salvar(listM);
+
+				pagto.setDataLanc(new Date());
+				pagto.setDataPago(listaPagamentos.get(i).getDataPago());
+				pagto.setDescricao(listaPagamentos.get(i).getDescricao());
+				pagto.setFormaBaixa(FormaBaixa.BI);
+				pagto.setValor(listaPagamentos.get(i).getValor());
+				pagto.setValorDesc(listaContaAPagars.get(i).getDescTB());
+				pagto.setValorMultaJuros(listaContaAPagars.get(i).getMultaTB());
+				pagto.setValorPago(listaPagamentos.get(i).getValorPago());
+				pagto.setUsuario(listaPagamentos.get(i).getUsuario());
+				pagto.setListaContaAPagars(listCP);
+				pagto.setVinculo(listaPagamentos.get(i).getVinculo());
+				pagto.setTipoBaixa(listaPagamentos.get(i).getTipoBaixa());
+				pagto.setListaMovimentacoes(listM);
+				list.add(pagto);
+
+				pagamentoService.salvar(list);
+			}
+		} else {
+
+			listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
+
+			List<Pagamento> list = new ArrayList<>();
+
+			for (Pagamento pagamento : listaPagamentos) {
+
+				Pagamento p = new Pagamento();
+
+				p.setDataLanc(new Date());
+				p.setDataPago(pagamento.getDataPago());
+				p.setDescricao(pagamento.getDescricao());
+				p.setFormaBaixa(pagamento.getFormaBaixa());
+				p.setValor(pagamento.getValor());
+				p.setValorAPagar(pagamento.getValorAPagar());
+				p.setValorDesc(pagamento.getValorDesc());
+				p.setValorMultaJuros(pagamento.getValorMultaJuros());
+				p.setValorPago(pagamento.getValorPago());
+				p.setUsuario(pagamento.getUsuario());
+				p.setListaContaAPagars(listaContaAPagars);
+				p.setVinculo(pagamento.getVinculo());
+				p.setListaMovimentacoes(listaMovimentacoes);
+				list.add(p);
+			}
 
 			pagamentoService.salvar(list);
 		}
-
-		/*
-		 * for (Movimentacao m : listaMovimentacoes) {
-		 * 
-		 * Movimentacao movto = new Movimentacao();
-		 * 
-		 * movto.setDataDoc(m.getDataDoc()); movto.setDataLanc(m.getDataLanc());
-		 * movto.setUsuario(m.getUsuario());
-		 * movto.setDescricao(m.getDescricao());
-		 * movto.setVinculo(m.getVinculo());
-		 * movto.setDocumento(m.getDocumento()); movto.setPessoa(m.getPessoa());
-		 * movto.setVlrEntrada(null); movto.setVlrSaida(m.getVlrSaida());
-		 * movto.setTipoLanc(TipoLanc.PC); movto.setTipoConta(TipoConta.CC);
-		 * movto.setPlanoConta(m.getPlanoConta());
-		 * movto.setPlanoContaPai(m.getPlanoContaPai());
-		 * 
-		 * listaMovimentacoes.add(movto);
-		 * 
-		 * listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
-		 * 
-		 * List<Pagamento> list = new ArrayList<Pagamento>();
-		 * 
-		 * Pagamento pagto = new Pagamento();
-		 * 
-		 * pagto.setDataLanc(new Date()); pagto.setDataPago(m.getDataDoc());
-		 * pagto.setDescricao(m.getDescricao());
-		 * pagto.setFormaBaixa(FormaBaixa.BI);
-		 * pagto.setValor(contaAPagar.getValor());
-		 * pagto.setValorAPagar(contaAPagar.getValor().add(contaAPagar.
-		 * getMultaTB()).subtract(contaAPagar.getDescTB()));
-		 * pagto.setValorDesc(contaAPagar.getDescTB());
-		 * pagto.setValorMultaJuros(contaAPagar.getMultaTB());
-		 * pagto.setValorPago(contaAPagar.getValorPago());
-		 * pagto.setUsuario(pagamento.getUsuario());
-		 * pagto.setListaContaAPagars(listaContaAPagars);
-		 * pagto.setVinculo(pagamento.getVinculo());
-		 * pagto.setTipoBaixa(pagamento.getTipoBaixa());
-		 * pagto.setListaMovimentacoes(listaMovimentacoes); list.add(pagto);
-		 * 
-		 * pagamentoService.salvar(list); }
-		 */
-
-		/*
-		 * listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
-		 * 
-		 * List<Pagamento> list = new ArrayList<>();
-		 * 
-		 * for (Pagamento pagamento : listaPagamentos) {
-		 * 
-		 * Pagamento p = new Pagamento();
-		 * 
-		 * p.setDataLanc(new Date()); p.setDataPago(pagamento.getDataPago());
-		 * p.setDescricao(pagamento.getDescricao());
-		 * p.setFormaBaixa(pagamento.getFormaBaixa());
-		 * p.setValor(pagamento.getValor());
-		 * p.setValorAPagar(pagamento.getValorAPagar());
-		 * p.setValorDesc(pagamento.getValorDesc());
-		 * p.setValorMultaJuros(pagamento.getValorMultaJuros());
-		 * p.setValorPago(pagamento.getValorPago());
-		 * p.setUsuario(pagamento.getUsuario());
-		 * p.setListaContaAPagars(listaContaAPagars);
-		 * p.setVinculo(pagamento.getVinculo());
-		 * p.setListaMovimentacoes(listaMovimentacoes); list.add(p); }
-		 * 
-		 * pagamentoService.salvar(list);
-		 */
-
 	}
 
 	@Transacional
