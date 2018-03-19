@@ -45,7 +45,7 @@ public class PagamentoRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Pagamento de Produto n�o pode ser exclu�da");
+			throw new NegocioException("Pagamento não pode ser excluída");
 		}
 	}
 

@@ -176,19 +176,23 @@
 				<p:column selectionMode="multiple"
 					style="width:1px;text-align:center" />
 
+				<p:column style="width:20px;" headerText="ID">
+					<h:outputText value="#{cp.id}" />
+				</p:column>
+
 				<p:column sortBy="#{cp.numDoc}"
-					style="text-align: right; width:35px;" headerText="Documento">
+					style="text-align: right; width:40px;" headerText="Documento">
 					<h:outputText value="#{cp.numDoc}">
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: center;  width:20px "
+				<p:column style="text-align: center;  width:25px "
 					headerText="Parcela(s)">
 					<h:outputText value="#{cp.parcela}" />
 				</p:column>
 
 				<p:column sortBy="#{cp.fornecedor}" headerText="Fornecedor"
-					width="200">
+					width="180">
 					<h:outputText
 						value="#{cp.fornecedor.id} - #{fn:substring(cp.fornecedor.nome,0,44)}" />
 				</p:column>
@@ -218,15 +222,14 @@
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: right;width:60px;" headerText="Valor">
+				<p:column style="text-align: right;width:80px;" headerText="Valor">
 					<h:outputText value="#{cp.valor}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: right;width:60px;" headerText="À Pagar">
-					<h:outputText value="#{cp.valorApagar}">
-						<f:convertNumber type="currency" currencySymbol="R$" />
+				<p:column style="width:35px;" headerText="Origem">
+					<h:outputText value="#{cp.origemId.id}">
 					</h:outputText>
 				</p:column>
 
@@ -297,10 +300,6 @@
 			</p:toolbar>
 
 		</h:form>
-
-
-
-
 
 
 		<!-- LANÇAMENTO DE CONTAS -->
@@ -385,6 +384,9 @@
 
 		</p:dialog>
 
+
+		<!-- BAIXA DE TITULOS -->
+
 		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
 			draggable="true" closeOnEscape="true" width="750" height="400"
@@ -394,8 +396,8 @@
 				update="frm-baixa-titulo :frm-tabela :toolbar-totais :toolbar-botoes"
 				listener="#{contaAPagarBean.closeBaixaTitulo()}" />
 
-			<h:form prependId="false" id="frm-baixa-titulo">
-
+			<h:form prependId="false" id="frm-baixa-titulo"
+				onkeypress="return event.keyCode != 13">
 
 				<p:tabView prependId="false"
 					style="width: 99%; height: 365px; margin-top:5px;">
@@ -441,7 +443,7 @@
 								columnClasses="campoBaixaSimple1">
 
 								<p:outputLabel value="Saldo Devedor" />
-								<p:inputText value="#{contaAPagarBean.contaAPagar.saldoDevedor}"
+								<p:inputText value="#{contaAPagarBean.contaAPagar.valor}"
 									size="12" readonly="true" style="text-align:right">
 									<f:convertNumber type="currency" />
 								</p:inputText>
@@ -449,7 +451,7 @@
 								<p:outputLabel value="Multa/Juros" />
 								<p:inputText style="text-align:right" size="12"
 									id="txtBaixaSimpleVlrMultaJuros"
-									value="#{contaAPagarBean.contaAPagar.multa}"
+									value="#{contaAPagarBean.contaAPagar.multaTB}"
 									onfocus="formatoMoeda('txtBaixaSimpleVlrMultaJuros')">
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" event="keyup"
@@ -460,7 +462,7 @@
 								<p:outputLabel value="Desconto" />
 								<p:inputText style="text-align:right" size="12"
 									id="txtBaixaSimpleDesc"
-									value="#{contaAPagarBean.contaAPagar.desc}"
+									value="#{contaAPagarBean.contaAPagar.descTB}"
 									onfocus="formatoMoeda('txtBaixaSimpleDesc')">
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" event="keyup"
@@ -484,10 +486,12 @@
 									id="txtBaixaSimpleVlrPago"
 									validatorMessage="O valor de pagamento é menor do que o 
 									mínimo permitido de '0,01'"
-									value="#{contaAPagarBean.contaAPagar.pago}"
+									value="#{contaAPagarBean.contaAPagar.valorPago}"
 									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
+									<p:ajax process="@this" event="change"
+										listener="#{contaAPagarBean.informativo()}" update="labelInf" />
 								</p:inputText>
 
 								<p:outputLabel value="Descrição" />
@@ -500,6 +504,17 @@
 
 						<p:toolbar style="margin-top:10px; margin-right:10px;"
 							styleClass="semPreenchimento">
+							<p:toolbarGroup>
+								<h:panelGroup id="labelInf">
+									<p:outputLabel styleClass="red"
+										rendered="#{contaAPagarBean.labelInfo eq 'sim'}"
+										style="margin-left:10px"
+										value="A diferença do pagamento será gerado outra fatura!" />
+									<p:outputLabel styleClass="corLabel"
+										rendered="#{contaAPagarBean.labelInfo eq 'nao'}" value=""
+										style="margin-left:10px" />
+								</h:panelGroup>
+							</p:toolbarGroup>
 							<p:toolbarGroup align="right">
 								<p:commandButton value="Confirmar"
 									action="#{contaAPagarBean.salvarBaixaSimples}"
@@ -534,7 +549,7 @@
 							<p:column style="text-align:right; width:60px;"
 								headerText="Saldo devedor">
 								<h:outputLabel for="txtBaixaMultaJuro"
-									value="#{contaApagar.saldoDevedor}">
+									value="#{contaApagar.valor}">
 									<f:convertNumber type="currency" />
 								</h:outputLabel>
 							</p:column>
@@ -588,14 +603,14 @@
 								headerText="Valor pago" id="pago">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.pagoTB}">
+										<h:outputLabel value="#{contaApagar.valorPago}">
 											<f:convertNumber type="currency" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.pagoTB}" style="width:90%"
-											styleClass="moeda" converter="moedaConverter"
-											onfocus="mascaraMoeda();">
+										<p:inputText value="#{contaApagar.valorPago}"
+											style="width:90%" styleClass="moeda"
+											converter="moedaConverter" onfocus="mascaraMoeda();">
 											<p:ajax event="blur"
 												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -794,6 +809,7 @@
 				</p:tabView>
 
 
+
 			</h:form>
 
 		</p:dialog>
@@ -849,12 +865,18 @@
 					emptyMessage="Nenhuma registro encontrado." scrollable="true"
 					scrollHeight="350" lazy="true" rowKey="#{pago.id}">
 
-					<p:column headerText="Ação" style="text-align: cente; width:35px;"
+					<p:column headerText="Ação" style="text-align: cente; width:45px;"
 						exportable="false">
 						<p:commandButton icon="ui-icon-trash" title="Excluir"
+							update="tbl-pago" styleClass="semPreenchimento"
+							action="#{contaAPagarBean.excluirPagamentos()}">
+							<f:setPropertyActionListener
+								target="#{contaAPagarBean.pagamentoSelecionado}" value="#{pago}" />
+						</p:commandButton>
+						<p:commandButton icon="ui-icon-search" title="Informações"
 							styleClass="semPreenchimento"
-							oncomplete="PF('confirmacaoExclusao').show()" process="@this"
-							update="">
+							action="#{movimentacaoBean.carregarInfo()}"
+							oncomplete="PF('dialogInfo').show()" process="@this" update="">
 							<f:setPropertyActionListener
 								target="#{movimentacaoBean.movtoSelecionado}" value="#{pago}" />
 						</p:commandButton>
@@ -867,21 +889,8 @@
 						</p:commandButton>
 					</p:column>
 
-					<p:column sortBy=""
-						style="text-align: right; width:35px;" headerText="Doc">
-						<h:outputText value="">
-						</h:outputText>
-					</p:column>
-
-					<p:column style="text-align: center;  width:20px "
-						headerText="Parc">
-						<h:outputText value="" />
-					</p:column>
-
-					<p:column sortBy="" headerText="Fornecedor"
-						width="200">
-						<h:outputText
-							value="" />
+					<p:column sortBy="" headerText="Descrição" width="200">
+						<h:outputText value="#{pago.descricao}" />
 					</p:column>
 
 					<p:column style="text-align: center; width:50px;"

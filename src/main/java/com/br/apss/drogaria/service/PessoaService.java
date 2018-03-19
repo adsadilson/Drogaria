@@ -34,6 +34,10 @@ public class PessoaService implements Serializable {
 	public List<Pessoa> listarTodos() {
 		return dao.listarTodos();
 	}
+	
+	public List<Pessoa> listarFornecedore() {
+		return dao.listarFornecedores();
+	}
 
 	public Pessoa porId(Long id) {
 		return dao.porId(id);

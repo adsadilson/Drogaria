@@ -1,12 +1,15 @@
 package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
+import com.br.apss.drogaria.repository.ContaAPagarRepository;
 import com.br.apss.drogaria.repository.PagamentoRepository;
 import com.br.apss.drogaria.util.jpa.Transacional;
 
@@ -16,6 +19,9 @@ public class PagamentoService implements Serializable {
 
 	@Inject
 	private PagamentoRepository dao;
+	
+	@Inject 
+	private ContaAPagarRepository contaAPagarRepository;
 
 	@Transacional
 	public void salvar(Pagamento obj) {
@@ -30,6 +36,18 @@ public class PagamentoService implements Serializable {
 	@Transacional
 	public void excluir(Pagamento obj) {
 		dao.excluir(obj);
+	}
+	
+	@Transacional
+	public void excluirPagtoEstornaCP(Pagamento obj) {
+		dao.excluir(obj);
+		for (ContaAPagar c : obj.getListaContaAPagars()) {
+			ContaAPagar cp = new ContaAPagar();
+			cp.setId(c.getId());
+			cp.setStatus("ABERTO");
+			cp.setValorPago(BigDecimal.ZERO);
+			contaAPagarRepository.baixaSimples(cp);
+		}
 	}
 
 	public List<Pagamento> filtrados(PagamentoFilter filtro) {

@@ -18,6 +18,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Movimentacao;
+import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -43,11 +44,15 @@ public class ContaAPagarRepository implements Serializable {
 	}
 
 	public void baixaSimples(ContaAPagar obj) {
-		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, valor_apagar =:valorApagar, "
-				+ "valor_multa_juros = :valorMultaJuros, valor_desc = :valorDesc, status =:status where id = :id")
-				.setParameter("valorPago", obj.getValorPago()).setParameter("valorApagar", obj.getValorApagar())
-				.setParameter("valorMultaJuros", obj.getValorMultaJuros()).setParameter("valorDesc", obj.getValorDesc())
-				.setParameter("status", obj.getStatus()).setParameter("id", obj.getId()).executeUpdate();
+		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, status =:status where id = :id")
+				.setParameter("valorPago", obj.getValorPago()).setParameter("status", obj.getStatus())
+				.setParameter("id", obj.getId()).executeUpdate();
+	}
+
+	public void estornaPagamento(ContaAPagar contaAPagar) {
+		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, status =:status where id = :id")
+				.setParameter("valorPago", contaAPagar.getValorPago()).setParameter("status", contaAPagar.getStatus())
+				.setParameter("id", contaAPagar.getId()).executeUpdate();
 	}
 
 	public void excluir(ContaAPagar obj) {
@@ -68,7 +73,12 @@ public class ContaAPagarRepository implements Serializable {
 
 		// Exclusão da tabela cab_conta_apagar
 		for (ContaAPagar c : contas) {
-			excluirCabCContaApagar(c.getId());
+			if (c.getOrigemId() != null) {
+				// excluirPagamentoContaApagar(c.getOrigemId().getId());
+				// excluirContaApagarMovimentacao(c.getOrigemId().getId());
+			} else {
+				excluirCabCContaApagar(c.getId());
+			}
 		}
 
 		for (ContaAPagar c : contas) {
@@ -103,7 +113,25 @@ public class ContaAPagarRepository implements Serializable {
 	}
 
 	public void excluirCabCContaApagar(Long id) {
-		manager.createNativeQuery("delete from cab_conta_apagar_conta_apagar where listacontaapagars_id = :id")
+		manager.createNativeQuery("delete from cab_conta_apagar_conta_apagar where conta_apagar_id = :id")
+				.setParameter("id", id).executeUpdate();
+	}
+
+	public void excluirPagamentoContaApagar(Long id) {
+
+		Long p = (Long) manager
+				.createNativeQuery("select pagamento_id from pagamento_conta_apagar where conta_apagar_id = :id")
+				.setParameter("id", id).getSingleResult();
+
+		manager.createNativeQuery("delete from pagamento_conta_apagar where conta_apagar_id = :id")
+				.setParameter("id", id).executeUpdate();
+
+		manager.createNativeQuery("delete from pagamento where pagamento_id = :p").setParameter("p", p).executeUpdate();
+
+	}
+
+	public void excluirContaApagarMovimentacao(Long id) {
+		manager.createNativeQuery("delete from conta_apagar_movimentacao where conta_apagar_id = :id")
 				.setParameter("id", id).executeUpdate();
 	}
 

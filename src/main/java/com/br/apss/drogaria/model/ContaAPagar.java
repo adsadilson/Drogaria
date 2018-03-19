@@ -119,6 +119,10 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private BigDecimal pagoTB = BigDecimal.ZERO;
 
+	@ManyToOne
+	@JoinColumn(name = "origem_id")
+	private ContaAPagar origemId;
+
 	public Long getId() {
 		return id;
 	}
@@ -325,6 +329,14 @@ public class ContaAPagar implements Serializable {
 
 	public void setPagoTB(BigDecimal pagoTB) {
 		this.pagoTB = pagoTB;
+	}
+
+	public ContaAPagar getOrigemId() {
+		return origemId;
+	}
+
+	public void setOrigemId(ContaAPagar origemId) {
+		this.origemId = origemId;
 	}
 
 	@Override
