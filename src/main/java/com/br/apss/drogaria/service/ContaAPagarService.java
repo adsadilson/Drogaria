@@ -129,6 +129,32 @@ public class ContaAPagarService implements Serializable {
 			movtoMulta.setPlanoContaPai(pl2Multa);
 			listaMovimentacoes.add(movtoMulta);
 		}
+		
+		if (contaAPagar.getDescTB().compareTo(BigDecimal.ZERO) > 0) {
+
+			Movimentacao movtoDesc = new Movimentacao();
+
+			PlanoConta pl1Desc = new PlanoConta();
+			pl1Desc = contaService.porNome("RECEITAS COM DESCONTOS");
+
+			PlanoConta pl2Desc = new PlanoConta();
+			pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());
+
+			movtoDesc.setDataDoc(pagamento.getDataPago());
+			movtoDesc.setDataLanc(pagamento.getDataPago());
+			movtoDesc.setUsuario(pagamento.getUsuario());
+			movtoDesc.setDescricao("REC DESCONTO "+pagamento.getDescricao());
+			movtoDesc.setVinculo(pagamento.getVinculo());
+			movtoDesc.setDocumento(contaAPagar.getNumDoc());
+			movtoDesc.setPessoa(contaAPagar.getFornecedor());
+			movtoDesc.setVlrEntrada(contaAPagar.getDescTB());
+			movtoDesc.setVlrSaida(null);
+			movtoDesc.setTipoLanc(TipoLanc.PC);
+			movtoDesc.setTipoConta(TipoConta.R);
+			movtoDesc.setPlanoConta(pl1Desc);
+			movtoDesc.setPlanoContaPai(pl2Desc);
+			listaMovimentacoes.add(movtoDesc);
+		}
 
 		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
 
@@ -221,8 +247,60 @@ public class ContaAPagarService implements Serializable {
 				movto.setTipoConta(TipoConta.CC);
 				movto.setPlanoConta(listaMovimentacoes.get(i).getPlanoConta());
 				movto.setPlanoContaPai(listaMovimentacoes.get(i).getPlanoContaPai());
-
+				
 				listM.add(movto);
+				
+				if (listaContaAPagars.get(i).getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
+
+					Movimentacao movtoMulta = new Movimentacao();
+
+					PlanoConta pl1Multa = new PlanoConta();
+					pl1Multa = contaService.porNome("JUROS/MULTA CP");
+
+					PlanoConta pl2Multa = new PlanoConta();
+					pl2Multa = contaService.porId(pl1Multa.getContaPai().getId());
+
+					movtoMulta.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
+					movtoMulta.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
+					movtoMulta.setUsuario(listaMovimentacoes.get(i).getUsuario());
+					movtoMulta.setDescricao("PG JURUOS/MULTA "+listaMovimentacoes.get(i).getDescricao());
+					movtoMulta.setVinculo(listaMovimentacoes.get(i).getVinculo());
+					movtoMulta.setDocumento(listaMovimentacoes.get(i).getDocumento());
+					movtoMulta.setPessoa(listaMovimentacoes.get(i).getPessoa());
+					movtoMulta.setVlrEntrada(null);
+					movtoMulta.setVlrSaida(listaContaAPagars.get(i).getMultaTB());
+					movtoMulta.setTipoLanc(TipoLanc.PC);
+					movtoMulta.setTipoConta(TipoConta.D);
+					movtoMulta.setPlanoConta(pl1Multa);
+					movtoMulta.setPlanoContaPai(pl2Multa);
+					listM.add(movtoMulta);
+				}
+				
+				if (listaContaAPagars.get(i).getDescTB().compareTo(BigDecimal.ZERO) > 0) {
+
+					Movimentacao movtoDesc = new Movimentacao();
+
+					PlanoConta pl1Desc = new PlanoConta();
+					pl1Desc = contaService.porNome("RECEITAS COM DESCONTOS");
+
+					PlanoConta pl2Desc = new PlanoConta();
+					pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());
+
+					movtoDesc.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
+					movtoDesc.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
+					movtoDesc.setUsuario(listaMovimentacoes.get(i).getUsuario());
+					movtoDesc.setDescricao(listaMovimentacoes.get(i).getDescricao());
+					movtoDesc.setVinculo(listaMovimentacoes.get(i).getVinculo());
+					movtoDesc.setDocumento("REC DESCONTO "+listaMovimentacoes.get(i).getDocumento());
+					movtoDesc.setPessoa(listaMovimentacoes.get(i).getPessoa());
+					movtoDesc.setVlrEntrada(listaContaAPagars.get(i).getDescTB());
+					movtoDesc.setVlrSaida(null);
+					movtoDesc.setTipoLanc(TipoLanc.PC);
+					movtoDesc.setTipoConta(TipoConta.R);
+					movtoDesc.setPlanoConta(pl1Desc);
+					movtoDesc.setPlanoContaPai(pl2Desc);
+					listM.add(movtoDesc);
+				}
 
 				listM = movtoService.salvar(listM);
 
