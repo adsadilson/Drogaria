@@ -449,7 +449,7 @@ public class ContaAPagarBean implements Serializable {
 		}
 
 		contaAPagarService.baixaMultiplas(this.listaContasApagar, this.listaMovimentacoes, this.listaPagamentos,
-				this.pagamento.getFormaBaixa());
+				this.pagamento);
 	}
 
 	public void formaBaixa() {
