@@ -328,10 +328,10 @@ public class ContaAPagarService implements Serializable {
 
 			for (int j = 0; j < listaContaAPagars.size(); j++) {
 				if (listaContaAPagars.get(j).getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
-					valorMutla.add(valorMutla);
+					valorMutla = valorMutla.add(listaContaAPagars.get(j).getMultaTB());
 				}
 				if (listaContaAPagars.get(j).getDescTB().compareTo(BigDecimal.ZERO) > 0) {
-					valorDesc.add(valorDesc);
+					valorDesc = valorDesc.add(listaContaAPagars.get(j).getDescTB());
 				}
 			}
 
@@ -374,7 +374,7 @@ public class ContaAPagarService implements Serializable {
 				movtoDesc.setDataDoc(pagamento.getDataPago());
 				movtoDesc.setDataLanc(pagamento.getDataPago());
 				movtoDesc.setUsuario(pagamento.getUsuario());
-				movtoDesc.setDescricao("REC DESCONTO ");
+				movtoDesc.setDescricao("RECEBIMENTO DE DESCONTOS ");
 				movtoDesc.setVinculo(pagamento.getVinculo());
 				movtoDesc.setDocumento(null);
 				movtoDesc.setPessoa(null);
