@@ -44,8 +44,10 @@ public class ContaAPagarRepository implements Serializable {
 	}
 
 	public void baixaSimples(ContaAPagar obj) {
-		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, status =:status where id = :id")
-				.setParameter("valorPago", obj.getValorPago()).setParameter("status", obj.getStatus())
+		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, valor_apagar = :valorApagar, status =:status where id = :id")
+				.setParameter("valorPago", obj.getValorPago())
+				.setParameter("valorApagar", obj.getValorApagar())
+				.setParameter("status", obj.getStatus())
 				.setParameter("id", obj.getId()).executeUpdate();
 	}
 
@@ -186,7 +188,7 @@ public class ContaAPagarRepository implements Serializable {
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
 		if (StringUtils.isBlank(filtro.getStatus())) {
-			criteria.add(Restrictions.in("status", "ABERTO", "PENDENTE"));
+			criteria.add(Restrictions.in("status", "ABERTO", "PAGO PARCIAL"));
 		}
 
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);

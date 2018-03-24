@@ -44,10 +44,13 @@ public class PagamentoService implements Serializable {
 		for (ContaAPagar c : obj.getListaContaAPagars()) {
 			ContaAPagar cp = new ContaAPagar();
 			cp.setId(c.getId());
-			cp.setStatus("ABERTO");
-			cp.setValorPago(BigDecimal.ZERO);
+			cp.setValorPago(cp.getValorApagar());
 			contaAPagarRepository.baixaSimples(cp);
 		}
+	}
+	
+	public List<Pagamento> porVinculo(Long vinculo) {
+		return dao.porVinculo(vinculo);
 	}
 
 	public List<Pagamento> filtrados(PagamentoFilter filtro) {

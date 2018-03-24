@@ -223,7 +223,7 @@
 				</p:column>
 
 				<p:column style="text-align: right;width:80px;" headerText="Valor">
-					<h:outputText value="#{cp.valor}">
+					<h:outputText value="#{cp.valorApagar}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
@@ -443,7 +443,7 @@
 								columnClasses="campoBaixaSimple1">
 
 								<p:outputLabel value="Saldo Devedor" />
-								<p:inputText value="#{contaAPagarBean.contaAPagar.valor}"
+								<p:inputText value="#{contaAPagarBean.contaAPagar.saldoDevedor}"
 									size="12" readonly="true" style="text-align:right">
 									<f:convertNumber type="currency" />
 								</p:inputText>
@@ -486,7 +486,7 @@
 									id="txtBaixaSimpleVlrPago"
 									validatorMessage="O valor de pagamento é menor do que o 
 									mínimo permitido de '0,01'"
-									value="#{contaAPagarBean.contaAPagar.valorPago}"
+									value="#{contaAPagarBean.contaAPagar.pagoTB}"
 									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
@@ -531,6 +531,7 @@
 
 					<p:tab title="Informações dos titulos"
 						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
+						
 						<p:dataTable id="tabela-parcela" style="width:auto;"
 							value="#{contaAPagarBean.listaContasApagar}" var="contaApagar"
 							rowIndexVar="idx" scrollable="true" scrollHeight="165"
@@ -549,7 +550,7 @@
 							<p:column style="text-align:right; width:60px;"
 								headerText="Saldo devedor">
 								<h:outputLabel for="txtBaixaMultaJuro"
-									value="#{contaApagar.valor}">
+									value="#{contaApagar.saldoDevedor}">
 									<f:convertNumber type="currency" />
 								</h:outputLabel>
 							</p:column>
@@ -603,12 +604,12 @@
 								headerText="Valor pago" id="pago">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.valorPago}">
+										<h:outputLabel value="#{contaApagar.pagoTB}">
 											<f:convertNumber type="currency" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.valorPago}"
+										<p:inputText value="#{contaApagar.pagoTB}"
 											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
 											<p:ajax event="blur"

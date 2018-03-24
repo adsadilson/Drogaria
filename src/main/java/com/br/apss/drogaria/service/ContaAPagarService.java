@@ -49,34 +49,18 @@ public class ContaAPagarService implements Serializable {
 		contaAPagar.setStatus("PAGO");
 		pagamento.setTipoBaixa(TipoBaixa.TOTAL);
 		contaAPagar.setUsuario(pagamento.getUsuario());
-		if (contaAPagar.getValorApagar().compareTo(contaAPagar.getValorPago()) > 0) {
+		contaAPagar.setValorPago(contaAPagar.getValorPago().add(contaAPagar.getPagoTB()));
+		contaAPagar.setSaldoDevedor(contaAPagar.getValorApagar());
+		if (contaAPagar.getValorApagar().compareTo(contaAPagar.getPagoTB()) > 0) {
+			contaAPagar.setStatus("PAGO PARCIAL");
 			pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
 			pagamento.setDescricao(pagamento.getDescricao() + " (P)");
 		}
+		contaAPagar.setValorApagar(contaAPagar.getValorApagar().subtract(contaAPagar.getPagoTB()));
 
 		listaContaAPagars.add(contaAPagar);
 
 		dao.baixaSimples(contaAPagar);
-
-		if (contaAPagar.getValorApagar().compareTo(contaAPagar.getValorPago()) > 0) {
-
-			ContaAPagar cp = new ContaAPagar();
-			cp.setDataDoc(contaAPagar.getDataDoc());
-			cp.setDataVencto(contaAPagar.getDataVencto());
-			cp.setNumDoc(contaAPagar.getNumDoc());
-			cp.setParcela(contaAPagar.getParcela());
-			cp.setStatus("ABERTO");
-			cp.setTipoCobranca(contaAPagar.getTipoCobranca());
-
-			cp.setValor(contaAPagar.getValorApagar().subtract(contaAPagar.getValorPago()));
-			cp.setValorPago(BigDecimal.ZERO);
-			cp.setVinculo(contaAPagar.getVinculo());
-			cp.setFornecedor(contaAPagar.getFornecedor());
-			cp.setUsuario(contaAPagar.getUsuario());
-			cp.setOrigemId(contaAPagar);
-
-			dao.salvar(cp);
-		}
 
 		List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
@@ -96,7 +80,7 @@ public class ContaAPagarService implements Serializable {
 		movto.setDocumento(contaAPagar.getNumDoc());
 		movto.setPessoa(contaAPagar.getFornecedor());
 		movto.setVlrEntrada(null);
-		movto.setVlrSaida(contaAPagar.getValorPago());
+		movto.setVlrSaida(contaAPagar.getPagoTB());
 		movto.setTipoLanc(TipoLanc.PC);
 		movto.setTipoConta(TipoConta.CC);
 		movto.setPlanoConta(pl1);
@@ -167,13 +151,13 @@ public class ContaAPagarService implements Serializable {
 		pagto.setDescricao(pagamento.getDescricao());
 		pagto.setFormaBaixa(pagamento.getFormaBaixa());
 		pagto.setValor(contaAPagar.getValor());
-		pagto.setValorAPagar(contaAPagar.getValor().add(contaAPagar.getMultaTB()).subtract(contaAPagar.getDescTB()));
+		pagto.setValorAPagar(contaAPagar.getSaldoDevedor());
 		pagto.setValorDesc(contaAPagar.getDescTB());
 		pagto.setValorMultaJuros(contaAPagar.getMultaTB());
-		pagto.setValorPago(contaAPagar.getValorPago());
+		pagto.setValorPago(contaAPagar.getPagoTB());
 		pagto.setUsuario(pagamento.getUsuario());
 		pagto.setListaContaAPagars(listaContaAPagars);
-		pagto.setVinculo(pagamento.getVinculo());
+		pagto.setVinculo(contaAPagar.getId());
 		pagto.setTipoBaixa(pagamento.getTipoBaixa());
 		pagto.setListaMovimentacoes(listaMovimentacoes);
 		list.add(pagto);
@@ -191,32 +175,14 @@ public class ContaAPagarService implements Serializable {
 			ContaAPagar contaAPagar = new ContaAPagar();
 			contaAPagar.setId(cp.getId());
 			contaAPagar.setStatus("PAGO");
-			contaAPagar.setValorPago(cp.getValorPago());
+			contaAPagar.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
+			contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
+
+			if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
+				contaAPagar.setStatus("PAGO PARCIAL");
+			}
 
 			dao.baixaSimples(contaAPagar);
-		}
-
-		for (ContaAPagar cp : listaContaAPagars) {
-
-			if (cp.getValorApagar().compareTo(cp.getValorPago()) > 0) {
-
-				ContaAPagar contaAPagar = new ContaAPagar();
-				contaAPagar.setDataDoc(cp.getDataDoc());
-				contaAPagar.setDataVencto(cp.getDataVencto());
-				contaAPagar.setNumDoc(cp.getNumDoc());
-				contaAPagar.setParcela(cp.getParcela());
-				contaAPagar.setStatus("ABERTO");
-				contaAPagar.setTipoCobranca(cp.getTipoCobranca());
-
-				contaAPagar.setValor(cp.getValorApagar().subtract(cp.getValorPago()));
-				contaAPagar.setValorPago(BigDecimal.ZERO);
-				contaAPagar.setVinculo(cp.getVinculo());
-				contaAPagar.setFornecedor(cp.getFornecedor());
-				contaAPagar.setUsuario(cp.getUsuario());
-				contaAPagar.setOrigemId(cp);
-
-				dao.salvar(contaAPagar);
-			}
 		}
 
 		if (pagamento.getFormaBaixa() == FormaBaixa.BI) {
@@ -311,10 +277,12 @@ public class ContaAPagarService implements Serializable {
 				pagto.setValor(listaPagamentos.get(i).getValor());
 				pagto.setValorDesc(listaContaAPagars.get(i).getDescTB());
 				pagto.setValorMultaJuros(listaContaAPagars.get(i).getMultaTB());
+				pagto.setValorAPagar(listaContaAPagars.get(i).getSaldoDevedor()
+						.add(listaContaAPagars.get(i).getMultaTB().subtract(listaContaAPagars.get(i).getDescTB())));
 				pagto.setValorPago(listaPagamentos.get(i).getValorPago());
 				pagto.setUsuario(listaPagamentos.get(i).getUsuario());
 				pagto.setListaContaAPagars(listCP);
-				pagto.setVinculo(listaPagamentos.get(i).getVinculo());
+				pagto.setVinculo(listaContaAPagars.get(i).getId());
 				pagto.setTipoBaixa(listaPagamentos.get(i).getTipoBaixa());
 				pagto.setListaMovimentacoes(listM);
 				list.add(pagto);

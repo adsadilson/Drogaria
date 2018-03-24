@@ -15,6 +15,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -55,6 +56,15 @@ public class PagamentoRepository implements Serializable {
 
 	public List<Pagamento> listarTodos() {
 		return manager.createQuery("from Pagamento order by nome", Pagamento.class).getResultList();
+	}
+	
+	public List<Pagamento> porVinculo(Long vinculo) {
+		try {
+			return manager.createQuery("from Pagamento where vinculo = :vinculo order by id", Pagamento.class)
+					.setParameter("vinculo", vinculo).getResultList();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 
 	public Pagamento porNome(String nome) {

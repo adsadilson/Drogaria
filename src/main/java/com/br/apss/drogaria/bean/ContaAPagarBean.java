@@ -213,6 +213,7 @@ public class ContaAPagarBean implements Serializable {
 			if (this.listaMovimentacoes.size() > 1) {
 				pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
 			} else {
+				
 				pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
 			}
 		}
@@ -413,7 +414,7 @@ public class ContaAPagarBean implements Serializable {
 		if (!validarDatas(this.contaAPagar.getDataDoc(), this.pagamento.getDataPago())) {
 			this.pagamento.setUsuario(obterUsuario());
 
-			if (this.contaAPagar.getValorPago().compareTo(this.contaAPagar.getValorApagar()) > 0) {
+			if (this.contaAPagar.getPagoTB().compareTo(this.contaAPagar.getValorApagar()) > 0) {
 				FacesContext.getCurrentInstance().validationFailed();
 				throw new NegocioException("O valor do pagamento não dever ser maior que o valor à pagar!");
 			}
@@ -438,7 +439,7 @@ public class ContaAPagarBean implements Serializable {
 				throw new NegocioException("A data de pagamento dever ser maior ou igual a data de lançamento ("
 						+ formato.format(cp.getDataDoc()) + ") !");
 			}
-			c = c.add(cp.getValorPago());
+			c = c.add(cp.getPagoTB());
 		}
 
 		for (Pagamento pg : this.listaPagamentos) {
@@ -495,7 +496,7 @@ public class ContaAPagarBean implements Serializable {
 				movto.setUsuario(obterUsuario());
 				movto.setVinculo(idVinculo);
 				movto.setVlrEntrada(null);
-				movto.setVlrSaida(c.getValorPago());
+				movto.setVlrSaida(c.getPagoTB());
 				movto.setDocumento(c.getNumDoc());
 				movto.setPessoa(c.getFornecedor());
 				movto.setTipoLanc(TipoLanc.PC);
@@ -516,7 +517,7 @@ public class ContaAPagarBean implements Serializable {
 				p.setValorDesc(c.getDescTB());
 				p.setValorMultaJuros(c.getMultaTB());
 				p.setVinculo(idVinculo);
-				p.setValorPago(c.getValorPago());
+				p.setValorPago(c.getPagoTB());
 				p.setUsuario(movto.getUsuario());
 				p.setConta(movto.getPlanoConta());
 
@@ -589,7 +590,7 @@ public class ContaAPagarBean implements Serializable {
 		BigDecimal p = BigDecimal.ZERO;
 
 		for (ContaAPagar cp : this.listaContasApagar) {
-			c = c.add(cp.getValorPago());
+			c = c.add(cp.getPagoTB());
 		}
 
 		for (Pagamento pg : this.listaPagamentos) {
@@ -682,6 +683,7 @@ public class ContaAPagarBean implements Serializable {
 		this.pagamento.setDataPago(new Date());
 		this.pagamento.setFormaBaixa(FormaBaixa.BI);
 		this.movimentacao = new Movimentacao();
+		this.listaMovimentacoes.clear();
 		this.setLabelInfo("nao");
 
 		this.listaContasApagar.clear();
@@ -701,8 +703,9 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setStatus(cp.getStatus());
 			contaAPagar.setTipoCobranca(cp.getTipoCobranca());
 			contaAPagar.setValor(cp.getValor());
-			contaAPagar.setValorApagar(cp.getValor());
-			contaAPagar.setValorPago(cp.getValor());
+			contaAPagar.setValorApagar(cp.getValorApagar());
+			contaAPagar.setValorPago(cp.getValorPago());
+			contaAPagar.setPagoTB(cp.getValorApagar());
 			contaAPagar.setVinculo(cp.getVinculo());
 			contaAPagar.setFornecedor(cp.getFornecedor());
 			contaAPagar.setDataDoc(cp.getDataDoc());
@@ -710,8 +713,7 @@ public class ContaAPagarBean implements Serializable {
 			this.pagamento.setDescricao(
 					"PG. NT." + cp.getNumDoc() + " Parc." + cp.getParcela() + " - " + cp.getFornecedor().getNome());
 
-			contaAPagar.setSaldoDevedor(
-					(cp.getValor().add(cp.getMultaTB().subtract(cp.getDescTB()).subtract(cp.getValorPago()))));
+			contaAPagar.setSaldoDevedor(cp.getValorApagar());
 
 			this.listaContasApagar.add(contaAPagar);
 
@@ -941,33 +943,33 @@ public class ContaAPagarBean implements Serializable {
 			// calcularParcelas();
 
 			BigDecimal t1 = BigDecimal.ZERO;
-			BigDecimal t2 = BigDecimal.ZERO;
+			BigDecimal m = BigDecimal.ZERO;
+			BigDecimal d = BigDecimal.ZERO;
 			BigDecimal t3 = BigDecimal.ZERO;
 			BigDecimal t4 = BigDecimal.ZERO;
 
 			for (ContaAPagar c : this.listaContasApagar) {
 
 				if (coluna.indexOf("pago") < 0) {
+					
 					BigDecimal t5 = BigDecimal.ZERO;
 
-					t5 = t5.add(c.getValor().add(c.getMultaTB().subtract(c.getDescTB())));
-
+					t5 = t5.add(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
 					c.setValorApagar(t5);
+					c.setPagoTB(t5);
 
-					c.setValorPago(t5);
-
-					t1 = t1.add(c.getMultaTB());
-					t2 = t2.add(c.getDescTB());
+					m = m.add(c.getMultaTB());
+					d = d.add(c.getDescTB());
 					t3 = t3.add(c.getValorApagar());
-					t4 = t4.add(c.getValorPago());
+					t4 = t4.add(c.getPagoTB());
 
 				} else {
-					t4 = t4.add(c.getValorPago());
+					t4 = t4.add(c.getPagoTB());
 				}
 			}
 
-			this.setTotalMultaJuros(t1);
-			this.setTotalDesc(t2);
+			this.setTotalMultaJuros(m);
+			this.setTotalDesc(d);
 			this.setTotalApagar(t3);
 			this.setTotalPago(t4);
 			this.pagamento.setValorPago(t4);
@@ -984,9 +986,8 @@ public class ContaAPagarBean implements Serializable {
 
 	public void calcularValores() {
 		for (ContaAPagar c : this.listaContasApagar) {
-			c.setValorApagar(c.getValor().add(c.getMultaTB().subtract(c.getDescTB())));
-			c.setValorPago(c.getValor().add(c.getMultaTB().subtract(c.getDescTB())));
-			c.setSaldoDevedor(c.getValorApagar().subtract(c.getValorPago()));
+			c.setValorApagar(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
+			c.setPagoTB(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
 		}
 	}
 
