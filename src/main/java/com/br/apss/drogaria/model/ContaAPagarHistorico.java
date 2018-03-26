@@ -41,6 +41,9 @@ public class ContaAPagarHistorico implements Serializable {
 	@Column(name = "pagamento_vinculo")
 	private Long agrupadorPagamento;
 
+	@Column(name = "pagamento_vinculo_anterior")
+	private Long vinculoAnterio;
+
 	public Long getId() {
 		return id;
 	}
@@ -87,6 +90,14 @@ public class ContaAPagarHistorico implements Serializable {
 
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
+	}
+
+	public Long getVinculoAnterio() {
+		return vinculoAnterio;
+	}
+
+	public void setVinculoAnterio(Long vinculoAnterio) {
+		this.vinculoAnterio = vinculoAnterio;
 	}
 
 	@Override

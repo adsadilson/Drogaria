@@ -49,16 +49,27 @@ public class PagamentoRepository implements Serializable {
 		}
 	}
 
+	public void excluirListaPagto(List<Pagamento> obj) {
+		try {
+			for (Pagamento p : obj) {
+				Pagamento pg = porId(p.getId());
+				manager.remove(pg);
+				manager.flush();
+			}
+		} catch (Exception e) {
+			throw new NegocioException("Pagamento não pode ser excluída " + e.getCause().getCause());
+		}
+	}
+
 	public Pagamento porId(Long id) {
 		return manager.find(Pagamento.class, id);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public Pagamento buscarPagamentoPorVinculo(Long vinculo) {
-		Query query = (Query) manager
-				.createNativeQuery("select * from pagamento where conta_apagar_vinculo =:vinculo order by id desc limit 1",
-						Pagamento.class)
-				.setParameter("vinculo", vinculo);
+		Query query = (Query) manager.createNativeQuery(
+				"select * from pagamento where conta_apagar_vinculo =:vinculo order by id desc limit 1",
+				Pagamento.class).setParameter("vinculo", vinculo);
 		return (Pagamento) query.getSingleResult();
 	}
 

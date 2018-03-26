@@ -19,15 +19,15 @@ public class PagamentoService implements Serializable {
 
 	@Inject
 	private PagamentoRepository dao;
-	
-	@Inject 
+
+	@Inject
 	private ContaAPagarRepository contaAPagarRepository;
 
 	@Transacional
 	public void salvar(Pagamento obj) {
 		dao.salvar(obj);
 	}
-	
+
 	@Transacional
 	public void salvar(List<Pagamento> list) {
 		dao.save(list);
@@ -37,7 +37,12 @@ public class PagamentoService implements Serializable {
 	public void excluir(Pagamento obj) {
 		dao.excluir(obj);
 	}
-	
+
+	@Transacional
+	public void excluirListaPagto(List<Pagamento> obj) {
+		dao.excluirListaPagto(obj);
+	}
+
 	@Transacional
 	public void excluirPagtoEstornaCP(Pagamento obj) {
 		dao.excluir(obj);
@@ -48,7 +53,7 @@ public class PagamentoService implements Serializable {
 			contaAPagarRepository.baixaSimples(cp);
 		}
 	}
-	
+
 	public List<Pagamento> porVinculo(Long vinculo) {
 		return dao.porVinculo(vinculo);
 	}
@@ -64,6 +69,7 @@ public class PagamentoService implements Serializable {
 	public Pagamento porId(Long id) {
 		return dao.porId(id);
 	}
+
 	public Pagamento buscarPagamentoPorVinculo(Long vinculo) {
 		return dao.buscarPagamentoPorVinculo(vinculo);
 	}

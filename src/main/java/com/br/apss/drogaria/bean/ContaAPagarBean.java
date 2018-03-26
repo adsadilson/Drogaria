@@ -213,7 +213,7 @@ public class ContaAPagarBean implements Serializable {
 			if (this.listaMovimentacoes.size() > 1) {
 				pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
 			} else {
-				
+
 				pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
 			}
 		}
@@ -489,9 +489,11 @@ public class ContaAPagarBean implements Serializable {
 							+ c.getFornecedor().getNome() + " (P)");
 				}
 
+				this.pagamento.setUsuario(obterUsuario());
+				
 				movto.setDataDoc(this.pagamento.getDataPago());
 				movto.setDataLanc(this.pagamento.getDataPago());
-				movto.setUsuario(obterUsuario());
+				movto.setUsuario(this.pagamento.getUsuario());
 				movto.setVinculo(idVinculo);
 				movto.setVlrEntrada(null);
 				movto.setVlrSaida(c.getPagoTB());
@@ -609,11 +611,11 @@ public class ContaAPagarBean implements Serializable {
 	public void rowSelect(SelectEvent event) {
 		editar();
 		this.setTotalSelecionado(BigDecimal.ZERO);
-		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValor()));
+		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValorApagar()));
 		if (this.contaApagarSelecionadas.size() > 1) {
 			BigDecimal t = BigDecimal.ZERO;
 			for (ContaAPagar cp : contaApagarSelecionadas) {
-				t = t.add(cp.getValor());
+				t = t.add(cp.getValorApagar());
 				this.setTotalSelecionado(t);
 			}
 		}
@@ -621,12 +623,12 @@ public class ContaAPagarBean implements Serializable {
 
 	public void rowSelectCheckBox(SelectEvent event) {
 		editar();
-		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValor()));
+		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValorApagar()));
 	}
 
 	public void rowUnSelect(UnselectEvent event) {
 		editar();
-		this.setTotalSelecionado(this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValor()));
+		this.setTotalSelecionado(this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValorApagar()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -801,15 +803,15 @@ public class ContaAPagarBean implements Serializable {
 			c.setDias(intervaloDias(c.getDataVencto(), new Date()));
 			if (c.getDataVencto().before(dataAtual)) {
 				// System.out.println("Data é inferior à ");
-				t1 = t1.add(c.getValor());
+				t1 = t1.add(c.getValorApagar());
 				this.setTotalAVencido(t1);
 			} else if (c.getDataVencto().after(dataAtual)) {
 				// System.out.println("Data é posterior à ");
-				t2 = t2.add(c.getValor());
+				t2 = t2.add(c.getValorApagar());
 				this.setTotalAVencer(t2);
 			} else {
 				// System.out.println("Data é igual à ");
-				t3 = t3.add(c.getValor());
+				t3 = t3.add(c.getValorApagar());
 				this.setTotalGeral(t3);
 			}
 		}
@@ -948,7 +950,7 @@ public class ContaAPagarBean implements Serializable {
 			for (ContaAPagar c : this.listaContasApagar) {
 
 				if (coluna.indexOf("pago") < 0) {
-					
+
 					BigDecimal t5 = BigDecimal.ZERO;
 
 					t5 = t5.add(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
@@ -1025,16 +1027,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }

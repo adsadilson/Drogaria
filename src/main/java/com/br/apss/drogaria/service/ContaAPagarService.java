@@ -37,10 +37,10 @@ public class ContaAPagarService implements Serializable {
 
 	@Inject
 	private PagamentoService pagamentoService;
-	
+
 	@Inject
 	private ContaAPagarHistoricoService cpHistoricoService;
-	
+
 	@Inject
 	private GeradorVinculo gerarVinculo;
 
@@ -53,9 +53,10 @@ public class ContaAPagarService implements Serializable {
 	public void baixaSimples(ContaAPagar contaAPagar, Pagamento pagamento) {
 
 		List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
-		
+
 		Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
-		
+		Long idAgrupadorAnterio = contaAPagar.getVinculo();
+
 		BigDecimal vlrAnterio = contaAPagar.getSaldoDevedor();
 
 		contaAPagar.setStatus("PAGAMENTO TOTAL");
@@ -70,11 +71,11 @@ public class ContaAPagarService implements Serializable {
 			pagamento.setDescricao(pagamento.getDescricao() + " (P)");
 		}
 		contaAPagar.setValorApagar(contaAPagar.getValorApagar().subtract(contaAPagar.getPagoTB()));
-		
+
 		listaContaAPagars.add(contaAPagar);
-		
+
 		dao.baixaSimples(contaAPagar);
-		
+
 		List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
 		Movimentacao movto = new Movimentacao();
@@ -156,15 +157,16 @@ public class ContaAPagarService implements Serializable {
 		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
 
 		List<Pagamento> list = new ArrayList<Pagamento>();
-		
+
 		ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
-		
+
 		cpHistorico.setContaApagar(contaAPagar);
 		cpHistorico.setValorAnterio(vlrAnterio);
 		cpHistorico.setValorAtual(contaAPagar.getPagoTB());
 		cpHistorico.setUsuario(pagamento.getUsuario());
 		cpHistorico.setAgrupadorPagamento(idAgrupador);
-		
+		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
+
 		cpHistoricoService.salvar(cpHistorico);
 
 		Pagamento pagto = new Pagamento();
@@ -192,37 +194,52 @@ public class ContaAPagarService implements Serializable {
 	@Transacional
 	public void baixaMultiplas(List<ContaAPagar> listaContaAPagars, List<Movimentacao> listaMovimentacoes,
 			List<Pagamento> listaPagamentos, Pagamento pagamento) {
-		
-		
-		Long idAgrupador = gerarVinculo.gerar(ContaAPagarHistorico.class);
-
-		for (ContaAPagar cp : listaContaAPagars) {
-
-			ContaAPagar contaAPagar = new ContaAPagar();
-			contaAPagar.setId(cp.getId());
-			contaAPagar.setStatus("PAGAMENTO TOTAL");
-			contaAPagar.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
-			contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
-
-			if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
-				contaAPagar.setStatus("PAGAMENTO PARCIAL");
-			}
-
-			dao.baixaSimples(contaAPagar);
-			
-			ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
-			
-			cpHistorico.setContaApagar(contaAPagar);
-			cpHistorico.setValorAnterio(contaAPagar.getValorApagar());
-			cpHistorico.setValorAtual(contaAPagar.getPagoTB());
-			cpHistorico.setUsuario(pagamento.getUsuario());
-			cpHistorico.setAgrupadorPagamento(idAgrupador);
-			
-			cpHistoricoService.salvar(cpHistorico);
-			
-		}
 
 		if (pagamento.getFormaBaixa() == FormaBaixa.BI) {
+
+			List<ContaAPagar> listaCP = new ArrayList<ContaAPagar>();
+
+			for (ContaAPagar cp : listaContaAPagars) {
+
+				ContaAPagar contaAPagar = new ContaAPagar();
+				Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
+				Long idAgrupadorAnterio = cp.getVinculo() == null ? idAgrupador : cp.getVinculo();
+				BigDecimal vlrAnterio = cp.getSaldoDevedor();
+
+				contaAPagar.setId(cp.getId());
+				contaAPagar.setAgrupadorMovimentacao(cp.getAgrupadorMovimentacao());
+				contaAPagar.setDataDoc(cp.getDataDoc());
+				contaAPagar.setDataVencto(cp.getDataVencto());
+				contaAPagar.setNumDoc(cp.getNumDoc());
+				contaAPagar.setParcela(cp.getParcela());
+				contaAPagar.setStatus("PAGAMENTO TOTAL");
+				contaAPagar.setTipoCobranca(cp.getTipoCobranca());
+				contaAPagar.setValor(cp.getValor());
+				contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
+				contaAPagar.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
+				contaAPagar.setVinculo(idAgrupador);
+				contaAPagar.setFornecedor(cp.getFornecedor());
+				contaAPagar.setUsuario(cp.getUsuario());
+
+				if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
+					contaAPagar.setStatus("PAGAMENTO PARCIAL");
+				}
+
+				listaCP.add(contaAPagar);
+				dao.baixaSimples(contaAPagar);
+
+				ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
+
+				cpHistorico.setContaApagar(contaAPagar);
+				cpHistorico.setValorAnterio(vlrAnterio);
+				cpHistorico.setValorAtual(cp.getPagoTB());
+				cpHistorico.setUsuario(pagamento.getUsuario());
+				cpHistorico.setAgrupadorPagamento(idAgrupador);
+				cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
+
+				cpHistoricoService.salvar(cpHistorico);
+
+			}
 
 			for (int i = 0; i < listaMovimentacoes.size(); i++) {
 
@@ -234,7 +251,7 @@ public class ContaAPagarService implements Serializable {
 				List<Movimentacao> listM = new ArrayList<Movimentacao>();
 				List<ContaAPagar> listCP = new ArrayList<ContaAPagar>();
 
-				cp.setId(listaContaAPagars.get(i).getId());
+				cp.setId(listaCP.get(i).getId());
 				listCP.add(cp);
 
 				movto.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
@@ -312,14 +329,14 @@ public class ContaAPagarService implements Serializable {
 				pagto.setDescricao(listaPagamentos.get(i).getDescricao());
 				pagto.setFormaBaixa(FormaBaixa.BI);
 				pagto.setValor(listaPagamentos.get(i).getValor());
-				pagto.setValorDesc(listaContaAPagars.get(i).getDescTB());
-				pagto.setValorMultaJuros(listaContaAPagars.get(i).getMultaTB());
-				pagto.setValorAPagar(listaContaAPagars.get(i).getSaldoDevedor()
-						.add(listaContaAPagars.get(i).getMultaTB().subtract(listaContaAPagars.get(i).getDescTB())));
+				pagto.setValorDesc(listaCP.get(i).getDescTB());
+				pagto.setValorMultaJuros(listaCP.get(i).getMultaTB());
+				pagto.setValorAPagar(listaCP.get(i).getSaldoDevedor()
+						.add(listaCP.get(i).getMultaTB().subtract(listaCP.get(i).getDescTB())));
 				pagto.setValorPago(listaPagamentos.get(i).getValorPago());
 				pagto.setUsuario(listaPagamentos.get(i).getUsuario());
-				pagto.setListaContaAPagars(listCP);
-				pagto.setAgrupadorContaApagar(idAgrupador);
+				pagto.setListaContaAPagars(listaCP);
+				pagto.setAgrupadorContaApagar(listaCP.get(i).getVinculo());
 				pagto.setTipoBaixa(listaPagamentos.get(i).getTipoBaixa());
 				pagto.setListaMovimentacoes(listM);
 				list.add(pagto);
@@ -330,6 +347,35 @@ public class ContaAPagarService implements Serializable {
 
 			BigDecimal valorMutla = BigDecimal.ZERO;
 			BigDecimal valorDesc = BigDecimal.ZERO;
+
+			Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
+
+			for (ContaAPagar cp : listaContaAPagars) {
+
+				ContaAPagar contaAPagar = new ContaAPagar();
+				contaAPagar.setId(cp.getId());
+				contaAPagar.setStatus("PAGAMENTO TOTAL");
+				contaAPagar.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
+				contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
+				contaAPagar.setVinculo(idAgrupador);
+				if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
+					contaAPagar.setStatus("PAGAMENTO PARCIAL");
+				}
+
+				dao.baixaSimples(contaAPagar);
+
+				ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
+
+				cpHistorico.setContaApagar(contaAPagar);
+				cpHistorico.setValorAnterio(cp.getValorApagar());
+				cpHistorico.setValorAtual(cp.getPagoTB());
+				cpHistorico.setUsuario(pagamento.getUsuario());
+				cpHistorico.setAgrupadorPagamento(idAgrupador);
+				cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
+
+				cpHistoricoService.salvar(cpHistorico);
+
+			}
 
 			for (int j = 0; j < listaContaAPagars.size(); j++) {
 				if (listaContaAPagars.get(j).getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
@@ -411,14 +457,16 @@ public class ContaAPagarService implements Serializable {
 				p.setValorMultaJuros(pagto.getValorMultaJuros());
 				p.setValorPago(pagto.getValorPago());
 				p.setUsuario(pagto.getUsuario());
-				p.setListaContaAPagars(listaContaAPagars);
+				p.setListaContaAPagars(listaContaAPagars); //
 				p.setVinculo(idAgrupador);
 				p.setListaMovimentacoes(listaMovimentacoes);
 				list.add(p);
 			}
 
 			pagamentoService.salvar(list);
+
 		}
+
 	}
 
 	@Transacional
@@ -433,21 +481,28 @@ public class ContaAPagarService implements Serializable {
 
 	@Transacional
 	public void excluirContas(List<ContaAPagar> contas) throws Exception {
-		for (ContaAPagar c : contas) {
-			if (c.getStatus().equals("PAGAMENTO PARCIAL")) {
-				Pagamento p = pagamentoService.buscarPagamentoPorVinculo(c.getVinculo());
-				ContaAPagarHistorico cpHistorico = cpHistoricoService.porVinculo(p.getAgrupadorContaApagar());
-				ContaAPagar cp = new ContaAPagar();
-				cp.setId(cpHistorico.getContaApagar().getId());
-				cp.setValorApagar(cpHistorico.getValorAnterio());
-				cp.setValorPago(c.getValorPago().subtract(cpHistorico.getValorAtual()));
-				cp.setVinculo(cpHistorico.getAgrupadorPagamento());
-				cp.setStatus("PAGAMENTO PARCIAL");
-				dao.estornaPagamento(cp);
-				cpHistoricoService.excluir(cpHistorico);
-				pagamentoService.excluir(p);
-			}
 
+		for (ContaAPagar c : contas) {
+
+			if (c.getStatus().equals("PAGAMENTO PARCIAL")) {
+
+				List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo());
+
+				List<ContaAPagarHistorico> listaCPHistorico = cpHistoricoService
+						.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
+
+				for (ContaAPagarHistorico cph : listaCPHistorico) {
+					ContaAPagar cp = new ContaAPagar();
+					cp.setId(cph.getContaApagar().getId());
+					cp.setValorApagar(cph.getValorAnterio());
+					cp.setValorPago(c.getValorPago().subtract(cph.getValorAtual()));
+					cp.setVinculo(cph.getVinculoAnterio());
+					cp.setStatus("PAGAMENTO PARCIAL");
+					dao.estornaPagamento(cp);
+					cpHistoricoService.excluir(cph);
+				}
+				pagamentoService.excluirListaPagto(listaPagto);
+			}
 		}
 		// dao.excluirContas(contas);
 	}
