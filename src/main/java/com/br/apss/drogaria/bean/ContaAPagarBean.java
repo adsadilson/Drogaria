@@ -249,8 +249,7 @@ public class ContaAPagarBean implements Serializable {
 			this.setTotalSelecionado(BigDecimal.ZERO);
 			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
 		} catch (Exception e) {
-			Messages.addGlobalError("Não é possivel excluir uma conta a pagar se existe outras Parcelas, "
-					+ "seleciona todas para excluir!");
+			Messages.addGlobalError("Esse registro possui vinculo com outras tabelas!");
 		}
 	}
 
@@ -352,7 +351,7 @@ public class ContaAPagarBean implements Serializable {
 				if (this.movimentacao.getTotalRateio().equals(this.getTotalDasParcelas())) {
 
 					if (this.contaAPagar.getId() == null) {
-						this.contaAPagar.setVinculo(gerarVinculo.gerar(ContaAPagar.class));
+						this.contaAPagar.setAgrupadorMovimentacao(gerarVinculo.gerar(Movimentacao.class));
 					} else {
 						contaAPagarService.excluirContas(this.contaApagarSelecionadas);
 					}
@@ -369,7 +368,7 @@ public class ContaAPagarBean implements Serializable {
 						this.listaMovimentacoes.get(i).setVlrEntrada(null);
 						this.listaMovimentacoes.get(i).setTipoLanc(TipoLanc.CA);
 						this.listaMovimentacoes.get(i).setTipoConta(TipoConta.D);
-						this.listaMovimentacoes.get(i).setVinculo(contaAPagar.getVinculo());
+						this.listaMovimentacoes.get(i).setVinculo(contaAPagar.getAgrupadorMovimentacao());
 						this.listaMovimentacoes.get(i).setPessoa(this.cabContaApagar.getFornecedor());
 						this.listaMovimentacoes.get(i).setUsuario(obterUsuario());
 					}
@@ -381,7 +380,7 @@ public class ContaAPagarBean implements Serializable {
 						this.listaParcelas.get(i).setStatus("ABERTO");
 						this.listaParcelas.get(i).setUsuario(obterUsuario());
 						this.listaParcelas.get(i).setFornecedor(this.cabContaApagar.getFornecedor());
-						this.listaParcelas.get(i).setVinculo(this.contaAPagar.getVinculo());
+						this.listaParcelas.get(i).setAgrupadorMovimentacao(this.contaAPagar.getAgrupadorMovimentacao());
 						this.listaParcelas.get(i).setValorApagar(this.listaParcelas.get(i).getValor());
 					}
 
@@ -390,7 +389,7 @@ public class ContaAPagarBean implements Serializable {
 					}
 
 					this.cabContaApagar.setListaContaAPagars(this.listaParcelas);
-					this.cabContaApagar.setVinculo(this.contaAPagar.getVinculo());
+					this.cabContaApagar.setVinculo(this.contaAPagar.getAgrupadorMovimentacao());
 					cabContaApagarService.salvar(this.cabContaApagar);
 
 					RequestContext request = RequestContext.getCurrentInstance();
@@ -419,7 +418,6 @@ public class ContaAPagarBean implements Serializable {
 				throw new NegocioException("O valor do pagamento não dever ser maior que o valor à pagar!");
 			}
 
-			this.pagamento.setVinculo(gerarVinculo.gerar(Pagamento.class));
 			contaAPagarService.baixaSimples(this.contaAPagar, this.pagamento);
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
 		} else {
@@ -942,7 +940,6 @@ public class ContaAPagarBean implements Serializable {
 		if (newValue != null && !newValue.equals(oldValue)) {
 			// calcularParcelas();
 
-			BigDecimal t1 = BigDecimal.ZERO;
 			BigDecimal m = BigDecimal.ZERO;
 			BigDecimal d = BigDecimal.ZERO;
 			BigDecimal t3 = BigDecimal.ZERO;

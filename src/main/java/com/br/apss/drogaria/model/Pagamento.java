@@ -89,6 +89,9 @@ public class Pagamento implements Serializable {
 
 	private Long vinculo;
 
+	@Column(name = "conta_apagar_vinculo")
+	private Long agrupadorContaApagar;
+
 	public Long getId() {
 		return id;
 	}
@@ -219,6 +222,14 @@ public class Pagamento implements Serializable {
 
 	public void setVinculo(Long vinculo) {
 		this.vinculo = vinculo;
+	}
+
+	public Long getAgrupadorContaApagar() {
+		return agrupadorContaApagar;
+	}
+
+	public void setAgrupadorContaApagar(Long agrupadorContaApagar) {
+		this.agrupadorContaApagar = agrupadorContaApagar;
 	}
 
 	@Override

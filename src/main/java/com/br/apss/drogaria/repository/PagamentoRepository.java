@@ -10,12 +10,11 @@ import javax.persistence.NoResultException;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 
-import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -46,7 +45,7 @@ public class PagamentoRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Pagamento não pode ser excluída "+e.getCause().getCause());
+			throw new NegocioException("Pagamento não pode ser excluída " + e.getCause().getCause());
 		}
 	}
 
@@ -54,10 +53,19 @@ public class PagamentoRepository implements Serializable {
 		return manager.find(Pagamento.class, id);
 	}
 
+	@SuppressWarnings("rawtypes")
+	public Pagamento buscarPagamentoPorVinculo(Long vinculo) {
+		Query query = (Query) manager
+				.createNativeQuery("select * from pagamento where conta_apagar_vinculo =:vinculo order by id desc limit 1",
+						Pagamento.class)
+				.setParameter("vinculo", vinculo);
+		return (Pagamento) query.getSingleResult();
+	}
+
 	public List<Pagamento> listarTodos() {
 		return manager.createQuery("from Pagamento order by nome", Pagamento.class).getResultList();
 	}
-	
+
 	public List<Pagamento> porVinculo(Long vinculo) {
 		try {
 			return manager.createQuery("from Pagamento where vinculo = :vinculo order by id", Pagamento.class)
@@ -81,11 +89,14 @@ public class PagamentoRepository implements Serializable {
 
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(Pagamento.class);
-		
-		/*criteria.createAlias("listaContaAPagars", "listaContaAPagars", Criteria.INNER_JOIN);
-		
-		Criterion p1 = Restrictions.eq("listaContaAPagars.conta_apagar_id", filtro.getPlanoConta().getId());
-		criteria.add(p1);*/
+
+		/*
+		 * criteria.createAlias("listaContaAPagars", "listaContaAPagars",
+		 * Criteria.INNER_JOIN);
+		 * 
+		 * Criterion p1 = Restrictions.eq("listaContaAPagars.conta_apagar_id",
+		 * filtro.getPlanoConta().getId()); criteria.add(p1);
+		 */
 
 		if (null != filtro.getFornecedor()) {
 			criteria.add(Restrictions.eq("fornecedor", true));

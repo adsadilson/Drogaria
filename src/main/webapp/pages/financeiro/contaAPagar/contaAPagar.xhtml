@@ -176,10 +176,6 @@
 				<p:column selectionMode="multiple"
 					style="width:1px;text-align:center" />
 
-				<p:column style="width:20px;" headerText="ID">
-					<h:outputText value="#{cp.id}" />
-				</p:column>
-
 				<p:column sortBy="#{cp.numDoc}"
 					style="text-align: right; width:40px;" headerText="Documento">
 					<h:outputText value="#{cp.numDoc}">
@@ -223,13 +219,14 @@
 				</p:column>
 
 				<p:column style="text-align: right;width:80px;" headerText="Valor">
-					<h:outputText value="#{cp.valorApagar}">
+					<h:outputText value="#{cp.valor}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
-
-				<p:column style="width:35px;" headerText="Origem">
-					<h:outputText value="#{cp.origemId.id}">
+				
+				<p:column style="text-align: right;width:80px;" headerText="Valor à Pagar">
+					<h:outputText value="#{cp.valorApagar}">
+						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 

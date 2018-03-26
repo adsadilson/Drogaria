@@ -83,6 +83,9 @@ public class ContaAPagar implements Serializable {
 	@Column(length = 20)
 	private String status;
 
+	@Column(name = "movimentancao_vinculo")
+	private Long agrupadorMovimentacao;
+
 	@Transient
 	private int dias;
 
@@ -103,10 +106,6 @@ public class ContaAPagar implements Serializable {
 
 	@Transient
 	private BigDecimal pagoTB = BigDecimal.ZERO;
-
-	@ManyToOne
-	@JoinColumn(name = "origem_id")
-	private ContaAPagar origemId;
 
 	public Long getId() {
 		return id;
@@ -276,12 +275,12 @@ public class ContaAPagar implements Serializable {
 		this.pagoTB = pagoTB;
 	}
 
-	public ContaAPagar getOrigemId() {
-		return origemId;
+	public Long getAgrupadorMovimentacao() {
+		return agrupadorMovimentacao;
 	}
 
-	public void setOrigemId(ContaAPagar origemId) {
-		this.origemId = origemId;
+	public void setAgrupadorMovimentacao(Long agrupadorMovimentacao) {
+		this.agrupadorMovimentacao = agrupadorMovimentacao;
 	}
 
 	@Override

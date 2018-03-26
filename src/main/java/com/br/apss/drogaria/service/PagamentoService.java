@@ -64,6 +64,9 @@ public class PagamentoService implements Serializable {
 	public Pagamento porId(Long id) {
 		return dao.porId(id);
 	}
+	public Pagamento buscarPagamentoPorVinculo(Long vinculo) {
+		return dao.buscarPagamentoPorVinculo(vinculo);
+	}
 
 	public Pagamento porNome(String nome) {
 		return dao.porNome(nome);

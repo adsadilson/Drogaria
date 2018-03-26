@@ -18,7 +18,6 @@ import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Movimentacao;
-import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -44,16 +43,21 @@ public class ContaAPagarRepository implements Serializable {
 	}
 
 	public void baixaSimples(ContaAPagar obj) {
-		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, valor_apagar = :valorApagar, status =:status where id = :id")
-				.setParameter("valorPago", obj.getValorPago())
-				.setParameter("valorApagar", obj.getValorApagar())
-				.setParameter("status", obj.getStatus())
+		manager.createNativeQuery(
+				"update conta_apagar set valor_pago = :valorPago, valor_apagar = :valorApagar, "
+				+ "vinculo = :vinculo, status =:status where id = :id")
+				.setParameter("valorPago", obj.getValorPago()).setParameter("valorApagar", obj.getValorApagar())
+				.setParameter("vinculo", obj.getVinculo()).setParameter("status", obj.getStatus())
 				.setParameter("id", obj.getId()).executeUpdate();
 	}
 
 	public void estornaPagamento(ContaAPagar contaAPagar) {
-		manager.createNativeQuery("update conta_apagar set valor_pago = :valorPago, status =:status where id = :id")
-				.setParameter("valorPago", contaAPagar.getValorPago()).setParameter("status", contaAPagar.getStatus())
+		manager.createNativeQuery(
+				"update conta_apagar set valor_pago = :valorPago, valor_apagar =:valorApagar, "
+				+ "vinculo =:vinculo, status =:status where id = :id")
+				.setParameter("valorPago", contaAPagar.getValorPago())
+				.setParameter("valorApagar", contaAPagar.getValorApagar())
+				.setParameter("vinculo", contaAPagar.getVinculo()).setParameter("status", contaAPagar.getStatus())
 				.setParameter("id", contaAPagar.getId()).executeUpdate();
 	}
 
@@ -75,12 +79,7 @@ public class ContaAPagarRepository implements Serializable {
 
 		// Exclusão da tabela cab_conta_apagar
 		for (ContaAPagar c : contas) {
-			if (c.getOrigemId() != null) {
-				// excluirPagamentoContaApagar(c.getOrigemId().getId());
-				// excluirContaApagarMovimentacao(c.getOrigemId().getId());
-			} else {
-				excluirCabCContaApagar(c.getId());
-			}
+			excluirCabCContaApagar(c.getId());
 		}
 
 		for (ContaAPagar c : contas) {
@@ -143,7 +142,6 @@ public class ContaAPagarRepository implements Serializable {
 		} catch (Exception e) {
 			throw e;
 		}
-
 	}
 
 	public ContaAPagar porId(Long id) {
@@ -188,7 +186,7 @@ public class ContaAPagarRepository implements Serializable {
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
 		if (StringUtils.isBlank(filtro.getStatus())) {
-			criteria.add(Restrictions.in("status", "ABERTO", "PAGO PARCIAL"));
+			criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL"));
 		}
 
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);
