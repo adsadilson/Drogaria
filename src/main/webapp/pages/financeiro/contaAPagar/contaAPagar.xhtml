@@ -564,7 +564,7 @@
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
 											value="#{contaApagar.multaTB}" styleClass="moeda"
 											onfocus="mascaraMoeda();" converter="moedaConverter">
-											<p:ajax event="blur"
+											<p:ajax event="blur" listener="#{contaAPagarBean.calcularTotais}"
 												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
 												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -583,7 +583,7 @@
 										<p:inputText style="width:85%" styleClass="moeda"
 											value="#{contaApagar.descTB}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
-											<p:ajax event="blur"
+											<p:ajax event="blur" listener="#{contaAPagarBean.calcularTotais}"
 												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
 												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -609,8 +609,9 @@
 										<p:inputText value="#{contaApagar.pagoTB}"
 											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
-											<p:ajax event="blur"
-												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
+											<p:ajax event="change" 
+												update="@this txtBaixaPago teste txtVlrPago labelVlrApagarBaixaMultipla" />
+												<p:ajax event="blur" update="txtVlrPago labelVlrApagarBaixaMultipla"/>
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -624,7 +625,7 @@
 							<p:toolbarGroup align="right">
 
 								<hr />
-								<h:panelGrid columns="6"
+								<h:panelGrid columns="6" id="teste"
 									columnClasses="rotuloInfTitulo1, campoInfTitulo1,
 									rotuloInfTitulo1, campoInfTitulo1, rotuloInfTitulo1, campoInfTitulo2">
 

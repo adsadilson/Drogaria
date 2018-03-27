@@ -490,7 +490,7 @@ public class ContaAPagarBean implements Serializable {
 				}
 
 				this.pagamento.setUsuario(obterUsuario());
-				
+
 				movto.setDataDoc(this.pagamento.getDataPago());
 				movto.setDataLanc(this.pagamento.getDataPago());
 				movto.setUsuario(this.pagamento.getUsuario());
@@ -628,7 +628,8 @@ public class ContaAPagarBean implements Serializable {
 
 	public void rowUnSelect(UnselectEvent event) {
 		editar();
-		this.setTotalSelecionado(this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValorApagar()));
+		this.setTotalSelecionado(
+				this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValorApagar()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -929,58 +930,46 @@ public class ContaAPagarBean implements Serializable {
 
 		if (coluna.indexOf("pago") > 0) {
 			if (newValue.compareTo(parcela.getValorApagar()) > 0) {
-				parcela.setValorPago(oldValue);
+				parcela.setPagoTB(oldValue);
 
 				Integer row = event.getRowIndex();
 				dataModel.setRowIndex(row);
 
-				Messages.addGlobalError("Valor informando a pagar maior que o titulo");
-				return;
+				throw new NegocioException("Valor informando a pagar maior que o titulo!");
 			}
 		}
 
 		if (newValue != null && !newValue.equals(oldValue)) {
-			// calcularParcelas();
-
-			BigDecimal m = BigDecimal.ZERO;
-			BigDecimal d = BigDecimal.ZERO;
-			BigDecimal t3 = BigDecimal.ZERO;
-			BigDecimal t4 = BigDecimal.ZERO;
-
 			for (ContaAPagar c : this.listaContasApagar) {
-
 				if (coluna.indexOf("pago") < 0) {
-
 					BigDecimal t5 = BigDecimal.ZERO;
-
 					t5 = t5.add(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
 					c.setValorApagar(t5);
 					c.setPagoTB(t5);
-
-					m = m.add(c.getMultaTB());
-					d = d.add(c.getDescTB());
-					t3 = t3.add(c.getValorApagar());
-					t4 = t4.add(c.getPagoTB());
-
-				} else {
-					t4 = t4.add(c.getPagoTB());
 				}
 			}
-
-			this.setTotalMultaJuros(m);
-			this.setTotalDesc(d);
-			this.setTotalApagar(t3);
-			this.setTotalPago(t4);
-			this.pagamento.setValorPago(t4);
-
-			calcularValorApagar();
-
-			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Celula editada " + this.totalPago,
-					"Antigo: " + oldValue + ", Novo:" + newValue);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
-
-			this.setTotalPago(this.totalPago);
+			calcularTotais();
 		}
+		calcularValorApagar();
+	}
+
+	public void calcularTotais() {
+		BigDecimal m = BigDecimal.ZERO;
+		BigDecimal d = BigDecimal.ZERO;
+		BigDecimal t3 = BigDecimal.ZERO;
+		BigDecimal t4 = BigDecimal.ZERO;
+
+		for (ContaAPagar c : this.listaContasApagar) {
+			m = m.add(c.getMultaTB());
+			d = d.add(c.getDescTB());
+			t3 = t3.add(c.getValorApagar());
+			t4 = t4.add(c.getPagoTB());
+		}
+		this.setTotalMultaJuros(m);
+		this.setTotalDesc(d);
+		this.setTotalApagar(t3);
+		this.setTotalPago(t4);
+		this.pagamento.setValorPago(t4);
 	}
 
 	public void calcularValores() {
