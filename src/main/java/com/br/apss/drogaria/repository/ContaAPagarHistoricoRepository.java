@@ -46,13 +46,13 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 	}
 	
 	public ContaAPagarHistorico porVinculo(Long vinculo) {
-			return manager.createQuery("from ContaAPagarHistorico where pagamento_vinculo = :vinculo order by id",
+			return manager.createQuery("from ContaAPagarHistorico where agrupadorPagamento = :vinculo order by id",
 					ContaAPagarHistorico.class).setParameter("vinculo", vinculo).getSingleResult();
 	}
 
 	public List<ContaAPagarHistorico> listaVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from ContaAPagarHistorico where vinculo = :vinculo order by id",
+			return manager.createQuery("from ContaAPagarHistorico where agrupadorPagamento = :vinculo order by id",
 					ContaAPagarHistorico.class).setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;

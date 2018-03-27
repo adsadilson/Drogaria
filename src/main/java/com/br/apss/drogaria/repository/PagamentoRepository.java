@@ -15,6 +15,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 
+import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -51,13 +52,41 @@ public class PagamentoRepository implements Serializable {
 
 	public void excluirListaPagto(List<Pagamento> obj) {
 		try {
+
+			for (Pagamento pagamento : obj) {
+				excluirPagamentoMovimentacao(pagamento.getId());
+			}
+
+			List<Movimentacao> movto = obj.get(0).getListaMovimentacoes();
+			for (Movimentacao m : movto) {
+				excluirMovimentacao(m.getId());
+			}
+
 			for (Pagamento p : obj) {
 				Pagamento pg = porId(p.getId());
 				manager.remove(pg);
 				manager.flush();
 			}
+
 		} catch (Exception e) {
 			throw new NegocioException("Pagamento não pode ser excluída " + e.getCause().getCause());
+		}
+	}
+
+	public void excluirPagamentoMovimentacao(Long id) throws Exception {
+		try {
+			manager.createNativeQuery("delete from pagamento_movimentacao where pagamento_id = :id")
+					.setParameter("id", id).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void excluirMovimentacao(Long id) throws Exception {
+		try {
+			manager.createNativeQuery("delete from movimentacao where id = :id").setParameter("id", id).executeUpdate();
+		} catch (Exception e) {
+			throw e;
 		}
 	}
 
@@ -79,7 +108,8 @@ public class PagamentoRepository implements Serializable {
 
 	public List<Pagamento> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from Pagamento where vinculo = :vinculo order by id", Pagamento.class)
+			return manager
+					.createQuery("from Pagamento where agrupadorContaApagar = :vinculo order by id", Pagamento.class)
 					.setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;

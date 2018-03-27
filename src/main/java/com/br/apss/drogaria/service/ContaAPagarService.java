@@ -55,7 +55,7 @@ public class ContaAPagarService implements Serializable {
 		List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
 
 		Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
-		Long idAgrupadorAnterio = contaAPagar.getVinculo();
+		Long idAgrupadorAnterio = contaAPagar.getVinculo() == null ? idAgrupador : contaAPagar.getVinculo();
 
 		BigDecimal vlrAnterio = contaAPagar.getSaldoDevedor();
 
@@ -351,6 +351,8 @@ public class ContaAPagarService implements Serializable {
 			Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
 
 			for (ContaAPagar cp : listaContaAPagars) {
+				
+				BigDecimal valorAnterio = cp.getValorApagar();
 
 				ContaAPagar contaAPagar = new ContaAPagar();
 				contaAPagar.setId(cp.getId());
@@ -367,7 +369,7 @@ public class ContaAPagarService implements Serializable {
 				ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
 
 				cpHistorico.setContaApagar(contaAPagar);
-				cpHistorico.setValorAnterio(cp.getValorApagar());
+				cpHistorico.setValorAnterio(valorAnterio);
 				cpHistorico.setValorAtual(cp.getPagoTB());
 				cpHistorico.setUsuario(pagamento.getUsuario());
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
@@ -458,7 +460,7 @@ public class ContaAPagarService implements Serializable {
 				p.setValorPago(pagto.getValorPago());
 				p.setUsuario(pagto.getUsuario());
 				p.setListaContaAPagars(listaContaAPagars); //
-				p.setVinculo(idAgrupador);
+				p.setAgrupadorContaApagar(idAgrupador);
 				p.setListaMovimentacoes(listaMovimentacoes);
 				list.add(p);
 			}
