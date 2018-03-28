@@ -610,8 +610,8 @@
 											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
 											<p:ajax event="change" 
-												update="@this txtBaixaPago teste txtVlrPago labelVlrApagarBaixaMultipla" />
-												<p:ajax event="blur" update="txtVlrPago labelVlrApagarBaixaMultipla"/>
+												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
+												<p:ajax event="blur" update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla"/>
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -625,7 +625,7 @@
 							<p:toolbarGroup align="right">
 
 								<hr />
-								<h:panelGrid columns="6" id="teste"
+								<h:panelGrid columns="6" 
 									columnClasses="rotuloInfTitulo1, campoInfTitulo1,
 									rotuloInfTitulo1, campoInfTitulo1, rotuloInfTitulo1, campoInfTitulo2">
 
