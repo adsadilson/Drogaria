@@ -3,6 +3,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Contas a Receber</ui:define>
@@ -10,6 +11,26 @@
 	<ui:define name="corpo">
 
 		<style>
+.rotuloLanc1 {
+	width: 100px !important;
+}
+
+.rotuloLanc2 {
+	width: 120px !important;
+}
+
+.campoLanc1 {
+	width: 360px !important;
+}
+
+.red {
+	color: red !important;
+}
+
+.corLabel {
+	color: black !important;
+}
+-->
 </style>
 
 
@@ -19,15 +40,17 @@
 
 		<h1>Contas a Receber</h1>
 
-		<h:form id="frm-menu" prependId="false">
+		<h:form id="frm" prependId="false">
 
 			<!-- BOTÕES DE AÇÕES -->
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento"
 				id="toolbar-botoes">
 
 				<p:toolbarGroup>
-					<p:commandButton icon="fa fa-file-o" value="Novo" process="@this">
-						<p:resetInput target="" />
+					<p:commandButton icon="fa fa-file-o" value="Novo" update="dgLancCR"
+						oncomplete="PF('dialogLancCR').show()" process="@this"
+						action="#{contaAPagarBean.novo}">
+						<p:resetInput target="dgLancCR" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
@@ -70,11 +93,8 @@
 
 			</p:toolbar>
 
-		</h:form>
 
-
-		<!-- TABELA DE LANÇAMENTO EM CONTA -->
-		<h:form id="frmTabela" prependId="false">
+			<!-- TABELA DE LANÇAMENTO EM CONTA -->
 			<p:dataTable id="tblContaAReceber" var="cp"
 				style="margin-top: 10px; margin-bottom:10px;" rows="13"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
@@ -178,7 +198,7 @@
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					actionListener="#{contaAPagarBean.excluirSelecionados}"
-					update="frmTabela toolbar-botoes" process="@this"
+					update="tblContaAReceber toolbar-botoes" process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
@@ -217,6 +237,278 @@
 					</h:panelGrid>
 				</p:toolbarGroup>
 			</p:toolbar>
+
+
+			<!-- DIALOG DE LANÇAMENTO CONTAS A RECEBER -->
+			<p:dialog header="Lançamento Contas a Receber"
+				widgetVar="dialogLancCR" modal="true" width="750" height="430"
+				resizable="true" draggable="true" id="dgLancCR" visible="false"
+				closeOnEscape="true" appendTo="@(body)">
+
+				<h:panelGrid columns="4" id="panelGridCabNota"
+					columnClasses="rotuloLanc1, campoLanc1, rotuloLanc2">
+
+					<p:outputLabel for="combCliente" value="Cliente" />
+					<p:selectOneMenu id="combCliente" autoWidth="false" filter="true"
+						value="#{contaAPagarBean.cabContaApagar.fornecedor}"
+						required="true" requiredMessage="Selecione um cliente."
+						filterMatchMode="contains" style="width:270px;"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
+							var="c" itemLabel="#{c.nome}" itemValue="#{c}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel for="txtLancEmissao" value="Dt Lançameto" />
+					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
+						id="txtLancEmissao" onfocus="mascaraDtCalendar('txtLancEmissao')"
+						styleClass="cssCalender"
+						value="#{contaAPagarBean.cabContaApagar.dataDoc}" required="true"
+						requiredMessage="Informe uma data de emissão">
+						<p:ajax event="dateSelect" process="@this"
+							update="txtLancVencimento" />
+					</p:calendar>
+
+					<p:spacer />
+					<p:spacer />
+
+					<p:outputLabel for="txtLancVencimento" value="Vencimento" />
+					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
+						id="txtLancVencimento" styleClass="cssCalender"
+						mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
+						onfocus="mascaraDtCalendar('txtVencimento')"
+						value="#{contaAPagarBean.cabContaApagar.dataVencto}"
+						required="true"
+						requiredMessage="Informe uma data para a vencimento">
+						<p:ajax process="@this" event="dateSelect" />
+					</p:calendar>
+
+				</h:panelGrid>
+
+				<p:tabView prependId="false"
+					style="width: 99%; height: 300px; margin-top:10px; ">
+
+
+					<!-- ABA RATEIO DA NOTA -->
+					<p:tab title="Rateio da Nota">
+
+						<p:panel styleClass="semPreenchimento rateio" id="panelLancRateio">
+
+							<h:panelGrid id="panelGridLancRateio" columns="5">
+
+								<p:selectOneMenu id="txtLancTipo" autoWidth="false"
+									style="width:35px;" value="#{contaAPagarBean.tipoConta}"
+									disabled="#{movimentacaoBean.movto.notInclusao}"
+									converter="omnifaces.SelectItemsConverter" required="true"
+									requiredMessage="Selecione tipo">
+									<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
+									<f:selectItems value="#{contaAPagarBean.listaTipoContas}"
+										var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
+										itemValue="#{tipo}" />
+									<p:ajax event="change" process="@this"
+										listener="#{contaAPagarBean.carregarContasPorTipoCategorias}"
+										update="combLancConta" />
+								</p:selectOneMenu>
+
+								<p:selectOneMenu id="combLancConta" autoWidth="false"
+									style="width:150px;" required="true" filter="true"
+									requiredMessage="Selecione uma conta."
+									value="#{contaAPagarBean.movimentacao.planoConta}"
+									converter="omnifaces.SelectItemsConverter">
+									<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+										noSelectionOption="true" />
+									<f:selectItems value="#{contaAPagarBean.listaContas}"
+										var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
+								</p:selectOneMenu>
+
+								<p:inputText required="true"
+									requiredMessage="Informe a descrição" placeholder="descrição"
+									value="#{contaAPagarBean.movimentacao.descricao}" size="30" />
+
+								<p:inputText id="txtLancValor" required="true"
+									requiredMessage="Informe um valor"
+									onfocus="formatoMoeda('txtLancValor')"
+									value="#{contaAPagarBean.movimentacao.vlrSaida}"
+									placeholder="VALOR" size="10">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:commandButton icon="fa fa-download" title="Adicionar conta">
+								</p:commandButton>
+
+							</h:panelGrid>
+
+							<p:dataTable id="tblRateioRec" style="width:99%;"
+								emptyMessage="Nenhuma registro lançado" scrollable="true"
+								scrollHeight="160" value="#{contaAPagarBean.listaMovimentacoes}"
+								var="m">
+
+								<p:column style="width:35px; text-align:center;"
+									headerText="Ação">
+									<p:commandButton title="Excluir" process="@this"
+										icon="ui-icon-trash" styleClass="semPreenchimento"
+										update="tblRateioRec panelGridCabNota @(.total)"
+										action="#{contaAPagarBean.removerConta()}">
+										<f:setPropertyActionListener value="#{m}"
+											target="#{contaAPagarBean.movimentacao}" />
+									</p:commandButton>
+
+								</p:column>
+								<p:column style="width:140px" headerText="Plano Conta">
+									<h:outputText
+										value="#{m.planoConta.id}#{m.planoConta.tipo} 
+										- #{fn:substring(m.planoConta.nome,0,12)}" />
+								</p:column>
+								<p:column style="width:233px" headerText="Descrição">
+									<h:outputText value="#{fn:substring(m.descricao,1,31)}" />
+								</p:column>
+								<p:column style="width:115px; text-align:right;"
+									headerText="Valor R$">
+									<h:outputText value="#{m.vlrSaida}">
+										<f:convertNumber type="currency" />
+									</h:outputText>
+								</p:column>
+							</p:dataTable>
+
+							<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+								<p:toolbarGroup align="right">
+									<p:outputLabel value="Total:"
+										style="font-size:13px; margin-right:70px; color:black" />
+									<p:outputLabel id="txtTotalRateio" styleClass="total"
+										style="color:red; font-size:14px; margin-right:10px;"
+										value="#{contaAPagarBean.movimentacao.totalRateio}">
+										<f:convertNumber type="currency" />
+									</p:outputLabel>
+								</p:toolbarGroup>
+							</p:toolbar>
+
+						</p:panel>
+					</p:tab>
+
+
+					<!-- ABA FORMA DE PAGAMENTO -->
+					<p:tab title="Forma de Pagamento">
+
+						<p:panel styleClass="semPreenchimento pagto" id="panelPagto">
+
+							<h:panelGrid id="panelGridPagto" columns="8">
+
+								<p:selectOneMenu id="comboTipoCobranca" autoWidth="false"
+									style="width:170px;"
+									value="#{contaAPagarBean.parcela.tipoCobranca}"
+									disabled="#{movimentacaoBean.movto.notInclusao}"
+									converter="omnifaces.SelectItemsConverter" required="true"
+									requiredMessage="Selecione tipo de cobrança">
+									<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
+									<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
+										var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
+										itemValue="#{cob}" />
+								</p:selectOneMenu>
+
+								<p:outputLabel value="Parcela(s)"
+									style="margin-left:8px; margin-right:2px;" />
+								<p:spinner size="1" min="1" max="100"
+									value="#{contaAPagarBean.parcela.numVezes}" />
+
+								<p:outputLabel value="Intervalo"
+									style="margin-left:9px; margin-right:2px;" />
+								<p:spinner size="1" min="1" max="30"
+									value="#{contaAPagarBean.parcela.periodo}" />
+
+								<p:outputLabel value="Dia(s)"
+									style="margin-left:1px; margin-right:9px;" />
+
+								<p:inputText id="txtVlrPag" required="true"
+									requiredMessage="Informe um valor" styleClass="total"
+									readonly="true" onfocus="formatoMoeda('txtVlrPag')"
+									value="#{contaAPagarBean.parcela.valor}" size="10">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
+									disabled="#{contaAPagarBean.listaMovimentacoes.size() == 0}"
+									process="@this panelGridPagto" styleClass="total"
+									action="#{contaAPagarBean.gerarParcelas}"
+									update="tblPagto panelGridPagto txtTotalPagto @(.total)"
+									id="salvarCommandButtonPagto" />
+							</h:panelGrid>
+
+
+							<p:dataTable id="tblPagto" style="width:99%;" styleClass="total"
+								emptyMessage="Nenhuma registro lançado" scrollable="true"
+								scrollHeight="160" value="#{contaAPagarBean.listaParcelas}"
+								var="p">
+
+								<p:column style="width:35px; text-align:center;"
+									headerText="Ação">
+									<p:commandButton icon="ui-icon-pencil" title="Editar"
+										styleClass="semPreenchimento"
+										oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
+										update=":dgEdicaoParcela"
+										action="#{contaAPagarBean.abrirEdicao()}">
+										<f:setPropertyActionListener
+											target="#{contaAPagarBean.parcela}" value="#{p}" />
+									</p:commandButton>
+
+								</p:column>
+								<p:column style="width:35px; text-align:center;"
+									headerText="Tipo">
+									<h:outputText value="#{p.tipoCobranca.sigla}" />
+								</p:column>
+								<p:column style="width:60px; text-align:center;"
+									headerText="Parcela(s)">
+									<h:outputText value="#{p.parcela}" />
+								</p:column>
+								<p:column style="text-align:center; width:100px;"
+									headerText="Documento">
+									<h:outputText value="#{p.numDoc}" />
+								</p:column>
+								<p:column style="text-align:center; width:110px;"
+									headerText="Vencimento">
+									<h:outputText value="#{p.dataVencto}">
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+									</h:outputText>
+								</p:column>
+								<p:column style="width:115px; text-align:right;"
+									headerText="Valor R$">
+									<h:outputText value="#{p.valor}">
+										<f:convertNumber type="currency" />
+									</h:outputText>
+								</p:column>
+							</p:dataTable>
+
+							<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+								<p:toolbarGroup align="right">
+									<p:outputLabel value="Total:"
+										style="font-size:13px; margin-right:70px; color:black" />
+									<p:outputLabel id="txtTotalPagto" styleClass="total"
+										value="#{contaAPagarBean.totalDasParcelas}"
+										style="color:red; font-size:14px; margin-right:10px;">
+										<f:convertNumber type="currency" />
+									</p:outputLabel>
+								</p:toolbarGroup>
+							</p:toolbar>
+
+						</p:panel>
+					</p:tab>
+
+				</p:tabView>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							process="panelGridCabNota @this"
+							action="#{contaAPagarBean.salvar()}" update="panelGridCabNota"
+							oncomplete="if(args.sucesso == true) PF('dialogLancCR').hide()">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
+
+
+			</p:dialog>
 
 		</h:form>
 
