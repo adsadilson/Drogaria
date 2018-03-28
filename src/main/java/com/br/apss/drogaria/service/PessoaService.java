@@ -34,9 +34,13 @@ public class PessoaService implements Serializable {
 	public List<Pessoa> listarTodos() {
 		return dao.listarTodos();
 	}
-	
+
 	public List<Pessoa> listarFornecedore() {
 		return dao.listarFornecedores();
+	}
+
+	public List<Pessoa> listarClientes() {
+		return dao.listarClientes();
 	}
 
 	public Pessoa porId(Long id) {
@@ -46,7 +50,7 @@ public class PessoaService implements Serializable {
 	public Pessoa porNome(String nome) {
 		return dao.porNome(nome);
 	}
-	
+
 	public Pessoa porCpf(String cpf) {
 		return dao.porCpf(cpf);
 	}

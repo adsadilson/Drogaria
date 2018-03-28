@@ -55,6 +55,11 @@ public class PessoaRepository implements Serializable {
 				.getResultList();
 	}
 
+	public List<Pessoa> listarClientes() {
+		return manager.createQuery("from Pessoa where cliente=true and status=true order by nome", Pessoa.class)
+				.getResultList();
+	}
+
 	public Pessoa porNome(String nome) {
 		try {
 			return manager.createQuery("from Pessoa where upper(nome) = :nome", Pessoa.class)

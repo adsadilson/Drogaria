@@ -49,18 +49,22 @@
 				<p:toolbarGroup>
 					<p:commandButton icon="fa fa-file-o" value="Novo" update="dgLancCR"
 						oncomplete="PF('dialogLancCR').show()" process="@this"
-						action="#{contaAPagarBean.novo}">
+						action="#{contaAReceberBean.novo}" id="bntNovoLanc"
+						disabled="#{contaAReceberBean.filtro.cliente.id == null}">
 						<p:resetInput target="dgLancCR" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
-						style="margin-left:3px; margin-right: 3px;">
+						style="margin-left:3px; margin-right: 3px;"
+						disabled="#{contaAReceberBean.listaContaARecebers.size()!=1}">
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-trash" value="Excluir"
-						style="margin-right: 3px;" process="@this">
+						style="margin-right: 3px;" process="@this"
+						disabled="#{contaAReceberBean.listaContaARecebers.size()==0}">
 					</p:commandButton>
-					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)">
+					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
+						disabled="#{contaAReceberBean.listaContaARecebers.size()==0}">
 						<p:resetInput target="" />
 					</p:commandButton>
 
@@ -71,18 +75,24 @@
 						<p:resetInput target="" />
 					</p:commandButton>
 
-					<p:outputLabel value="CONTA"
+					<p:outputLabel value="CLIENTE"
 						style="margin-left:10px; margin-right:10px; color:black" />
 
 					<p:selectOneMenu autoWidth="false" style="width:345px; color:red"
 						filter="true" filterMatchMode="contains"
+						value="#{contaAReceberBean.filtro.cliente}"
 						converter="omnifaces.SelectItemsConverter">
 						<f:selectItem itemLabel="Selecione..." itemValue="#{null}"
 							noSelectionOption="true" />
+						<f:selectItems value="#{contaAReceberBean.listaDeClientes}"
+							var="c" itemLabel="#{c.cpfCnpj} - #{c.nome}" itemValue="#{c}" />
+						<p:ajax event="change" process="@this"
+							update="txtPesquisa bntNovoLanc" />
 					</p:selectOneMenu>
 
-					<p:commandButton icon="fa fa-search" value="PESQUISA"
-						style="margin-left:10px;">
+					<p:commandButton id="txtPesquisa" icon="fa fa-search"
+						value="PESQUISA" style="margin-left:10px;"
+						disabled="#{contaAReceberBean.filtro.cliente.id == null}">
 					</p:commandButton>
 
 				</p:toolbarGroup>
@@ -95,6 +105,7 @@
 
 
 			<!-- TABELA DE LANÇAMENTO EM CONTA -->
+
 			<p:dataTable id="tblContaAReceber" var="cp"
 				style="margin-top: 10px; margin-bottom:10px;" rows="13"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
@@ -133,8 +144,7 @@
 					<h:outputText value="#{cp.parcela}" />
 				</p:column>
 
-				<p:column sortBy="#{cp.fornecedor}" headerText="Fornecedor"
-					width="200">
+				<p:column sortBy="#{cp.fornecedor}" headerText="Cliente" width="200">
 					<h:outputText value="#{cp.fornecedor.nome}" />
 				</p:column>
 
@@ -240,6 +250,7 @@
 
 
 			<!-- DIALOG DE LANÇAMENTO CONTAS A RECEBER -->
+
 			<p:dialog header="Lançamento Contas a Receber"
 				widgetVar="dialogLancCR" modal="true" width="750" height="430"
 				resizable="true" draggable="true" id="dgLancCR" visible="false"
@@ -248,41 +259,34 @@
 				<h:panelGrid columns="4" id="panelGridCabNota"
 					columnClasses="rotuloLanc1, campoLanc1, rotuloLanc2">
 
-					<p:outputLabel for="combCliente" value="Cliente" />
-					<p:selectOneMenu id="combCliente" autoWidth="false" filter="true"
-						value="#{contaAPagarBean.cabContaApagar.fornecedor}"
-						required="true" requiredMessage="Selecione um cliente."
-						filterMatchMode="contains" style="width:270px;"
-						converter="omnifaces.SelectItemsConverter">
-						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-						<f:selectItems value="#{contaAPagarBean.carregarFornecedores}"
-							var="c" itemLabel="#{c.nome}" itemValue="#{c}" />
-					</p:selectOneMenu>
+					<p:outputLabel for="txtLancCliente" value="Cliente" />
+					<p:outputLabel id="txtLancCliente" size="36"
+						value="#{fn:substring(contaAReceberBean.cabContaAReceber.cliente.nome,0,41)}" />
 
 					<p:outputLabel for="txtLancEmissao" value="Dt Lançameto" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
 						id="txtLancEmissao" onfocus="mascaraDtCalendar('txtLancEmissao')"
 						styleClass="cssCalender"
-						value="#{contaAPagarBean.cabContaApagar.dataDoc}" required="true"
-						requiredMessage="Informe uma data de emissão">
+						value="#{contaAReceberBean.cabContaAReceber.dataDoc}"
+						required="true" requiredMessage="Informe uma data de emissão">
 						<p:ajax event="dateSelect" process="@this"
 							update="txtLancVencimento" />
 					</p:calendar>
 
-					<p:spacer />
-					<p:spacer />
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:outputLabel
+						value="#{contaAReceberBean.cabContaAReceber.cliente.cpfCnpj}" />
 
 					<p:outputLabel for="txtLancVencimento" value="Vencimento" />
 					<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
 						id="txtLancVencimento" styleClass="cssCalender"
-						mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
+						mindate="#{contaAReceberBean.cabContaAReceber.dataDoc}"
 						onfocus="mascaraDtCalendar('txtVencimento')"
-						value="#{contaAPagarBean.cabContaApagar.dataVencto}"
+						value="#{contaAReceberBean.cabContaAReceber.dataVencto}"
 						required="true"
 						requiredMessage="Informe uma data para a vencimento">
 						<p:ajax process="@this" event="dateSelect" />
 					</p:calendar>
-
 				</h:panelGrid>
 
 				<p:tabView prependId="false"
@@ -296,28 +300,40 @@
 
 							<h:panelGrid id="panelGridLancRateio" columns="5">
 
-								<p:selectOneMenu id="txtLancTipo" autoWidth="false"
-									style="width:35px;" value="#{contaAPagarBean.tipoConta}"
-									disabled="#{movimentacaoBean.movto.notInclusao}"
-									converter="omnifaces.SelectItemsConverter" required="true"
-									requiredMessage="Selecione tipo">
+								<ui:remove>
+									<p:selectOneMenu id="txtLancTipo" autoWidth="false"
+										style="width:35px;"
+										value="#{contaAReceberBean.movto.tipoConta}"
+										converter="omnifaces.SelectItemsConverter" required="true"
+										requiredMessage="Selecione tipo">
+										<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
+										<f:selectItems value="#{contaAReceberBean.listaTipoLanc}"
+											var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
+											itemValue="#{tipo}" />
+										<p:ajax event="change" process="@this" update="combLancConta"
+											listener="#{contaAReceberBean.carregarContasPorTipoCategorias()}" />
+									</p:selectOneMenu>
+								</ui:remove>
+
+								<p:selectOneMenu value="#{contaAReceberBean.movto.tipoConta}"
+									converter="omnifaces.SelectItemsConverter" autoWidth="false"
+									style="width:35px;" immediate="true">
 									<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
-									<f:selectItems value="#{contaAPagarBean.listaTipoContas}"
-										var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
-										itemValue="#{tipo}" />
-									<p:ajax event="change" process="@this"
-										listener="#{contaAPagarBean.carregarContasPorTipoCategorias}"
-										update="combLancConta" />
+									<f:selectItems value="#{contaAReceberBean.listaTipoLanc}"
+										var="tp" itemLabel="#{tp.sigla} - #{tp.descricao}"
+										itemValue="#{tp}" />
+									<p:ajax listener="#{contaAReceberBean.listaContaLancamento()}"
+										event="change" process="@this" update="combLancConta" />
 								</p:selectOneMenu>
 
 								<p:selectOneMenu id="combLancConta" autoWidth="false"
 									style="width:150px;" required="true" filter="true"
 									requiredMessage="Selecione uma conta."
-									value="#{contaAPagarBean.movimentacao.planoConta}"
+									value="#{contaAReceberBean.movto.planoConta}"
 									converter="omnifaces.SelectItemsConverter">
 									<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 										noSelectionOption="true" />
-									<f:selectItems value="#{contaAPagarBean.listaContas}"
+									<f:selectItems value="#{contaAReceberBean.listaDePlanoContas}"
 										var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 								</p:selectOneMenu>
 

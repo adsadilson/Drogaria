@@ -2,6 +2,7 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +18,18 @@ import org.omnifaces.util.Messages;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
+import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
+import com.br.apss.drogaria.model.CabContaAReceber;
 import com.br.apss.drogaria.model.ContaAReceber;
+import com.br.apss.drogaria.model.Movimentacao;
+import com.br.apss.drogaria.model.Pessoa;
+import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAReceberFilter;
 import com.br.apss.drogaria.service.ContaAReceberService;
+import com.br.apss.drogaria.service.PessoaService;
+import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
 
 @Named
@@ -37,24 +46,50 @@ public class ContaAReceberBean implements Serializable {
 
 	private LazyDataModel<ContaAReceber> model;
 
-	@Inject
-	ContaAReceberService contaAReceberService;
+	private Pessoa clienteSelecionado;
+
+	private List<Pessoa> listaDeClientes = new ArrayList<Pessoa>();
+
+	private List<PlanoConta> listaDePlanoContas;
+
+	private CabContaAReceber cabContaAReceber;
+
+	private Movimentacao movto;
+
+	private List<Movimentacao> listaDeMovtos;
 
 	@Inject
-	GeradorVinculo idVinculo;
+	private ContaAReceberService contaAReceberService;
+
+	@Inject
+	private PessoaService pessoaService;
+
+	@Inject
+	private PlanoContaService contaService;
+
+	@Inject
+	private GeradorVinculo idVinculo;
 
 	@PostConstruct
 	public void Inicializar() {
 		filtro = new ContaAReceberFilter();
 		this.listaContaARecebers = new ArrayList<ContaAReceber>();
+		carregarListaDeClientes();
 	}
 
 	public void novo() {
-
+		this.cabContaAReceber = new CabContaAReceber();
+		this.cabContaAReceber.setDataDoc(new Date());
+		this.cabContaAReceber.setDataLanc(new Date());
+		this.cabContaAReceber.setCliente(filtro.getCliente());
+		this.cabContaAReceber.setUsuario(obterUsuario());
+		this.movto = new Movimentacao();
+		this.listaDeMovtos = new ArrayList<Movimentacao>();
+		this.listaDePlanoContas = new ArrayList<PlanoConta>();
 	}
 
 	public void salvar() {
-
+		System.out.println("teste");
 	}
 
 	public void editar() {
@@ -98,6 +133,10 @@ public class ContaAReceberBean implements Serializable {
 		};
 	}
 
+	public void carregarListaDeClientes() {
+		this.listaDeClientes = pessoaService.listarClientes();
+	}
+
 	public Boolean validarDatas(Date ini, Date fim) {
 		if (ini != null && fim != null) {
 			if (fim.before(ini)) {
@@ -105,6 +144,26 @@ public class ContaAReceberBean implements Serializable {
 			}
 		}
 		return false;
+	}
+
+	/* Carregar os tipos de lançamentos */
+	public List<TipoConta> getListaTipoLanc() {
+		return Arrays.asList(TipoConta.R, TipoConta.CC);
+	}
+
+	/* Carregar as contas por tipo de Lançamento */
+	public void carregarContasPorTipoCategorias() {
+		if (null != this.movto.getTipoConta()) {
+			this.listaDePlanoContas = contaService.listarContasPorTipoCategorias(this.movto.getTipoConta(),
+					TipoRelatorio.A);
+		}
+	}
+	
+	public void listaContaLancamento() {
+		if (null != this.movto.getTipoConta()) {
+			this.listaDePlanoContas = contaService.listarContasPorTipoCategorias(this.movto.getTipoConta(),
+					TipoRelatorio.A);
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -149,6 +208,62 @@ public class ContaAReceberBean implements Serializable {
 
 	public void setListaContaARecebers(List<ContaAReceber> listaContaARecebers) {
 		this.listaContaARecebers = listaContaARecebers;
+	}
+
+	public Pessoa getClienteSelecionado() {
+		return clienteSelecionado;
+	}
+
+	public void setClienteSelecionado(Pessoa clienteSelecionado) {
+		this.clienteSelecionado = clienteSelecionado;
+	}
+
+	public List<Pessoa> getListaDeClientes() {
+		return listaDeClientes;
+	}
+
+	public void setListaDeClientes(List<Pessoa> listaDeClientes) {
+		this.listaDeClientes = listaDeClientes;
+	}
+
+	public CabContaAReceber getCabContaAReceber() {
+		return cabContaAReceber;
+	}
+
+	public void setCabContaAReceber(CabContaAReceber cabContaAReceber) {
+		this.cabContaAReceber = cabContaAReceber;
+	}
+
+	public GeradorVinculo getIdVinculo() {
+		return idVinculo;
+	}
+
+	public void setIdVinculo(GeradorVinculo idVinculo) {
+		this.idVinculo = idVinculo;
+	}
+
+	public Movimentacao getMovto() {
+		return movto;
+	}
+
+	public void setMovto(Movimentacao movto) {
+		this.movto = movto;
+	}
+
+	public List<Movimentacao> getListaDeMovtos() {
+		return listaDeMovtos;
+	}
+
+	public void setListaDeMovtos(List<Movimentacao> listaDeMovtos) {
+		this.listaDeMovtos = listaDeMovtos;
+	}
+
+	public List<PlanoConta> getListaDePlanoContas() {
+		return listaDePlanoContas;
+	}
+
+	public void setListaDePlanoContas(List<PlanoConta> listaDePlanoContas) {
+		this.listaDePlanoContas = listaDePlanoContas;
 	}
 
 }
