@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,6 +16,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
+import org.primefaces.context.RequestContext;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
@@ -54,9 +56,10 @@ public class ContaAReceberBean implements Serializable {
 
 	private CabContaAReceber cabContaAReceber;
 
-	private Movimentacao movto;
+	private Movimentacao movto = new Movimentacao();
 
 	private List<Movimentacao> listaDeMovtos;
+
 
 	@Inject
 	private ContaAReceberService contaAReceberService;
@@ -158,15 +161,71 @@ public class ContaAReceberBean implements Serializable {
 					TipoRelatorio.A);
 		}
 	}
-	
+
 	public void listaContaLancamento() {
 		if (null != this.movto.getTipoConta()) {
 			this.listaDePlanoContas = contaService.listarContasPorTipoCategorias(this.movto.getTipoConta(),
 					TipoRelatorio.A);
 		}
 	}
+	
+	public void addConta() {
+		if (!validarDatas(this.cabContaAReceber.getDataDoc(), this.cabContaAReceber.getDataVencto())) {
+			int achou = -1;
+			for (int i = 0; i < this.listaDeMovtos.size(); i++) {
+				if (this.listaDeMovtos.get(i).getPlanoConta().getNome()
+						.equals(this.movto.getPlanoConta().getNome())) {
+					achou = i;
+				}
+			}
+			if (achou < 0) {
+				this.listaDeMovtos.add(this.movto);
+				this.movto = new Movimentacao();
+				BigDecimal t = BigDecimal.ZERO;
+				for (Movimentacao m : this.listaDeMovtos) {
+					t = t.add(m.getVlrEntrada());
+				}
+				this.movto.setTotalRateio(t);
+				this.listaDePlanoContas.clear();
+				/*this.parcela.setValor(t);
+				this.cabContaApagar.setValor(t);*/
+			} else {
+				Messages.addGlobalError("Conta já cadastrada!");
+				RequestContext requestContext = RequestContext.getCurrentInstance();
+				requestContext.addCallbackParam("sucesso", true);
+			}
+		} else {
+			Messages.addGlobalError("A data de entrada esta maior que a data de vencimento.");
+		}
+	}
+	
+	public void removerConta() {
+		int achou = -1;
+		for (int i = 0; i < this.listaDeMovtos.size(); i++) {
+			if (this.listaDeMovtos.get(i).getPlanoConta().getNome()
+					.equals(movto.getPlanoConta().getNome())) {
+				achou = i;
+				break;
+			}
+		}
+		if (achou > -1) {
+			this.listaDeMovtos.remove(achou);
+			BigDecimal t = BigDecimal.ZERO;
+			for (Movimentacao m : this.listaDeMovtos) {
+				t = t.add(m.getVlrEntrada());
+			}
+			this.movto.setTotalRateio(t);
+			
+			/*this.parcela.setValor(t);
+			this.setTotalDaNotaMovimentacao(t);*/
+			if (this.listaDeMovtos.size() == 0) {
+				/*this.listaParcelas.clear();
+				this.cabContaApagar.setValor(BigDecimal.ZERO);
+				this.setTotalDasParcelas(BigDecimal.ZERO);*/
+			}
+		}
+	}
 
-	@SuppressWarnings("unused")
 	private Usuario obterUsuario() {
 		HttpSession session = ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false));
 		Usuario usuario = null;
@@ -265,5 +324,6 @@ public class ContaAReceberBean implements Serializable {
 	public void setListaDePlanoContas(List<PlanoConta> listaDePlanoContas) {
 		this.listaDePlanoContas = listaDePlanoContas;
 	}
+
 
 }

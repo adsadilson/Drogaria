@@ -875,7 +875,7 @@ public class ContaAPagarBean implements Serializable {
 			this.movimentacao.setTotalRateio(t);
 			this.parcela.setValor(t);
 			this.setTotalDaNotaMovimentacao(t);
-			if (this.listaMovimentacoes.size() == 00) {
+			if (this.listaMovimentacoes.size() == 0) {
 				this.listaParcelas.clear();
 				this.cabContaApagar.setValor(BigDecimal.ZERO);
 				this.setTotalDasParcelas(BigDecimal.ZERO);

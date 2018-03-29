@@ -27,6 +27,10 @@
 	color: red !important;
 }
 
+.labelBlue {
+	color: blue !important;
+}
+
 .corLabel {
 	color: black !important;
 }
@@ -40,7 +44,7 @@
 
 		<h1>Contas a Receber</h1>
 
-		<h:form id="frm" prependId="false">
+		<h:form id="frm-menu" prependId="false">
 
 			<!-- BOTÕES DE AÇÕES -->
 			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento"
@@ -103,9 +107,11 @@
 
 			</p:toolbar>
 
+		</h:form>
 
-			<!-- TABELA DE LANÇAMENTO EM CONTA -->
 
+		<!-- TABELA DE LANÇAMENTO EM CONTA -->
+		<h:form prependId="false" id="frm-tabela">
 			<p:dataTable id="tblContaAReceber" var="cp"
 				style="margin-top: 10px; margin-bottom:10px;" rows="13"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
@@ -248,19 +254,25 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
+		</h:form>
 
-			<!-- DIALOG DE LANÇAMENTO CONTAS A RECEBER -->
 
-			<p:dialog header="Lançamento Contas a Receber"
-				widgetVar="dialogLancCR" modal="true" width="750" height="430"
-				resizable="true" draggable="true" id="dgLancCR" visible="false"
-				closeOnEscape="true" appendTo="@(body)">
+		<!-- DIALOG DE LANÇAMENTO CONTAS A RECEBER -->
+
+		<p:dialog header="Lançamento Contas a Receber"
+			widgetVar="dialogLancCR" modal="true" width="750" height="430"
+			resizable="true" draggable="true" id="dgLancCR" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form id="frm-lancamento" prependId="false">
+
+				<p:growl autoUpdate="true" />
 
 				<h:panelGrid columns="4" id="panelGridCabNota"
 					columnClasses="rotuloLanc1, campoLanc1, rotuloLanc2">
 
 					<p:outputLabel for="txtLancCliente" value="Cliente" />
-					<p:outputLabel id="txtLancCliente" size="36"
+					<p:outputLabel id="txtLancCliente" size="36" style="color: blue"
 						value="#{fn:substring(contaAReceberBean.cabContaAReceber.cliente.nome,0,41)}" />
 
 					<p:outputLabel for="txtLancEmissao" value="Dt Lançameto" />
@@ -274,7 +286,7 @@
 					</p:calendar>
 
 					<p:outputLabel value="CPF/CNPJ" />
-					<p:outputLabel
+					<p:outputLabel style="color:blue"
 						value="#{contaAReceberBean.cabContaAReceber.cliente.cpfCnpj}" />
 
 					<p:outputLabel for="txtLancVencimento" value="Vencimento" />
@@ -300,24 +312,9 @@
 
 							<h:panelGrid id="panelGridLancRateio" columns="5">
 
-								<ui:remove>
-									<p:selectOneMenu id="txtLancTipo" autoWidth="false"
-										style="width:35px;"
-										value="#{contaAReceberBean.movto.tipoConta}"
-										converter="omnifaces.SelectItemsConverter" required="true"
-										requiredMessage="Selecione tipo">
-										<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
-										<f:selectItems value="#{contaAReceberBean.listaTipoLanc}"
-											var="tipo" itemLabel="#{tipo.sigla} - #{tipo.descricao}"
-											itemValue="#{tipo}" />
-										<p:ajax event="change" process="@this" update="combLancConta"
-											listener="#{contaAReceberBean.carregarContasPorTipoCategorias()}" />
-									</p:selectOneMenu>
-								</ui:remove>
-
 								<p:selectOneMenu value="#{contaAReceberBean.movto.tipoConta}"
-									converter="omnifaces.SelectItemsConverter" autoWidth="false"
-									style="width:35px;" immediate="true">
+									autoWidth="false" style="width:35px;"
+									converter="omnifaces.SelectItemsConverter">
 									<f:selectItem itemLabel="Tipo" itemValue="#{null}" />
 									<f:selectItems value="#{contaAReceberBean.listaTipoLanc}"
 										var="tp" itemLabel="#{tp.sigla} - #{tp.descricao}"
@@ -339,25 +336,29 @@
 
 								<p:inputText required="true"
 									requiredMessage="Informe a descrição" placeholder="descrição"
-									value="#{contaAPagarBean.movimentacao.descricao}" size="30" />
+									value="#{contaAReceberBean.movto.descricao}" size="30" />
 
 								<p:inputText id="txtLancValor" required="true"
 									requiredMessage="Informe um valor"
 									onfocus="formatoMoeda('txtLancValor')"
-									value="#{contaAPagarBean.movimentacao.vlrSaida}"
+									value="#{contaAReceberBean.movto.vlrEntrada}"
 									placeholder="VALOR" size="10">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
 								</p:inputText>
 
-								<p:commandButton icon="fa fa-download" title="Adicionar conta">
+								<p:commandButton icon="fa fa-download" title="Adicionar conta"
+									process="@this panelGridCabNota panelGridLancRateio "
+									action="#{contaAReceberBean.addConta()}"
+									update="panelGridCabNota panelGridLancRateio tblRateioRec @(.total)"
+									id="salvarCommandButtonRateio">
 								</p:commandButton>
 
 							</h:panelGrid>
 
 							<p:dataTable id="tblRateioRec" style="width:99%;"
 								emptyMessage="Nenhuma registro lançado" scrollable="true"
-								scrollHeight="160" value="#{contaAPagarBean.listaMovimentacoes}"
+								scrollHeight="160" value="#{contaAReceberBean.listaDeMovtos}"
 								var="m">
 
 								<p:column style="width:35px; text-align:center;"
@@ -365,9 +366,9 @@
 									<p:commandButton title="Excluir" process="@this"
 										icon="ui-icon-trash" styleClass="semPreenchimento"
 										update="tblRateioRec panelGridCabNota @(.total)"
-										action="#{contaAPagarBean.removerConta()}">
+										action="#{contaAReceberBean.removerConta()}">
 										<f:setPropertyActionListener value="#{m}"
-											target="#{contaAPagarBean.movimentacao}" />
+											target="#{contaAReceberBean.movto}" />
 									</p:commandButton>
 
 								</p:column>
@@ -381,7 +382,7 @@
 								</p:column>
 								<p:column style="width:115px; text-align:right;"
 									headerText="Valor R$">
-									<h:outputText value="#{m.vlrSaida}">
+									<h:outputText value="#{m.vlrEntrada}">
 										<f:convertNumber type="currency" />
 									</h:outputText>
 								</p:column>
@@ -393,7 +394,7 @@
 										style="font-size:13px; margin-right:70px; color:black" />
 									<p:outputLabel id="txtTotalRateio" styleClass="total"
 										style="color:red; font-size:14px; margin-right:10px;"
-										value="#{contaAPagarBean.movimentacao.totalRateio}">
+										value="#{contaAReceberBean.movto.totalRateio}">
 										<f:convertNumber type="currency" />
 									</p:outputLabel>
 								</p:toolbarGroup>
@@ -523,10 +524,11 @@
 					</p:toolbarGroup>
 				</p:toolbar>
 
+			</h:form>
 
-			</p:dialog>
+		</p:dialog>
 
-		</h:form>
+
 
 
 
