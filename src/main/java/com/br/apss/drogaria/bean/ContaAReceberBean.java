@@ -2,9 +2,12 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +23,11 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
+import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaAReceber;
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pessoa;
@@ -33,6 +38,7 @@ import com.br.apss.drogaria.service.ContaAReceberService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
+import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
 @ViewScoped
@@ -60,6 +66,11 @@ public class ContaAReceberBean implements Serializable {
 
 	private List<Movimentacao> listaDeMovtos;
 
+	private ContaAReceber parcela;
+
+	private ContaAReceber parcelaEdicao;
+
+	private List<ContaAReceber> listaDeParcelas;
 
 	@Inject
 	private ContaAReceberService contaAReceberService;
@@ -89,6 +100,9 @@ public class ContaAReceberBean implements Serializable {
 		this.movto = new Movimentacao();
 		this.listaDeMovtos = new ArrayList<Movimentacao>();
 		this.listaDePlanoContas = new ArrayList<PlanoConta>();
+		this.parcela = new ContaAReceber();
+		this.listaDeParcelas = new ArrayList<ContaAReceber>();
+
 	}
 
 	public void salvar() {
@@ -136,10 +150,12 @@ public class ContaAReceberBean implements Serializable {
 		};
 	}
 
+	/* Carregar lista de clientes */
 	public void carregarListaDeClientes() {
 		this.listaDeClientes = pessoaService.listarClientes();
 	}
 
+	/* Validar data final maior q a data inicio */
 	public Boolean validarDatas(Date ini, Date fim) {
 		if (ini != null && fim != null) {
 			if (fim.before(ini)) {
@@ -162,19 +178,20 @@ public class ContaAReceberBean implements Serializable {
 		}
 	}
 
+	/* Carregar lista de conta para lançamento de acordo o tipo selecionado */
 	public void listaContaLancamento() {
 		if (null != this.movto.getTipoConta()) {
 			this.listaDePlanoContas = contaService.listarContasPorTipoCategorias(this.movto.getTipoConta(),
 					TipoRelatorio.A);
 		}
 	}
-	
+
+	/* Adicionar o rateio da nota */
 	public void addConta() {
 		if (!validarDatas(this.cabContaAReceber.getDataDoc(), this.cabContaAReceber.getDataVencto())) {
 			int achou = -1;
 			for (int i = 0; i < this.listaDeMovtos.size(); i++) {
-				if (this.listaDeMovtos.get(i).getPlanoConta().getNome()
-						.equals(this.movto.getPlanoConta().getNome())) {
+				if (this.listaDeMovtos.get(i).getPlanoConta().getNome().equals(this.movto.getPlanoConta().getNome())) {
 					achou = i;
 				}
 			}
@@ -187,8 +204,10 @@ public class ContaAReceberBean implements Serializable {
 				}
 				this.movto.setTotalRateio(t);
 				this.listaDePlanoContas.clear();
-				/*this.parcela.setValor(t);
-				this.cabContaApagar.setValor(t);*/
+
+				this.parcela.setValor(t);
+				// this.cabContaApagar.setValor(t);
+
 			} else {
 				Messages.addGlobalError("Conta já cadastrada!");
 				RequestContext requestContext = RequestContext.getCurrentInstance();
@@ -198,12 +217,12 @@ public class ContaAReceberBean implements Serializable {
 			Messages.addGlobalError("A data de entrada esta maior que a data de vencimento.");
 		}
 	}
-	
+
+	/* Excluir o rateio da nota */
 	public void removerConta() {
 		int achou = -1;
 		for (int i = 0; i < this.listaDeMovtos.size(); i++) {
-			if (this.listaDeMovtos.get(i).getPlanoConta().getNome()
-					.equals(movto.getPlanoConta().getNome())) {
+			if (this.listaDeMovtos.get(i).getPlanoConta().getNome().equals(movto.getPlanoConta().getNome())) {
 				achou = i;
 				break;
 			}
@@ -215,13 +234,15 @@ public class ContaAReceberBean implements Serializable {
 				t = t.add(m.getVlrEntrada());
 			}
 			this.movto.setTotalRateio(t);
-			
-			/*this.parcela.setValor(t);
-			this.setTotalDaNotaMovimentacao(t);*/
+
+			/*
+			 * this.parcela.setValor(t); this.setTotalDaNotaMovimentacao(t);
+			 */
 			if (this.listaDeMovtos.size() == 0) {
-				/*this.listaParcelas.clear();
-				this.cabContaApagar.setValor(BigDecimal.ZERO);
-				this.setTotalDasParcelas(BigDecimal.ZERO);*/
+				/*
+				 * this.listaParcelas.clear(); this.cabContaApagar.setValor(BigDecimal.ZERO);
+				 * this.setTotalDasParcelas(BigDecimal.ZERO);
+				 */
 			}
 		}
 	}
@@ -234,6 +255,110 @@ public class ContaAReceberBean implements Serializable {
 		}
 		return usuario;
 	}
+
+	public List<TipoCobranca> getListaTipoRecebimentos() {
+		return Arrays.asList(TipoCobranca.values());
+	}
+
+	public void gerarParcelas() {
+
+		BigDecimal qtde_parcela = new BigDecimal(this.parcela.getNumVezes());
+		BigDecimal valorParcela = this.parcela.getValor().divide(qtde_parcela, 1, RoundingMode.CEILING);
+		BigDecimal valorParcial = valorParcela.multiply(qtde_parcela.subtract(new BigDecimal(1)));
+		BigDecimal primeiraParcela = this.parcela.getValor().subtract(valorParcial);
+
+		this.listaDeParcelas.clear();
+		for (int i = 0; i < this.parcela.getNumVezes(); i++) {
+			ContaAReceber cr = new ContaAReceber();
+			cr.setTipoRecebimento(this.parcela.getTipoRecebimento());
+			cr.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
+			cr.setDocumento(this.cabContaAReceber.getDocumento());
+			cr.setDataVencto(i == 0 ? this.cabContaAReceber.getDataVencto()
+					: somaDias(this.cabContaAReceber.getDataVencto(), this.parcela.getPeriodo() * i));
+			cr.setValor(i == 0 ? primeiraParcela : valorParcela);
+			this.listaDeParcelas.add(cr);
+		}
+		this.parcela.setTotalPagamento(this.parcela.getValor());
+	}
+
+	public Date somaDias(Date data, int dias) {
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(data);
+		cal.add(Calendar.DAY_OF_MONTH, dias);
+		return cal.getTime();
+	}
+
+	public static int intervaloDias(Date d1, Date d2) {
+		int result = (int) ((d1.getTime() - d2.getTime()) / 86400000L);
+		return result < 0 ? result * -1 : 0;
+	}
+	
+	
+	public void salvarEdicaoParcela() {
+
+		BigDecimal recalculo = BigDecimal.ZERO;
+
+		if (!validarDatas(this.cabContaAReceber.getDataDoc(), this.parcelaEdicao.getDataVencto())) {
+
+			for (ContaAReceber cr : this.listaDeParcelas) {
+				if (cr.getParcela().equals(this.parcelaEdicao.getParcela())) {
+					cr.setDataVencto(this.parcelaEdicao.getDataVencto());
+					cr.setValor(this.parcelaEdicao.getValor());
+				}
+				recalculo = recalculo.add(cr.getValor());
+			}
+			this.parcela.setTotalPagamento(recalculo);
+		} else {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("A data de vencimento dever ser maior que a data de entrada!");
+		}
+
+	}
+
+	public void editar() {
+
+		this.permitirEditar = "true";
+
+		this.parcela = new ContaAReceber();
+		this.movto = new Movimentacao();
+		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
+
+		for (ContaAReceber cr : this.contaApagarSelecionadas) {
+
+			this.listaDeParcelas = contaAPagarService.porVinculo(cp.getVinculo());
+
+			for (ContaAPagar par : this.listaParcelas) {
+				if (par.getStatus().contains("ABERTO")) {
+					this.permitirEditar = "false";
+					break;
+				}
+				this.permitirEditar = "true";
+				t = t.add(par.getValor());
+			}
+
+			if (this.permitirEditar == "true") {
+
+				this.listaDeParcelas = contaAPagarService.porVinculo(cr.getVinculo());
+				this.listaDeMovtos = cr.getMovimentacoes();
+				this.cabContaApagar = cabContaApagarService.porVinculo(cr.getVinculo());
+
+				for (Movimentacao m : this.listaDeMovtos) {
+					t2 = t2.add(m.getVlrSaida());
+				}
+
+				this.parcela.setValor(t);
+				this.parcela.setTotalPagamento(t);
+				this.movto.setTotalRateio(t2);
+			}
+		}
+	}
+
+	/*
+	 * public String getCalculaDif() { BigDecimal dif = contaARce.getValor(); for
+	 * (ContaAReceber cr : listaDeParcelas) { dif.subtract(cr.getValor()); }
+	 * NumberFormat nf = NumberFormat.getCurrencyInstance(); String formatado =
+	 * nf.format(dif); return formatado; }
+	 */
 
 	/********* Gett e Sett ************/
 
@@ -325,5 +450,28 @@ public class ContaAReceberBean implements Serializable {
 		this.listaDePlanoContas = listaDePlanoContas;
 	}
 
+	public ContaAReceber getParcela() {
+		return parcela;
+	}
+
+	public void setParcela(ContaAReceber parcela) {
+		this.parcela = parcela;
+	}
+
+	public List<ContaAReceber> getListaDeParcelas() {
+		return listaDeParcelas;
+	}
+
+	public void setListaDeParcelas(List<ContaAReceber> listaDeParcelas) {
+		this.listaDeParcelas = listaDeParcelas;
+	}
+
+	public ContaAReceber getParcelaEdicao() {
+		return parcelaEdicao;
+	}
+
+	public void setParcelaEdicao(ContaAReceber parcelaEdicao) {
+		this.parcelaEdicao = parcelaEdicao;
+	}
 
 }

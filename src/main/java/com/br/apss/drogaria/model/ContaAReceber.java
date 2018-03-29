@@ -97,6 +97,9 @@ public class ContaAReceber implements Serializable {
 	@Transient
 	private int periodo = 30;
 
+	@Transient
+	private BigDecimal totalPagamento = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -239,6 +242,14 @@ public class ContaAReceber implements Serializable {
 
 	public void setDataDoc(Date dataDoc) {
 		this.dataDoc = dataDoc;
+	}
+
+	public BigDecimal getTotalPagamento() {
+		return totalPagamento;
+	}
+
+	public void setTotalPagamento(BigDecimal totalPagamento) {
+		this.totalPagamento = totalPagamento;
 	}
 
 	@Override
