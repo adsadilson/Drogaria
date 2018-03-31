@@ -315,10 +315,10 @@ public class ContaAPagarBean implements Serializable {
 
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
 
-			this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
+			this.listaParcelas = contaAPagarService.porVinculo(cp.getAgrupadorMovimentacao());
 
 			for (ContaAPagar par : this.listaParcelas) {
-				if (par.getStatus().contains("ABERTO")) {
+				if (!par.getStatus().contains("ABERTO")) {
 					this.permitirEditar = "false";
 					break;
 				}
@@ -328,9 +328,9 @@ public class ContaAPagarBean implements Serializable {
 
 			if (this.permitirEditar == "true") {
 
-				this.listaParcelas = contaAPagarService.porVinculo(cp.getVinculo());
+				this.listaParcelas = contaAPagarService.porVinculo(cp.getAgrupadorMovimentacao());
 				this.listaMovimentacoes = cp.getMovimentacoes();
-				this.cabContaApagar = cabContaApagarService.porVinculo(cp.getVinculo());
+				this.cabContaApagar = cabContaApagarService.porVinculo(cp.getAgrupadorMovimentacao());
 
 				for (Movimentacao m : this.listaMovimentacoes) {
 					t2 = t2.add(m.getVlrSaida());

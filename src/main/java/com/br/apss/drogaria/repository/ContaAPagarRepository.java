@@ -172,7 +172,7 @@ public class ContaAPagarRepository implements Serializable {
 
 	public List<ContaAPagar> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from ContaAPagar where vinculo = :vinculo order by id", ContaAPagar.class)
+			return manager.createQuery("from ContaAPagar where movimentancao_vinculo = :vinculo order by id", ContaAPagar.class)
 					.setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;

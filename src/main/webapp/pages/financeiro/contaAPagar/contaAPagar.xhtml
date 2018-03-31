@@ -90,7 +90,7 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
-						process="@this frm-tabela"
+						process="@this frm-tabela" 
 						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? 
 						PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
 						update="dgCadastro dgInfoEdicao"

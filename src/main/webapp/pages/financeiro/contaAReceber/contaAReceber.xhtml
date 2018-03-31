@@ -461,10 +461,11 @@
 									headerText="Ação">
 									<p:commandButton icon="ui-icon-pencil" title="Editar"
 										styleClass="semPreenchimento"
+										update="edit"
 										oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
-										action="#{contaAPagarBean.abrirEdicao()}">
+										action="#{contaAReceberBean.abrirEdicao()}">
 										<f:setPropertyActionListener
-											target="#{contaAPagarBean.parcela}" value="#{p}" />
+											target="#{contaAReceberBean.parcela}" value="#{p}" />
 									</p:commandButton>
 
 								</p:column>
@@ -516,7 +517,7 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							process="panelGridCabNota @this"
-							action="#{contaAPagarBean.salvar()}" update="panelGridCabNota"
+							action="#{contaAReceberBean.salvar()}" update="panelGridCabNota"
 							oncomplete="if(args.sucesso == true) PF('dialogLancCR').hide()">
 						</p:commandButton>
 					</p:toolbarGroup>
@@ -531,7 +532,7 @@
 		<p:dialog header="Edição de parcela(s)"
 			widgetVar="dialogEdicaoParcela" modal="true" resizable="false"
 			draggable="true" id="dgEdicaoParcela" closeOnEscape="true"
-			width="280" height="190" appendTo="@(body)">
+			width="300" height="190" appendTo="@(body)">
 
 			<p:ajax event="close" update="panelGridCabNota" />
 
@@ -544,17 +545,13 @@
 
 
 					<p:outputLabel value="Parcela" />
-					<p:inputText value="#{contaAPagarBean.parcelaEditar.parcela}"
+					<p:inputText value="#{contaAReceberBean.parcelaEdicao.parcela}"
 						disabled="true" size="11" />
-
-					<p:outputLabel value="Documento" />
-					<p:inputText value="#{contaAPagarBean.parcelaEditar.numDoc}"
-						size="11" />
 
 					<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
 					<p:inputText size="11" id="txtEdicaoVencimento"
 						onfocus="mascaraDtInput('txtEdicaoVencimento')"
-						value="#{contaAPagarBean.parcelaEditar.dataVencto}"
+						value="#{contaAReceberBean.parcelaEdicao.dataVencto}"
 						required="true"
 						requiredMessage="Informe uma data para a vencimento">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
@@ -564,7 +561,7 @@
 					<p:inputText id="txtEdicaoVlrPag" required="true"
 						requiredMessage="Informe um valor"
 						onfocus="formatoMoeda('txtEdicaoVlrPag')"
-						value="#{contaAPagarBean.parcelaEditar.valor}" placeholder="VALOR"
+						value="#{contaAReceberBean.parcelaEdicao.valor}" placeholder="VALOR"
 						size="11">
 						<f:validateDoubleRange minimum="0.01" />
 						<f:convertNumber type="currency" />
@@ -575,7 +572,7 @@
 				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
-							action="#{contaAPagarBean.salvarEdicaoParcela()}"
+							action="#{contaAReceberBean.salvarEdicaoParcela()}"
 							process="@this edit"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
 							update="edit tblPagto txtTotalPagto"

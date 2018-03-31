@@ -64,6 +64,10 @@ public class ContaAReceber implements Serializable {
 	@JoinColumn(name = "cliente_id")
 	private Pessoa cliente;
 
+	@ManyToOne
+	@JoinColumn(name = "usuario_id")
+	private Usuario usuario;
+
 	@Column(name = "valor", precision = 12, scale = 2)
 	private BigDecimal valor = BigDecimal.ZERO;
 
@@ -87,6 +91,9 @@ public class ContaAReceber implements Serializable {
 
 	@Column(length = 20)
 	private String status;
+
+	@Column(name = "movimentancao_vinculo")
+	private Long agrupadorMovimentacao;
 
 	@Transient
 	private int dias;
@@ -250,6 +257,22 @@ public class ContaAReceber implements Serializable {
 
 	public void setTotalPagamento(BigDecimal totalPagamento) {
 		this.totalPagamento = totalPagamento;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public Long getAgrupadorMovimentacao() {
+		return agrupadorMovimentacao;
+	}
+
+	public void setAgrupadorMovimentacao(Long agrupadorMovimentacao) {
+		this.agrupadorMovimentacao = agrupadorMovimentacao;
 	}
 
 	@Override
