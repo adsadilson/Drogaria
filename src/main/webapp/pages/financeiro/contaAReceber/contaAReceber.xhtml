@@ -54,21 +54,25 @@
 					<p:commandButton icon="fa fa-file-o" value="Novo" update="dgLancCR"
 						oncomplete="PF('dialogLancCR').show()" process="@this"
 						action="#{contaAReceberBean.novo}" id="bntNovoLanc"
-						disabled="#{contaAReceberBean.filtro.cliente.id == null}">
+						disabled="#{contaAReceberBean.filtro.cliente == null}">
 						<p:resetInput target="dgLancCR" />
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;"
-						disabled="#{contaAReceberBean.listaContaARecebers.size()!=1}">
+						process="@this tblContaAReceber"
+						oncomplete="#{contaAReceberBean.permitirEditar == 'true'} ? 
+						PF('dialogLancCR').show() : PF('dialogInfoEdicao').show()"
+						update="dgLancCR dgInfoEdicao"
+						disabled="#{contaAReceberBean.listaContasSelecionadas.size()!=1}">
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-trash" value="Excluir"
 						style="margin-right: 3px;" process="@this"
-						disabled="#{contaAReceberBean.listaContaARecebers.size()==0}">
+						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 					</p:commandButton>
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
-						disabled="#{contaAReceberBean.listaContaARecebers.size()==0}">
+						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 						<p:resetInput target="" />
 					</p:commandButton>
 
@@ -91,13 +95,18 @@
 						<f:selectItems value="#{contaAReceberBean.listaDeClientes}"
 							var="c" itemLabel="#{c.cpfCnpj} - #{c.nome}" itemValue="#{c}" />
 						<p:ajax event="change" process="@this"
-							update="txtPesquisa bntNovoLanc" />
+							listener="#{contaAReceberBean.pesquisar()}"
+							update="toolbar-botoes tblContaAReceber toolbarTotais" />
 					</p:selectOneMenu>
 
-					<p:commandButton id="txtPesquisa" icon="fa fa-search"
-						value="PESQUISA" style="margin-left:10px;"
-						disabled="#{contaAReceberBean.filtro.cliente.id == null}">
-					</p:commandButton>
+					<ui:remove>
+						<p:commandButton id="txtPesquisa" icon="fa fa-search"
+							value="PESQUISA" style="margin-left:10px;"
+							update="tblContaAReceber toolbarTotais toolbar-botoes"
+							actionListener="#{contaAReceberBean.pesquisar()}"
+							disabled="#{contaAReceberBean.filtro.cliente.id == null}">
+						</p:commandButton>
+					</ui:remove>
 
 				</p:toolbarGroup>
 
@@ -113,35 +122,36 @@
 		<!-- TABELA DE LANÇAMENTO EM CONTA -->
 		<h:form prependId="false" id="frm-tabela">
 			<p:dataTable id="tblContaAReceber" var="cp"
-				style="margin-top: 10px; margin-bottom:10px;" rows="13"
+				value="#{contaAReceberBean.listaContaARecebers}"
+				style="margin-top: 10px; margin-bottom:10px;" rows="12" lazy="false"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
-				scrollHeight="350" rowStyleClass="#{cp.dias le 0 ? null : 'red'}"
-				selection="#{contaAPagarBean.contaApagarSelecionadas}"
+				scrollHeight="345" rowStyleClass="#{cp.dias le 0 ? null : 'red'}"
+				selection="#{contaAReceberBean.listaContasSelecionadas}"
 				rowKey="#{cp.id}">
 
 				<p:ajax event="rowSelect" update="toolbar-botoes toolbarTotais"
-					listener="#{contaAPagarBean.rowSelect}" />
+					listener="#{contaAReceberBean.rowSelect}" />
 				<p:ajax event="rowUnselect" update="toolbar-botoes toolbarTotais"
-					listener="#{contaAPagarBean.rowUnSelect}" />
+					listener="#{contaAReceberBean.rowUnSelect}" />
 				<p:ajax event="toggleSelect" update="toolbar-botoes toolbarTotais"
-					listener="#{contaAPagarBean.onRowSelectAll}" />
+					listener="#{contaAReceberBean.onRowSelectAll}" />
 				<p:ajax event="rowSelectCheckbox"
 					update="toolbar-botoes toolbarTotais"
-					listener="#{contaAPagarBean.rowSelectCheckBox}" />
+					listener="#{contaAReceberBean.rowSelectCheckBox}" />
 				<p:ajax event="rowUnselectCheckbox"
 					update="toolbar-botoes toolbarTotais"
-					listener="#{contaAPagarBean.rowUnSelect}" />
+					listener="#{contaAReceberBean.rowUnSelect}" />
 
 
 
 				<p:column selectionMode="multiple"
 					style="width:1px;text-align:center" />
 
-				<p:column sortBy="#{cp.numDoc}"
-					style="text-align: right; width:30px;" headerText="Documento">
-					<h:outputText value="#{cp.numDoc}">
+				<p:column sortBy="#{cp.documento}"
+					style="text-align: right; width:35px;" headerText="Documento">
+					<h:outputText value="#{cp.documento}">
 					</h:outputText>
 				</p:column>
 
@@ -150,13 +160,13 @@
 					<h:outputText value="#{cp.parcela}" />
 				</p:column>
 
-				<p:column sortBy="#{cp.fornecedor}" headerText="Cliente" width="200">
-					<h:outputText value="#{cp.fornecedor.nome}" />
+				<p:column sortBy="#{cp.cliente}" headerText="Cliente" width="195">
+					<h:outputText value="#{cp.cliente.nome}" />
 				</p:column>
 
 				<p:column style="text-align: center; width:50px;"
 					headerText="Emissão">
-					<h:outputText value="#{cp.movimentacoes.get(0).dataDoc}">
+					<h:outputText value="#{cp.dataDoc}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
@@ -226,28 +236,28 @@
 							style="font-size:13px; margin-right:30px; color:black" />
 						<p:outputLabel
 							style="color:green; font-size:14px; margin-right:50px;"
-							value="#{contaAPagarBean.totalAVencer}">
+							value="#{contaAReceberBean.totalAVencer}">
 							<f:convertNumber type="currency" />
 						</p:outputLabel>
 						<p:outputLabel value="Total Hoje:"
 							style="font-size:13px; margin-right:30px; color:black" />
 						<p:outputLabel
 							style="color:#5D478B; font-size:14px; margin-right:50px;"
-							value="#{contaAPagarBean.totalGeral}">
+							value="#{contaAReceberBean.totalGeral}">
 							<f:convertNumber type="currency" />
 						</p:outputLabel>
 						<p:outputLabel value="Total Vencido:"
 							style="font-size:13px; margin-right:30px; color:black" />
 						<p:outputLabel
 							style="color:red; font-size:14px; margin-right:50px;"
-							value="#{contaAPagarBean.totalAVencido}">
+							value="#{contaAReceberBean.totalAVencido}">
 							<f:convertNumber type="currency" />
 						</p:outputLabel>
 						<p:outputLabel value="Total Selecionado"
 							style="font-size:13px; margin-right:30px; color:black" />
 						<p:outputLabel
 							style="color:blue; font-size:14px; margin-right:10px;"
-							value="#{contaAPagarBean.totalSelecionado}">
+							value="#{contaAReceberBean.totalSelecionado}">
 							<f:convertNumber type="currency" />
 						</p:outputLabel>
 					</h:panelGrid>
@@ -460,8 +470,7 @@
 								<p:column style="width:35px; text-align:center;"
 									headerText="Ação">
 									<p:commandButton icon="ui-icon-pencil" title="Editar"
-										styleClass="semPreenchimento"
-										update="edit"
+										styleClass="semPreenchimento" update="edit"
 										oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
 										action="#{contaAReceberBean.abrirEdicao()}">
 										<f:setPropertyActionListener
@@ -517,7 +526,8 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							process="panelGridCabNota @this"
-							action="#{contaAReceberBean.salvar()}" update="panelGridCabNota"
+							action="#{contaAReceberBean.salvar()}"
+							update="panelGridCabNota tblContaAReceber"
 							oncomplete="if(args.sucesso == true) PF('dialogLancCR').hide()">
 						</p:commandButton>
 					</p:toolbarGroup>
@@ -561,8 +571,8 @@
 					<p:inputText id="txtEdicaoVlrPag" required="true"
 						requiredMessage="Informe um valor"
 						onfocus="formatoMoeda('txtEdicaoVlrPag')"
-						value="#{contaAReceberBean.parcelaEdicao.valor}" placeholder="VALOR"
-						size="11">
+						value="#{contaAReceberBean.parcelaEdicao.valor}"
+						placeholder="VALOR" size="11">
 						<f:validateDoubleRange minimum="0.01" />
 						<f:convertNumber type="currency" />
 					</p:inputText>
@@ -584,6 +594,21 @@
 				<p:defaultCommand target="salvarCommandButtonParcela" />
 
 			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Edição bloqueada" widgetVar="dialogInfoEdicao"
+			modal="true" resizable="false" draggable="true" id="dgInfoEdicao"
+			closeOnEscape="true" width="300" height="75" appendTo="@(body)">
+
+			<h:panelGrid style="margin-top:15px;">
+				<p:outputLabel
+					value="Não é possivel editar Conta a receber pois existem parcela(s) paga(s)" />
+				<ui:remove>
+					<h:graphicImage library="images" name="canceloFile48.png"
+						style="margin-left: 90px" height="45" />
+				</ui:remove>
+			</h:panelGrid>
 
 		</p:dialog>
 

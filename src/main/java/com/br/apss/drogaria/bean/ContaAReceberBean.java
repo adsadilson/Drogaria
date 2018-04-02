@@ -3,6 +3,8 @@ package com.br.apss.drogaria.bean;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -19,7 +21,11 @@ import javax.inject.Named;
 import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
+import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.ToggleSelectEvent;
+import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
@@ -28,6 +34,7 @@ import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaAReceber;
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pessoa;
@@ -98,6 +105,16 @@ public class ContaAReceberBean implements Serializable {
 
 	private Long idVinculo = null;
 
+	SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
+	private BigDecimal totalAVencer = BigDecimal.ZERO;
+
+	private BigDecimal totalAVencido = BigDecimal.ZERO;
+
+	private BigDecimal totalGeral = BigDecimal.ZERO;
+
+	private BigDecimal totalSelecionado = BigDecimal.ZERO;
+
 	private String permitirEditar;
 
 	@PostConstruct
@@ -132,7 +149,7 @@ public class ContaAReceberBean implements Serializable {
 					if (this.contaAReceber.getId() == null) {
 						this.contaAReceber.setAgrupadorMovimentacao(gerarVinculo.gerar(Movimentacao.class));
 					} else {
-						 //contaAReceberService.excluirContas(this.listaContasSelecionadas);
+						// contaAReceberService.excluirContas(this.listaContasSelecionadas);
 					}
 
 					for (int i = 0; i < this.listaDeMovtos.size(); i++) {
@@ -194,37 +211,51 @@ public class ContaAReceberBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		model = new LazyDataModel<ContaAReceber>() {
 
-			private static final long serialVersionUID = 1L;
+		listaContaARecebers = contaAReceberService.filtrados(filtro);
 
-			@Override
-			public List<ContaAReceber> load(int first, int pageSize, String sortField, SortOrder sortOrder,
-					Map<String, Object> filters) {
+		BigDecimal t1 = BigDecimal.ZERO;
+		BigDecimal t2 = BigDecimal.ZERO;
+		BigDecimal t3 = BigDecimal.ZERO;
+		setTotalAVencido(t1);
+		setTotalAVencer(t2);
+		setTotalGeral(t3);
 
-				setRowCount(contaAReceberService.quantidadeFiltrados(filtro));
+		Date dataAtual = getDataAtualFormatada();
 
-				filtro.setPrimeiroRegistro(first);
-				filtro.setQtdeRegistro(pageSize);
-				filtro.setOrdenacao(sortField);
-				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
-
-				listaContaARecebers = contaAReceberService.filtrados(filtro);
-
-				return listaContaARecebers;
+		for (ContaAReceber c : listaContaARecebers) {
+			c.setDias(intervaloDias(c.getDataVencto(), new Date()));
+			if (c.getDataVencto().before(dataAtual)) {
+				// System.out.println("Data é inferior à ");
+				t1 = t1.add(c.getValorApagar());
+				setTotalAVencido(t1);
+			} else if (c.getDataVencto().after(dataAtual)) {
+				// System.out.println("Data é posterior à ");
+				t2 = t2.add(c.getValorApagar());
+				setTotalAVencer(t2);
+			} else {
+				// System.out.println("Data é igual à ");
+				t3 = t3.add(c.getValorApagar());
+				setTotalGeral(t3);
 			}
+		}
 
-			@Override
-			public ContaAReceber getRowData(String rowKey) {
-				contaAReceberSelecionado = contaAReceberService.porId(Long.valueOf(rowKey));
-				return contaAReceberSelecionado;
-			}
+		setTotalSelecionado(BigDecimal.ZERO);
 
-			@Override
-			public String getRowKey(ContaAReceber objeto) {
-				return contaAReceberSelecionado.getId().toString();
-			}
-		};
+	}
+
+	public Date getDataAtualFormatada() {
+
+		Date dt = new Date();
+		String hoje = formato.format(dt);
+		Date data = null;
+		try {
+			data = formato.parse(hoje);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
 	}
 
 	/* Carregar lista de clientes */
@@ -403,10 +434,10 @@ public class ContaAReceberBean implements Serializable {
 
 		for (ContaAReceber cr : this.listaContasSelecionadas) {
 
-			this.listaDeParcelas = contaAReceberService.porVinculo(cr.getVinculo());
+			this.listaDeParcelas = contaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
 
 			for (ContaAReceber par : this.listaDeParcelas) {
-				if (par.getStatus().contains("ABERTO")) {
+				if (!par.getStatus().contains("ABERTO")) {
 					this.permitirEditar = "false";
 					break;
 				}
@@ -416,12 +447,12 @@ public class ContaAReceberBean implements Serializable {
 
 			if (this.permitirEditar == "true") {
 
-				this.listaDeParcelas = contaAReceberService.porVinculo(cr.getVinculo());
+				this.listaDeParcelas = contaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
 				this.listaDeMovtos = cr.getMovimentacoes();
-				this.cabContaAReceber = cabContaAReceberService.porVinculo(cr.getVinculo());
+				this.cabContaAReceber = cabContaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
 
 				for (Movimentacao m : this.listaDeMovtos) {
-					t2 = t2.add(m.getVlrSaida());
+					t2 = t2.add(m.getVlrEntrada());
 				}
 
 				this.parcela.setValor(t);
@@ -436,6 +467,49 @@ public class ContaAReceberBean implements Serializable {
 		this.parcelaEdicao.setParcela(this.parcela.getParcela());
 		this.parcelaEdicao.setDataVencto(this.parcela.getDataVencto());
 		this.parcelaEdicao.setValor(this.parcela.getValor());
+	}
+
+	/* Evento ao selecionar uma linha pelo checkbox */
+	public void rowSelectCheckBox(SelectEvent event) {
+		editar();
+		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAReceber) event.getObject()).getValorApagar()));
+	}
+
+	/* Evento ao deselecionar uma linha no datatable */
+	public void rowUnSelect(UnselectEvent event) {
+		editar();
+		this.setTotalSelecionado(
+				this.getTotalSelecionado().subtract(((ContaAReceber) event.getObject()).getValorApagar()));
+	}
+
+	/* Evento ao selecionar uma linha pelo checkbox */
+	public void rowSelect(SelectEvent event) {
+		editar();
+		this.setTotalSelecionado(BigDecimal.ZERO);
+		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAReceber) event.getObject()).getValorApagar()));
+		if (this.listaContasSelecionadas.size() > 1) {
+			BigDecimal t = BigDecimal.ZERO;
+			for (ContaAReceber cr : listaContasSelecionadas) {
+				t = t.add(cr.getValorApagar());
+				this.setTotalSelecionado(t);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	/* Evento ao selecionar todas as linhas no datatable */
+	public void onRowSelectAll(ToggleSelectEvent event) {
+		DataTable listTemp = (DataTable) event.getSource();
+		List<ContaAReceber> list = (List<ContaAReceber>) listTemp.getValue();
+		if (event.isSelected()) {
+			BigDecimal t = BigDecimal.ZERO;
+			for (ContaAReceber p : list) {
+				t = t.add(p.getValorApagar());
+				this.setTotalSelecionado(t);
+			}
+			return;
+		}
+		this.setTotalSelecionado(BigDecimal.ZERO);
 	}
 
 	/*
@@ -569,6 +643,58 @@ public class ContaAReceberBean implements Serializable {
 
 	public void setIdVinculo(Long idVinculo) {
 		this.idVinculo = idVinculo;
+	}
+
+	public List<ContaAReceber> getListaContasSelecionadas() {
+		return listaContasSelecionadas;
+	}
+
+	public void setListaContasSelecionadas(List<ContaAReceber> listaContasSelecionadas) {
+		this.listaContasSelecionadas = listaContasSelecionadas;
+	}
+
+	public BigDecimal getTotalAVencer() {
+		return totalAVencer;
+	}
+
+	public void setTotalAVencer(BigDecimal totalAVencer) {
+		this.totalAVencer = totalAVencer;
+	}
+
+	public BigDecimal getTotalAVencido() {
+		return totalAVencido;
+	}
+
+	public void setTotalAVencido(BigDecimal totalAVencido) {
+		this.totalAVencido = totalAVencido;
+	}
+
+	public BigDecimal getTotalGeral() {
+		return totalGeral;
+	}
+
+	public void setTotalGeral(BigDecimal totalGeral) {
+		this.totalGeral = totalGeral;
+	}
+
+	public BigDecimal getTotalSelecionado() {
+		return totalSelecionado;
+	}
+
+	public void setTotalSelecionado(BigDecimal totalSelecionado) {
+		this.totalSelecionado = totalSelecionado;
+	}
+
+	public String getPermitirEditar() {
+		return permitirEditar;
+	}
+
+	public void setPermitirEditar(String permitirEditar) {
+		this.permitirEditar = permitirEditar;
+	}
+
+	public Long getIdVinculo() {
+		return idVinculo;
 	}
 
 }

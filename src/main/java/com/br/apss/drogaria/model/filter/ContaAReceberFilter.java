@@ -27,6 +27,7 @@ public class ContaAReceberFilter implements Serializable {
 	private int qtdeRegistro;
 	private String ordenacao;
 	private Boolean ascendente = true;
+	private String status;
 
 	public void getDataFimMin() {
 		this.dataLimite = this.dataIni;
@@ -158,6 +159,14 @@ public class ContaAReceberFilter implements Serializable {
 
 	public void setCliente(Pessoa cliente) {
 		this.cliente = cliente;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }

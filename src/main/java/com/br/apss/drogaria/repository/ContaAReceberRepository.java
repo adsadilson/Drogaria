@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -46,11 +45,9 @@ public class ContaAReceberRepository implements Serializable {
 		return manager.find(ContaAReceber.class, value);
 	}
 
-
 	public List<ContaAReceber> listarTodos() {
 		return manager.createQuery("from ContaAReceber order by dataDoc", ContaAReceber.class).getResultList();
 	}
-
 
 	@SuppressWarnings({ "deprecation" })
 	public Criteria criarCriteriaParaFiltro(ContaAReceberFilter filtro) {
@@ -59,27 +56,13 @@ public class ContaAReceberRepository implements Serializable {
 		Criteria criteria = session.createCriteria(ContaAReceber.class);
 
 		criteria.createAlias("cliente", "cliente", Criteria.INNER_JOIN);
-		Criterion p1 = Restrictions.eq("cliente.id", filtro.getCliente().getId());
-		criteria.add(p1);
-
-		if (StringUtils.isNotBlank(filtro.getDoc())) {
-			criteria.add(Restrictions.ilike("documento", filtro.getDoc(), MatchMode.ANYWHERE));
+		if (filtro.getCliente() != null) {
+			Criterion p1 = Restrictions.eq("cliente.id", filtro.getCliente().getId());
+			criteria.add(p1);
 		}
-
-		if (filtro.getDataIni() != null) {
-			criteria.add(Restrictions.ge("dataDoc", filtro.getDataIni()));
-		}
-
-		if (filtro.getDataFim() != null) {
-			criteria.add(Restrictions.le("dataDoc", filtro.getDataFim()));
-		}
-
-		if (filtro.getEntrada1() != null) {
-			criteria.add(Restrictions.ge("vlrEntrada", filtro.getEntrada1()));
-		}
-
-		if (filtro.getEntrada2() != null) {
-			criteria.add(Restrictions.le("vlrEntrada", filtro.getEntrada2()));
+		
+		if (StringUtils.isBlank(filtro.getStatus())) {
+			criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL"));
 		}
 
 		return criteria;
@@ -127,7 +110,7 @@ public class ContaAReceberRepository implements Serializable {
 
 	public List<ContaAReceber> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from ContaAReceber where vinculo = :vinculo order by id", ContaAReceber.class)
+			return manager.createQuery("from ContaAReceber where movimentacao_vinculo = :vinculo order by id", ContaAReceber.class)
 					.setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;
