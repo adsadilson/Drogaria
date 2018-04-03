@@ -33,6 +33,7 @@ public class LoginBean implements Serializable {
 	@Inject
 	private UsuarioService usuarioService;
 	
+	@SuppressWarnings("unused")
 	private FlyWay flyWay = new FlyWay();
 	
 	/******************** Metodos ***********************/
@@ -42,6 +43,7 @@ public class LoginBean implements Serializable {
 		//flyWay.uploadBaseDado();
 	}
 
+	@SuppressWarnings("unused")
 	public void autenticar() {
 
 		SimpleHash hash = new SimpleHash("md5", this.usuario.getSenha());

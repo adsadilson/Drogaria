@@ -55,4 +55,10 @@ public class ContaAReceberService implements Serializable {
 	public int quantidadeFiltrados(ContaAReceberFilter filtro) {
 		return dao.quantidadeFiltrados(filtro);
 	}
+
+	@Transacional
+	public void excluirContas(List<ContaAReceber> contas) throws Exception {
+
+	}
+
 }

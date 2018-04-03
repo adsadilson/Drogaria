@@ -349,16 +349,11 @@ public class ContaAPagarBean implements Serializable {
 
 				if (this.movimentacao.getTotalRateio().equals(this.getTotalDasParcelas())) {
 
-					if (this.contaAPagar.getId() == null) {
-						this.contaAPagar.setAgrupadorMovimentacao(gerarVinculo.gerar(Movimentacao.class));
-					} else {
-						contaAPagarService.excluirContas(this.contaApagarSelecionadas);
+					if (this.cabContaApagar.getId() == null) {
+						this.cabContaApagar.setVinculo(gerarVinculo.gerar(Movimentacao.class));
 					}
 
 					for (int i = 0; i < this.listaMovimentacoes.size(); i++) {
-						if (this.contaAPagar.getId() != null) {
-							this.listaMovimentacoes.get(i).setId(null);
-						}
 						this.listaMovimentacoes.get(i)
 								.setPlanoContaPai(this.listaMovimentacoes.get(i).getPlanoConta().getContaPai());
 						this.listaMovimentacoes.get(i).setDataDoc(this.cabContaApagar.getDataDoc());
@@ -367,7 +362,7 @@ public class ContaAPagarBean implements Serializable {
 						this.listaMovimentacoes.get(i).setVlrEntrada(null);
 						this.listaMovimentacoes.get(i).setTipoLanc(TipoLanc.CA);
 						this.listaMovimentacoes.get(i).setTipoConta(TipoConta.D);
-						this.listaMovimentacoes.get(i).setVinculo(contaAPagar.getAgrupadorMovimentacao());
+						this.listaMovimentacoes.get(i).setVinculo(cabContaApagar.getVinculo());
 						this.listaMovimentacoes.get(i).setPessoa(this.cabContaApagar.getFornecedor());
 						this.listaMovimentacoes.get(i).setUsuario(obterUsuario());
 					}
@@ -379,7 +374,7 @@ public class ContaAPagarBean implements Serializable {
 						this.listaParcelas.get(i).setStatus("ABERTO");
 						this.listaParcelas.get(i).setUsuario(obterUsuario());
 						this.listaParcelas.get(i).setFornecedor(this.cabContaApagar.getFornecedor());
-						this.listaParcelas.get(i).setAgrupadorMovimentacao(this.contaAPagar.getAgrupadorMovimentacao());
+						this.listaParcelas.get(i).setAgrupadorMovimentacao(this.cabContaApagar.getVinculo());
 						this.listaParcelas.get(i).setValorApagar(this.listaParcelas.get(i).getValor());
 					}
 
@@ -388,7 +383,7 @@ public class ContaAPagarBean implements Serializable {
 					}
 
 					this.cabContaApagar.setListaContaAPagars(this.listaParcelas);
-					this.cabContaApagar.setVinculo(this.contaAPagar.getAgrupadorMovimentacao());
+					this.cabContaApagar.setVinculo(this.cabContaApagar.getVinculo());
 					cabContaApagarService.salvar(this.cabContaApagar);
 
 					RequestContext request = RequestContext.getCurrentInstance();
@@ -871,9 +866,12 @@ public class ContaAPagarBean implements Serializable {
 			for (Movimentacao m : this.listaMovimentacoes) {
 				t = t.add(m.getVlrSaida());
 			}
+			
 			this.movimentacao.setTotalRateio(t);
 			this.parcela.setValor(t);
+			this.cabContaApagar.setValor(t);
 			this.setTotalDaNotaMovimentacao(t);
+			
 			if (this.listaMovimentacoes.size() == 0) {
 				this.listaParcelas.clear();
 				this.cabContaApagar.setValor(BigDecimal.ZERO);

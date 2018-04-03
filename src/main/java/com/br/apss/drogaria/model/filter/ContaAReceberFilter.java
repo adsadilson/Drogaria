@@ -19,10 +19,12 @@ public class ContaAReceberFilter implements Serializable {
 	private Date dataLimite = new Date();
 	private String doc;
 	private String descricao;
-	private BigDecimal entrada1;
-	private BigDecimal entrada2;
-	private BigDecimal saida1;
-	private BigDecimal saida2;
+	private Date dataEmissaoIni;
+	private Date dataEmissaoFim;
+	private Date dataVenctoIni;
+	private Date dataVenctoFim;
+	private BigDecimal valor1;
+	private BigDecimal valor2;
 	private int primeiroRegistro;
 	private int qtdeRegistro;
 	private String ordenacao;
@@ -81,36 +83,52 @@ public class ContaAReceberFilter implements Serializable {
 		this.descricao = descricao;
 	}
 
-	public BigDecimal getEntrada1() {
-		return entrada1;
+	public Date getDataEmissaoIni() {
+		return dataEmissaoIni;
 	}
 
-	public void setEntrada1(BigDecimal entrada1) {
-		this.entrada1 = entrada1;
+	public void setDataEmissaoIni(Date dataEmissaoIni) {
+		this.dataEmissaoIni = dataEmissaoIni;
 	}
 
-	public BigDecimal getEntrada2() {
-		return entrada2;
+	public Date getDataEmissaoFim() {
+		return dataEmissaoFim;
 	}
 
-	public void setEntrada2(BigDecimal entrada2) {
-		this.entrada2 = entrada2;
+	public void setDataEmissaoFim(Date dataEmissaoFim) {
+		this.dataEmissaoFim = dataEmissaoFim;
 	}
 
-	public BigDecimal getSaida1() {
-		return saida1;
+	public Date getDataVenctoIni() {
+		return dataVenctoIni;
 	}
 
-	public void setSaida1(BigDecimal saida1) {
-		this.saida1 = saida1;
+	public void setDataVenctoIni(Date dataVenctoIni) {
+		this.dataVenctoIni = dataVenctoIni;
 	}
 
-	public BigDecimal getSaida2() {
-		return saida2;
+	public Date getDataVenctoFim() {
+		return dataVenctoFim;
 	}
 
-	public void setSaida2(BigDecimal saida2) {
-		this.saida2 = saida2;
+	public void setDataVenctoFim(Date dataVenctoFim) {
+		this.dataVenctoFim = dataVenctoFim;
+	}
+
+	public BigDecimal getValor1() {
+		return valor1;
+	}
+
+	public void setValor1(BigDecimal valor1) {
+		this.valor1 = valor1;
+	}
+
+	public BigDecimal getValor2() {
+		return valor2;
+	}
+
+	public void setValor2(BigDecimal valor2) {
+		this.valor2 = valor2;
 	}
 
 	public Date getDataLimite() {

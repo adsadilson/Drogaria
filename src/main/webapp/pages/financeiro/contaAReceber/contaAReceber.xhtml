@@ -19,6 +19,10 @@
 	width: 120px !important;
 }
 
+.rotuloFiltro1 {
+	width: 115px !important;
+}
+
 .campoLanc1 {
 	width: 360px !important;
 }
@@ -72,6 +76,9 @@
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 					</p:commandButton>
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
+						id="btnRecebimento" update=":frm-baixa-titulo"
+						oncomplete="PF('baixaTitulo').show()"
+						action="#{contaAReceberBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 						<p:resetInput target="" />
 					</p:commandButton>
@@ -79,8 +86,10 @@
 					<p:separator />
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+						actionListener="#{contaAReceberBean.novoFiltro()}"
+						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
 						process="@this">
-						<p:resetInput target="" />
+						<p:resetInput target="dgFiltro" />
 					</p:commandButton>
 
 					<p:outputLabel value="CLIENTE"
@@ -611,6 +620,526 @@
 			</h:panelGrid>
 
 		</p:dialog>
+
+
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			resizable="false" draggable="true" id="dgFiltro" visible="false"
+			closeOnEscape="true" width="398" height="225" appendTo="@(body)">
+
+			<h:form id="frm-dialog" prependId="false" style="margin-top:10px;">
+
+				<h:panelGrid columnClasses="rotuloFiltro1,campoFiltro1" columns="2">
+
+					<p:outputLabel value="Cliente" />
+					<p:selectOneMenu id="combClienteFiltro" autoWidth="false"
+						filter="true" value="#{contaAReceberBean.filtro.cliente}"
+						filterMatchMode="contains" style="width:215px;"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{contaAReceberBean.listaDeClientes}"
+							var="pessoa" itemLabel="#{pessoa.nome}" itemValue="#{pessoa}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Emissão" />
+					<h:panelGroup>
+						<p:calendar id="txtFiltroDtIni"
+							value="#{contaAReceberBean.filtro.dataEmissaoIni}" size="10"
+							pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtFiltroDtIni')">
+							<p:ajax event="dateSelect" process="@this" />
+						</p:calendar>
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:calendar value="#{contaAReceberBean.filtro.dataEmissaoFim}"
+							size="10" id="txtEmissaoDtFim" pattern="dd/MM/yyyy"
+							locale="pt_BR" onfocus="mascaraDtCalendar('txtEmissaoDtFim')">
+							<p:ajax event="dateSelect" process="@this" />
+							<f:attribute name="startDate"
+								value="#{contaAReceberBean.filtro.dataEmissaoIni}" />
+							<f:validator validatorId="primeDateRangeValidator" />
+						</p:calendar>
+					</h:panelGroup>
+
+					<p:outputLabel value="Vencimento" />
+					<h:panelGroup>
+						<p:calendar id="txtFiltroDtVenctoIni"
+							value="#{contaAReceberBean.filtro.dataVenctoIni}" size="10"
+							pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtFiltroDtVenctoIni')">
+							<p:ajax event="dateSelect" process="@this" />
+						</p:calendar>
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:calendar value="#{contaAReceberBean.filtro.dataVenctoFim}"
+							size="10" id="txtFiltroDtVenctoFim" pattern="dd/MM/yyyy"
+							locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtFiltroDtVenctoFim')">
+							<p:ajax event="dateSelect" process="@this" />
+							<f:attribute name="startDate"
+								value="#{contaAReceberBean.filtro.dataVenctoIni}" />
+							<f:validator validatorId="primeDateRangeValidator" />
+						</p:calendar>
+					</h:panelGroup>
+
+					<p:outputLabel value="Documento" />
+					<p:inputText value="#{contaAReceberBean.filtro.doc}"
+						style="width:230px;" />
+
+					<p:outputLabel value="Valor à pagar" />
+					<h:panelGroup>
+						<p:inputNumber value="#{contaAReceberBean.filtro.valor1}"
+							size="10" decimalSeparator="," thousandSeparator="." />
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:inputNumber value="#{contaAReceberBean.filtro.valor2}"
+							size="10" decimalSeparator="," thousandSeparator="." />
+					</h:panelGroup>
+
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							actionListener="#{contaAReceberBean.pesquisar}"
+							id="btnFiltroPesquisar" process="frm-dialog"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblContaAReceber frm-menu frm-dialog" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+		</p:dialog>
+		
+		
+		
+		<!-- Recebimento de titulos -->
+		<p:dialog header="Recebimento de titulo(s)" widgetVar="baixaTitulo"
+			modal="true" resizable="false" id="dialogBaixaTitulo"
+			draggable="true" closeOnEscape="true" width="750" height="400"
+			appendTo="@(body)">
+
+			<p:ajax event="close"
+				update="frm-baixa-titulo :tblContaAReceber :toolbar-totais :toolbar-botoes"
+				listener="#{contaAReceberBean.closeBaixaTitulo()}" />
+
+			<h:form prependId="false" id="frm-baixa-titulo"
+				onkeypress="return event.keyCode != 13">
+
+				<p:tabView prependId="false"
+					style="width: 99%; height: 365px; margin-top:5px;">
+
+					<p:tab title="Recebimento do titulo"
+						rendered="#{contaAReceberBean.listaContasApagar.size()==1}">
+
+						<h:panelGrid columns="3" id="panelGridBaixaSimples"
+							style="margin-left:10px;">
+
+							<p:outputLabel value="Conta Corrente" for="txtBaixaSimpleCC" />
+							<p:outputLabel value="Num | Parc" />
+							<p:outputLabel value="Data Pagamento"
+								for="txtBaixaSimpleDtPagamento" />
+
+							<p:selectOneMenu autoWidth="false" style="width:370px"
+								id="txtBaixaSimpleCC" required="true" filter="true"
+								requiredMessage="Selecione uma conta."
+								value="#{contaAReceberBean.pagamento.conta}"
+								converter="omnifaces.SelectItemsConverter">
+								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+									noSelectionOption="true" />
+								<f:selectItems value="#{contaAReceberBean.carregarContasADebitar}"
+									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
+							</p:selectOneMenu>
+
+							<p:inputText size="15" disabled="true"
+								value="#{contaAReceberBean.contaAPagar.numDoc} | #{contaAReceberBean.contaAPagar.parcela}" />
+
+							<p:calendar size="13" pattern="dd/MM/yyyy" locale="pt_BR"
+								value="#{contaAReceberBean.pagamento.dataPago}"
+								id="txtBaixaSimpleDtPagamento"
+								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
+								required="true" requiredMessage="Informe uma data da baixa">
+							</p:calendar>
+
+						</h:panelGrid>
+
+
+						<p:panel style="width:96%; margin-left:10px; margin-top:5px;">
+
+							<h:panelGrid columns="2" id="panelGridBaixaSimples1"
+								columnClasses="campoBaixaSimple1">
+
+								<p:outputLabel value="Saldo Devedor" />
+								<p:inputText value="#{contaAReceberBean.contaAPagar.saldoDevedor}"
+									size="12" readonly="true" style="text-align:right">
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:outputLabel value="Multa/Juros" />
+								<p:inputText style="text-align:right" size="12"
+									id="txtBaixaSimpleVlrMultaJuros"
+									value="#{contaAReceberBean.contaAPagar.multaTB}"
+									onfocus="formatoMoeda('txtBaixaSimpleVlrMultaJuros')">
+									<f:convertNumber type="currency" />
+									<p:ajax process="@this" event="keyup"
+										listener="#{contaAReceberBean.calcularValores}"
+										update="txtBaixaSimpleVlrApagar txtBaixaSimpleVlrPago" />
+								</p:inputText>
+
+								<p:outputLabel value="Desconto" />
+								<p:inputText style="text-align:right" size="12"
+									id="txtBaixaSimpleDesc"
+									value="#{contaAReceberBean.contaAPagar.descTB}"
+									onfocus="formatoMoeda('txtBaixaSimpleDesc')">
+									<f:convertNumber type="currency" />
+									<p:ajax process="@this" event="keyup"
+										listener="#{contaAReceberBean.calcularValores}"
+										update="txtBaixaSimpleVlrApagar txtBaixaSimpleVlrPago" />
+								</p:inputText>
+
+								<p:outputLabel value="Valor Apagar" />
+								<p:inputText value="#{contaAReceberBean.contaAPagar.valorApagar}"
+									size="12" id="txtBaixaSimpleVlrApagar" style="text-align:right"
+									disabled="true">
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:spacer />
+								<hr />
+
+								<p:outputLabel value="Pagamento" />
+								<p:inputText style="text-align:right" size="12" required="true"
+									requiredMessage="Informe o valor Pagamento"
+									id="txtBaixaSimpleVlrPago"
+									validatorMessage="O valor de pagamento é menor do que o 
+									mínimo permitido de '0,01'"
+									value="#{contaAReceberBean.contaAPagar.pagoTB}"
+									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+									<p:ajax process="@this" event="change"
+										listener="#{contaAReceberBean.informativo()}" update="labelInf" />
+								</p:inputText>
+
+								<p:outputLabel value="Descrição" />
+								<p:inputText value="#{contaAReceberBean.pagamento.descricao}"
+									size="60">
+								</p:inputText>
+
+							</h:panelGrid>
+						</p:panel>
+
+						<p:toolbar style="margin-top:10px; margin-right:10px;"
+							styleClass="semPreenchimento">
+							<p:toolbarGroup>
+								<h:panelGroup id="labelInf">
+									<p:outputLabel styleClass="red"
+										rendered="#{contaAReceberBean.labelInfo eq 'sim'}"
+										style="margin-left:10px"
+										value="A diferença do pagamento será gerado outra fatura!" />
+									<p:outputLabel styleClass="corLabel"
+										rendered="#{contaAReceberBean.labelInfo eq 'nao'}" value=""
+										style="margin-left:10px" />
+								</h:panelGroup>
+							</p:toolbarGroup>
+							<p:toolbarGroup align="right">
+								<p:commandButton value="Confirmar"
+									action="#{contaAReceberBean.salvarBaixaSimples}"
+									oncomplete="if(!args.validationFailed) PF('baixaTitulo').hide()"
+									process="@this panelGridBaixaSimples panelGridBaixaSimples1"
+									update="panelGridBaixaSimples panelGridBaixaSimples1"
+									icon="ui-icon-check">
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+
+					</p:tab>
+
+					<p:tab title="Informações dos titulos"
+						rendered="#{contaAReceberBean.listaContasApagar.size()>1}">
+						
+						<p:dataTable id="tabela-parcela" style="width:auto;"
+							value="#{contaAReceberBean.listaContasApagar}" var="contaApagar"
+							rowIndexVar="idx" scrollable="true" scrollHeight="165"
+							editable="true" editMode="cell">
+
+							<p:ajax event="cellEdit" listener="#{contaAReceberBean.onCellEdit}" />
+
+							<p:column style="text-align:center; width:10px;"
+								headerText="Parc.">
+								<h:outputText value="#{contaApagar.parcela}" />
+							</p:column>
+							<p:column style="width:25px;" headerText="Doc.">
+								<h:outputLabel value="#{contaApagar.numDoc}" />
+							</p:column>
+
+							<p:column style="text-align:right; width:60px;"
+								headerText="Saldo devedor">
+								<h:outputLabel for="txtBaixaMultaJuro"
+									value="#{contaApagar.saldoDevedor}">
+									<f:convertNumber type="currency" />
+								</h:outputLabel>
+							</p:column>
+							<p:column style="text-align:right; width:55px;"
+								headerText="Multa/Juros">
+								<p:cellEditor>
+									<f:facet name="output">
+										<h:outputLabel for="txtBaixaMultaJuro"
+											value="#{contaApagar.multaTB}">
+											<f:convertNumber type="currency" currencySymbol="" />
+										</h:outputLabel>
+									</f:facet>
+									<f:facet name="input">
+										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
+											value="#{contaApagar.multaTB}" styleClass="moeda"
+											onfocus="mascaraMoeda();" converter="moedaConverter">
+											<p:ajax event="blur" listener="#{contaAReceberBean.calcularTotais}"
+												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
+												txtBaixaPago labelVlrApagarBaixaMultipla" />
+										</p:inputText>
+									</f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column style="text-align:right; width:55px;"
+								headerText="Desconto">
+								<p:cellEditor>
+									<f:facet name="output">
+										<h:outputLabel value="#{contaApagar.descTB}">
+											<f:convertNumber type="currency" currencySymbol="" />
+										</h:outputLabel>
+									</f:facet>
+									<f:facet name="input">
+										<p:inputText style="width:85%" styleClass="moeda"
+											value="#{contaApagar.descTB}" onfocus="mascaraMoeda();"
+											converter="moedaConverter">
+											<p:ajax event="blur" listener="#{contaAReceberBean.calcularTotais}"
+												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
+												txtBaixaPago labelVlrApagarBaixaMultipla" />
+										</p:inputText>
+									</f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column style="text-align:right; width:60px;"
+								headerText="Valor à pagar">
+								<h:outputLabel value="#{contaApagar.valorApagar}">
+									<f:convertNumber type="currency" />
+								</h:outputLabel>
+							</p:column>
+
+							<p:column style="text-align:right; width:60px;"
+								headerText="Valor pago" id="pago">
+								<p:cellEditor>
+									<f:facet name="output">
+										<h:outputLabel value="#{contaApagar.pagoTB}">
+											<f:convertNumber type="currency" />
+										</h:outputLabel>
+									</f:facet>
+									<f:facet name="input">
+										<p:inputText value="#{contaApagar.pagoTB}"
+											style="width:90%" styleClass="moeda"
+											converter="moedaConverter" onfocus="mascaraMoeda();">
+											<p:ajax event="change" 
+												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
+												<p:ajax event="blur" update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla"/>
+										</p:inputText>
+									</f:facet>
+								</p:cellEditor>
+							</p:column>
+
+						</p:dataTable>
+
+
+						<p:toolbar style="margin-top:25px;" styleClass="semPreenchimento">
+
+							<p:toolbarGroup align="right">
+
+								<hr />
+								<h:panelGrid columns="6" 
+									columnClasses="rotuloInfTitulo1, campoInfTitulo1,
+									rotuloInfTitulo1, campoInfTitulo1, rotuloInfTitulo1, campoInfTitulo2">
+
+									<p:spacer />
+									<p:spacer />
+
+									<p:outputLabel value="Multa/Juros" styleClass="corLabel" />
+									<p:inputText id="txtJuro" onfocus="formatoMoeda('txtJuro')"
+										disabled="true" size="10"
+										value="#{contaAReceberBean.totalMultaJuros}">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="Total à pagar" styleClass="corLabel" />
+									<p:inputText id="txtVlrAPagar" disabled="true"
+										value="#{contaAReceberBean.totalApagar}" size="10">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="SubTotal" styleClass="corLabel" />
+									<p:inputText disabled="true"
+										value="#{contaAReceberBean.totalSelecionado}" size="10">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+
+									<p:outputLabel value="Desconto" styleClass="corLabel" />
+									<p:inputText id="txtDesc" value="#{contaAReceberBean.totalDesc}"
+										size="10" disabled="true">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="Total pago" styleClass="corLabel" />
+									<p:inputText disabled="true" id="txtVlrPago"
+										value="#{contaAReceberBean.totalPago}" size="10">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+								</h:panelGrid>
+
+							</p:toolbarGroup>
+
+						</p:toolbar>
+
+					</p:tab>
+
+					<p:tab title="Informação do pagamento"
+						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
+
+						<h:panelGrid columns="3" style="margin-top:3px;"
+							id="panelGridPagamento"
+							columnClasses="rotuloInfConta1,campoInfConta1,rotuloInfConta2,campoInfConta2">
+
+							<p:outputLabel value="Forma da baixa" />
+
+							<p:outputLabel value="Conta à debitar" for="txtContaBaixar" />
+
+							<p:outputLabel value="Data Baixa" for="dtBaixa" />
+
+							<p:selectOneMenu autoWidth="false" style="width:110px;"
+								value="#{contaAPagarBean.pagamento.formaBaixa}"
+								converter="omnifaces.SelectItemsConverter" required="true"
+								requiredMessage="Selecione tipo">
+								<f:selectItems value="#{contaAPagarBean.listaFormaBaixa}"
+									var="fp" itemLabel="#{fp.descricao}" itemValue="#{fp}" />
+								<p:ajax event="change" process="@this"
+									update="txtBaixaMultiplaDesc dataTablePagamento txtBaixaPago"
+									listener="#{contaAPagarBean.formaBaixa()}" />
+							</p:selectOneMenu>
+
+
+							<p:selectOneMenu autoWidth="false" style="width:378px"
+								id="txtContaBaixar" required="true" filter="true"
+								requiredMessage="Selecione uma conta." immediate="true"
+								value="#{contaAPagarBean.movimentacao.planoConta}"
+								converter="omnifaces.SelectItemsConverter">
+								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
+									noSelectionOption="true" />
+								<f:selectItems value="#{contaAPagarBean.carregarContasADebitar}"
+									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
+							</p:selectOneMenu>
+
+							<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
+								value="#{contaAPagarBean.pagamento.dataPago}" id="dtBaixa"
+								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
+								required="true" requiredMessage="Informe uma data da baixa">
+							</p:calendar>
+
+						</h:panelGrid>
+
+						<h:panelGrid columns="2" id="panelGridPagamento2">
+
+							<p:inputText size="65" placeholder="descrição"
+								id="txtBaixaMultiplaDesc" required="true"
+								requiredMessage="Informe a descrição"
+								value="#{contaAPagarBean.descricao}"
+								disabled="#{contaAPagarBean.pagamento.formaBaixa eq 'BI'}" />
+
+							<h:panelGroup>
+
+								<p:inputText id="txtBaixaPago" size="11" required="true"
+									requiredMessage="Informe o valor."
+									validatorMessage="O valor de pagamento é menor do que o 
+									mínimo permitido de '0,01'"
+									disabled="#{contaAPagarBean.pagamento.formaBaixa eq 'BI'}"
+									value="#{contaAPagarBean.pagamento.valorPago}"
+									onfocus="formatoMoeda('txtBaixaPago');">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" currencySymbol="R$" />
+								</p:inputText>
+
+								<p:commandButton title="Add Conta" style="margin-left:2px;"
+									process="@this panelGridPagamento panelGridPagamento2"
+									action="#{contaAPagarBean.addPagamento}"
+									update="panelGridPagamento panelGridPagamento2 dataTablePagamento 
+									labelVlrApagarBaixaMultipla"
+									icon="fa fa-download" styleClass="semPreenchimento">
+								</p:commandButton>
+
+							</h:panelGroup>
+
+						</h:panelGrid>
+
+						<p:dataTable id="dataTablePagamento"
+							style="width:auto; margin-top:10px;" rowIndexVar="idx"
+							scrollable="true" scrollHeight="160"
+							emptyMessage="Nenhum pagamento lançando."
+							value="#{contaAPagarBean.listaPagamentos}" var="listPago">
+
+							<p:column style="width:25px; text-align:center;"
+								headerText="Ação">
+								<p:commandButton title="Excluir" process="@this"
+									update="dataTablePagamento labelVlrApagarBaixaMultipla txtBaixaPago"
+									action="#{contaAPagarBean.excluirPagamentoAbaixar()}"
+									icon="ui-icon-trash" styleClass="semPreenchimento">
+									<f:setPropertyActionListener value="#{listPago}"
+										target="#{contaAPagarBean.pagamento}" />
+								</p:commandButton>
+							</p:column>
+
+							<p:column style="width:100px;" headerText="Conta à debitar">
+								<h:outputText value="#{fn:substring(listPago.conta.nome,0,12)}" />
+							</p:column>
+
+							<p:column style="width:300px;" headerText="Descrição">
+								<h:outputText value="#{fn:substring(listPago.descricao,0,42)}" />
+							</p:column>
+
+							<p:column style="text-align:right; width:100px;"
+								headerText="Valor">
+								<h:outputText value="#{listPago.valorPago}">
+									<f:convertNumber type="currency" />
+								</h:outputText>
+							</p:column>
+
+						</p:dataTable>
+
+						<p:toolbar style="margin-top:10px;" styleClass="semPreenchimento">
+							<p:toolbarGroup>
+								<p:outputLabel value="Valor à pagar:" styleClass="corLabel"
+									style="margin-left:20px; margin-right:10px;" />
+								<p:outputLabel value="#{contaAPagarBean.saldo}"
+									id="labelVlrApagarBaixaMultipla" styleClass="red">
+									<f:convertNumber type="currency" />
+								</p:outputLabel>
+							</p:toolbarGroup>
+							<p:toolbarGroup align="right">
+								<p:commandButton value="Confirmar" process="@this dtBaixa"
+									oncomplete="if(!args.validationFailed) PF('baixaTitulo').hide()"
+									action="#{contaAPagarBean.salvarBaixaMultiplas}"
+									icon="ui-icon-check">
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+					</p:tab>
+
+				</p:tabView>
+
+			</h:form>
+
+		</p:dialog>
+
 
 
 

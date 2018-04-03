@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -27,18 +26,18 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
-import org.primefaces.model.SortOrder;
 
+import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaAReceber;
-import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.PlanoConta;
+import com.br.apss.drogaria.model.Recebimento;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAReceberFilter;
 import com.br.apss.drogaria.service.CabContaAReceberService;
@@ -85,6 +84,10 @@ public class ContaAReceberBean implements Serializable {
 
 	private List<ContaAReceber> listaDeParcelas;
 
+	private List<Recebimento> listaDeRecebimentos;
+
+	private Recebimento recebimento;
+
 	@Inject
 	private MovimentacaoService movtoService;
 
@@ -125,7 +128,6 @@ public class ContaAReceberBean implements Serializable {
 	}
 
 	public void novo() {
-		this.contaAReceber = new ContaAReceber();
 		this.cabContaAReceber = new CabContaAReceber();
 		this.cabContaAReceber.setDataDoc(new Date());
 		this.cabContaAReceber.setDataLanc(new Date());
@@ -146,25 +148,20 @@ public class ContaAReceberBean implements Serializable {
 
 				if (this.movto.getTotalRateio().equals(this.parcela.getTotalPagamento())) {
 
-					if (this.contaAReceber.getId() == null) {
-						this.contaAReceber.setAgrupadorMovimentacao(gerarVinculo.gerar(Movimentacao.class));
-					} else {
-						// contaAReceberService.excluirContas(this.listaContasSelecionadas);
+					if (this.cabContaAReceber.getId() == null) {
+						this.cabContaAReceber.setVinculo(gerarVinculo.gerar(Movimentacao.class));
 					}
 
 					for (int i = 0; i < this.listaDeMovtos.size(); i++) {
-						if (this.contaAReceber.getId() != null) {
-							this.listaDeMovtos.get(i).setId(null);
-						}
 						this.listaDeMovtos.get(i)
 								.setPlanoContaPai(this.listaDeMovtos.get(i).getPlanoConta().getContaPai());
 						this.listaDeMovtos.get(i).setDataDoc(this.cabContaAReceber.getDataDoc());
 						this.listaDeMovtos.get(i).setDataLanc(new Date());
 						this.listaDeMovtos.get(i).setDocumento(this.cabContaAReceber.getDocumento());
-						this.listaDeMovtos.get(i).setVlrEntrada(null);
-						this.listaDeMovtos.get(i).setTipoLanc(TipoLanc.CA);
-						this.listaDeMovtos.get(i).setTipoConta(TipoConta.D);
-						this.listaDeMovtos.get(i).setVinculo(contaAReceber.getAgrupadorMovimentacao());
+						this.listaDeMovtos.get(i).setVlrSaida(null);
+						this.listaDeMovtos.get(i).setTipoLanc(TipoLanc.CR);
+						this.listaDeMovtos.get(i).setTipoConta(TipoConta.R);
+						this.listaDeMovtos.get(i).setVinculo(cabContaAReceber.getVinculo());
 						this.listaDeMovtos.get(i).setPessoa(this.cabContaAReceber.getCliente());
 						this.listaDeMovtos.get(i).setUsuario(obterUsuario());
 					}
@@ -176,8 +173,7 @@ public class ContaAReceberBean implements Serializable {
 						this.listaDeParcelas.get(i).setStatus("ABERTO");
 						this.listaDeParcelas.get(i).setUsuario(obterUsuario());
 						this.listaDeParcelas.get(i).setCliente(this.cabContaAReceber.getCliente());
-						this.listaDeParcelas.get(i)
-								.setAgrupadorMovimentacao(this.contaAReceber.getAgrupadorMovimentacao());
+						this.listaDeParcelas.get(i).setAgrupadorMovimentacao(this.cabContaAReceber.getVinculo());
 						this.listaDeParcelas.get(i).setValorApagar(this.listaDeParcelas.get(i).getValor());
 					}
 
@@ -186,7 +182,7 @@ public class ContaAReceberBean implements Serializable {
 					}
 
 					this.cabContaAReceber.setListaContaARecebers(this.listaDeParcelas);
-					this.cabContaAReceber.setVinculo(this.contaAReceber.getAgrupadorMovimentacao());
+					this.cabContaAReceber.setVinculo(this.cabContaAReceber.getVinculo());
 					cabContaAReceberService.salvar(this.cabContaAReceber);
 
 					RequestContext request = RequestContext.getCurrentInstance();
@@ -341,11 +337,11 @@ public class ContaAReceberBean implements Serializable {
 			for (Movimentacao m : this.listaDeMovtos) {
 				t = t.add(m.getVlrEntrada());
 			}
-			this.movto.setTotalRateio(t);
 
-			/*
-			 * this.parcela.setValor(t); this.setTotalDaNotaMovimentacao(t);
-			 */
+			this.movto.setTotalRateio(t);
+			this.parcela.setValor(t);
+			this.cabContaAReceber.setValor(t);
+
 			if (this.listaDeMovtos.size() == 0) {
 
 				this.listaDeParcelas.clear();
@@ -467,6 +463,68 @@ public class ContaAReceberBean implements Serializable {
 		this.parcelaEdicao.setParcela(this.parcela.getParcela());
 		this.parcelaEdicao.setDataVencto(this.parcela.getDataVencto());
 		this.parcelaEdicao.setValor(this.parcela.getValor());
+	}
+
+	public void novoFiltro() {
+		this.filtro = new ContaAReceberFilter();
+	}
+
+	public void iniciarBaixaTitulo() {
+
+			this.listaDeRecebimentos = new ArrayList<Recebimento>();
+			
+			this.recebimento = new Recebimento();
+			this.recebimento.setDataPago(new Date());
+			this.recebimento.setFormaBaixa(FormaBaixa.BI);
+			
+			this.movto = new Movimentacao();
+			
+			this.listaDeMovtos.clear();
+			
+		/*
+		 * this.setLabelInfo("nao");
+		 * 
+		 * this.listaContasApagar.clear(); BigDecimal vlr = BigDecimal.ZERO;
+		 * 
+		 * this.setTotalApagar(vlr); this.setTotalPago(vlr);
+		 * this.setTotalMultaJuros(vlr); this.setTotalDesc(vlr);
+		 * 
+		 * for (ContaAPagar cp : this.contaApagarSelecionadas) { contaAPagar =
+		 * new ContaAPagar(); contaAPagar.setId(cp.getId());
+		 * contaAPagar.setDataVencto(cp.getDataVencto());
+		 * contaAPagar.setNumDoc(cp.getNumDoc());
+		 * contaAPagar.setParcela(cp.getParcela());
+		 * contaAPagar.setStatus(cp.getStatus());
+		 * contaAPagar.setTipoCobranca(cp.getTipoCobranca());
+		 * contaAPagar.setValor(cp.getValor());
+		 * contaAPagar.setValorApagar(cp.getValorApagar());
+		 * contaAPagar.setValorPago(cp.getValorPago());
+		 * contaAPagar.setPagoTB(cp.getValorApagar());
+		 * contaAPagar.setVinculo(cp.getVinculo());
+		 * contaAPagar.setFornecedor(cp.getFornecedor());
+		 * contaAPagar.setDataDoc(cp.getDataDoc());
+		 * 
+		 * this.pagamento.setDescricao( "PG. NT." + cp.getNumDoc() + " Parc." +
+		 * cp.getParcela() + " - " + cp.getFornecedor().getNome());
+		 * 
+		 * contaAPagar.setSaldoDevedor(cp.getValorApagar());
+		 * 
+		 * this.listaContasApagar.add(contaAPagar);
+		 * 
+		 * vlr = vlr.add(contaAPagar.getSaldoDevedor());
+		 * 
+		 * calcularValorApagar(); }
+		 * 
+		 * this.pagamento.setValorPago(vlr); this.setTotalApagar(vlr);
+		 * this.setTotalPago(vlr); this.setTotalSelecionado(vlr);
+		 */
+
+	}
+
+	public void closeBaixaTitulo() {
+		this.listaContasSelecionadas.clear();
+		pesquisar();
+		/* rowToggleSelect(); */
 	}
 
 	/* Evento ao selecionar uma linha pelo checkbox */
@@ -695,6 +753,22 @@ public class ContaAReceberBean implements Serializable {
 
 	public Long getIdVinculo() {
 		return idVinculo;
+	}
+
+	public List<Recebimento> getListaDeRecebimentos() {
+		return listaDeRecebimentos;
+	}
+
+	public void setListaDeRecebimentos(List<Recebimento> listaDeRecebimentos) {
+		this.listaDeRecebimentos = listaDeRecebimentos;
+	}
+
+	public Recebimento getRecebimento() {
+		return recebimento;
+	}
+
+	public void setRecebimento(Recebimento recebimento) {
+		this.recebimento = recebimento;
 	}
 
 }

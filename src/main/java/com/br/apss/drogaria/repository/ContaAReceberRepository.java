@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -63,6 +64,34 @@ public class ContaAReceberRepository implements Serializable {
 		
 		if (StringUtils.isBlank(filtro.getStatus())) {
 			criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL"));
+		}
+		
+		if (StringUtils.isNotBlank(filtro.getDoc())) {
+			criteria.add(Restrictions.ilike("documento", filtro.getDoc(), MatchMode.ANYWHERE));
+		}
+
+		if (filtro.getDataEmissaoIni() != null) {
+			criteria.add(Restrictions.ge("dataDoc", filtro.getDataEmissaoIni()));
+		}
+
+		if (filtro.getDataEmissaoFim() != null) {
+			criteria.add(Restrictions.le("dataDoc", filtro.getDataEmissaoFim()));
+		}
+
+		if (filtro.getDataVenctoIni() != null) {
+			criteria.add(Restrictions.ge("dataVencto", filtro.getDataVenctoIni()));
+		}
+
+		if (filtro.getDataVenctoFim() != null) {
+			criteria.add(Restrictions.le("dataVencto", filtro.getDataVenctoFim()));
+		}
+
+		if (filtro.getValor1() != null) {
+			criteria.add(Restrictions.ge("valor", filtro.getValor1()));
+		}
+
+		if (filtro.getValor2() != null) {
+			criteria.add(Restrictions.le("valor", filtro.getValor2()));
 		}
 
 		return criteria;

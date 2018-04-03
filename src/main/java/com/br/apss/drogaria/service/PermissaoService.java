@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.filter.PermissaoFilter;
 import com.br.apss.drogaria.repository.PermissaoRepository;
