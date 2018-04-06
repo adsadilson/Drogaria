@@ -6,6 +6,7 @@ public enum TipoLanc {
 	CR("C/CORRENTE X RECEITAS", "CR"),
 	CA("CONTA A PAGAR", "CA"),
 	PC("PAGMANENTO CONTA A PAGAR", "PC"),
+	RR("RECEBIMENTO CONTA A RECEBER", "RR"),
 	CD("C/CORRENTE X DESPESAS", "CD");
 
 	private String descricao;

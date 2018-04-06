@@ -22,6 +22,7 @@ import javax.servlet.http.HttpSession;
 import org.omnifaces.util.Messages;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.CellEditEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.UnselectEvent;
@@ -33,6 +34,7 @@ import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaAReceber;
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pessoa;
@@ -40,6 +42,7 @@ import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.Recebimento;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAReceberFilter;
+import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.CabContaAReceberService;
 import com.br.apss.drogaria.service.ContaAReceberService;
 import com.br.apss.drogaria.service.MovimentacaoService;
@@ -69,6 +72,8 @@ public class ContaAReceberBean implements Serializable {
 	private List<Pessoa> listaDeClientes = new ArrayList<Pessoa>();
 
 	private List<ContaAReceber> listaContasSelecionadas = new ArrayList<ContaAReceber>();
+
+	private List<ContaAReceber> listaContasAReceber = new ArrayList<ContaAReceber>();
 
 	private List<PlanoConta> listaDePlanoContas;
 
@@ -118,10 +123,24 @@ public class ContaAReceberBean implements Serializable {
 
 	private BigDecimal totalSelecionado = BigDecimal.ZERO;
 
+	private BigDecimal totalMultaJuros = BigDecimal.ZERO;
+
+	private BigDecimal totalDesc = BigDecimal.ZERO;
+
+	private BigDecimal totalApagar = BigDecimal.ZERO;
+
+	private BigDecimal totalPago = BigDecimal.ZERO;
+
 	private String permitirEditar;
 
+	private String labelInfo = "sim";
+
+	private String descricao;
+
+	private BigDecimal saldo;
+
 	@PostConstruct
-	public void Inicializar() {
+	public void inicializar() {
 		filtro = new ContaAReceberFilter();
 		this.listaContaARecebers = new ArrayList<ContaAReceber>();
 		carregarListaDeClientes();
@@ -192,13 +211,31 @@ public class ContaAReceberBean implements Serializable {
 					pesquisar();
 
 				} else {
-					Messages.addGlobalError("Total do rateio diferente do total de pagamento");
+					Messages.addGlobalError("Total do rateio diferente do total de recebimento");
 				}
 			} else {
-				Messages.addGlobalError("Não foi informado nenhum valor para forma de pagamento");
+				Messages.addGlobalError("Não foi informado nenhum valor para forma de recebimento");
 			}
 		} else {
 			Messages.addGlobalInfo("Data da entrada está maior que a data de vencimento.");
+		}
+	}
+
+	public void salvarBaixaSimples() throws Exception {
+		if (!validarDatas(this.contaAReceber.getDataDoc(), this.recebimento.getDataPago())) {
+			this.recebimento.setUsuario(obterUsuario());
+
+			if (this.contaAReceber.getPagoTB().compareTo(this.contaAReceber.getValorApagar()) > 0) {
+				FacesContext.getCurrentInstance().validationFailed();
+				throw new NegocioException("O valor do recebimento não dever ser maior que o valor à pagar!");
+			}
+
+			contaAReceberService.baixaSimples(this.contaAReceber, this.recebimento);
+			Messages.addGlobalInfo("Titulo baixado com sucesso!");
+		} else {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("A data de recebimento dever ser maior ou igual a data de lançamento ("
+					+ formato.format(this.contaAReceber.getDataDoc()) + ") !");
 		}
 	}
 
@@ -471,60 +508,348 @@ public class ContaAReceberBean implements Serializable {
 
 	public void iniciarBaixaTitulo() {
 
-			this.listaDeRecebimentos = new ArrayList<Recebimento>();
-			
-			this.recebimento = new Recebimento();
-			this.recebimento.setDataPago(new Date());
-			this.recebimento.setFormaBaixa(FormaBaixa.BI);
-			
-			this.movto = new Movimentacao();
-			
-			this.listaDeMovtos.clear();
-			
-		/*
-		 * this.setLabelInfo("nao");
-		 * 
-		 * this.listaContasApagar.clear(); BigDecimal vlr = BigDecimal.ZERO;
-		 * 
-		 * this.setTotalApagar(vlr); this.setTotalPago(vlr);
-		 * this.setTotalMultaJuros(vlr); this.setTotalDesc(vlr);
-		 * 
-		 * for (ContaAPagar cp : this.contaApagarSelecionadas) { contaAPagar =
-		 * new ContaAPagar(); contaAPagar.setId(cp.getId());
-		 * contaAPagar.setDataVencto(cp.getDataVencto());
-		 * contaAPagar.setNumDoc(cp.getNumDoc());
-		 * contaAPagar.setParcela(cp.getParcela());
-		 * contaAPagar.setStatus(cp.getStatus());
-		 * contaAPagar.setTipoCobranca(cp.getTipoCobranca());
-		 * contaAPagar.setValor(cp.getValor());
-		 * contaAPagar.setValorApagar(cp.getValorApagar());
-		 * contaAPagar.setValorPago(cp.getValorPago());
-		 * contaAPagar.setPagoTB(cp.getValorApagar());
-		 * contaAPagar.setVinculo(cp.getVinculo());
-		 * contaAPagar.setFornecedor(cp.getFornecedor());
-		 * contaAPagar.setDataDoc(cp.getDataDoc());
-		 * 
-		 * this.pagamento.setDescricao( "PG. NT." + cp.getNumDoc() + " Parc." +
-		 * cp.getParcela() + " - " + cp.getFornecedor().getNome());
-		 * 
-		 * contaAPagar.setSaldoDevedor(cp.getValorApagar());
-		 * 
-		 * this.listaContasApagar.add(contaAPagar);
-		 * 
-		 * vlr = vlr.add(contaAPagar.getSaldoDevedor());
-		 * 
-		 * calcularValorApagar(); }
-		 * 
-		 * this.pagamento.setValorPago(vlr); this.setTotalApagar(vlr);
-		 * this.setTotalPago(vlr); this.setTotalSelecionado(vlr);
-		 */
+		this.listaDeRecebimentos = new ArrayList<Recebimento>();
 
+		this.recebimento = new Recebimento();
+		this.recebimento.setDataPago(new Date());
+		this.recebimento.setFormaBaixa(FormaBaixa.BI);
+
+		this.movto = new Movimentacao();
+
+		this.listaDeMovtos.clear();
+		this.listaContasAReceber.clear();
+
+		this.setLabelInfo("nao");
+
+		BigDecimal vlr = BigDecimal.ZERO;
+
+		this.setTotalApagar(vlr);
+		this.setTotalPago(vlr);
+		this.setTotalMultaJuros(vlr);
+		this.setTotalDesc(vlr);
+
+		for (ContaAReceber cr : this.listaContasSelecionadas) {
+			contaAReceber = new ContaAReceber();
+			contaAReceber.setId(cr.getId());
+			contaAReceber.setDataVencto(cr.getDataVencto());
+			contaAReceber.setDocumento(cr.getDocumento());
+			contaAReceber.setParcela(cr.getParcela());
+			contaAReceber.setStatus(cr.getStatus());
+			contaAReceber.setTipoRecebimento(cr.getTipoRecebimento());
+			contaAReceber.setValor(cr.getValor());
+			contaAReceber.setValorApagar(cr.getValorApagar());
+			contaAReceber.setValorPago(cr.getValorPago());
+			contaAReceber.setPagoTB(cr.getValorApagar());
+			contaAReceber.setVinculo(cr.getVinculo());
+			contaAReceber.setCliente(cr.getCliente());
+			contaAReceber.setDataDoc(cr.getDataDoc());
+
+			this.recebimento.setDescricao(
+					"PG. NT." + cr.getDocumento() + " Parc." + cr.getParcela() + " - " + cr.getCliente().getNome());
+
+			contaAReceber.setSaldoDevedor(cr.getValorApagar());
+
+			this.listaContasAReceber.add(contaAReceber);
+
+			vlr = vlr.add(contaAReceber.getSaldoDevedor());
+
+			calcularValorApagar();
+		}
+
+		this.recebimento.setValorPago(vlr);
+		this.setTotalApagar(vlr);
+		this.setTotalPago(vlr);
+
+		this.setTotalSelecionado(vlr);
+
+	}
+
+	public void addRecebimento() {
+
+		if (this.recebimento.getFormaBaixa().equals(FormaBaixa.BI)) {
+
+			this.listaDeRecebimentos.clear();
+
+			for (ContaAReceber c : this.listaContasAReceber) {
+
+				idVinculo = gerarVinculo.gerar(ContaAReceber.class);
+
+				Movimentacao movto = new Movimentacao();
+				PlanoConta pl1 = new PlanoConta();
+				pl1 = contaService.porId(this.movto.getPlanoConta().getId());
+
+				PlanoConta pl2 = new PlanoConta();
+				pl2 = contaService.porId(pl1.getContaPai().getId());
+
+				movto.setDescricao(
+						"PG. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - " + c.getCliente().getNome());
+
+				if (c.getValorApagar().compareTo(c.getValorPago()) > 0) {
+					movto.setDescricao("PG. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - "
+							+ c.getCliente().getNome() + " (P)");
+				}
+
+				this.recebimento.setUsuario(obterUsuario());
+
+				movto.setDataDoc(this.recebimento.getDataPago());
+				movto.setDataLanc(this.recebimento.getDataPago());
+				movto.setUsuario(this.recebimento.getUsuario());
+				movto.setVinculo(idVinculo);
+				movto.setVlrEntrada(null);
+				movto.setVlrSaida(c.getPagoTB());
+				movto.setDocumento(c.getDocumento());
+				movto.setPessoa(c.getCliente());
+				movto.setTipoLanc(TipoLanc.PC);
+				movto.setTipoConta(TipoConta.CC);
+				movto.setPlanoConta(pl1);
+				movto.setPlanoContaPai(pl2);
+
+				listaDeMovtos.add(movto);
+
+				Recebimento r = new Recebimento();
+
+				r.setDataLanc(new Date());
+				r.setDataPago(this.recebimento.getDataPago());
+				r.setDescricao(movto.getDescricao());
+				r.setFormaBaixa(FormaBaixa.BI);
+				r.setValor(c.getValor());
+				r.setValorAPagar(c.getValorApagar());
+				r.setValorDesc(c.getDescTB());
+				r.setValorMultaJuros(c.getMultaTB());
+				r.setVinculo(idVinculo);
+				r.setValorPago(c.getPagoTB());
+				r.setUsuario(movto.getUsuario());
+				r.setConta(movto.getPlanoConta());
+
+				r.setListaContaARecebers(listaContaARecebers);
+				r.setListaMovimentacoes(listaDeMovtos);
+
+				this.listaDeRecebimentos.add(r);
+
+				calcularValorApagar();
+			}
+		} else {
+
+			calcularValorApagar();
+
+			Movimentacao movto = new Movimentacao();
+
+			if (listaDeMovtos.isEmpty()) {
+				idVinculo = gerarVinculo.gerar(ContaAReceber.class);
+			}
+
+			this.recebimento.setUsuario(obterUsuario());
+			this.recebimento.setVinculo(idVinculo);
+
+			PlanoConta pl1 = new PlanoConta();
+			pl1 = contaService.porId(this.movto.getPlanoConta().getId());
+
+			PlanoConta pl2 = new PlanoConta();
+			pl2 = contaService.porId(pl1.getContaPai().getId());
+
+			movto.setDataDoc(this.recebimento.getDataPago());
+			movto.setDataLanc(this.recebimento.getDataPago());
+			movto.setUsuario(this.recebimento.getUsuario());
+			movto.setVlrSaida(this.recebimento.getValor());
+			movto.setDescricao(descricao);
+			movto.setVlrEntrada(null);
+			movto.setVinculo(idVinculo);
+			movto.setVlrSaida(this.recebimento.getValorPago());
+			movto.setTipoLanc(TipoLanc.PC);
+			movto.setTipoConta(TipoConta.CC);
+			movto.setPlanoConta(pl1);
+			movto.setPlanoContaPai(pl2);
+
+			listaDeMovtos.add(movto);
+
+			Recebimento p = new Recebimento();
+
+			p.setDataLanc(new Date());
+			p.setDataPago(this.recebimento.getDataPago());
+			p.setDescricao(movto.getDescricao());
+			p.setFormaBaixa(FormaBaixa.BA);
+			p.setValor(totalSelecionado);
+			p.setValorAPagar(totalApagar);
+			p.setValorDesc(totalDesc);
+			p.setValorMultaJuros(totalMultaJuros);
+			p.setValorPago(this.recebimento.getValorPago());
+			p.setUsuario(this.recebimento.getUsuario());
+			p.setConta(movto.getPlanoConta());
+			p.setVinculo(idVinculo);
+
+			p.setListaContaARecebers(listaContaARecebers);
+			p.setListaMovimentacoes(listaDeMovtos);
+
+			this.listaDeRecebimentos.add(p);
+
+		}
+	}
+
+	public void excluirSelecionados() {
+		try {
+			contaAReceberService.excluirContas(this.listaContaARecebers);
+			// this.contaApagarSelecionadas = new ArrayList<>();
+			pesquisar();
+			this.setTotalSelecionado(BigDecimal.ZERO);
+			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
+		} catch (Exception e) {
+			Messages.addGlobalError("Esse registro possui vinculo com outras tabelas!");
+		}
+	}
+
+	public void excluirRecebimentoAbaixar() {
+		if (this.recebimento.getFormaBaixa().equals(FormaBaixa.BI)) {
+			this.listaDeMovtos.clear();
+			this.listaDeRecebimentos.clear();
+			this.recebimento.setValorPago(BigDecimal.ZERO);
+			calcularValorApagar();
+		} else {
+			int achou = -1;
+			for (int i = 0; i < this.listaDeMovtos.size(); i++) {
+				if (this.listaDeMovtos.get(i).getPlanoConta().getNome()
+						.equals(recebimento.getListaMovimentacoes().get(i).getPlanoConta().getNome())) {
+					achou = i;
+					break;
+				}
+			}
+			if (achou > -1) {
+				this.listaDeMovtos.remove(achou);
+				this.listaDeRecebimentos.remove(achou);
+			}
+		}
+	}
+
+	public List<PlanoConta> getCarregarContasACreditar() {
+		PlanoContaFilter cl = new PlanoContaFilter();
+		cl.setTipo(TipoConta.CC);
+		cl.setCategoria(TipoRelatorio.A);
+		cl.setStatus(true);
+		return contaService.filtrados(cl);
+	}
+
+	public void calcularTotais() {
+		BigDecimal m = BigDecimal.ZERO;
+		BigDecimal d = BigDecimal.ZERO;
+		BigDecimal t3 = BigDecimal.ZERO;
+		BigDecimal t4 = BigDecimal.ZERO;
+
+		for (ContaAReceber c : this.listaContasAReceber) {
+			m = m.add(c.getMultaTB());
+			d = d.add(c.getDescTB());
+			t3 = t3.add(c.getValorApagar());
+			t4 = t4.add(c.getPagoTB());
+		}
+
+		this.setTotalMultaJuros(m);
+		this.setTotalDesc(d);
+		this.setTotalApagar(t3);
+		this.setTotalPago(t4);
+
+		this.recebimento.setValorPago(t4);
+	}
+
+	public void calcularValores() {
+		for (ContaAReceber c : this.listaContasAReceber) {
+			c.setValorApagar(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
+			c.setPagoTB(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
+		}
+	}
+
+	public void informativo() {
+		labelInfo = "sim";
+		if (contaAReceber.getValorApagar().compareTo(contaAReceber.getValorPago()) <= 0) {
+			labelInfo = "nao";
+		}
+	}
+
+	public void calcularValorApagar() {
+		BigDecimal c = BigDecimal.ZERO;
+		BigDecimal p = BigDecimal.ZERO;
+
+		for (ContaAReceber cr : this.listaContasAReceber) {
+			c = c.add(cr.getPagoTB());
+		}
+
+		for (Recebimento r : this.listaDeRecebimentos) {
+			p = p.add(r.getValorPago());
+		}
+
+		if (this.recebimento.getFormaBaixa().equals(FormaBaixa.BA)) {
+			p = p.add(this.recebimento.getValorPago());
+			if (p.compareTo(c) > 0) {
+				FacesContext.getCurrentInstance().validationFailed();
+				throw new NegocioException("O valor do recebimento não dever ser maior que o valor à pagar!");
+			}
+		}
+
+		 saldo = p.subtract(c);
+	}
+	
+	
+	public void salvarBaixaMultiplas() {
+
+		BigDecimal c = BigDecimal.ZERO;
+		BigDecimal p = BigDecimal.ZERO;
+
+		for (ContaAReceber cp : this.listaContasAReceber) {
+			if (cp.getDataDoc().compareTo(this.recebimento.getDataPago()) > 0) {
+				throw new NegocioException("A data de recebimento dever ser maior ou igual a data de lançamento ("
+						+ formato.format(cp.getDataDoc()) + ") !");
+			}
+			c = c.add(cp.getPagoTB());
+		}
+
+		for (Recebimento pg : this.listaDeRecebimentos) {
+			p = p.add(pg.getValorPago());
+		}
+
+		if (p.compareTo(c) < 0) {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("Valor de recebimento a menor!");
+		}
+
+		contaAReceberService.baixaMultiplas(this.listaContasAReceber, this.listaDeMovtos, this.listaDeRecebimentos,
+				this.recebimento);
 	}
 
 	public void closeBaixaTitulo() {
 		this.listaContasSelecionadas.clear();
 		pesquisar();
 		/* rowToggleSelect(); */
+	}
+
+	public void onCellEdit(CellEditEvent event) {
+		String coluna = event.getColumn().getClientId();
+
+		BigDecimal oldValue = (BigDecimal) event.getOldValue();
+		BigDecimal newValue = (BigDecimal) event.getNewValue();
+
+		DataTable dataModel = (DataTable) event.getSource();
+		ContaAPagar parcela = (ContaAPagar) dataModel.getRowData();
+
+		if (coluna.indexOf("pago") > 0) {
+			if (newValue.compareTo(parcela.getValorApagar()) > 0) {
+				parcela.setPagoTB(oldValue);
+
+				Integer row = event.getRowIndex();
+				dataModel.setRowIndex(row);
+
+				throw new NegocioException("Valor informando a pagar maior que o titulo!");
+			}
+		}
+
+		if (newValue != null && !newValue.equals(oldValue)) {
+			for (ContaAReceber c : this.listaContasAReceber) {
+				if (coluna.indexOf("pago") < 0) {
+					BigDecimal t5 = BigDecimal.ZERO;
+					t5 = t5.add(c.getSaldoDevedor().add(c.getMultaTB().subtract(c.getDescTB())));
+					c.setValorApagar(t5);
+					c.setPagoTB(t5);
+				}
+			}
+			calcularTotais();
+		}
+		calcularValorApagar();
 	}
 
 	/* Evento ao selecionar uma linha pelo checkbox */
@@ -551,6 +876,21 @@ public class ContaAReceberBean implements Serializable {
 				t = t.add(cr.getValorApagar());
 				this.setTotalSelecionado(t);
 			}
+		}
+	}
+
+	public List<FormaBaixa> getListaFormaBaixa() {
+		return Arrays.asList(FormaBaixa.values());
+	}
+
+	public void formaBaixa() {
+
+		if (this.recebimento.getFormaBaixa().equals(FormaBaixa.BI)) {
+			this.recebimento.setDescricao(null);
+		} else {
+			this.listaDeMovtos.clear();
+			this.listaDeRecebimentos.clear();
+
 		}
 	}
 
@@ -769,6 +1109,70 @@ public class ContaAReceberBean implements Serializable {
 
 	public void setRecebimento(Recebimento recebimento) {
 		this.recebimento = recebimento;
+	}
+
+	public List<ContaAReceber> getListaContasAReceber() {
+		return listaContasAReceber;
+	}
+
+	public void setListaContasAReceber(List<ContaAReceber> listaContasAReceber) {
+		this.listaContasAReceber = listaContasAReceber;
+	}
+
+	public String getLabelInfo() {
+		return labelInfo;
+	}
+
+	public void setLabelInfo(String labelInfo) {
+		this.labelInfo = labelInfo;
+	}
+
+	public BigDecimal getTotalMultaJuros() {
+		return totalMultaJuros;
+	}
+
+	public void setTotalMultaJuros(BigDecimal totalMultaJuros) {
+		this.totalMultaJuros = totalMultaJuros;
+	}
+
+	public BigDecimal getTotalDesc() {
+		return totalDesc;
+	}
+
+	public void setTotalDesc(BigDecimal totalDesc) {
+		this.totalDesc = totalDesc;
+	}
+
+	public BigDecimal getTotalApagar() {
+		return totalApagar;
+	}
+
+	public void setTotalApagar(BigDecimal totalApagar) {
+		this.totalApagar = totalApagar;
+	}
+
+	public BigDecimal getTotalPago() {
+		return totalPago;
+	}
+
+	public void setTotalPago(BigDecimal totalPago) {
+		this.totalPago = totalPago;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao.toUpperCase();
+	}
+
+	public BigDecimal getSaldo() {
+		return saldo;
+	}
+
+	public void setSaldo(BigDecimal saldo) {
+		this.saldo = saldo;
 	}
 
 }

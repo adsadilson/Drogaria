@@ -43,7 +43,7 @@
 
 
 		<f:metadata>
-			<o:viewAction action="#{contaAPagarBean.inicializar()}" />
+			<o:viewAction action="#{contaAReceberBean.inicializar()}" />
 		</f:metadata>
 
 		<h1>Contas a Receber</h1>
@@ -216,12 +216,12 @@
 						value="Tem certeza que deseja excluir o(s) registro(s):" />
 					<br />
 					<br />
-					<p:repeat value="#{contaAPagarBean.contaApagarSelecionadas}"
+					<p:repeat value="#{contaAReceberBean.contaAReceberSelecionado}"
 						var="car">
 						<h:panelGrid columns="3" cellpadding="1">
-							<h:outputText value="#{car.numDoc}"
+							<h:outputText value="#{car.documento}"
 								style="font-weight: bold; margin-right:10px;" />
-							<h:outputText value="#{car.fornecedor.nome}"
+							<h:outputText value="#{car.cliente.nome}"
 								style="font-weight: bold; margin-right:10px;" />
 							<h:outputText value="#{car.valor}" style="font-weight: bold;">
 								<f:convertNumber type="currency" />
@@ -232,7 +232,7 @@
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					actionListener="#{contaAPagarBean.excluirSelecionados}"
+					actionListener="#{contaAReceberBean.excluirSelecionados}"
 					update="tblContaAReceber toolbar-botoes" process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
@@ -721,7 +721,7 @@
 			appendTo="@(body)">
 
 			<p:ajax event="close"
-				update="frm-baixa-titulo :tblContaAReceber :toolbar-totais :toolbar-botoes"
+				update="frm-baixa-titulo :tblContaAReceber :toolbar-botoes"
 				listener="#{contaAReceberBean.closeBaixaTitulo()}" />
 
 			<h:form prependId="false" id="frm-baixa-titulo"
@@ -731,7 +731,7 @@
 					style="width: 99%; height: 365px; margin-top:5px;">
 
 					<p:tab title="Recebimento do titulo"
-						rendered="#{contaAReceberBean.listaContasApagar.size()==1}">
+						rendered="#{contaAReceberBean.listaContasAReceber.size()==1}">
 
 						<h:panelGrid columns="3" id="panelGridBaixaSimples"
 							style="margin-left:10px;">
@@ -744,19 +744,19 @@
 							<p:selectOneMenu autoWidth="false" style="width:370px"
 								id="txtBaixaSimpleCC" required="true" filter="true"
 								requiredMessage="Selecione uma conta."
-								value="#{contaAReceberBean.pagamento.conta}"
+								value="#{contaAReceberBean.recebimento.conta}"
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
-								<f:selectItems value="#{contaAReceberBean.carregarContasADebitar}"
+								<f:selectItems value="#{contaAReceberBean.carregarContasACreditar}"
 									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 
 							<p:inputText size="15" disabled="true"
-								value="#{contaAReceberBean.contaAPagar.numDoc} | #{contaAReceberBean.contaAPagar.parcela}" />
+								value="#{contaAReceberBean.contaAReceber.documento} | #{contaAReceberBean.contaAReceber.parcela}" />
 
 							<p:calendar size="13" pattern="dd/MM/yyyy" locale="pt_BR"
-								value="#{contaAReceberBean.pagamento.dataPago}"
+								value="#{contaAReceberBean.recebimento.dataPago}"
 								id="txtBaixaSimpleDtPagamento"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
@@ -771,7 +771,7 @@
 								columnClasses="campoBaixaSimple1">
 
 								<p:outputLabel value="Saldo Devedor" />
-								<p:inputText value="#{contaAReceberBean.contaAPagar.saldoDevedor}"
+								<p:inputText value="#{contaAReceberBean.contaAReceber.saldoDevedor}"
 									size="12" readonly="true" style="text-align:right">
 									<f:convertNumber type="currency" />
 								</p:inputText>
@@ -779,7 +779,7 @@
 								<p:outputLabel value="Multa/Juros" />
 								<p:inputText style="text-align:right" size="12"
 									id="txtBaixaSimpleVlrMultaJuros"
-									value="#{contaAReceberBean.contaAPagar.multaTB}"
+									value="#{contaAReceberBean.contaAReceber.multaTB}"
 									onfocus="formatoMoeda('txtBaixaSimpleVlrMultaJuros')">
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" event="keyup"
@@ -790,7 +790,7 @@
 								<p:outputLabel value="Desconto" />
 								<p:inputText style="text-align:right" size="12"
 									id="txtBaixaSimpleDesc"
-									value="#{contaAReceberBean.contaAPagar.descTB}"
+									value="#{contaAReceberBean.contaAReceber.descTB}"
 									onfocus="formatoMoeda('txtBaixaSimpleDesc')">
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" event="keyup"
@@ -799,7 +799,7 @@
 								</p:inputText>
 
 								<p:outputLabel value="Valor Apagar" />
-								<p:inputText value="#{contaAReceberBean.contaAPagar.valorApagar}"
+								<p:inputText value="#{contaAReceberBean.contaAReceber.valorApagar}"
 									size="12" id="txtBaixaSimpleVlrApagar" style="text-align:right"
 									disabled="true">
 									<f:convertNumber type="currency" />
@@ -808,13 +808,13 @@
 								<p:spacer />
 								<hr />
 
-								<p:outputLabel value="Pagamento" />
+								<p:outputLabel value="Recebimento" />
 								<p:inputText style="text-align:right" size="12" required="true"
-									requiredMessage="Informe o valor Pagamento"
+									requiredMessage="Informe o valor Recebimento"
 									id="txtBaixaSimpleVlrPago"
-									validatorMessage="O valor de pagamento é menor do que o 
+									validatorMessage="O valor de recebimento é menor do que o 
 									mínimo permitido de '0,01'"
-									value="#{contaAReceberBean.contaAPagar.pagoTB}"
+									value="#{contaAReceberBean.contaAReceber.pagoTB}"
 									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
@@ -823,7 +823,7 @@
 								</p:inputText>
 
 								<p:outputLabel value="Descrição" />
-								<p:inputText value="#{contaAReceberBean.pagamento.descricao}"
+								<p:inputText value="#{contaAReceberBean.recebimento.descricao}"
 									size="60">
 								</p:inputText>
 
@@ -837,7 +837,7 @@
 									<p:outputLabel styleClass="red"
 										rendered="#{contaAReceberBean.labelInfo eq 'sim'}"
 										style="margin-left:10px"
-										value="A diferença do pagamento será gerado outra fatura!" />
+										value="A diferença do recebimento será gerado outra fatura!" />
 									<p:outputLabel styleClass="corLabel"
 										rendered="#{contaAReceberBean.labelInfo eq 'nao'}" value=""
 										style="margin-left:10px" />
@@ -858,10 +858,10 @@
 					</p:tab>
 
 					<p:tab title="Informações dos titulos"
-						rendered="#{contaAReceberBean.listaContasApagar.size()>1}">
+						rendered="#{contaAReceberBean.listaContasAReceber.size()>1}">
 						
 						<p:dataTable id="tabela-parcela" style="width:auto;"
-							value="#{contaAReceberBean.listaContasApagar}" var="contaApagar"
+							value="#{contaAReceberBean.listaContasAReceber}" var="contaAReceber"
 							rowIndexVar="idx" scrollable="true" scrollHeight="165"
 							editable="true" editMode="cell">
 
@@ -869,16 +869,16 @@
 
 							<p:column style="text-align:center; width:10px;"
 								headerText="Parc.">
-								<h:outputText value="#{contaApagar.parcela}" />
+								<h:outputText value="#{contaAReceber.parcela}" />
 							</p:column>
 							<p:column style="width:25px;" headerText="Doc.">
-								<h:outputLabel value="#{contaApagar.numDoc}" />
+								<h:outputLabel value="#{contaAReceber.documento}" />
 							</p:column>
 
 							<p:column style="text-align:right; width:60px;"
 								headerText="Saldo devedor">
 								<h:outputLabel for="txtBaixaMultaJuro"
-									value="#{contaApagar.saldoDevedor}">
+									value="#{contaAReceber.saldoDevedor}">
 									<f:convertNumber type="currency" />
 								</h:outputLabel>
 							</p:column>
@@ -887,13 +887,13 @@
 								<p:cellEditor>
 									<f:facet name="output">
 										<h:outputLabel for="txtBaixaMultaJuro"
-											value="#{contaApagar.multaTB}">
+											value="#{contaAReceber.multaTB}">
 											<f:convertNumber type="currency" currencySymbol="" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
-											value="#{contaApagar.multaTB}" styleClass="moeda"
+											value="#{contaAReceber.multaTB}" styleClass="moeda"
 											onfocus="mascaraMoeda();" converter="moedaConverter">
 											<p:ajax event="blur" listener="#{contaAReceberBean.calcularTotais}"
 												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
@@ -906,13 +906,13 @@
 								headerText="Desconto">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.descTB}">
+										<h:outputLabel value="#{contaAReceber.descTB}">
 											<f:convertNumber type="currency" currencySymbol="" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
 										<p:inputText style="width:85%" styleClass="moeda"
-											value="#{contaApagar.descTB}" onfocus="mascaraMoeda();"
+											value="#{contaAReceber.descTB}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
 											<p:ajax event="blur" listener="#{contaAReceberBean.calcularTotais}"
 												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
@@ -923,7 +923,7 @@
 							</p:column>
 							<p:column style="text-align:right; width:60px;"
 								headerText="Valor à pagar">
-								<h:outputLabel value="#{contaApagar.valorApagar}">
+								<h:outputLabel value="#{contaAReceber.valorApagar}">
 									<f:convertNumber type="currency" />
 								</h:outputLabel>
 							</p:column>
@@ -932,12 +932,12 @@
 								headerText="Valor pago" id="pago">
 								<p:cellEditor>
 									<f:facet name="output">
-										<h:outputLabel value="#{contaApagar.pagoTB}">
+										<h:outputLabel value="#{contaAReceber.pagoTB}">
 											<f:convertNumber type="currency" />
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.pagoTB}"
+										<p:inputText value="#{contaAReceber.pagoTB}"
 											style="width:90%" styleClass="moeda"
 											converter="moedaConverter" onfocus="mascaraMoeda();">
 											<p:ajax event="change" 
@@ -1003,8 +1003,8 @@
 
 					</p:tab>
 
-					<p:tab title="Informação do pagamento"
-						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
+					<p:tab title="Informação do recebimento"
+						rendered="#{contaAReceberBean.listaContasAReceber.size()>1}">
 
 						<h:panelGrid columns="3" style="margin-top:3px;"
 							id="panelGridPagamento"
@@ -1017,30 +1017,30 @@
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
 
 							<p:selectOneMenu autoWidth="false" style="width:110px;"
-								value="#{contaAPagarBean.pagamento.formaBaixa}"
+								value="#{contaAReceberBean.recebimento.formaBaixa}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo">
-								<f:selectItems value="#{contaAPagarBean.listaFormaBaixa}"
+								<f:selectItems value="#{contaAReceberBean.listaFormaBaixa}"
 									var="fp" itemLabel="#{fp.descricao}" itemValue="#{fp}" />
 								<p:ajax event="change" process="@this"
-									update="txtBaixaMultiplaDesc dataTablePagamento txtBaixaPago"
-									listener="#{contaAPagarBean.formaBaixa()}" />
+									update="txtBaixaMultiplaDesc dataTableRecebimento txtBaixaPago"
+									listener="#{contaAReceberBean.formaBaixa()}" />
 							</p:selectOneMenu>
 
 
 							<p:selectOneMenu autoWidth="false" style="width:378px"
 								id="txtContaBaixar" required="true" filter="true"
 								requiredMessage="Selecione uma conta." immediate="true"
-								value="#{contaAPagarBean.movimentacao.planoConta}"
+								value="#{contaAReceberBean.movto.planoConta}"
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
-								<f:selectItems value="#{contaAPagarBean.carregarContasADebitar}"
+								<f:selectItems value="#{contaAReceberBean.carregarContasACreditar}"
 									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 
 							<p:calendar size="11" pattern="dd/MM/yyyy" locale="pt_BR"
-								value="#{contaAPagarBean.pagamento.dataPago}" id="dtBaixa"
+								value="#{contaAReceberBean.recebimento.dataPago}" id="dtBaixa"
 								onfocus="mascaraDtCalendar('dtBaixa')" styleClass="cssCalender"
 								required="true" requiredMessage="Informe uma data da baixa">
 							</p:calendar>
@@ -1052,17 +1052,17 @@
 							<p:inputText size="65" placeholder="descrição"
 								id="txtBaixaMultiplaDesc" required="true"
 								requiredMessage="Informe a descrição"
-								value="#{contaAPagarBean.descricao}"
-								disabled="#{contaAPagarBean.pagamento.formaBaixa eq 'BI'}" />
+								value="#{contaAReceberBean.descricao}"
+								disabled="#{contaAReceberBean.recebimento.formaBaixa eq 'BI'}" />
 
 							<h:panelGroup>
 
 								<p:inputText id="txtBaixaPago" size="11" required="true"
 									requiredMessage="Informe o valor."
-									validatorMessage="O valor de pagamento é menor do que o 
+									validatorMessage="O valor de recebimento é menor do que o 
 									mínimo permitido de '0,01'"
-									disabled="#{contaAPagarBean.pagamento.formaBaixa eq 'BI'}"
-									value="#{contaAPagarBean.pagamento.valorPago}"
+									disabled="#{contaAReceberrBean.recebimento.formaBaixa eq 'BI'}"
+									value="#{contaAReceberBean.recebimento.valorPago}"
 									onfocus="formatoMoeda('txtBaixaPago');">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" currencySymbol="R$" />
@@ -1070,8 +1070,8 @@
 
 								<p:commandButton title="Add Conta" style="margin-left:2px;"
 									process="@this panelGridPagamento panelGridPagamento2"
-									action="#{contaAPagarBean.addPagamento}"
-									update="panelGridPagamento panelGridPagamento2 dataTablePagamento 
+									action="#{contaAReceberBean.addRecebimento}"
+									update="panelGridPagamento panelGridPagamento2 dataTableRecebimento 
 									labelVlrApagarBaixaMultipla"
 									icon="fa fa-download" styleClass="semPreenchimento">
 								</p:commandButton>
@@ -1080,20 +1080,20 @@
 
 						</h:panelGrid>
 
-						<p:dataTable id="dataTablePagamento"
+						<p:dataTable id="dataTableRecebimento"
 							style="width:auto; margin-top:10px;" rowIndexVar="idx"
 							scrollable="true" scrollHeight="160"
-							emptyMessage="Nenhum pagamento lançando."
-							value="#{contaAPagarBean.listaPagamentos}" var="listPago">
+							emptyMessage="Nenhum recebimento lançando."
+							value="#{contaAReceberBean.listaDeRecebimentos}" var="listPago">
 
 							<p:column style="width:25px; text-align:center;"
 								headerText="Ação">
 								<p:commandButton title="Excluir" process="@this"
-									update="dataTablePagamento labelVlrApagarBaixaMultipla txtBaixaPago"
-									action="#{contaAPagarBean.excluirPagamentoAbaixar()}"
+									update="dataTableRecebimento labelVlrApagarBaixaMultipla txtBaixaPago"
+									action="#{contaAReceberBean.excluirRecebimentoAbaixar()}"
 									icon="ui-icon-trash" styleClass="semPreenchimento">
 									<f:setPropertyActionListener value="#{listPago}"
-										target="#{contaAPagarBean.pagamento}" />
+										target="#{contaAReceberBean.recebimento}" />
 								</p:commandButton>
 							</p:column>
 
@@ -1118,7 +1118,7 @@
 							<p:toolbarGroup>
 								<p:outputLabel value="Valor à pagar:" styleClass="corLabel"
 									style="margin-left:20px; margin-right:10px;" />
-								<p:outputLabel value="#{contaAPagarBean.saldo}"
+								<p:outputLabel value="#{contaAReceberBean.saldo}"
 									id="labelVlrApagarBaixaMultipla" styleClass="red">
 									<f:convertNumber type="currency" />
 								</p:outputLabel>
@@ -1126,7 +1126,7 @@
 							<p:toolbarGroup align="right">
 								<p:commandButton value="Confirmar" process="@this dtBaixa"
 									oncomplete="if(!args.validationFailed) PF('baixaTitulo').hide()"
-									action="#{contaAPagarBean.salvarBaixaMultiplas}"
+									action="#{contaAReceberBean.salvarBaixaMultiplas}"
 									icon="ui-icon-check">
 								</p:commandButton>
 							</p:toolbarGroup>

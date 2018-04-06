@@ -145,5 +145,15 @@ public class ContaAReceberRepository implements Serializable {
 			return null;
 		}
 	}
+	
+	
+	public void baixaSimples(ContaAReceber obj) {
+		manager.createNativeQuery(
+				"update conta_areceber set valor_pago = :valorPago, valor_apagar = :valorApagar, "
+				+ "vinculo = :vinculo, status =:status where id = :id")
+				.setParameter("valorPago", obj.getValorPago()).setParameter("valorApagar", obj.getValorApagar())
+				.setParameter("vinculo", obj.getVinculo()).setParameter("status", obj.getStatus())
+				.setParameter("id", obj.getId()).executeUpdate();
+	}
 
 }

@@ -107,6 +107,18 @@ public class ContaAReceber implements Serializable {
 	@Transient
 	private BigDecimal totalPagamento = BigDecimal.ZERO;
 
+	@Transient
+	private BigDecimal saldoDevedor = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal multaTB = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal descTB = BigDecimal.ZERO;
+
+	@Transient
+	private BigDecimal pagoTB = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -273,6 +285,38 @@ public class ContaAReceber implements Serializable {
 
 	public void setAgrupadorMovimentacao(Long agrupadorMovimentacao) {
 		this.agrupadorMovimentacao = agrupadorMovimentacao;
+	}
+
+	public BigDecimal getSaldoDevedor() {
+		return saldoDevedor;
+	}
+
+	public void setSaldoDevedor(BigDecimal saldoDevedor) {
+		this.saldoDevedor = saldoDevedor;
+	}
+
+	public BigDecimal getMultaTB() {
+		return multaTB;
+	}
+
+	public void setMultaTB(BigDecimal multaTB) {
+		this.multaTB = multaTB;
+	}
+
+	public BigDecimal getDescTB() {
+		return descTB;
+	}
+
+	public void setDescTB(BigDecimal descTB) {
+		this.descTB = descTB;
+	}
+
+	public BigDecimal getPagoTB() {
+		return pagoTB;
+	}
+
+	public void setPagoTB(BigDecimal pagoTB) {
+		this.pagoTB = pagoTB;
 	}
 
 	@Override

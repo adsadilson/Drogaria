@@ -133,7 +133,7 @@ public class ContaAPagarService implements Serializable {
 			Movimentacao movtoDesc = new Movimentacao();
 
 			PlanoConta pl1Desc = new PlanoConta();
-			pl1Desc = contaService.porNome("RECEITAS COM DESCONTOS");
+			pl1Desc = contaService.porNome("RECEITAS C/DESC./JUROS E MULTA");
 
 			PlanoConta pl2Desc = new PlanoConta();
 			pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());
@@ -301,7 +301,7 @@ public class ContaAPagarService implements Serializable {
 					Movimentacao movtoDesc = new Movimentacao();
 
 					PlanoConta pl1Desc = new PlanoConta();
-					pl1Desc = contaService.porNome("RECEITAS COM DESCONTOS");
+					pl1Desc = contaService.porNome("RECEITAS C/DESC./JUROS E MULTA");
 
 					PlanoConta pl2Desc = new PlanoConta();
 					pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());
@@ -401,7 +401,7 @@ public class ContaAPagarService implements Serializable {
 				movtoMulta.setDataDoc(pagamento.getDataPago());
 				movtoMulta.setDataLanc(pagamento.getDataPago());
 				movtoMulta.setUsuario(pagamento.getUsuario());
-				movtoMulta.setDescricao("PG JURUOS/MULTA ");
+				movtoMulta.setDescricao("PG JUROS/MULTA ");
 				movtoMulta.setVinculo(pagamento.getVinculo());
 				movtoMulta.setDocumento(null);
 				movtoMulta.setPessoa(null);
@@ -419,7 +419,7 @@ public class ContaAPagarService implements Serializable {
 				Movimentacao movtoDesc = new Movimentacao();
 
 				PlanoConta pl1Desc = new PlanoConta();
-				pl1Desc = contaService.porNome("RECEITAS COM DESCONTOS");
+				pl1Desc = contaService.porNome("RECEITAS C/DESC./JUROS E MULTA");
 
 				PlanoConta pl2Desc = new PlanoConta();
 				pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());
