@@ -516,7 +516,7 @@ public class ContaAReceberBean implements Serializable {
 
 		this.movto = new Movimentacao();
 
-		this.listaDeMovtos.clear();
+		this.listaDeMovtos = new ArrayList<Movimentacao>();
 		this.listaContasAReceber.clear();
 
 		this.setLabelInfo("nao");
@@ -582,10 +582,10 @@ public class ContaAReceberBean implements Serializable {
 				pl2 = contaService.porId(pl1.getContaPai().getId());
 
 				movto.setDescricao(
-						"PG. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - " + c.getCliente().getNome());
+						"REC. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - " + c.getCliente().getNome());
 
 				if (c.getValorApagar().compareTo(c.getValorPago()) > 0) {
-					movto.setDescricao("PG. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - "
+					movto.setDescricao("REC. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - "
 							+ c.getCliente().getNome() + " (P)");
 				}
 
@@ -825,7 +825,7 @@ public class ContaAReceberBean implements Serializable {
 		BigDecimal newValue = (BigDecimal) event.getNewValue();
 
 		DataTable dataModel = (DataTable) event.getSource();
-		ContaAPagar parcela = (ContaAPagar) dataModel.getRowData();
+		ContaAReceber parcela = (ContaAReceber) dataModel.getRowData();
 
 		if (coluna.indexOf("pago") > 0) {
 			if (newValue.compareTo(parcela.getValorApagar()) > 0) {

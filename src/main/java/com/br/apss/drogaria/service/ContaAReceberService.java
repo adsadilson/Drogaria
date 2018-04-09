@@ -251,7 +251,7 @@ public class ContaAReceberService implements Serializable {
 				contaAReceber.setDataVencto(cp.getDataVencto());
 				contaAReceber.setDocumento(cp.getDocumento());
 				contaAReceber.setParcela(cp.getParcela());
-				contaAReceber.setStatus("PAGAMENTO TOTAL");
+				contaAReceber.setStatus("RECEBIMENTO TOTAL");
 				contaAReceber.setTipoRecebimento(cp.getTipoRecebimento());
 				contaAReceber.setValor(cp.getValor());
 				contaAReceber.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
@@ -302,7 +302,7 @@ public class ContaAReceberService implements Serializable {
 				movto.setPessoa(listaMovimentacoes.get(i).getPessoa());
 				movto.setVlrEntrada(null);
 				movto.setVlrSaida(listaMovimentacoes.get(i).getVlrSaida());
-				movto.setTipoLanc(TipoLanc.PC);
+				movto.setTipoLanc(TipoLanc.RR);
 				movto.setTipoConta(TipoConta.CC);
 				movto.setPlanoConta(listaMovimentacoes.get(i).getPlanoConta());
 				movto.setPlanoContaPai(listaMovimentacoes.get(i).getPlanoContaPai());
@@ -326,10 +326,10 @@ public class ContaAReceberService implements Serializable {
 					movtoMulta.setVinculo(listaMovimentacoes.get(i).getVinculo());
 					movtoMulta.setDocumento(listaMovimentacoes.get(i).getDocumento());
 					movtoMulta.setPessoa(listaMovimentacoes.get(i).getPessoa());
-					movtoMulta.setVlrEntrada(null);
-					movtoMulta.setVlrSaida(listaContaARecebers.get(i).getMultaTB());
-					movtoMulta.setTipoLanc(TipoLanc.PC);
-					movtoMulta.setTipoConta(TipoConta.D);
+					movtoMulta.setVlrEntrada(listaContaARecebers.get(i).getMultaTB());
+					movtoMulta.setVlrSaida(null);
+					movtoMulta.setTipoLanc(TipoLanc.RR);
+					movtoMulta.setTipoConta(TipoConta.R);
 					movtoMulta.setPlanoConta(pl1Multa);
 					movtoMulta.setPlanoContaPai(pl2Multa);
 					listM.add(movtoMulta);
@@ -352,10 +352,10 @@ public class ContaAReceberService implements Serializable {
 					movtoDesc.setVinculo(listaMovimentacoes.get(i).getVinculo());
 					movtoDesc.setDocumento(listaMovimentacoes.get(i).getDocumento());
 					movtoDesc.setPessoa(listaMovimentacoes.get(i).getPessoa());
-					movtoDesc.setVlrEntrada(listaContaARecebers.get(i).getDescTB());
-					movtoDesc.setVlrSaida(null);
-					movtoDesc.setTipoLanc(TipoLanc.PC);
-					movtoDesc.setTipoConta(TipoConta.R);
+					movtoDesc.setVlrEntrada(null);
+					movtoDesc.setVlrSaida(listaContaARecebers.get(i).getDescTB());
+					movtoDesc.setTipoLanc(TipoLanc.RR);
+					movtoDesc.setTipoConta(TipoConta.D);
 					movtoDesc.setPlanoConta(pl1Desc);
 					movtoDesc.setPlanoContaPai(pl2Desc);
 					listM.add(movtoDesc);
@@ -395,12 +395,12 @@ public class ContaAReceberService implements Serializable {
 
 				ContaAReceber contaAReceber = new ContaAReceber();
 				contaAReceber.setId(cp.getId());
-				contaAReceber.setStatus("PAGAMENTO TOTAL");
+				contaAReceber.setStatus("RECEBIMENTO TOTAL");
 				contaAReceber.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
 				contaAReceber.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
 				contaAReceber.setVinculo(idAgrupador);
 				if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
-					contaAReceber.setStatus("PAGAMENTO PARCIAL");
+					contaAReceber.setStatus("RECEBIMENTO PARCIAL");
 				}
 
 				dao.baixaSimples(contaAReceber);
@@ -444,10 +444,10 @@ public class ContaAReceberService implements Serializable {
 				movtoMulta.setVinculo(recebimento.getVinculo());
 				movtoMulta.setDocumento(null);
 				movtoMulta.setPessoa(null);
-				movtoMulta.setVlrEntrada(null);
-				movtoMulta.setVlrSaida(valorMutla);
-				movtoMulta.setTipoLanc(TipoLanc.PC);
-				movtoMulta.setTipoConta(TipoConta.D);
+				movtoMulta.setVlrEntrada(valorMutla);
+				movtoMulta.setVlrSaida(null);
+				movtoMulta.setTipoLanc(TipoLanc.RR);
+				movtoMulta.setTipoConta(TipoConta.R);
 				movtoMulta.setPlanoConta(pl1Multa);
 				movtoMulta.setPlanoContaPai(pl2Multa);
 				listaMovimentacoes.add(movtoMulta);
@@ -470,10 +470,10 @@ public class ContaAReceberService implements Serializable {
 				movtoDesc.setVinculo(recebimento.getVinculo());
 				movtoDesc.setDocumento(null);
 				movtoDesc.setPessoa(null);
-				movtoDesc.setVlrEntrada(valorDesc);
-				movtoDesc.setVlrSaida(null);
-				movtoDesc.setTipoLanc(TipoLanc.PC);
-				movtoDesc.setTipoConta(TipoConta.R);
+				movtoDesc.setVlrEntrada(null);
+				movtoDesc.setVlrSaida(valorDesc);
+				movtoDesc.setTipoLanc(TipoLanc.RR);
+				movtoDesc.setTipoConta(TipoConta.D);
 				movtoDesc.setPlanoConta(pl1Desc);
 				movtoDesc.setPlanoContaPai(pl2Desc);
 				listaMovimentacoes.add(movtoDesc);

@@ -711,9 +711,9 @@
 
 			</h:form>
 		</p:dialog>
-		
-		
-		
+
+
+
 		<!-- Recebimento de titulos -->
 		<p:dialog header="Recebimento de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
@@ -748,7 +748,8 @@
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
-								<f:selectItems value="#{contaAReceberBean.carregarContasACreditar}"
+								<f:selectItems
+									value="#{contaAReceberBean.carregarContasACreditar}"
 									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 
@@ -771,7 +772,8 @@
 								columnClasses="campoBaixaSimple1">
 
 								<p:outputLabel value="Saldo Devedor" />
-								<p:inputText value="#{contaAReceberBean.contaAReceber.saldoDevedor}"
+								<p:inputText
+									value="#{contaAReceberBean.contaAReceber.saldoDevedor}"
 									size="12" readonly="true" style="text-align:right">
 									<f:convertNumber type="currency" />
 								</p:inputText>
@@ -799,7 +801,8 @@
 								</p:inputText>
 
 								<p:outputLabel value="Valor Apagar" />
-								<p:inputText value="#{contaAReceberBean.contaAReceber.valorApagar}"
+								<p:inputText
+									value="#{contaAReceberBean.contaAReceber.valorApagar}"
 									size="12" id="txtBaixaSimpleVlrApagar" style="text-align:right"
 									disabled="true">
 									<f:convertNumber type="currency" />
@@ -819,7 +822,8 @@
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" event="change"
-										listener="#{contaAReceberBean.informativo()}" update="labelInf" />
+										listener="#{contaAReceberBean.informativo()}"
+										update="labelInf" />
 								</p:inputText>
 
 								<p:outputLabel value="Descrição" />
@@ -859,13 +863,14 @@
 
 					<p:tab title="Informações dos titulos"
 						rendered="#{contaAReceberBean.listaContasAReceber.size()>1}">
-						
-						<p:dataTable id="tabela-parcela" style="width:auto;"
-							value="#{contaAReceberBean.listaContasAReceber}" var="contaAReceber"
-							rowIndexVar="idx" scrollable="true" scrollHeight="165"
-							editable="true" editMode="cell">
 
-							<p:ajax event="cellEdit" listener="#{contaAReceberBean.onCellEdit}" />
+						<p:dataTable id="tabela-parcela" style="width:auto;"
+							value="#{contaAReceberBean.listaContasAReceber}"
+							var="contaAReceber" rowIndexVar="idx" scrollable="true"
+							scrollHeight="165" editable="true" editMode="cell">
+
+							<p:ajax event="cellEdit"
+								listener="#{contaAReceberBean.onCellEdit}" />
 
 							<p:column style="text-align:center; width:10px;"
 								headerText="Parc.">
@@ -895,7 +900,8 @@
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
 											value="#{contaAReceber.multaTB}" styleClass="moeda"
 											onfocus="mascaraMoeda();" converter="moedaConverter">
-											<p:ajax event="blur" listener="#{contaAReceberBean.calcularTotais}"
+											<p:ajax event="blur"
+												listener="#{contaAReceberBean.calcularTotais}"
 												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
 												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -914,7 +920,8 @@
 										<p:inputText style="width:85%" styleClass="moeda"
 											value="#{contaAReceber.descTB}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
-											<p:ajax event="blur" listener="#{contaAReceberBean.calcularTotais}"
+											<p:ajax event="blur"
+												listener="#{contaAReceberBean.calcularTotais}"
 												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
 												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -937,12 +944,13 @@
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaAReceber.pagoTB}"
-											style="width:90%" styleClass="moeda"
-											converter="moedaConverter" onfocus="mascaraMoeda();">
-											<p:ajax event="change" 
+										<p:inputText value="#{contaAReceber.pagoTB}" style="width:90%"
+											styleClass="moeda" converter="moedaConverter"
+											onfocus="mascaraMoeda();">
+											<p:ajax event="change"
 												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
-												<p:ajax event="blur" update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla"/>
+											<p:ajax event="blur"
+												update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -956,7 +964,7 @@
 							<p:toolbarGroup align="right">
 
 								<hr />
-								<h:panelGrid columns="6" 
+								<h:panelGrid columns="6"
 									columnClasses="rotuloInfTitulo1, campoInfTitulo1,
 									rotuloInfTitulo1, campoInfTitulo1, rotuloInfTitulo1, campoInfTitulo2">
 
@@ -984,8 +992,9 @@
 
 
 									<p:outputLabel value="Desconto" styleClass="corLabel" />
-									<p:inputText id="txtDesc" value="#{contaAReceberBean.totalDesc}"
-										size="10" disabled="true">
+									<p:inputText id="txtDesc"
+										value="#{contaAReceberBean.totalDesc}" size="10"
+										disabled="true">
 										<f:convertNumber type="currency" />
 									</p:inputText>
 
@@ -1017,6 +1026,7 @@
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
 
 							<p:selectOneMenu autoWidth="false" style="width:110px;"
+								disabled="true"
 								value="#{contaAReceberBean.recebimento.formaBaixa}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo">
@@ -1035,7 +1045,8 @@
 								converter="omnifaces.SelectItemsConverter">
 								<f:selectItem itemLabel="Selecione a conta" itemValue="#{null}"
 									noSelectionOption="true" />
-								<f:selectItems value="#{contaAReceberBean.carregarContasACreditar}"
+								<f:selectItems
+									value="#{contaAReceberBean.carregarContasACreditar}"
 									var="conta" itemLabel="#{conta.nome}" itemValue="#{conta}" />
 							</p:selectOneMenu>
 

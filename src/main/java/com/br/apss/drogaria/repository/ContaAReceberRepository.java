@@ -63,7 +63,7 @@ public class ContaAReceberRepository implements Serializable {
 		}
 		
 		if (StringUtils.isBlank(filtro.getStatus())) {
-			criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL"));
+			criteria.add(Restrictions.in("status", "ABERTO", "RECEBIMENTO PARCIAL"));
 		}
 		
 		if (StringUtils.isNotBlank(filtro.getDoc())) {
