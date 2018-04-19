@@ -1,0 +1,274 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Entrada de Mercadoria(s)</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+<!--
+.rotuloCabecalho {
+	width: 135px !important;
+}
+
+.campoCabecalho {
+	width: 400px !important;
+}
+
+.red {
+	color: red !important;
+}
+-->
+</style>
+
+		<h1>Entrada de Mercadoria(s)</h1>
+
+		<h:form id="frm-menu" prependId="false">
+
+			<!-- BOTÕES DE AÇÕES -->
+
+			<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+
+					<p:commandButton icon="fa fa-file-o" value="Novo"
+						style="margin-right: 3px;">
+					</p:commandButton>
+
+				</p:toolbarGroup>
+
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+
+			</p:toolbar>
+
+		</h:form>
+
+		<h:form prependId="false">
+
+			<p:tabView prependId="false"
+				style="width: 100%; height: 425px; margin-top:10px; ">
+
+				<p:tab title="Cabeçalho da Nota">
+
+					<h:panelGrid columns="2" style="margin-top:15px; margin-left:10px;"
+						columnClasses="rotuloCabecalho,campoCabecalho">
+
+						<p:outputLabel for="combFor" value="Fornecedor" />
+						<p:selectOneMenu id="combFor" required="true" autoWidth="false"
+							filter="true" filterMatchMode="contains" style="width:370px;"
+							converter="omnifaces.SelectItemsConverter"
+							requiredMessage="Selecione fornecedor">
+							<f:selectItem itemLabel="Selecione um fornecedor"
+								itemValue="#{null}" />
+						</p:selectOneMenu>
+
+						<p:spacer />
+						<p:inputTextarea rows="5" style="width: 98%;"
+							value="#{clienteBean.cliente.obs}" disabled="true" />
+
+						<p:outputLabel for="txtDocumento" value="Documento" />
+						<p:inputText id="txtDocumento" size="15" />
+
+						<p:outputLabel for="txtEmissao" value="Emissão" />
+						<p:calendar id="txtEmissao" size="15" pattern="dd/MM/yyyy"
+							locale="pt_BR" required="true"
+							onfocus="mascaraDtCalendar('txtEmissao')"
+							requiredMessage="Informe a data emissão" />
+
+						<p:outputLabel for="txtEntrada" value="Entrada" />
+						<p:calendar id="txtEntrada" size="15" pattern="dd/MM/yyyy"
+							locale="pt_BR" required="true"
+							onfocus="mascaraDtCalendar('txtEntrada')"
+							requiredMessage="Informe a data entrada" />
+
+						<p:outputLabel value="Valor da Nota" />
+						<p:inputText id="txtVlrNota" required="true"
+							requiredMessage="Informe um valor"
+							onfocus="formatoMoeda('txtVlrNota')" size="15">
+							<f:validateDoubleRange minimum="0.01" />
+							<f:convertNumber type="currency" />
+						</p:inputText>
+
+						<p:outputLabel value="Valor do(s) Iten(s)" />
+						<p:inputText id="txtVlrProduto" required="true"
+							requiredMessage="Informe um valor"
+							onfocus="formatoMoeda('txtVlrProduto')" size="15">
+							<f:validateDoubleRange minimum="0.01" />
+							<f:convertNumber type="currency" />
+						</p:inputText>
+
+						<p:outputLabel value="Diferênça (+/-)" />
+						<p:inputText size="15" />
+
+
+					</h:panelGrid>
+
+				</p:tab>
+
+				<p:tab title="Itens">
+
+					<h:panelGrid styleClass="semBorda" columns="5"
+						style="margin-top:5px; margin-left:10px;">
+						<p:outputLabel value="Código Barra ou Descrição do produto" />
+						<p:outputLabel value="Quantidade" />
+						<p:outputLabel value="Valor Custo" />
+						<p:outputLabel value="Total R$" />
+						<p:spacer />
+
+						<p:inputText size="49" />
+						<p:inputText size="9" />
+						<p:inputText size="10" />
+						<p:inputText size="10" />
+						<p:commandButton value="Adicionar" icon="fa fa-plus" />
+					</h:panelGrid>
+
+					<p:dataTable value="#{vendaBean.itens}" var="obj" id="tb-cartaos"
+						emptyMessage="Nenhum registro em contrado." scrollable="true"
+						scrollHeight="260"
+						style="margin-top: 1px; margin-left:10px; width:865px"
+						rowKey="#{obj.id}">
+
+						<p:column headerText="Descrição do Produto" style="width: 400px">
+							<h:outputText value="" />
+						</p:column>
+						<p:column headerText="Quantidade" style="width: 90px">
+							<h:outputText value="">
+								<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column headerText="Valor Custo" style="width: 90px">
+							<h:outputText value="">
+								<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+							</h:outputText>
+						</p:column>
+
+						<p:column headerText="Total" style="width: 90px">
+							<h:outputText value="">
+								<f:convertNumber locale="pt_BR" minFractionDigits="0" />
+							</h:outputText>
+						</p:column>
+
+						<p:column headerText="Ação">
+						</p:column>
+
+					</p:dataTable>
+
+					<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+						<p:toolbarGroup>
+							<p:outputLabel value="Total:"
+								style="font-size:13px; margin-left:15px; color:black" />
+							<p:outputLabel styleClass="total"
+								value="#{contaAPagarBean.totalDasParcelas}"
+								style="color:red; font-size:14px; margin-left:15px;">
+								<f:convertNumber type="currency" />
+							</p:outputLabel>
+						</p:toolbarGroup>
+					</p:toolbar>
+
+				</p:tab>
+
+				<p:tab title="Fatura(s)">
+
+					<h:panelGrid id="panelGridPagto" columns="8"
+						style="margin-top:20px; margin-left:10px;">
+
+						<p:selectOneMenu autoWidth="false" style="width:200px;"
+							value="#{contaAPagarBean.parcela.tipoCobranca}"
+							disabled="#{movimentacaoBean.movto.notInclusao}"
+							converter="omnifaces.SelectItemsConverter" required="true"
+							requiredMessage="Selecione tipo de cobrança">
+							<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
+							<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
+								var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
+								itemValue="#{cob}" />
+						</p:selectOneMenu>
+
+						<p:outputLabel value="Parcela(s)"
+							style="margin-left:8px; margin-right:2px;" />
+						<p:spinner size="1" min="1" max="100"
+							value="#{contaAPagarBean.parcela.numVezes}" />
+
+						<p:outputLabel value="Intervalo"
+							style="margin-left:9px; margin-right:2px;" />
+						<p:spinner size="1" min="1" max="30"
+							value="#{contaAPagarBean.parcela.periodo}" />
+
+						<p:outputLabel value="Dia(s)"
+							style="margin-left:1px; margin-right:9px;" />
+
+						<p:inputText id="txtVlrPag" required="true"
+							requiredMessage="Informe um valor" styleClass="total"
+							readonly="true" onfocus="formatoMoeda('txtVlrPag')"
+							value="#{contaAPagarBean.parcela.valor}" size="15">
+							<f:validateDoubleRange minimum="0.01" />
+							<f:convertNumber type="currency" />
+						</p:inputText>
+
+						<p:commandButton icon="fa fa-cog" value="Gerar Parcela(s)"
+							styleClass="total" />
+
+					</h:panelGrid>
+
+
+					<p:dataTable id="tblPagto" style="margin-left:10px; width:865px"
+						styleClass="total" emptyMessage="Nenhuma registro lançado"
+						scrollable="true" scrollHeight="270" var="p">
+
+						<p:column style="width:150px; text-align:center;"
+							headerText="Tipo">
+							<h:outputText value="#{p.tipoCobranca.sigla}" />
+						</p:column>
+						<p:column style="width:60px; text-align:center;"
+							headerText="Parcela(s)">
+							<h:outputText value="#{p.parcela}" />
+						</p:column>
+						<p:column style="text-align:center; width:80px;"
+							headerText="Documento">
+							<h:outputText value="#{p.numDoc}" />
+						</p:column>
+						<p:column style="text-align:center; width:90px;"
+							headerText="Vencimento">
+							<h:outputText value="#{p.dataVencto}">
+								<f:convertDateTime pattern="dd/MM/yyyy" />
+							</h:outputText>
+						</p:column>
+						<p:column style="width:100px; text-align:right;"
+							headerText="Valor R$">
+							<h:outputText value="#{p.valor}">
+								<f:convertNumber type="currency" />
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Ação" style="text-align:center; width:70px;">
+						</p:column>
+					</p:dataTable>
+
+					<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+						<p:toolbarGroup>
+							<p:outputLabel value="Total:"
+								style="font-size:13px; margin-left:15px; color:black" />
+							<p:outputLabel styleClass="total"
+								value="#{contaAPagarBean.totalDasParcelas}"
+								style="color:red; font-size:14px; margin-left:15px;">
+								<f:convertNumber type="currency" />
+							</p:outputLabel>
+						</p:toolbarGroup>
+					</p:toolbar>
+
+				</p:tab>
+
+			</p:tabView>
+
+		</h:form>
+
+
+
+	</ui:define>
+
+</ui:composition>
