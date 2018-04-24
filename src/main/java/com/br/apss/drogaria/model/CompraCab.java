@@ -46,12 +46,18 @@ public class CompraCab implements Serializable {
 	@Column(columnDefinition = "text")
 	private String observacao;
 
-	@Column(name = "valor_total", precision = 10, scale = 2)
-	private BigDecimal valorTotal = BigDecimal.ZERO;
+	@Column(name = "valor_nota", precision = 10, scale = 2)
+	private BigDecimal valorNota = BigDecimal.ZERO;
+
+	@Column(name = "valor_itens", precision = 10, scale = 2)
+	private BigDecimal valorItens = BigDecimal.ZERO;
+
+	@Column(name = "valor_diferenca", precision = 10, scale = 2)
+	private BigDecimal valorDif = BigDecimal.ZERO;
 
 	@ManyToOne
-	@JoinColumn(name = "funcionario_id")
-	private Usuario funcionario;
+	@JoinColumn(name = "usuario_id")
+	private Usuario usuario;
 
 	@ManyToOne
 	@JoinColumn(name = "fornecedor_id", nullable = false)
@@ -100,20 +106,44 @@ public class CompraCab implements Serializable {
 		this.observacao = observacao;
 	}
 
-	public BigDecimal getValorTotal() {
-		return valorTotal;
+	public BigDecimal getValorNota() {
+		return valorNota;
 	}
 
-	public void setValorTotal(BigDecimal valorTotal) {
-		this.valorTotal = valorTotal;
+	public void setValorNota(BigDecimal valorNota) {
+		this.valorNota = valorNota;
 	}
 
-	public Usuario getFuncionario() {
-		return funcionario;
+	public BigDecimal getValorItens() {
+		return valorItens;
 	}
 
-	public void setFuncionario(Usuario funcionario) {
-		this.funcionario = funcionario;
+	public void setValorItens(BigDecimal valorItens) {
+		this.valorItens = valorItens;
+	}
+
+	public BigDecimal getValorDif() {
+		return valorDif;
+	}
+
+	public void setValorDif(BigDecimal valorDif) {
+		this.valorDif = valorDif;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public List<CompraDet> getItens() {
+		return itens;
+	}
+
+	public void setItens(List<CompraDet> itens) {
+		this.itens = itens;
 	}
 
 	public Pessoa getFornecedor() {
