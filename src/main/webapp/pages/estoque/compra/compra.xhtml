@@ -266,14 +266,17 @@
 
 							<p:outputLabel for="txtEmissao" value="Emissão" />
 							<p:calendar id="txtEmissao" size="15" pattern="dd/MM/yyyy"
-								locale="pt_BR" required="true"
+								locale="pt_BR" required="true" immediate="true"
 								value="#{compraCabBean.compraCab.dataEmissao}"
 								onfocus="mascaraDtCalendar('txtEmissao')"
-								requiredMessage="Informe a data emissão" />
+								requiredMessage="Informe a data emissão">
+								<p:ajax event="dateSelect" process="@this" update="txtEntrada" />
+							</p:calendar>
 
 							<p:outputLabel for="txtEntrada" value="Entrada" />
 							<p:calendar id="txtEntrada" size="15" pattern="dd/MM/yyyy"
 								locale="pt_BR" required="true"
+								mindate="#{compraCabBean.compraCab.dataEmissao}"
 								value="#{compraCabBean.compraCab.dataEntrada}"
 								onfocus="mascaraDtCalendar('txtEntrada')"
 								requiredMessage="Informe a data entrada" />
@@ -285,6 +288,8 @@
 								onfocus="formatoMoeda('txtVlrNota')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
+								<p:ajax process="@this" update="groupDif"
+									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
 							<p:outputLabel for="txtVlrProduto" value="Valor do(s) Iten(s)" />
@@ -294,13 +299,21 @@
 								onfocus="formatoMoeda('txtVlrProduto')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
+								<p:ajax process="@this" update="groupDif"
+									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
 							<p:outputLabel value="Diferênça (+/-)" />
-							<p:inputText disabled="true" size="15"
-								value="#{compraCabBean.compraCab.valorDif}">
-								<f:convertNumber type="currency" />
-							</p:inputText>
+							<h:panelGroup id="groupDif">
+								<p:inputText id="txtDiferenca" disabled="true" size="15"
+									value="#{compraCabBean.compraCab.valorDif}">
+									<f:convertNumber type="currency" />
+								</p:inputText>
+								<p:outputLabel value="#{compraCabBean.compraCab.vlrEmPerc} (%)"
+									style="margin-left:15px">
+									<f:convertNumber type="currency" />
+								</p:outputLabel>
+							</h:panelGroup>
 
 
 						</h:panelGrid>
@@ -317,7 +330,13 @@
 							<p:outputLabel value="Total R$" />
 							<p:spacer />
 
-							<p:inputText size="40" />
+							<p:autoComplete size="39"
+								converter="omnifaces.SelectItemsConverter" forceSelection="true"
+								minQueryLength="3"
+								completeMethod="#{compraCabBean.completarProduto}" var="produto"
+								itemLabel="#{produto.nome}" itemValue="#{produto}">
+							</p:autoComplete>
+
 							<p:inputText size="9" />
 							<p:inputText size="10" />
 							<p:inputText size="10" />
@@ -330,22 +349,22 @@
 							style="margin-top: 1px; margin-left:10px; width:96%"
 							rowKey="#{obj.id}">
 
-							<p:column headerText="Descrição do Produto" style="width: 280px">
+							<p:column style="width: 280px">
 								<h:outputText value="" />
 							</p:column>
-							<p:column headerText="Quantidade" style="width: 80px">
+							<p:column style="width: 79px">
 								<h:outputText value="">
 									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
 								</h:outputText>
 							</p:column>
 
-							<p:column headerText="Valor Custo" style="width: 85px">
+							<p:column style="width: 85px">
 								<h:outputText value="">
 									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
 								</h:outputText>
 							</p:column>
 
-							<p:column headerText="Total" style="width: 80px">
+							<p:column style="width: 80px">
 								<h:outputText value="">
 									<f:convertNumber locale="pt_BR" minFractionDigits="0" />
 								</h:outputText>
@@ -356,7 +375,7 @@
 
 						</p:dataTable>
 
-						<p:toolbar styleClass="semPreenchimento" style="margin-top:10px;">
+						<p:toolbar styleClass="semPreenchimento" style="margin-top:26px;">
 							<p:toolbarGroup>
 								<p:outputLabel value="Total:"
 									style="font-size:13px; margin-left:15px; color:black" />
@@ -388,8 +407,7 @@
 
 							<p:outputLabel value="Parcela(s)"
 								style="margin-left:8px; margin-right:2px;" />
-							<p:spinner size="1" min="1" max="100"
-								value="#{contaAPagarBean.parcela.numVezes}" />
+							<p:spinner size="1" min="1" max="100" value="" />
 
 							<p:outputLabel value="Intervalo"
 								style="margin-left:9px; margin-right:2px;" />

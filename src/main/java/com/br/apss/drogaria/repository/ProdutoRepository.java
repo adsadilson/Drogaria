@@ -149,5 +149,18 @@ public class ProdutoRepository implements Serializable {
 			return null;
 		}
 	}
+	
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public List<Produto> buscarPorCodigoNome(String value) {
+
+		Session session = manager.unwrap(Session.class);
+		Criteria criteria = session.createCriteria(Produto.class);
+
+		Criterion p1 = Restrictions.ilike("codigoBarra", value.toUpperCase(), MatchMode.ANYWHERE);
+		Criterion p2 = Restrictions.ilike("nome", value.toUpperCase(), MatchMode.ANYWHERE);
+		criteria.add(Restrictions.or(p1, p2));
+
+		return criteria.addOrder(Order.asc("nome")).list();
+	}
 
 }

@@ -11,11 +11,11 @@
 
 		<style>
 .rotuloG1 {
-	width: 130px;
+	width: 150px;
 }
 
 .campoG1 {
-	width: 322px;
+	width: 370px;
 }
 
 .campoG2 {
@@ -185,7 +185,7 @@
 
 		<p:dialog
 			header="#{produtoBean.produto.inclusao ?'Produto - Inclusão' :'Produto - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="515" height="340"
+			widgetVar="dialogCadastro" modal="true" width="600" height="340"
 			resizable="false" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
@@ -204,7 +204,7 @@
 						value="#{produtoBean.produto.codigoBarra}" />
 
 					<p:outputLabel value="Descrição" for="nome" />
-					<p:inputText id="nome" style="width:96%" maxlength="80"
+					<p:inputText id="nome" style="width:100%" maxlength="80"
 						required="true" requiredMessage="O campo 'NOME' é obrigatório."
 						value="#{produtoBean.produto.nome}" />
 
@@ -212,7 +212,7 @@
 					<h:panelGroup>
 						<p:selectOneMenu id="categoria" required="true"
 							converter="omnifaces.SelectItemsConverter" autoWidth="true"
-							style="width:255px;" filter="true" filterMatchMode="contains"
+							style="width:296px;" filter="true" filterMatchMode="contains"
 							requiredMessage="O campo 'CATEGORIA' é obrigatório."
 							value="#{produtoBean.produto.categoria}">
 							<f:selectItem itemLabel="Selecione..." value="#{null}" />
@@ -223,7 +223,7 @@
 								update="subcategoria" />
 						</p:selectOneMenu>
 						<p:commandButton title="Nova Categoria" icon="fa fa-plus"
-							id="addCat" style="margin-left: 5px;" process="@this"
+							id="addCat" style="margin-left: 10px;" process="@this"
 							action="#{categoriaBean.novo()}"
 							oncomplete="PF('dialogCadastroCat').show()"
 							update="frm-cadastroCat" />
@@ -232,7 +232,7 @@
 					<p:outputLabel value="SubCategoria" for="subcategoria" />
 					<h:panelGroup>
 						<p:selectOneMenu id="subcategoria" required="true"
-							autoWidth="true" style="width:255px;"
+							autoWidth="true" style="width:297px;"
 							converter="omnifaces.SelectItemsConverter" filter="true"
 							filterMatchMode="contains"
 							requiredMessage="O campo 'SUBCATEGORIA' é obrigatório."
@@ -243,7 +243,7 @@
 								itemLabel="#{subcategoria.nome}" />
 						</p:selectOneMenu>
 						<p:commandButton title="Nova SubCategoria" icon="fa fa-plus"
-							id="addSubCat" style="margin-left: 5px;" process="@this"
+							id="addSubCat" style="margin-left: 10px;" process="@this"
 							action="#{subCategoriaBean.novo()}"
 							oncomplete="PF('dialogCadastroSubCat').show()"
 							update="frm-cadastroSubCat" />
@@ -308,7 +308,7 @@
 						value="#{produtoBean.produto.lucro}" symbol="R$ "
 						decimalSeparator="," thousandSeparator="." />
 
-					<p:outputLabel value="Mar. Lucro (%)" for="txtMarLucro" />
+					<p:outputLabel value="Margem Lucro (%)" for="txtMarLucro" />
 					<p:inputNumber id="txtMarLucro" size="10" required="true"
 						emptyValue="empty" value="#{produtoBean.produto.margLucro}"
 						symbol="%" symbolPosition="s">

@@ -54,4 +54,8 @@ public class ProdutoService implements Serializable {
 	public Produto porCodigoBarra(String codigoBarra) {
 		return dao.porCodigoBarra(codigoBarra);
 	}
+	
+	public List<Produto> buscarPorCodigoNome(String value) {
+		return dao.buscarPorCodigoNome(value);
+	}
 }

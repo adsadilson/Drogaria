@@ -55,6 +55,9 @@ public class CompraCab implements Serializable {
 	@Column(name = "valor_diferenca", precision = 10, scale = 2)
 	private BigDecimal valorDif = BigDecimal.ZERO;
 
+	@Transient
+	private BigDecimal vlrEmPerc = BigDecimal.ZERO;
+
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
@@ -162,6 +165,14 @@ public class CompraCab implements Serializable {
 	@Transient
 	public boolean isExistente() {
 		return !isNovo();
+	}
+
+	public BigDecimal getVlrEmPerc() {
+		return vlrEmPerc;
+	}
+
+	public void setVlrEmPerc(BigDecimal vlrEmPerc) {
+		this.vlrEmPerc = vlrEmPerc;
 	}
 
 	@Override
