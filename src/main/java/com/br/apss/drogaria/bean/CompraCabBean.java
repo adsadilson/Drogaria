@@ -32,13 +32,17 @@ public class CompraCabBean implements Serializable {
 
 	private CompraCab compraCab;
 
+	private CompraDet compraDet;
+
 	private List<Pessoa> listaDeFornecedores = new ArrayList<Pessoa>();
+
+	private List<CompraDet> listaDeItens = new ArrayList<CompraDet>();
 
 	private CompraCabFilter filtro;
 
 	@Inject
 	private PessoaService pessoaService;
-	
+
 	@Inject
 	private ProdutoService produtoService;
 
@@ -63,6 +67,7 @@ public class CompraCabBean implements Serializable {
 
 	public void novo() {
 		this.compraCab = new CompraCab();
+		this.compraDet = new CompraDet();
 		this.compraCab.setDataEmissao(new Date());
 		this.compraCab.setDataEntrada(new Date());
 		this.compraCab.setUsuario(obterUsuario());
@@ -87,29 +92,50 @@ public class CompraCabBean implements Serializable {
 		n4 = (n3.divide(n, MathContext.DECIMAL128)).multiply(new BigDecimal(100)).setScale(3, RoundingMode.HALF_EVEN);
 		this.compraCab.setVlrEmPerc(n4);
 	}
-	
+
+	public void calcValorCusto() {
+		BigDecimal perc = this.compraCab.getVlrEmPerc();
+		BigDecimal soma = BigDecimal.ZERO;
+		BigDecimal dif = BigDecimal.ZERO;
+		BigDecimal resultado = BigDecimal.ZERO;
+
+		if (compraDet.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
+			if (!perc.equals(BigDecimal.ZERO)) {
+				if (perc.compareTo(BigDecimal.ZERO) > 0) {
+					dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100));
+					soma = dif.add(compraDet.getValorTotal());
+				} else {
+					dif.multiply(new BigDecimal(-1));
+					dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100));
+					soma = dif.subtract(compraDet.getValorTotal());
+				}
+				compraDet.setValorTotalLiquido(soma);
+				resultado = soma.divide(compraDet.getQuantidade());
+				compraDet.setValorUnitario(resultado);
+				compraDet.setValorDif(dif);
+			}
+		}
+	}
+
 	public List<Produto> completarProduto(String nome) {
 		return this.produtoService.buscarPorCodigoNome(nome);
 	}
-	
-	
+
 	public void carregarProdutoLinhaEditavel() {
-		/*CompraDet item = this.pedido.getItens().get(0);
-		
-		if (this.produtoLinhaEditavel != null) {
-			if (this.existeItemComProduto(this.produtoLinhaEditavel)) {
-				FacesUtil.addErrorMessage("Já existe um item no pedido com o produto informado.");
-			} else {
-				item.setProduto(this.produtoLinhaEditavel);
-				item.setValorUnitario(this.produtoLinhaEditavel.getValorUnitario());
-				
-				this.pedido.adicionarItemVazio();
-				this.produtoLinhaEditavel = null;
-				this.sku = null;
-				
-				this.pedido.recalcularValorTotal();
-			}
-		}*/
+		/*
+		 * CompraDet item = this.pedido.getItens().get(0);
+		 * 
+		 * if (this.produtoLinhaEditavel != null) { if
+		 * (this.existeItemComProduto(this.produtoLinhaEditavel)) { FacesUtil.
+		 * addErrorMessage("Já existe um item no pedido com o produto informado."); }
+		 * else { item.setProduto(this.produtoLinhaEditavel);
+		 * item.setValorUnitario(this.produtoLinhaEditavel.getValorUnitario());
+		 * 
+		 * this.pedido.adicionarItemVazio(); this.produtoLinhaEditavel = null; this.sku
+		 * = null;
+		 * 
+		 * this.pedido.recalcularValorTotal(); } }
+		 */
 	}
 
 	/********* Gett e Sett ************/
@@ -136,6 +162,22 @@ public class CompraCabBean implements Serializable {
 
 	public void setListaDeFornecedores(List<Pessoa> listaDeFornecedores) {
 		this.listaDeFornecedores = listaDeFornecedores;
+	}
+
+	public CompraDet getCompraDet() {
+		return compraDet;
+	}
+
+	public void setCompraDet(CompraDet compraDet) {
+		this.compraDet = compraDet;
+	}
+
+	public List<CompraDet> getListaDeItens() {
+		return listaDeItens;
+	}
+
+	public void setListaDeItens(List<CompraDet> listaDeItens) {
+		this.listaDeItens = listaDeItens;
 	}
 
 }

@@ -30,6 +30,15 @@ public class CompraDet implements Serializable {
 	@Column(name = "valor_unitario", nullable = false, precision = 10, scale = 2)
 	private BigDecimal valorUnitario = BigDecimal.ZERO;
 
+	@Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
+	private BigDecimal valorTotal = BigDecimal.ZERO;
+
+	@Column(name = "valor_dif", nullable = false, precision = 10, scale = 2)
+	private BigDecimal valorDif = BigDecimal.ZERO;
+
+	@Column(name = "valor_total_liquido", nullable = false, precision = 10, scale = 2)
+	private BigDecimal valorTotalLiquido = BigDecimal.ZERO;
+
 	@ManyToOne
 	@JoinColumn(name = "produto_id", nullable = false)
 	private Produto produto;
@@ -84,6 +93,30 @@ public class CompraDet implements Serializable {
 
 	public boolean isEditando() {
 		return !isInclusao();
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
+
+	public BigDecimal getValorDif() {
+		return valorDif;
+	}
+
+	public void setValorDif(BigDecimal valorDif) {
+		this.valorDif = valorDif;
+	}
+
+	public BigDecimal getValorTotalLiquido() {
+		return valorTotalLiquido;
+	}
+
+	public void setValorTotalLiquido(BigDecimal valorTotalLiquido) {
+		this.valorTotalLiquido = valorTotalLiquido;
 	}
 
 	@Override

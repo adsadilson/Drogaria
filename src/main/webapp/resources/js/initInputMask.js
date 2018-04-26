@@ -91,3 +91,4 @@ function formatoMoeda(id){
 		symbolStay: true
 	});
 }
+

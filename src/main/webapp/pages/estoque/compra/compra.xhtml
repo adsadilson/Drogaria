@@ -224,7 +224,7 @@
 
 
 		<p:dialog header="Entrada de Mercadoria" widgetVar="dialogCompra"
-			modal="true" width="780" height="430" resizable="true"
+			modal="true" width="800" height="430" resizable="true"
 			draggable="true" id="dgCompra" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
@@ -325,22 +325,60 @@
 						<h:panelGrid styleClass="semBorda" columns="5"
 							style="margin-top:5px; margin-left:10px;">
 							<p:outputLabel value="Código Barra ou Descrição do produto" />
-							<p:outputLabel value="Quantidade" />
-							<p:outputLabel value="Valor Custo" />
+							<p:outputLabel value="Quant." />
+							<p:outputLabel value="Vlr Custo" />
 							<p:outputLabel value="Total R$" />
-							<p:spacer />
+							<p:outputLabel value="Total (+/-)" />
 
-							<p:autoComplete size="39"
+							<p:autoComplete size="38"
+								value="#{compraCabBean.compraDet.produto}"
 								converter="omnifaces.SelectItemsConverter" forceSelection="true"
 								minQueryLength="3"
 								completeMethod="#{compraCabBean.completarProduto}" var="produto"
 								itemLabel="#{produto.nome}" itemValue="#{produto}">
 							</p:autoComplete>
 
-							<p:inputText size="9" />
-							<p:inputText size="10" />
-							<p:inputText size="10" />
-							<p:commandButton title="Adicionar" icon="fa fa-plus" size="10" />
+							<p:inputNumber id="txtQtde" decimalPlaces="2"
+								style="text-align: right;" decimalSeparator=","
+								thousandSeparator="." immediate="true"
+								value="#{compraCabBean.compraDet.quantidade}" size="6">
+								<p:ajax update="txtQtde" />
+							</p:inputNumber>
+
+							<p:inputText id="txtVlrUnit" required="true"
+								style="text-align: right;"
+								requiredMessage="Informe um valor custo" disabled="true"
+								value="#{compraCabBean.compraDet.valorUnitario}"
+								onfocus="formatoMoeda('txtVlrUnit')" size="7">
+								<f:validateDoubleRange minimum="0.01" />
+								<f:convertNumber type="currency" />
+								<p:ajax process="@this" />
+							</p:inputText>
+
+							<p:inputText id="txtVlrTotal" required="true"
+								style="text-align: right;"
+								requiredMessage="Informe um valor total"
+								value="#{compraCabBean.compraDet.valorTotal}"
+								onfocus="formatoMoeda('txtVlrTotal')" size="9">
+								<f:validateDoubleRange minimum="0.01" />
+								<f:convertNumber type="currency" />
+								<p:ajax event="keyup" process="@this" update="txtVlrUnit txtVlrTotalLiq"
+									listener="#{compraCabBean.calcValorCusto()}" />
+							</p:inputText>
+
+							<h:panelGroup>
+								<p:inputText id="txtVlrTotalLiq" disabled="true"
+									style="text-align: right;"
+									value="#{compraCabBean.compraDet.valorTotalLiquido}"
+									onfocus="formatoMoeda('txtVlrTotalLiq')" size="9">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+								</p:inputText>
+
+								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
+									style="margin-left:5px;" />
+							</h:panelGroup>
+
 						</h:panelGrid>
 
 						<p:dataTable value="#{vendaBean.itens}" var="obj" id="tb-cartaos"
