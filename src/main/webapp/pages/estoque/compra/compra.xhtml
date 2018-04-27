@@ -362,7 +362,7 @@
 								onfocus="formatoMoeda('txtVlrTotal')" size="9">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax event="keyup" process="@this" update="txtVlrUnit txtVlrTotalLiq"
+								<p:ajax event="change" process="@this" update="txtVlrUnit txtVlrTotalLiq"
 									listener="#{compraCabBean.calcValorCusto()}" />
 							</p:inputText>
 

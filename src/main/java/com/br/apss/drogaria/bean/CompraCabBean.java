@@ -60,8 +60,8 @@ public class CompraCabBean implements Serializable {
 		String end = null;
 		Pessoa p = new Pessoa();
 		p = pessoaService.porId(this.compraCab.getFornecedor().getId());
-		end = "Cpf/Cnpj: " + p.getCpfCnpj() + "\n" + p.getEndereco() + ", " + p.getNum() + ", " + p.getBairro() + "\n"
-				+ p.getCep() + ", " + p.getCidade() + "-" + p.getEstado();
+		end = "Cpf/Cnpj: " + p.getCpfCnpj() + "\n" + p.getEndereco() + ", " + p.getNum() + "\n" + p.getBairro() + ", "
+				+ p.getCep() + "\n" + p.getCidade() + " - " + p.getEstado();
 		this.compraCab.getFornecedor().setEndereco(end);
 	}
 
@@ -99,18 +99,12 @@ public class CompraCabBean implements Serializable {
 		BigDecimal dif = BigDecimal.ZERO;
 		BigDecimal resultado = BigDecimal.ZERO;
 
-		if (compraDet.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
+		if (!compraDet.getQuantidade().equals(null) && compraDet.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
 			if (!perc.equals(BigDecimal.ZERO)) {
-				if (perc.compareTo(BigDecimal.ZERO) > 0) {
-					dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100));
-					soma = dif.add(compraDet.getValorTotal());
-				} else {
-					dif.multiply(new BigDecimal(-1));
-					dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100));
-					soma = dif.subtract(compraDet.getValorTotal());
-				}
+				dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100));
+				soma = dif.add(compraDet.getValorTotal());
 				compraDet.setValorTotalLiquido(soma);
-				resultado = soma.divide(compraDet.getQuantidade());
+				resultado = soma.divide(compraDet.getQuantidade(), 2, RoundingMode.HALF_UP);
 				compraDet.setValorUnitario(resultado);
 				compraDet.setValorDif(dif);
 			}
@@ -127,12 +121,12 @@ public class CompraCabBean implements Serializable {
 		 * 
 		 * if (this.produtoLinhaEditavel != null) { if
 		 * (this.existeItemComProduto(this.produtoLinhaEditavel)) { FacesUtil.
-		 * addErrorMessage("Já existe um item no pedido com o produto informado."); }
-		 * else { item.setProduto(this.produtoLinhaEditavel);
+		 * addErrorMessage("Já existe um item no pedido com o produto informado."
+		 * ); } else { item.setProduto(this.produtoLinhaEditavel);
 		 * item.setValorUnitario(this.produtoLinhaEditavel.getValorUnitario());
 		 * 
-		 * this.pedido.adicionarItemVazio(); this.produtoLinhaEditavel = null; this.sku
-		 * = null;
+		 * this.pedido.adicionarItemVazio(); this.produtoLinhaEditavel = null;
+		 * this.sku = null;
 		 * 
 		 * this.pedido.recalcularValorTotal(); } }
 		 */

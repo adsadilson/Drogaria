@@ -92,3 +92,14 @@ function formatoMoeda(id){
 	});
 }
 
+function formatoMoedaS(id){
+	$("#"+id).maskMoney({
+		showSymbol : true,
+		symbol : "",
+		decimal : ",",
+		thousands : ".",
+		allowZero : true,
+		symbolStay: true
+	});
+}
+
