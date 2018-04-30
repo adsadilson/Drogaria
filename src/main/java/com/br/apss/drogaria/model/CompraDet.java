@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "compra_det")
@@ -46,6 +47,9 @@ public class CompraDet implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "compra_cab_id", nullable = false)
 	private CompraCab compraCab;
+
+	@Transient
+	private BigDecimal totalDeItensGeral = BigDecimal.ZERO;
 
 	public Long getId() {
 		return id;
@@ -117,6 +121,14 @@ public class CompraDet implements Serializable {
 
 	public void setValorTotalLiquido(BigDecimal valorTotalLiquido) {
 		this.valorTotalLiquido = valorTotalLiquido;
+	}
+
+	public BigDecimal getTotalDeItensGeral() {
+		return totalDeItensGeral;
+	}
+
+	public void setTotalDeItensGeral(BigDecimal totalDeItensGeral) {
+		this.totalDeItensGeral = totalDeItensGeral;
 	}
 
 	@Override

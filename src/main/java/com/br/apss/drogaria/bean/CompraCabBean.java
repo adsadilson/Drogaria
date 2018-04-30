@@ -15,6 +15,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpSession;
 
+import org.omnifaces.util.Messages;
+
 import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.CompraDet;
 import com.br.apss.drogaria.model.Pessoa;
@@ -87,10 +89,15 @@ public class CompraCabBean implements Serializable {
 		BigDecimal n3 = BigDecimal.ZERO;
 		BigDecimal n4 = BigDecimal.ZERO;
 		BigDecimal n2 = this.compraCab.getValorItens();
-		n3 = n2.subtract(n);
-		this.compraCab.setValorDif(n3);
-		n4 = (n3.divide(n, MathContext.DECIMAL128)).multiply(new BigDecimal(100)).setScale(3, RoundingMode.HALF_EVEN);
-		this.compraCab.setVlrEmPerc(n4);
+
+		if (n.compareTo(BigDecimal.ZERO) > 0 && n2.compareTo(BigDecimal.ZERO) > 0) {
+			n3 = n2.subtract(n);
+			this.compraCab.setValorDif(n3);
+			n4 = (n3.divide(n, MathContext.DECIMAL128)).multiply(new BigDecimal(100)).setScale(3,
+					RoundingMode.HALF_EVEN);
+			this.compraCab.setVlrEmPerc(n4);
+		}
+
 	}
 
 	public void calcValorCusto() {
@@ -115,21 +122,47 @@ public class CompraCabBean implements Serializable {
 		return this.produtoService.buscarPorCodigoNome(nome);
 	}
 
-	public void carregarProdutoLinhaEditavel() {
-		/*
-		 * CompraDet item = this.pedido.getItens().get(0);
-		 * 
-		 * if (this.produtoLinhaEditavel != null) { if
-		 * (this.existeItemComProduto(this.produtoLinhaEditavel)) { FacesUtil.
-		 * addErrorMessage("Já existe um item no pedido com o produto informado."
-		 * ); } else { item.setProduto(this.produtoLinhaEditavel);
-		 * item.setValorUnitario(this.produtoLinhaEditavel.getValorUnitario());
-		 * 
-		 * this.pedido.adicionarItemVazio(); this.produtoLinhaEditavel = null;
-		 * this.sku = null;
-		 * 
-		 * this.pedido.recalcularValorTotal(); } }
-		 */
+	public void addItem() {
+		int achou = -1;
+		for (int i = 0; i < this.listaDeItens.size(); i++) {
+			if (this.listaDeItens.get(i).getProduto().equals(this.compraDet.getProduto())) {
+				achou = i;
+				break;
+			}
+		}
+		if (achou > -1) {
+			Messages.addGlobalInfo("Já existem um lançamento para esse produto o que "
+					+ "pode ser feito é alterar a quantidade do mesmo");
+			this.compraDet = listaDeItens.get(achou);
+
+		} else {
+			this.listaDeItens.add(0, this.compraDet);
+			this.compraDet = new CompraDet();
+			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		}
+	}
+
+	public void removerItem() {
+		int achou = -1;
+		for (int i = 0; i < this.listaDeItens.size(); i++) {
+			if (this.listaDeItens.get(i).getProduto().equals(this.compraDet.getProduto())) {
+				achou = i;
+				break;
+			}
+		}
+		if (achou > -1) {
+			this.listaDeItens.remove(achou);
+			this.compraDet = new CompraDet();
+			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		}
+	}
+
+	public BigDecimal calcularTotalItens() {
+		BigDecimal t = BigDecimal.ZERO;
+		for (CompraDet item : listaDeItens) {
+			t = t.add(item.getValorTotalLiquido());
+		}
+		return t;
 	}
 
 	/********* Gett e Sett ************/

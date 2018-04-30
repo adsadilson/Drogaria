@@ -10,6 +10,17 @@
 
 	<ui:define name="corpo">
 
+		<script type="text/javascript">  
+  
+	function tabenter(event,campo){
+		var tecla = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+		if (tecla==13) {
+			campo.focus();
+		}
+	}
+  
+</script>
+
 		<style>
 <!--
 .rotuloCabecalho {
@@ -224,18 +235,21 @@
 
 
 		<p:dialog header="Entrada de Mercadoria" widgetVar="dialogCompra"
-			modal="true" width="800" height="430" resizable="true"
+			modal="true" width="800" height="430" resizable="false"
 			draggable="true" id="dgCompra" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
-			<h:form prependId="false">
+			<h:form prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:growl autoUpdate="true" />
 
 				<p:tabView prependId="false"
 					style="width: 100%; height: 380px; margin-top:10px; ">
 
 					<p:tab title="Cabeçalho da Nota">
 
-						<h:panelGrid columns="2"
+						<h:panelGrid columns="2" id="panelGridCabNota"
 							style="margin-top:15px; margin-left:15px;"
 							columnClasses="rotuloCabecalho,campoCabecalho">
 
@@ -250,8 +264,9 @@
 								<f:selectItems value="#{compraCabBean.listaDeFornecedores}"
 									var="f" itemLabel="#{f.nome}" itemValue="#{f}" />
 								<p:ajax event="change" process="@this"
+									oncomplete="$(function(){PrimeFaces.focus('txtDocumento');});"
 									listener="#{compraCabBean.enderecoFornecedor()}"
-									update="txtEnd" />
+									update="txtEnd " />
 							</p:selectOneMenu>
 
 							<p:spacer />
@@ -283,23 +298,27 @@
 
 							<p:outputLabel for="txtVlrNota" value="Valor da Nota" />
 							<p:inputText id="txtVlrNota" required="true"
-								requiredMessage="Informe um valor"
+								validatorMessage="O valor da nota é menor do que o minimo 
+								permitido de '0,01'"
+								disabled="#{compraCabBean.listaDeItens.size() > 0}"
 								value="#{compraCabBean.compraCab.valorNota}"
 								onfocus="formatoMoeda('txtVlrNota')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax process="@this" update="groupDif"
+								<p:ajax process="@this" update="groupDif" event="blur"
 									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
 							<p:outputLabel for="txtVlrProduto" value="Valor do(s) Iten(s)" />
 							<p:inputText id="txtVlrProduto" required="true"
-								requiredMessage="Informe um valor"
+								validatorMessage="O valor do item é menor do que o minimo 
+								permitido de '0,01'"
+								disabled="#{compraCabBean.listaDeItens.size() > 0}"
 								value="#{compraCabBean.compraCab.valorItens}"
 								onfocus="formatoMoeda('txtVlrProduto')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax process="@this" update="groupDif"
+								<p:ajax process="@this" update="groupDif" event="blur"
 									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
@@ -322,28 +341,38 @@
 
 					<p:tab title="Itens">
 
-						<h:panelGrid styleClass="semBorda" columns="5"
+						<h:panelGrid styleClass="semBorda" columns="5" id="panelGridItem"
 							style="margin-top:5px; margin-left:10px;">
-							<p:outputLabel value="Código Barra ou Descrição do produto" />
-							<p:outputLabel value="Quant." />
+
+							<p:outputLabel for="txtProduto"
+								value="Código Barra ou Descrição do produto" />
+							<p:outputLabel for="txtQtde" value="Qtde." />
 							<p:outputLabel value="Vlr Custo" />
-							<p:outputLabel value="Total R$" />
+							<p:outputLabel for="txtVlrTotal" value="Total R$" />
 							<p:outputLabel value="Total (+/-)" />
 
 							<p:autoComplete size="38"
-								value="#{compraCabBean.compraDet.produto}"
-								converter="omnifaces.SelectItemsConverter" forceSelection="true"
-								minQueryLength="3"
+								value="#{compraCabBean.compraDet.produto}" forceSelection="true"
+								minQueryLength="3" required="true" id="txtProduto"
+								requiredMessage="Informe o produto"
 								completeMethod="#{compraCabBean.completarProduto}" var="produto"
 								itemLabel="#{produto.nome}" itemValue="#{produto}">
+								<p:ajax event="itemSelect" oncomplete="setfocus('txtQtde')" />
 							</p:autoComplete>
 
-							<p:inputNumber id="txtQtde" decimalPlaces="2"
-								style="text-align: right;" decimalSeparator=","
-								thousandSeparator="." immediate="true"
+							<p:inputText id="txtQtde" required="true"
+								style="text-align: right;" onkeyup="somenteNumeros(this)"
+								onkeypress="event.keyCode==13?setfocus('txtVlrTotal'):''"
+								validatorMessage="Informe uma quantidade"
+								converterMessage="Informe uma quantidade valida"
 								value="#{compraCabBean.compraDet.quantidade}" size="6">
-								<p:ajax update="txtQtde" />
-							</p:inputNumber>
+								<f:validateDoubleRange minimum="0.01" />
+								<f:convertNumber pattern="##,###,###,###.##"
+									minFractionDigits="2" />
+								<p:ajax event="change" process="@this"
+									update="txtVlrUnit txtVlrTotalLiq" oncomplete=""
+									listener="#{compraCabBean.calcValorCusto()}" />
+							</p:inputText>
 
 							<p:inputText id="txtVlrUnit" required="true"
 								style="text-align: right;"
@@ -357,12 +386,14 @@
 
 							<p:inputText id="txtVlrTotal" required="true"
 								style="text-align: right;"
-								requiredMessage="Informe um valor total"
+								onkeypress="event.keyCode==13?jQuery('btnAddItem').focus():''"
+								validatorMessage="Informe um valor total"
 								value="#{compraCabBean.compraDet.valorTotal}"
 								onfocus="formatoMoeda('txtVlrTotal')" size="9">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax event="change" process="@this" update="txtVlrUnit txtVlrTotalLiq"
+								<p:ajax event="change" process="@this"
+									update="txtVlrUnit txtVlrTotalLiq"
 									listener="#{compraCabBean.calcValorCusto()}" />
 							</p:inputText>
 
@@ -376,39 +407,56 @@
 								</p:inputText>
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
-									style="margin-left:5px;" />
+									style="margin-left:5px;" id="btnAddItem"
+									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
+									process="@this panelGridCabNota panelGridItem"
+									action="#{compraCabBean.addItem()}" />
 							</h:panelGroup>
 
 						</h:panelGrid>
 
-						<p:dataTable value="#{vendaBean.itens}" var="obj" id="tb-cartaos"
-							emptyMessage="Nenhum registro em contrado." scrollable="true"
-							scrollHeight="250"
-							style="margin-top: 1px; margin-left:10px; width:96%"
+						<p:dataTable value="#{compraCabBean.listaDeItens}" var="obj"
+							id="tblItens" emptyMessage="Nenhum registro em contrado."
+							scrollable="true" scrollHeight="250"
+							style="margin-top: 1px; margin-left:10px; width:98%"
 							rowKey="#{obj.id}">
 
-							<p:column style="width: 280px">
-								<h:outputText value="" />
-							</p:column>
-							<p:column style="width: 79px">
-								<h:outputText value="">
-									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
-								</h:outputText>
+							<p:column style="width: 310px">
+								<h:outputText value="#{obj.produto.nome}" />
 							</p:column>
 
-							<p:column style="width: 85px">
-								<h:outputText value="">
-									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
-								</h:outputText>
-							</p:column>
-
-							<p:column style="width: 80px">
-								<h:outputText value="">
+							<p:column style="width: 59px; text-align: right;">
+								<h:outputText value="#{obj.quantidade}">
 									<f:convertNumber locale="pt_BR" minFractionDigits="0" />
 								</h:outputText>
 							</p:column>
 
-							<p:column headerText="" style="width: 20px">
+							<p:column style="width: 65px; text-align: right;">
+								<h:outputText value="#{obj.valorUnitario}">
+									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+								</h:outputText>
+							</p:column>
+
+							<p:column style="width: 85px; text-align: right;">
+								<h:outputText value="#{obj.valorTotal}">
+									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+								</h:outputText>
+							</p:column>
+
+							<p:column style="width: 80px; text-align: right;">
+								<h:outputText value="#{obj.valorTotalLiquido}">
+									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText="" style="width: 20px; text-align: center;">
+								<p:commandButton title="Excluir" process="@this"
+									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
+									action="#{compraCabBean.removerItem()}" icon="ui-icon-trash"
+									styleClass="semPreenchimento">
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{compraCabBean.compraDet}" />
+								</p:commandButton>
 							</p:column>
 
 						</p:dataTable>
@@ -417,8 +465,8 @@
 							<p:toolbarGroup>
 								<p:outputLabel value="Total:"
 									style="font-size:13px; margin-left:15px; color:black" />
-								<p:outputLabel styleClass="total"
-									value="#{contaAPagarBean.totalDasParcelas}"
+								<p:outputLabel styleClass="total" id="txtTotalItem"
+									value="#{compraCabBean.compraDet.totalDeItensGeral}"
 									style="color:red; font-size:14px; margin-left:15px;">
 									<f:convertNumber type="currency" />
 								</p:outputLabel>
