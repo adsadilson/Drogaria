@@ -12,13 +12,10 @@
 
 		<script type="text/javascript">  
   
-	function tabenter(event,campo){
-		var tecla = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-		if (tecla==13) {
-			campo.focus();
-		}
+	function teste(){
+		document.getElementById("btnAddItem").focus();
 	}
-  
+
 </script>
 
 		<style>
@@ -240,8 +237,8 @@
 			draggable="true" id="dgCompra" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
-			<h:form prependId="false"
-				onkeypress="if (event.keyCode == 13) { return false; }">
+			<h:form prependId="false" id="frmEntrada"
+				onkeypress="if (event.keyCode == 13) { return true; }">
 
 				<p:growl autoUpdate="true" />
 
@@ -301,6 +298,7 @@
 							<p:inputText id="txtVlrNota" required="true"
 								validatorMessage="O valor da nota é menor do que o minimo 
 								permitido de '0,01'"
+								onkeypress="event.keyCode==13?setfocus('txtVlrProduto'):''"
 								disabled="#{compraCabBean.listaDeItens.size() > 0}"
 								value="#{compraCabBean.compraCab.valorNota}"
 								onfocus="formatoMoeda('txtVlrNota')" size="15">
@@ -389,6 +387,7 @@
 							<p:inputText id="txtVlrTotal" required="true"
 								style="text-align: right;"
 								validatorMessage="Informe um valor total"
+								onkeypress="event.keyCode==13?teste():''"
 								value="#{compraCabBean.compraDet.valorTotal}"
 								onfocus="formatoMoeda('txtVlrTotal')" size="9">
 								<f:validateDoubleRange minimum="0.01" />
@@ -407,13 +406,19 @@
 									<f:convertNumber type="currency" />
 								</p:inputText>
 
+								<p:commandButton title="atualizar" icon="fa fa-pencil" size="10"
+									style="margin-left:5px;" disabled="true">
+								</p:commandButton>
+
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
+									onKeyPress="return submitenter(this,event)"
 									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
 									process="@this panelGridCabNota panelGridItem"
 									action="#{compraCabBean.addItem()}">
 									<p:focus for="txtProduto" />
 								</p:commandButton>
+
 							</h:panelGroup>
 
 						</h:panelGrid>
