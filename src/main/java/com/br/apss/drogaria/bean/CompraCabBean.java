@@ -123,38 +123,14 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void addItem() {
-		int achou = -1;
-		for (int i = 0; i < this.listaDeItens.size(); i++) {
-			if (this.listaDeItens.get(i).getProduto().equals(this.compraDet.getProduto())) {
-				achou = i;
-				break;
-			}
-		}
-		if (achou > -1) {
-			Messages.addGlobalInfo("Já existem um lançamento para esse produto o que "
-					+ "pode ser feito é alterar a quantidade do mesmo");
-			this.compraDet = listaDeItens.get(achou);
-
-		} else {
 			this.listaDeItens.add(0, this.compraDet);
 			this.compraDet = new CompraDet();
 			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
-		}
 	}
 
 	public void removerItem() {
-		int achou = -1;
-		for (int i = 0; i < this.listaDeItens.size(); i++) {
-			if (this.listaDeItens.get(i).getProduto().equals(this.compraDet.getProduto())) {
-				achou = i;
-				break;
-			}
-		}
-		if (achou > -1) {
-			this.listaDeItens.remove(achou);
-			this.compraDet = new CompraDet();
-			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
-		}
+		this.listaDeItens.remove(this.compraDet);
+		this.compraDet = new CompraDet();
 	}
 
 	public BigDecimal calcularTotalItens() {

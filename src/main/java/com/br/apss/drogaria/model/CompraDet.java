@@ -148,8 +148,12 @@ public class CompraDet implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		CompraDet other = (CompraDet) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (id == null && other.id == null) {
+			if (other.produto.equals(this.produto) 
+					&& other.getQuantidade().equals(this.getQuantidade())
+					&& other.getValorTotal().equals(this.getValorTotal()))
+				return true;
+			else
 				return false;
 		} else if (!id.equals(other.id))
 			return false;

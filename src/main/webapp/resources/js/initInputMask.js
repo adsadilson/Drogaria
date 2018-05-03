@@ -120,6 +120,10 @@ function setfocus(id) {
 	document.getElementById(id).select()
 }
 
+function setfocusButtom(id) {
+	document.getElementById(id).focus()
+}
+
 $(".naoaceitarenter").on("keypress", function(e) {
 	return e.keyCode != 13;
 });

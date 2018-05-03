@@ -12,8 +12,14 @@
 
 		<script type="text/javascript">  
   
-	function teste(){
-		document.getElementById("btnAddItem").focus();
+	function setaFocoTab(tab){
+		if (tab == 0){
+			
+		} else if (tab == 1){
+			document.getElementById("txtProduto_input").focus();
+		} else if (tab == 2){
+			
+		} 
 	}
 
 </script>
@@ -242,10 +248,10 @@
 
 				<p:growl autoUpdate="true" />
 
-				<p:tabView prependId="false"
+				<p:tabView prependId="false" onTabShow="setaFocoTab(index)"
 					style="width: 100%; height: 380px; margin-top:10px; ">
 
-					<p:tab title="Cabeçalho da Nota">
+					<p:tab title="Cabeçalho da Nota" >
 
 						<h:panelGrid columns="2" id="panelGridCabNota"
 							style="margin-top:15px; margin-left:15px;"
@@ -387,7 +393,7 @@
 							<p:inputText id="txtVlrTotal" required="true"
 								style="text-align: right;"
 								validatorMessage="Informe um valor total"
-								onkeypress="event.keyCode==13?teste():''"
+								onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
 								value="#{compraCabBean.compraDet.valorTotal}"
 								onfocus="formatoMoeda('txtVlrTotal')" size="9">
 								<f:validateDoubleRange minimum="0.01" />
@@ -412,7 +418,6 @@
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
-									onKeyPress="return submitenter(this,event)"
 									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
 									process="@this panelGridCabNota panelGridItem"
 									action="#{compraCabBean.addItem()}">
