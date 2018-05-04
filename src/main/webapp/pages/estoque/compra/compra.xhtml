@@ -251,7 +251,7 @@
 				<p:tabView prependId="false" onTabShow="setaFocoTab(index)"
 					style="width: 100%; height: 380px; margin-top:10px; ">
 
-					<p:tab title="Cabeçalho da Nota" >
+					<p:tab title="Cabeçalho da Nota">
 
 						<h:panelGrid columns="2" id="panelGridCabNota"
 							style="margin-top:15px; margin-left:15px;"
@@ -412,7 +412,7 @@
 									<f:convertNumber type="currency" />
 								</p:inputText>
 
-								<p:commandButton title="atualizar" icon="fa fa-pencil" size="10"
+								<p:commandButton icon="fa fa-cubes" size="10"
 									style="margin-left:5px;" disabled="true">
 								</p:commandButton>
 
@@ -465,8 +465,13 @@
 							<p:column headerText="" style="text-align: center; padding: 0;"
 								exportable="false">
 								<p:commandButton icon="ui-icon-pencil" title="Editar"
-									styleClass="semPreenchimento">
+									styleClass="semPreenchimento" update="edit"
+									oncomplete="PF('dialogEdicaoItens').show()" process="@this"
+									action="#{compraCabBean.abrirEdicao()}">
+									<f:setPropertyActionListener
+										target="#{compraCabBean.compraDet}" value="#{obj}" />
 								</p:commandButton>
+
 								<p:commandButton title="Excluir" process="@this"
 									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
 									action="#{compraCabBean.removerItem()}" icon="ui-icon-trash"
@@ -497,7 +502,7 @@
 						<h:panelGrid id="panelGridPagto" columns="8"
 							style="margin-top:20px; margin-left:10px;">
 
-							<p:selectOneMenu autoWidth="false" style="width:190px;"
+							<p:selectOneMenu autoWidth="false" style="width:215px;"
 								value="#{contaAPagarBean.parcela.tipoCobranca}"
 								disabled="#{movimentacaoBean.movto.notInclusao}"
 								converter="omnifaces.SelectItemsConverter" required="true"
@@ -513,17 +518,17 @@
 							<p:spinner size="1" min="1" max="100" value="" />
 
 							<p:outputLabel value="Intervalo"
-								style="margin-left:9px; margin-right:2px;" />
+								style="margin-left:4px; margin-right:2px;" />
 							<p:spinner size="1" min="1" max="30"
 								value="#{contaAPagarBean.parcela.periodo}" />
 
 							<p:outputLabel value="Dia(s)"
-								style="margin-left:1px; margin-right:9px;" />
+								style="margin-left:4px; margin-right:9px;" />
 
 							<p:inputText id="txtVlrPag" required="true"
 								requiredMessage="Informe um valor" styleClass="total"
 								readonly="true" onfocus="formatoMoeda('txtVlrPag')"
-								value="#{contaAPagarBean.parcela.valor}" size="13">
+								value="#{contaAPagarBean.parcela.valor}" size="12">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 							</p:inputText>
@@ -582,6 +587,79 @@
 					</p:tab>
 
 				</p:tabView>
+
+			</h:form>
+
+		</p:dialog>
+
+
+
+		<!-- DIALOG EDIÇÃO DE ITEN(S) -->
+		<p:dialog header="Edição de iten(s)" widgetVar="dialogEdicaoItens"
+			modal="true" resizable="false" draggable="true" id="dgEdicaoItens"
+			closeOnEscape="true" width="400" height="225" appendTo="@(body)">
+
+			<p:ajax event="close" update="" />
+
+			<h:form id="edit" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:growl autoUpdate="true" />
+
+				<p:focus for="txtEdicaoQtde" />
+
+				<h:panelGrid id="panelEdicaoItens" columns="1"
+					style="margin-top:10px;" columnClasses="rotulo">
+
+
+					<p:outputLabel value="Produto" />
+					<p:autoComplete size="42"
+						value="#{compraCabBean.compraDetSelecionado.produto}"
+						forceSelection="true" minQueryLength="3" required="true"
+						id="txtEdicaoProduto" requiredMessage="Informe o produto"
+						completeMethod="#{compraCabBean.completarProduto}" var="produto"
+						itemLabel="#{produto.nome}" itemValue="#{produto}">
+						<p:ajax event="itemSelect" oncomplete="setfocus('txtEdicaoQtde')" />
+					</p:autoComplete>
+
+					<p:outputLabel for="txtEdicaoQtde" value="Quantidade" />
+					<p:inputText size="11" id="txtEdicaoQtde" required="true"
+						style="text-align: right;" onkeyup="somenteNumeros(this)"
+						onkeypress="event.keyCode==13?setfocus('txtEdicaoVlrTotal'):''"
+						validatorMessage="Informe uma quantidade"
+						converterMessage="Informe uma quantidade valida"
+						value="#{compraCabBean.compraDetSelecionado.quantidade}">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber pattern="##,###,###,###.##" minFractionDigits="2" />
+						<p:ajax event="change" process="@this"
+							listener="#{compraCabBean.calcValorCusto()}" />
+					</p:inputText>
+
+					<p:outputLabel for="txtEdicaoVlrTotal" value="Valor Total R$" />
+					<p:inputText id="txtEdicaoVlrTotal" required="true"
+						style="text-align: right;"
+						validatorMessage="Informe um valor total"
+						onkeypress="event.keyCode==13?setfocusButtom('salvarCommandButtonParcela'):''"
+						value="#{compraCabBean.compraDetSelecionado.valorTotal}"
+						onfocus="formatoMoeda('txtEdicaoVlrTotal')" size="11">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+						<p:ajax event="change" process="@this"
+							listener="#{compraCabBean.calcValorCusto()}" />
+					</p:inputText>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							action="#{compraCabBean.atualizarItem()}"
+							process="@this edit"
+							oncomplete="if(!args.validationFailed) PF('dialogEdicaoItens').hide()"
+							update="edit tblItens txtTotalItem" id="salvarCommandButtonParcela">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
 
 			</h:form>
 

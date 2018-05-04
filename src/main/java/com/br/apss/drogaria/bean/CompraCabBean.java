@@ -19,6 +19,7 @@ import org.omnifaces.util.Messages;
 
 import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.CompraDet;
+import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.Usuario;
@@ -35,6 +36,8 @@ public class CompraCabBean implements Serializable {
 	private CompraCab compraCab;
 
 	private CompraDet compraDet;
+
+	private CompraDet compraDetSelecionado;
 
 	private List<Pessoa> listaDeFornecedores = new ArrayList<Pessoa>();
 
@@ -123,14 +126,25 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void addItem() {
-			this.listaDeItens.add(0, this.compraDet);
-			this.compraDet = new CompraDet();
-			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		this.listaDeItens.add(0, this.compraDet);
+		this.compraDet = new CompraDet();
+		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+	}
+	
+	public void atualizarItem() {
+		this.compraDet = new CompraDet();
+		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		
 	}
 
 	public void removerItem() {
 		this.listaDeItens.remove(this.compraDet);
 		this.compraDet = new CompraDet();
+		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+	}
+
+	public void abrirEdicao() {
+		this.compraDetSelecionado = this.compraDet;
 	}
 
 	public BigDecimal calcularTotalItens() {
@@ -181,6 +195,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setListaDeItens(List<CompraDet> listaDeItens) {
 		this.listaDeItens = listaDeItens;
+	}
+
+	public CompraDet getCompraDetSelecionado() {
+		return compraDetSelecionado;
+	}
+
+	public void setCompraDetSelecionado(CompraDet compraDetSelecionado) {
+		this.compraDetSelecionado = compraDetSelecionado;
 	}
 
 }
