@@ -310,7 +310,7 @@
 								onfocus="formatoMoeda('txtVlrNota')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax process="@this" update="groupDif" event="blur"
+								<p:ajax process="@this" update="groupDif txtVlrPag" event="blur"
 									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
@@ -323,7 +323,7 @@
 								onfocus="formatoMoeda('txtVlrProduto')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax process="@this" update="groupDif" event="blur"
+								<p:ajax process="@this" update="groupDif txtVlrPag" event="blur"
 									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
@@ -386,7 +386,7 @@
 								value="#{compraCabBean.compraDet.valorUnitario}"
 								onfocus="formatoMoeda('txtVlrUnit')" size="7">
 								<f:validateDoubleRange minimum="0.01" />
-								<f:convertNumber type="currency" />
+								<f:convertNumber type="currency" maxFractionDigits="4" />
 								<p:ajax process="@this" />
 							</p:inputText>
 
@@ -409,7 +409,7 @@
 									value="#{compraCabBean.compraDet.valorTotalLiquido}"
 									onfocus="formatoMoeda('txtVlrTotalLiq')" size="9">
 									<f:validateDoubleRange minimum="0.01" />
-									<f:convertNumber type="currency" />
+									<f:convertNumber type="currency" maxFractionDigits="2" />
 								</p:inputText>
 
 								<p:commandButton icon="fa fa-cubes" size="10"
@@ -418,7 +418,8 @@
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
-									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
+									update="panelGridCabNota panelGridItem tblItens 
+									txtTotalItem  btnGerarParcela"
 									process="@this panelGridCabNota panelGridItem"
 									action="#{compraCabBean.addItem()}">
 									<p:focus for="txtProduto" />
@@ -503,38 +504,43 @@
 							style="margin-top:20px; margin-left:10px;">
 
 							<p:selectOneMenu autoWidth="false" style="width:215px;"
-								value="#{contaAPagarBean.parcela.tipoCobranca}"
-								disabled="#{movimentacaoBean.movto.notInclusao}"
+								value="#{compraCabBean.parcela.tipoCobranca}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo de cobrança">
 								<f:selectItem itemLabel="Tipo de Cobrança" itemValue="#{null}" />
-								<f:selectItems value="#{contaAPagarBean.listaTipoCobrancas}"
+								<f:selectItems value="#{compraCabBean.listaTipoCobrancas}"
 									var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
 									itemValue="#{cob}" />
 							</p:selectOneMenu>
 
 							<p:outputLabel value="Parcela(s)"
 								style="margin-left:8px; margin-right:2px;" />
-							<p:spinner size="1" min="1" max="100" value="" />
+							<p:spinner size="1" min="1" max="100"
+								value="#{compraCabBean.parcela.numVezes}" />
 
 							<p:outputLabel value="Intervalo"
 								style="margin-left:4px; margin-right:2px;" />
 							<p:spinner size="1" min="1" max="30"
-								value="#{contaAPagarBean.parcela.periodo}" />
+								value="#{compraCabBean.parcela.periodo}" />
 
 							<p:outputLabel value="Dia(s)"
 								style="margin-left:4px; margin-right:9px;" />
 
-							<p:inputText id="txtVlrPag" required="true"
-								requiredMessage="Informe um valor" styleClass="total"
-								readonly="true" onfocus="formatoMoeda('txtVlrPag')"
-								value="#{contaAPagarBean.parcela.valor}" size="12">
+							<p:inputText id="txtVlrPag" required="true" disabled="true"
+								style="text-align: right;" requiredMessage="Informe um valor"
+								styleClass="total" readonly="true"
+								onfocus="formatoMoeda('txtVlrPag')"
+								value="#{compraCabBean.parcela.valor}" size="11">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 							</p:inputText>
 
 							<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
-								styleClass="total" />
+								disabled="#{compraCabBean.listaDeItens.size() == 0}"
+								process="@this" styleClass="total"
+								action="#{compraCabBean.gerarParcelas}" update="tblPagto"
+								id="btnGerarParcela">
+							</p:commandButton>
 
 						</h:panelGrid>
 
@@ -653,10 +659,10 @@
 				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
-							action="#{compraCabBean.atualizarItem()}"
-							process="@this edit"
+							action="#{compraCabBean.atualizarItem()}" process="@this edit"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoItens').hide()"
-							update="edit tblItens txtTotalItem" id="salvarCommandButtonParcela">
+							update="edit tblItens txtTotalItem"
+							id="salvarCommandButtonParcela">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>
