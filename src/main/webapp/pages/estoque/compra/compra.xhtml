@@ -22,6 +22,7 @@
 		} 
 	}
 
+
 </script>
 
 		<style>
@@ -239,7 +240,7 @@
 
 
 		<p:dialog header="Entrada de Mercadoria" widgetVar="dialogCompra"
-			modal="true" width="830" height="430" resizable="false"
+			modal="true" width="830" height="435" resizable="false"
 			draggable="true" id="dgCompra" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
@@ -300,27 +301,27 @@
 								onfocus="mascaraDtCalendar('txtEntrada')"
 								requiredMessage="Informe a data entrada" />
 
-							<p:outputLabel for="txtVlrNota" value="Valor da Nota" />
-							<p:inputText id="txtVlrNota" required="true"
-								validatorMessage="O valor da nota é menor do que o minimo 
+							<p:outputLabel for="txtVlrProduto" value="Valor dos Produtos" />
+							<p:inputText id="txtVlrProduto" required="true"
+								validatorMessage="O valor do item é menor do que o minimo 
 								permitido de '0,01'"
-								onkeypress="event.keyCode==13?setfocus('txtVlrProduto'):''"
+								onkeypress="event.keyCode==13?setfocus('txtVlrNota'):''"
 								disabled="#{compraCabBean.listaDeItens.size() > 0}"
-								value="#{compraCabBean.compraCab.valorNota}"
-								onfocus="formatoMoeda('txtVlrNota')" size="15">
+								value="#{compraCabBean.compraCab.valorItens}"
+								onfocus="formatoMoeda('txtVlrProduto')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 								<p:ajax process="@this" update="groupDif txtVlrPag" event="blur"
 									listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
-							<p:outputLabel for="txtVlrProduto" value="Valor do(s) Iten(s)" />
-							<p:inputText id="txtVlrProduto" required="true"
-								validatorMessage="O valor do item é menor do que o minimo 
+							<p:outputLabel for="txtVlrNota" value="Valor da Nota" />
+							<p:inputText id="txtVlrNota" required="true"
+								validatorMessage="O valor da nota é menor do que o minimo 
 								permitido de '0,01'"
 								disabled="#{compraCabBean.listaDeItens.size() > 0}"
-								value="#{compraCabBean.compraCab.valorItens}"
-								onfocus="formatoMoeda('txtVlrProduto')" size="15">
+								value="#{compraCabBean.compraCab.valorNota}"
+								onfocus="formatoMoeda('txtVlrNota')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 								<p:ajax process="@this" update="groupDif txtVlrPag" event="blur"
@@ -336,7 +337,7 @@
 								</p:inputText>
 								<p:outputLabel value="#{compraCabBean.compraCab.vlrEmPerc} (%)"
 									style="margin-left:15px">
-									<f:convertNumber type="currency" />
+									<f:convertNumber type="currency" maxFractionDigits="2" />
 								</p:outputLabel>
 							</h:panelGroup>
 
@@ -345,7 +346,7 @@
 
 					</p:tab>
 
-					<p:tab title="Iten(s)">
+					<p:tab title="Produtos">
 
 						<h:panelGrid styleClass="semBorda" columns="5" id="panelGridItem"
 							style="margin-top:5px; margin-left:10px;">
@@ -459,7 +460,8 @@
 
 							<p:column style="width: 80px; text-align: right;">
 								<h:outputText value="#{obj.valorTotalLiquido}">
-									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+									<f:convertNumber locale="pt_BR" minFractionDigits="2"
+										maxFractionDigits="2" />
 								</h:outputText>
 							</p:column>
 
@@ -537,8 +539,9 @@
 
 							<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
 								disabled="#{compraCabBean.listaDeItens.size() == 0}"
-								process="@this" styleClass="total"
-								action="#{compraCabBean.gerarParcelas}" update="tblPagto"
+								process="@this panelGridPagto"
+								action="#{compraCabBean.gerarParcelas}"
+								update="tblPagto panelGridPagto totalGeralParcelas"
 								id="btnGerarParcela">
 							</p:commandButton>
 
@@ -547,11 +550,11 @@
 
 						<p:dataTable id="tblPagto" style="margin-left:10px; width:97%"
 							styleClass="total" emptyMessage="Nenhuma registro lançado"
-							scrollable="true" scrollHeight="250" var="p">
+							scrollable="true" scrollHeight="240"
+							value="#{compraCabBean.listaParcelas}" var="p">
 
-							<p:column style="width:190px; text-align:center;"
-								headerText="Tipo">
-								<h:outputText value="#{p.tipoCobranca.sigla}" />
+							<p:column style="width:190px; " headerText="Tipo">
+								<h:outputText value="#{p.tipoCobranca.descricao}" />
 							</p:column>
 							<p:column style="width:60px; text-align:center;"
 								headerText="Parcela(s)">
@@ -578,13 +581,17 @@
 							</p:column>
 						</p:dataTable>
 
-						<p:toolbar styleClass="semPreenchimento" style="margin-top:20px;">
+						<p:toolbar styleClass="semPreenchimento" style="margin-top:30px;">
 							<p:toolbarGroup>
+								<p:commandButton icon="fa fa-save" value="Salvar">
+								</p:commandButton>
+							</p:toolbarGroup>
+							<p:toolbarGroup align="right">
 								<p:outputLabel value="Total:"
-									style="font-size:13px; margin-left:15px; color:black" />
-								<p:outputLabel styleClass="total"
-									value="#{contaAPagarBean.totalDasParcelas}"
-									style="color:red; font-size:14px; margin-left:15px;">
+									style="font-size:13px; margin-right:15px; color:black" />
+								<p:outputLabel id="totalGeralParcelas"
+									value="#{compraCabBean.parcela.totalGeralDeParcelas}"
+									style="color:red; font-size:14px; margin-right:105px;">
 									<f:convertNumber type="currency" />
 								</p:outputLabel>
 							</p:toolbarGroup>
@@ -601,7 +608,7 @@
 
 
 		<!-- DIALOG EDIÇÃO DE ITEN(S) -->
-		<p:dialog header="Edição de iten(s)" widgetVar="dialogEdicaoItens"
+		<p:dialog header="Edição de produto(s)" widgetVar="dialogEdicaoItens"
 			modal="true" resizable="false" draggable="true" id="dgEdicaoItens"
 			closeOnEscape="true" width="400" height="225" appendTo="@(body)">
 
@@ -659,6 +666,7 @@
 				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
+							onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 							action="#{compraCabBean.atualizarItem()}" process="@this edit"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoItens').hide()"
 							update="edit tblItens txtTotalItem"

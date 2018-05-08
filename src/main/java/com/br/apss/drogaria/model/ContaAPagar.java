@@ -107,6 +107,9 @@ public class ContaAPagar implements Serializable {
 	@Transient
 	private BigDecimal pagoTB = BigDecimal.ZERO;
 
+	@Transient
+	BigDecimal totalGeralDeParcelas = BigDecimal.ZERO;
+
 	public Long getId() {
 		return id;
 	}
@@ -281,6 +284,14 @@ public class ContaAPagar implements Serializable {
 
 	public void setAgrupadorMovimentacao(Long agrupadorMovimentacao) {
 		this.agrupadorMovimentacao = agrupadorMovimentacao;
+	}
+
+	public BigDecimal getTotalGeralDeParcelas() {
+		return totalGeralDeParcelas;
+	}
+
+	public void setTotalGeralDeParcelas(BigDecimal totalGeralDeParcelas) {
+		this.totalGeralDeParcelas = totalGeralDeParcelas;
 	}
 
 	@Override

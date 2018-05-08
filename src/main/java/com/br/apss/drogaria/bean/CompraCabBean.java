@@ -33,6 +33,7 @@ import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
+import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
 @ViewScoped
@@ -128,8 +129,9 @@ public class CompraCabBean implements Serializable {
 
 		if (!compraDet.getQuantidade().equals(null) && compraDet.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
 			if (!perc.equals(BigDecimal.ZERO)) {
-				dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100));
-				soma = dif.add(compraDet.getValorTotal());
+				dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100)).setScale(2,
+						RoundingMode.HALF_UP);
+				soma = dif.add(compraDet.getValorTotal()).setScale(2, RoundingMode.HALF_UP);
 				compraDet.setValorTotalLiquido(soma);
 				resultado = soma.divide(compraDet.getQuantidade(), 2, RoundingMode.HALF_UP);
 				compraDet.setValorUnitario(resultado);
@@ -141,10 +143,15 @@ public class CompraCabBean implements Serializable {
 	public List<Produto> completarProduto(String nome) {
 		List<Produto> p = this.produtoService.buscarPorCodigoNome(nome);
 		if (p != null) {
-			return p;	
+			return p;
 		}
-		this.compraDet = new CompraDet();
 		return null;
+	}
+
+	public void limparCampo() {
+		if (null == this.compraDet.getProduto()) {
+			this.compraDet = new CompraDet();
+		}
 	}
 
 	public void addItem() {
@@ -159,9 +166,14 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void atualizarItem() {
-		this.compraDet = new CompraDet();
-		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
-
+		if (calcularTotalItens().add(this.compraDetSelecionado.getValorTotal())
+				.compareTo(this.compraCab.getValorNota()) > 0) {
+			FacesContext.getCurrentInstance().validationFailed();
+			Messages.addGlobalInfo("Valor do item maior que o da nota");
+		} else {
+			this.compraDet = new CompraDet();
+			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		}
 	}
 
 	public void removerItem() {
@@ -198,13 +210,13 @@ public class CompraCabBean implements Serializable {
 			ContaAPagar ap = new ContaAPagar();
 			ap.setTipoCobranca(this.parcela.getTipoCobranca());
 			ap.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
-			ap.setNumDoc(this.cabContaApagar.getDocumento());
-			ap.setDataVencto(i == 0 ? this.cabContaApagar.getDataVencto()
-					: somaDias(this.cabContaApagar.getDataVencto(), this.parcela.getPeriodo() * i));
+			ap.setNumDoc(this.compraCab.getDocumento());
+			ap.setDataVencto(i == 0 ? somaDias(this.compraCab.getDataEntrada(), 30)
+					: somaDias(this.compraCab.getDataEntrada(), this.parcela.getPeriodo() * (i+1)));
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
 			this.listaParcelas.add(ap);
 		}
-		// this.parcela.to(this.parcela.getValor());
+		 this.parcela.setTotalGeralDeParcelas(this.parcela.getValor());
 	}
 
 	public Date somaDias(Date data, int dias) {
