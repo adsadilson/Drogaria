@@ -528,11 +528,10 @@
 							<p:outputLabel value="Dia(s)"
 								style="margin-left:4px; margin-right:9px;" />
 
-							<p:inputText id="txtVlrPag" required="true" disabled="true"
+							<p:inputText id="txtVlrPag" required="true"
 								style="text-align: right;" requiredMessage="Informe um valor"
-								styleClass="total" readonly="true"
-								onfocus="formatoMoeda('txtVlrPag')"
-								value="#{compraCabBean.parcela.valor}" size="11">
+								readonly="true" onfocus="formatoMoeda('txtVlrPag')"
+								value="#{compraCabBean.parcela.valor}" size="12">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 							</p:inputText>
@@ -577,8 +576,17 @@
 								</h:outputText>
 							</p:column>
 							<p:column headerText="Ação"
-								style="text-align:center; width:50px;">
+								style="text-align: center; padding: 0; width:65px;"
+								exportable="false">
+								<p:commandButton icon="ui-icon-pencil" title="Editar"
+									styleClass="semPreenchimento" update="editParcela"
+									oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
+									action="#{compraCabBean.abrirEdicaoFatura()}">
+									<f:setPropertyActionListener target="#{compraCabBean.parcela}"
+										value="#{p}" />
+								</p:commandButton>
 							</p:column>
+
 						</p:dataTable>
 
 						<p:toolbar styleClass="semPreenchimento" style="margin-top:30px;">
@@ -669,8 +677,67 @@
 							onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 							action="#{compraCabBean.atualizarItem()}" process="@this edit"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoItens').hide()"
-							update="edit tblItens txtTotalItem"
-							id="salvarCommandButtonParcela">
+							update="edit tblItens txtTotalItem" id="salvarCommandButtonItem">
+						</p:commandButton>
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+		<!-- DIALOG EDIÇÃO DE FATURA(S) -->
+		<p:dialog header="Edição de fatura(s)" widgetVar="dialogEdicaoParcela"
+			modal="true" resizable="false" draggable="true" id="dgEdicaoParcela"
+			closeOnEscape="true" width="300" height="200" appendTo="@(body)">
+
+			<p:ajax event="close" update="totalGeralParcelas"
+				listener="#{compraCabBean.recalcularParcela()}" />
+
+			<h:form id="editParcela" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:growl autoUpdate="true" />
+
+				<h:panelGrid id="panelEdicaoFatura" columns="2"
+					style="margin-top:10px;" columnClasses="rotuloCabecalho">
+
+
+					<p:outputLabel value="Parcela" />
+					<p:inputText value="#{compraCabBean.parcelaEditar.parcela}"
+						disabled="true" size="11" />
+
+					<p:outputLabel value="Documento" />
+					<p:inputText value="#{compraCabBean.parcelaEditar.numDoc}"
+						size="11" />
+
+					<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
+					<p:inputText size="11" id="txtEdicaoVencimento"
+						onfocus="mascaraDtInput('txtEdicaoVencimento')"
+						value="#{compraCabBean.parcelaEditar.dataVencto}" required="true"
+						requiredMessage="Informe uma data para a vencimento">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</p:inputText>
+
+					<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
+					<p:inputText id="txtEdicaoVlrPag" required="true"
+						requiredMessage="Informe um valor"
+						onfocus="formatoMoeda('txtEdicaoVlrPag')"
+						value="#{compraCabBean.parcelaEditar.valor}" placeholder="VALOR"
+						size="11">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 15px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							action="#{compraCabBean.salvarEdicaoParcela()}"
+							process="@this editParcela"
+							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
+							update="edit tblPagto" id="salvarCommandButtonParcela">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>

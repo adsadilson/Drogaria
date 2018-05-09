@@ -25,8 +25,6 @@ import com.br.apss.drogaria.model.CabContaApagar;
 import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.CompraDet;
 import com.br.apss.drogaria.model.ContaAPagar;
-import com.br.apss.drogaria.model.ContaAReceber;
-import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.Usuario;
@@ -54,6 +52,8 @@ public class CompraCabBean implements Serializable {
 	private CompraCabFilter filtro;
 
 	private ContaAPagar parcela;
+
+	private ContaAPagar parcelaEditar;
 
 	private List<ContaAPagar> listaParcelas;
 
@@ -186,6 +186,52 @@ public class CompraCabBean implements Serializable {
 		this.compraDetSelecionado = this.compraDet;
 	}
 
+	public void abrirEdicaoFatura() {
+		this.parcelaEditar = new ContaAPagar();
+		this.parcelaEditar.setParcela(this.parcela.getParcela());
+		this.parcelaEditar.setDataVencto(this.parcela.getDataVencto());
+		this.parcelaEditar.setNumDoc(this.parcela.getNumDoc());
+		this.parcelaEditar.setValor(this.parcela.getValor());
+	}
+
+	public void salvarEdicaoParcela() {
+
+		BigDecimal recalculo = BigDecimal.ZERO;
+
+		if (!validarDatas(this.compraCab.getDataEntrada(), this.parcelaEditar.getDataVencto())) {
+
+			for (ContaAPagar pp : this.listaParcelas) {
+				if (pp.getParcela().equals(this.parcelaEditar.getParcela())) {
+					pp.setDataVencto(this.parcelaEditar.getDataVencto());
+					pp.setNumDoc(this.parcelaEditar.getNumDoc());
+					pp.setValor(this.parcelaEditar.getValor());
+				}
+				recalculo = recalculo.add(pp.getValor());
+			}
+			this.parcela.setTotalGeralDeParcelas(recalculo);
+		} else {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("A data de vencimento dever ser maior que a data de entrada!");
+		}
+	}
+
+	public void recalcularParcela() {
+		BigDecimal r = BigDecimal.ZERO;
+		for (ContaAPagar par : this.listaParcelas) {
+			r = r.add(par.getValor());
+		}
+		this.parcela.setTotalGeralDeParcelas(r);
+	}
+
+	public Boolean validarDatas(Date ini, Date fim) {
+		if (ini != null && fim != null) {
+			if (fim.before(ini)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public BigDecimal calcularTotalItens() {
 		BigDecimal t = BigDecimal.ZERO;
 		for (CompraDet item : listaDeItens) {
@@ -212,11 +258,11 @@ public class CompraCabBean implements Serializable {
 			ap.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
 			ap.setNumDoc(this.compraCab.getDocumento());
 			ap.setDataVencto(i == 0 ? somaDias(this.compraCab.getDataEntrada(), 30)
-					: somaDias(this.compraCab.getDataEntrada(), this.parcela.getPeriodo() * (i+1)));
+					: somaDias(this.compraCab.getDataEntrada(), this.parcela.getPeriodo() * (i + 1)));
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
 			this.listaParcelas.add(ap);
 		}
-		 this.parcela.setTotalGeralDeParcelas(this.parcela.getValor());
+		this.parcela.setTotalGeralDeParcelas(this.parcela.getValor());
 	}
 
 	public Date somaDias(Date data, int dias) {
@@ -298,6 +344,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setCabContaApagar(CabContaApagar cabContaApagar) {
 		this.cabContaApagar = cabContaApagar;
+	}
+
+	public ContaAPagar getParcelaEditar() {
+		return parcelaEditar;
+	}
+
+	public void setParcelaEditar(ContaAPagar parcelaEditar) {
+		this.parcelaEditar = parcelaEditar;
 	}
 
 }
