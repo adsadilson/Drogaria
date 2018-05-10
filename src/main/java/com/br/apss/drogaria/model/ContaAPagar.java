@@ -294,6 +294,7 @@ public class ContaAPagar implements Serializable {
 		this.totalGeralDeParcelas = totalGeralDeParcelas;
 	}
 
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

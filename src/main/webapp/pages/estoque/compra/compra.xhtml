@@ -470,13 +470,14 @@
 								<p:commandButton icon="ui-icon-pencil" title="Editar"
 									styleClass="semPreenchimento" update="edit"
 									oncomplete="PF('dialogEdicaoItens').show()" process="@this"
-									action="#{compraCabBean.abrirEdicao()}">
+									action="#{compraCabBean.abrirEdicaoItem()}">
 									<f:setPropertyActionListener
 										target="#{compraCabBean.compraDet}" value="#{obj}" />
 								</p:commandButton>
 
 								<p:commandButton title="Excluir" process="@this"
-									update="panelGridCabNota panelGridItem tblItens txtTotalItem"
+									update="panelGridCabNota panelGridItem tblItens txtTotalItem 
+									btnGerarParcela tblPagto totalGeralParcelas"
 									action="#{compraCabBean.removerItem()}" icon="ui-icon-trash"
 									styleClass="semPreenchimento">
 									<f:setPropertyActionListener value="#{obj}"
@@ -531,7 +532,7 @@
 							<p:inputText id="txtVlrPag" required="true"
 								style="text-align: right;" requiredMessage="Informe um valor"
 								readonly="true" onfocus="formatoMoeda('txtVlrPag')"
-								value="#{compraCabBean.parcela.valor}" size="12">
+								value="#{compraCabBean.totalAParcelar}" size="12">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 							</p:inputText>
@@ -660,7 +661,7 @@
 					<p:inputText id="txtEdicaoVlrTotal" required="true"
 						style="text-align: right;"
 						validatorMessage="Informe um valor total"
-						onkeypress="event.keyCode==13?setfocusButtom('salvarCommandButtonParcela'):''"
+						onkeypress="event.keyCode==13?setfocusButtom('salvarCommandButtonItem'):''"
 						value="#{compraCabBean.compraDetSelecionado.valorTotal}"
 						onfocus="formatoMoeda('txtEdicaoVlrTotal')" size="11">
 						<f:validateDoubleRange minimum="0.01" />
@@ -675,7 +676,7 @@
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
-							action="#{compraCabBean.atualizarItem()}" process="@this edit"
+							action="#{compraCabBean.salvarEdicaoItem()}" process="@this edit"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoItens').hide()"
 							update="edit tblItens txtTotalItem" id="salvarCommandButtonItem">
 						</p:commandButton>
@@ -709,10 +710,13 @@
 
 					<p:outputLabel value="Documento" />
 					<p:inputText value="#{compraCabBean.parcelaEditar.numDoc}"
-						size="11" />
+						size="11"
+						onkeypress="event.keyCode==13?setfocus('txtEdicaoVencimento'):''">
+					</p:inputText>
 
 					<p:outputLabel for="txtEdicaoVencimento" value="Vencimento" />
 					<p:inputText size="11" id="txtEdicaoVencimento"
+						onkeypress="event.keyCode==13?setfocus('txtEdicaoVlrPag'):''"
 						onfocus="mascaraDtInput('txtEdicaoVencimento')"
 						value="#{compraCabBean.parcelaEditar.dataVencto}" required="true"
 						requiredMessage="Informe uma data para a vencimento">
@@ -722,6 +726,7 @@
 					<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
 					<p:inputText id="txtEdicaoVlrPag" required="true"
 						requiredMessage="Informe um valor"
+						onkeypress="event.keyCode==13?setfocusButtom('salvarCommandButtonParcela'):''"
 						onfocus="formatoMoeda('txtEdicaoVlrPag')"
 						value="#{compraCabBean.parcelaEditar.valor}" placeholder="VALOR"
 						size="11">
@@ -736,6 +741,7 @@
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							action="#{compraCabBean.salvarEdicaoParcela()}"
 							process="@this editParcela"
+							onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
 							update="edit tblPagto" id="salvarCommandButtonParcela">
 						</p:commandButton>

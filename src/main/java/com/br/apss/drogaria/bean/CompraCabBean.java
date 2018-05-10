@@ -16,6 +16,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.Transient;
 import javax.servlet.http.HttpSession;
 
 import org.omnifaces.util.Messages;
@@ -64,6 +65,8 @@ public class CompraCabBean implements Serializable {
 
 	@Inject
 	private ProdutoService produtoService;
+
+	private BigDecimal totalAParcelar = BigDecimal.ZERO;
 
 	@PostConstruct
 	public void inicializar() {
@@ -117,7 +120,7 @@ public class CompraCabBean implements Serializable {
 			this.compraCab.setVlrEmPerc(n4);
 		}
 
-		this.parcela.setValor(n);
+		this.setTotalAParcelar(n);
 
 	}
 
@@ -155,34 +158,28 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void addItem() {
-		if (calcularTotalItens().add(this.compraDet.getValorTotalLiquido())
-				.compareTo(this.compraCab.getValorNota()) > 0) {
-			Messages.addGlobalInfo("Valor do item maior que o da nota");
-		} else {
-			this.listaDeItens.add(0, this.compraDet);
-			this.compraDet = new CompraDet();
-			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
-		}
+		this.listaDeItens.add(0, this.compraDet);
+		this.compraDet = new CompraDet();
+		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
 	}
 
-	public void atualizarItem() {
-		if (calcularTotalItens().add(this.compraDetSelecionado.getValorTotal())
-				.compareTo(this.compraCab.getValorNota()) > 0) {
-			FacesContext.getCurrentInstance().validationFailed();
-			Messages.addGlobalInfo("Valor do item maior que o da nota");
-		} else {
-			this.compraDet = new CompraDet();
-			this.compraDet.setTotalDeItensGeral(calcularTotalItens());
-		}
+	public void salvarEdicaoItem() {
+		this.compraDet = new CompraDet();
+		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
 	}
 
 	public void removerItem() {
 		this.listaDeItens.remove(this.compraDet);
 		this.compraDet = new CompraDet();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		
+		if (this.listaDeItens.size() == 0) {
+			this.listaParcelas.clear();
+			recalcularParcela();
+		}
 	}
 
-	public void abrirEdicao() {
+	public void abrirEdicaoItem() {
 		this.compraDetSelecionado = this.compraDet;
 	}
 
@@ -247,9 +244,9 @@ public class CompraCabBean implements Serializable {
 	public void gerarParcelas() {
 
 		BigDecimal qtde_parcela = new BigDecimal(this.parcela.getNumVezes());
-		BigDecimal valorParcela = this.parcela.getValor().divide(qtde_parcela, 1, RoundingMode.CEILING);
+		BigDecimal valorParcela = this.getTotalAParcelar().divide(qtde_parcela, 1, RoundingMode.CEILING);
 		BigDecimal valorParcial = valorParcela.multiply(qtde_parcela.subtract(new BigDecimal(1)));
-		BigDecimal primeiraParcela = this.parcela.getValor().subtract(valorParcial);
+		BigDecimal primeiraParcela = this.getTotalAParcelar().subtract(valorParcial);
 
 		this.listaParcelas.clear();
 		for (int i = 0; i < this.parcela.getNumVezes(); i++) {
@@ -262,7 +259,7 @@ public class CompraCabBean implements Serializable {
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
 			this.listaParcelas.add(ap);
 		}
-		this.parcela.setTotalGeralDeParcelas(this.parcela.getValor());
+		this.parcela.setTotalGeralDeParcelas(this.totalAParcelar);
 	}
 
 	public Date somaDias(Date data, int dias) {
@@ -352,6 +349,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setParcelaEditar(ContaAPagar parcelaEditar) {
 		this.parcelaEditar = parcelaEditar;
+	}
+
+	public BigDecimal getTotalAParcelar() {
+		return totalAParcelar;
+	}
+
+	public void setTotalAParcelar(BigDecimal totalAParcelar) {
+		this.totalAParcelar = totalAParcelar;
 	}
 
 }

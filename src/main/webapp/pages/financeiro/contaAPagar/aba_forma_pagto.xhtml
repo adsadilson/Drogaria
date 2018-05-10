@@ -49,7 +49,7 @@
 			<p:inputText id="txtVlrPag" required="true"
 				requiredMessage="Informe um valor" styleClass="total"
 				readonly="true" onfocus="formatoMoeda('txtVlrPag')"
-				value="#{contaAPagarBean.parcela.valor}" size="10">
+				value="#{contaAPagarBean.totalAParcelar}" size="10">
 				<f:validateDoubleRange minimum="0.01" />
 				<f:convertNumber type="currency" />
 			</p:inputText>
