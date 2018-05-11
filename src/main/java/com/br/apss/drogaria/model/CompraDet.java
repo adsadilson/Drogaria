@@ -34,8 +34,8 @@ public class CompraDet implements Serializable {
 	@Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
 	private BigDecimal valorTotal = BigDecimal.ZERO;
 
-	@Column(name = "valor_dif", nullable = false, precision = 10, scale = 2)
-	private BigDecimal valorDif = BigDecimal.ZERO;
+	@Column(name = "acr_desc", nullable = false, precision = 10, scale = 2)
+	private BigDecimal acrDesc = BigDecimal.ZERO;
 
 	@Column(name = "valor_total_liquido", nullable = false, precision = 10, scale = 2)
 	private BigDecimal valorTotalLiquido = BigDecimal.ZERO;
@@ -107,12 +107,12 @@ public class CompraDet implements Serializable {
 		this.valorTotal = valorTotal;
 	}
 
-	public BigDecimal getValorDif() {
-		return valorDif;
+	public BigDecimal getAcrDesc() {
+		return acrDesc;
 	}
 
-	public void setValorDif(BigDecimal valorDif) {
-		this.valorDif = valorDif;
+	public void setAcrDesc(BigDecimal acrDesc) {
+		this.acrDesc = acrDesc;
 	}
 
 	public BigDecimal getValorTotalLiquido() {
@@ -149,8 +149,7 @@ public class CompraDet implements Serializable {
 			return false;
 		CompraDet other = (CompraDet) obj;
 		if (id == null && other.id == null) {
-			if (other.produto.equals(this.produto) 
-					&& other.getQuantidade().equals(this.getQuantidade())
+			if (other.produto.equals(this.produto) && other.getQuantidade().equals(this.getQuantidade())
 					&& other.getValorTotal().equals(this.getValorTotal()))
 				return true;
 			else

@@ -15,7 +15,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.br.apss.drogaria.enums.Estado;
 import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;

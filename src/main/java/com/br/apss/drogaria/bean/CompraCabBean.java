@@ -16,10 +16,11 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.persistence.Transient;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.util.Messages;
+import org.primefaces.context.RequestContext;
 
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.model.CabContaApagar;
@@ -30,6 +31,7 @@ import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
+import com.br.apss.drogaria.service.CompraCabService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -66,6 +68,9 @@ public class CompraCabBean implements Serializable {
 	@Inject
 	private ProdutoService produtoService;
 
+	@Inject
+	private CompraCabService compraCabService;
+
 	private BigDecimal totalAParcelar = BigDecimal.ZERO;
 
 	@PostConstruct
@@ -94,6 +99,7 @@ public class CompraCabBean implements Serializable {
 		this.compraCab.setDataEntrada(new Date());
 		this.compraCab.setUsuario(obterUsuario());
 		this.parcela = new ContaAPagar();
+		this.listaDeItens = new ArrayList<CompraDet>();
 		this.listaParcelas = new ArrayList<ContaAPagar>();
 	}
 
@@ -114,7 +120,7 @@ public class CompraCabBean implements Serializable {
 
 		if (n.compareTo(BigDecimal.ZERO) > 0 && n2.compareTo(BigDecimal.ZERO) > 0) {
 			n3 = n.subtract(n2);
-			this.compraCab.setValorDif(n3);
+			this.compraCab.setAcrDesc(n3);
 			n4 = (n3.divide(n2, MathContext.DECIMAL128)).multiply(new BigDecimal(100)).setScale(3,
 					RoundingMode.HALF_EVEN);
 			this.compraCab.setVlrEmPerc(n4);
@@ -138,7 +144,20 @@ public class CompraCabBean implements Serializable {
 				compraDet.setValorTotalLiquido(soma);
 				resultado = soma.divide(compraDet.getQuantidade(), 2, RoundingMode.HALF_UP);
 				compraDet.setValorUnitario(resultado);
-				compraDet.setValorDif(dif);
+				compraDet.setAcrDesc(dif);
+			}
+		}
+	}
+
+	public void consultarNota() {
+		if (StringUtils.isNotBlank(this.compraCab.getDocumento())) {
+			CompraCab cab = compraCabService.porDocumento(this.compraCab.getDocumento());
+			if (null != cab) {
+				if (cab.getFornecedor().equals(this.compraCab.getFornecedor())
+						&& cab.getDocumento().equals(this.compraCab.getDocumento())
+						&& cab.getDataEmissao().equals(this.compraCab.getDataEmissao())) {
+					Messages.addGlobalInfo("Nota já lançanda para esse fornecedor por favor verificar!");
+				}
 			}
 		}
 	}
@@ -158,6 +177,7 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void addItem() {
+		this.compraDet.setCompraCab(this.compraCab);
 		this.listaDeItens.add(0, this.compraDet);
 		this.compraDet = new CompraDet();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
@@ -172,10 +192,10 @@ public class CompraCabBean implements Serializable {
 		this.listaDeItens.remove(this.compraDet);
 		this.compraDet = new CompraDet();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
-		
+
 		if (this.listaDeItens.size() == 0) {
 			this.listaParcelas.clear();
-			recalcularParcela();
+			this.parcela.setTotalGeralDeParcelas(recalcularParcela());
 		}
 	}
 
@@ -212,12 +232,35 @@ public class CompraCabBean implements Serializable {
 		}
 	}
 
-	public void recalcularParcela() {
+	public void salvar() {
+		if (this.compraCab.getValorNota().compareTo(calcularTotalItens()) != 0) {
+			throw new NegocioException("Valor dos produtos diferente do valor da nota por favor verificar!");
+		}
+		if (this.compraCab.getValorNota().compareTo(recalcularParcela()) != 0) {
+			throw new NegocioException("Valor das faturas diferente do valor da nota por favor verificar!");
+		}
+
+		this.compraCab.setItens(this.listaDeItens);
+		compraCabService.salvar(this.compraCab);
+		RequestContext request = RequestContext.getCurrentInstance();
+		request.addCallbackParam("sucesso", true);
+		Messages.addGlobalInfo("salvor com sucesso!");
+	}
+
+	public BigDecimal recalcularParcela() {
 		BigDecimal r = BigDecimal.ZERO;
 		for (ContaAPagar par : this.listaParcelas) {
 			r = r.add(par.getValor());
 		}
-		this.parcela.setTotalGeralDeParcelas(r);
+		return r;
+	}
+
+	public BigDecimal calcularTotalItens() {
+		BigDecimal t = BigDecimal.ZERO;
+		for (CompraDet item : listaDeItens) {
+			t = t.add(item.getValorTotalLiquido());
+		}
+		return t;
 	}
 
 	public Boolean validarDatas(Date ini, Date fim) {
@@ -227,14 +270,6 @@ public class CompraCabBean implements Serializable {
 			}
 		}
 		return false;
-	}
-
-	public BigDecimal calcularTotalItens() {
-		BigDecimal t = BigDecimal.ZERO;
-		for (CompraDet item : listaDeItens) {
-			t = t.add(item.getValorTotalLiquido());
-		}
-		return t;
 	}
 
 	public List<TipoCobranca> getListaTipoCobrancas() {

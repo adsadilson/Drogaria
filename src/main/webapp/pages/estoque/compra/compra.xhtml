@@ -282,7 +282,10 @@
 							<p:outputLabel for="txtDocumento" value="Documento" />
 							<p:inputText id="txtDocumento" size="15" required="true"
 								requiredMessage="Informe o documento"
-								value="#{compraCabBean.compraCab.documento}" />
+								value="#{compraCabBean.compraCab.documento}">
+								<p:ajax process="@this" update="panelGridCabNota" event="blur"
+									listener="#{compraCabBean.consultarNota()}" />
+							</p:inputText>
 
 							<p:outputLabel for="txtEmissao" value="Emissão" />
 							<p:calendar id="txtEmissao" size="15" pattern="dd/MM/yyyy"
@@ -332,7 +335,7 @@
 							<p:outputLabel value="Diferênça (+/-)" />
 							<h:panelGroup id="groupDif">
 								<p:inputText id="txtDiferenca" disabled="true" size="15"
-									value="#{compraCabBean.compraCab.valorDif}">
+									value="#{compraCabBean.compraCab.acrDesc}">
 									<f:convertNumber type="currency" />
 								</p:inputText>
 								<p:outputLabel value="#{compraCabBean.compraCab.vlrEmPerc} (%)"
@@ -592,7 +595,9 @@
 
 						<p:toolbar styleClass="semPreenchimento" style="margin-top:30px;">
 							<p:toolbarGroup>
-								<p:commandButton icon="fa fa-save" value="Salvar">
+								<p:commandButton icon="fa fa-save" value="Salvar"
+									process="@this" action="#{compraCabBean.salvar()}" update=""
+									oncomplete="if(args.sucesso == true) PF('dialogCompra').hide()">
 								</p:commandButton>
 							</p:toolbarGroup>
 							<p:toolbarGroup align="right">

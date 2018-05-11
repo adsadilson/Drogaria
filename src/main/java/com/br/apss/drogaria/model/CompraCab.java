@@ -52,8 +52,8 @@ public class CompraCab implements Serializable {
 	@Column(name = "valor_itens", precision = 10, scale = 2)
 	private BigDecimal valorItens = BigDecimal.ZERO;
 
-	@Column(name = "valor_diferenca", precision = 10, scale = 2)
-	private BigDecimal valorDif = BigDecimal.ZERO;
+	@Column(name = "acr_des", precision = 10, scale = 2)
+	private BigDecimal acrDesc = BigDecimal.ZERO;
 
 	@Transient
 	private BigDecimal vlrEmPerc = BigDecimal.ZERO;
@@ -125,12 +125,12 @@ public class CompraCab implements Serializable {
 		this.valorItens = valorItens;
 	}
 
-	public BigDecimal getValorDif() {
-		return valorDif;
+	public BigDecimal getAcrDesc() {
+		return acrDesc;
 	}
 
-	public void setValorDif(BigDecimal valorDif) {
-		this.valorDif = valorDif;
+	public void setAcrDesc(BigDecimal acrDesc) {
+		this.acrDesc = acrDesc;
 	}
 
 	public Usuario getUsuario() {
