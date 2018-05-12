@@ -17,6 +17,7 @@ public class CompraCabFilter implements Serializable {
 	private String nomeCliente;
 	private StatusPedido[] statuses;
 	private String origem;
+	private String documento;
 	private int priRegistro;
 	private int qtdeRegistros;
 	private String campoOrder;
@@ -116,6 +117,14 @@ public class CompraCabFilter implements Serializable {
 
 	public void setAsc(boolean asc) {
 		this.asc = asc;
+	}
+
+	public String getDocumento() {
+		return documento;
+	}
+
+	public void setDocumento(String documento) {
+		this.documento = documento;
 	}
 
 }

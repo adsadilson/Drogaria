@@ -69,6 +69,8 @@ public class CompraCab implements Serializable {
 	@OneToMany(mappedBy = "compraCab", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CompraDet> itens = new ArrayList<>();
 
+	private Long vinculo;
+
 	public Long getId() {
 		return id;
 	}
@@ -173,6 +175,14 @@ public class CompraCab implements Serializable {
 
 	public void setVlrEmPerc(BigDecimal vlrEmPerc) {
 		this.vlrEmPerc = vlrEmPerc;
+	}
+
+	public Long getVinculo() {
+		return vinculo;
+	}
+
+	public void setVinculo(Long vinculo) {
+		this.vinculo = vinculo;
 	}
 
 	@Override

@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -20,7 +23,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.util.Messages;
+import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.ToggleSelectEvent;
+import org.primefaces.event.UnselectEvent;
 
 import com.br.apss.drogaria.enums.TipoCobranca;
 import com.br.apss.drogaria.model.CabContaApagar;
@@ -31,9 +38,11 @@ import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
+import com.br.apss.drogaria.service.CabContaApagarService;
 import com.br.apss.drogaria.service.CompraCabService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
+import com.br.apss.drogaria.util.jpa.GeradorVinculo;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
@@ -47,6 +56,10 @@ public class CompraCabBean implements Serializable {
 	private CompraDet compraDet;
 
 	private CompraDet compraDetSelecionado;
+
+	private List<CompraCab> listaDeCompraCab = new ArrayList<CompraCab>();
+
+	private List<CompraCab> listaDeCompraCabSelecionadas = new ArrayList<CompraCab>();
 
 	private List<Pessoa> listaDeFornecedores = new ArrayList<Pessoa>();
 
@@ -63,6 +76,9 @@ public class CompraCabBean implements Serializable {
 	private CabContaApagar cabContaApagar;
 
 	@Inject
+	private GeradorVinculo gerarVinculo;
+
+	@Inject
 	private PessoaService pessoaService;
 
 	@Inject
@@ -71,12 +87,25 @@ public class CompraCabBean implements Serializable {
 	@Inject
 	private CompraCabService compraCabService;
 
+	@Inject
+	private CabContaApagarService cabContaApagarService;
+
 	private BigDecimal totalAParcelar = BigDecimal.ZERO;
+
+	private boolean isToggle = false;
 
 	@PostConstruct
 	public void inicializar() {
 		filtro = new CompraCabFilter();
 		carregarListaDeFornecedores();
+	}
+
+	public void pesquisar() {
+		if (!StringUtils.isNotBlank(this.filtro.getDocumento())) {
+			throw new NegocioException("Informe o documento!");
+		}
+		this.listaDeCompraCab.clear();
+		this.listaDeCompraCab = compraCabService.filtrados(filtro);
 	}
 
 	private void carregarListaDeFornecedores() {
@@ -95,9 +124,11 @@ public class CompraCabBean implements Serializable {
 	public void novo() {
 		this.compraCab = new CompraCab();
 		this.compraDet = new CompraDet();
+		this.cabContaApagar = new CabContaApagar();
 		this.compraCab.setDataEmissao(new Date());
 		this.compraCab.setDataEntrada(new Date());
 		this.compraCab.setUsuario(obterUsuario());
+		this.compraCab.setVinculo(gerarVinculo.gerar(CompraCab.class));
 		this.parcela = new ContaAPagar();
 		this.listaDeItens = new ArrayList<CompraDet>();
 		this.listaParcelas = new ArrayList<ContaAPagar>();
@@ -155,8 +186,8 @@ public class CompraCabBean implements Serializable {
 			if (null != cab) {
 				if (cab.getFornecedor().equals(this.compraCab.getFornecedor())
 						&& cab.getDocumento().equals(this.compraCab.getDocumento())
-						&& cab.getDataEmissao().equals(this.compraCab.getDataEmissao())) {
-					Messages.addGlobalInfo("Nota já lançanda para esse fornecedor por favor verificar!");
+						&& extrairData(cab.getDataEmissao()).equals(extrairData(this.compraCab.getDataEmissao()))) {
+					Messages.addGlobalInfo("Nota já lançanda para esse fornecedor por favor verifique!");
 				}
 			}
 		}
@@ -178,6 +209,7 @@ public class CompraCabBean implements Serializable {
 
 	public void addItem() {
 		this.compraDet.setCompraCab(this.compraCab);
+		this.compraDet.setVinculo(this.compraCab.getVinculo());
 		this.listaDeItens.add(0, this.compraDet);
 		this.compraDet = new CompraDet();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
@@ -233,18 +265,26 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void salvar() {
-		if (this.compraCab.getValorNota().compareTo(calcularTotalItens()) != 0) {
-			throw new NegocioException("Valor dos produtos diferente do valor da nota por favor verificar!");
+		if (recalcularParcela().compareTo(BigDecimal.ZERO) == 0) {
+			throw new NegocioException("Lançamento incompleto por favor verifique!");
 		}
+
+		if (this.compraCab.getValorNota().compareTo(calcularTotalItens()) != 0) {
+			throw new NegocioException("Valor dos produtos diferente do valor da nota por favor verifique!");
+		}
+
 		if (this.compraCab.getValorNota().compareTo(recalcularParcela()) != 0) {
-			throw new NegocioException("Valor das faturas diferente do valor da nota por favor verificar!");
+			throw new NegocioException("Valor das faturas diferente do valor da nota por favor verifique!");
 		}
 
 		this.compraCab.setItens(this.listaDeItens);
 		compraCabService.salvar(this.compraCab);
+		this.cabContaApagar.setListaContaAPagars(this.listaParcelas);
+		cabContaApagarService.salvar(this.cabContaApagar);
+
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
-		Messages.addGlobalInfo("salvor com sucesso!");
+		Messages.addGlobalInfo("Registro salvor com sucesso!");
 	}
 
 	public BigDecimal recalcularParcela() {
@@ -282,6 +322,13 @@ public class CompraCabBean implements Serializable {
 		BigDecimal valorParcela = this.getTotalAParcelar().divide(qtde_parcela, 1, RoundingMode.CEILING);
 		BigDecimal valorParcial = valorParcela.multiply(qtde_parcela.subtract(new BigDecimal(1)));
 		BigDecimal primeiraParcela = this.getTotalAParcelar().subtract(valorParcial);
+		this.cabContaApagar.setDataDoc(this.compraCab.getDataEntrada());
+		this.cabContaApagar.setDataLanc(this.compraCab.getDataEntrada());
+		this.cabContaApagar.setDocumento(this.compraCab.getDocumento());
+		this.cabContaApagar.setValor(this.compraCab.getValorNota());
+		this.cabContaApagar.setFornecedor(this.compraCab.getFornecedor());
+		this.cabContaApagar.setUsuario(this.compraCab.getUsuario());
+		this.cabContaApagar.setVinculo(this.compraCab.getVinculo());
 
 		this.listaParcelas.clear();
 		for (int i = 0; i < this.parcela.getNumVezes(); i++) {
@@ -289,11 +336,19 @@ public class CompraCabBean implements Serializable {
 			ap.setTipoCobranca(this.parcela.getTipoCobranca());
 			ap.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
 			ap.setNumDoc(this.compraCab.getDocumento());
+			ap.setDataDoc(this.compraCab.getDataEntrada());
+			ap.setStatus("ABERTO");
 			ap.setDataVencto(i == 0 ? somaDias(this.compraCab.getDataEntrada(), 30)
 					: somaDias(this.compraCab.getDataEntrada(), this.parcela.getPeriodo() * (i + 1)));
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);
+			ap.setValorApagar(i == 0 ? primeiraParcela : valorParcela);
+			ap.setUsuario(this.compraCab.getUsuario());
+			ap.setFornecedor(this.compraCab.getFornecedor());
+			ap.setAgrupadorMovimentacao(this.compraCab.getVinculo());
 			this.listaParcelas.add(ap);
 		}
+
+		this.cabContaApagar.setDataVencto(this.listaParcelas.get(0).getDataVencto());
 		this.parcela.setTotalGeralDeParcelas(this.totalAParcelar);
 	}
 
@@ -302,6 +357,44 @@ public class CompraCabBean implements Serializable {
 		cal.setTime(data);
 		cal.add(Calendar.DAY_OF_MONTH, dias);
 		return cal.getTime();
+	}
+
+	private Date extrairData(Date data) {
+		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		try {
+			return format.parse(format.format(data));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+
+	public void rowSelect(SelectEvent event) {
+		editar();
+	}
+
+	public void rowSelectCheckBox(SelectEvent event) {
+		editar();
+	}
+
+	private void editar() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void rowUnSelect(UnselectEvent event) {
+		editar();
+	}
+
+	public void onRowSelectAll(ToggleSelectEvent event) {
+	}
+
+	public void rowToggleSelect() {
+		if (listaDeCompraCabSelecionadas.size() > 0) {
+			isToggle = true;
+		} else {
+			isToggle = false;
+		}
 	}
 
 	/********* Gett e Sett ************/
@@ -392,6 +485,30 @@ public class CompraCabBean implements Serializable {
 
 	public void setTotalAParcelar(BigDecimal totalAParcelar) {
 		this.totalAParcelar = totalAParcelar;
+	}
+
+	public List<CompraCab> getListaDeCompraCab() {
+		return listaDeCompraCab;
+	}
+
+	public void setListaDeCompraCab(List<CompraCab> listaDeCompraCab) {
+		this.listaDeCompraCab = listaDeCompraCab;
+	}
+
+	public List<CompraCab> getListaDeCompraCabSelecionadas() {
+		return listaDeCompraCabSelecionadas;
+	}
+
+	public void setListaDeCompraCabSelecionadas(List<CompraCab> listaDeCompraCabSelecionadas) {
+		this.listaDeCompraCabSelecionadas = listaDeCompraCabSelecionadas;
+	}
+
+	public boolean isToggle() {
+		return isToggle;
+	}
+
+	public void setToggle(boolean isToggle) {
+		this.isToggle = isToggle;
 	}
 
 }

@@ -64,12 +64,12 @@
 						oncomplete="#{contaAReceberBean.permitirEditar == 'true'} ? 
 						PF('dialogLancCR').show() : PF('dialogInfoEdicao').show()"
 						update=""
-						disabled="#{contaAReceberBean.listaContasSelecionadas.size()!=1}">
+						disabled="#{compraCabBean.listaDeCompraCabSelecionadas.size()!=1}">
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-trash" value="Excluir"
 						style="margin-right: 3px;" process="@this"
-						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
+						disabled="#{compraCabBean.listaDeCompraCabSelecionadas.size()==0}">
 					</p:commandButton>
 
 					<p:separator />
@@ -82,12 +82,14 @@
 					<p:outputLabel value="Documento"
 						style="margin-left:10px; margin-right:10px; color:black" />
 
-					<p:inputText />
+					<p:inputText id="txtDoc" value="#{compraCabBean.filtro.documento}"
+						immediate="true">
+					</p:inputText>
 
 					<p:commandButton id="txtPesquisa" icon="fa fa-search"
-						value="PESQUISA" style="margin-left:10px;" update=""
-						actionListener="#{contaAReceberBean.pesquisar()}"
-						disabled="#{contaAReceberBean.filtro.cliente.id == null}">
+						value="PESQUISA" style="margin-left:10px;" update="tblCompra"
+						process="@this txtDoc"
+						actionListener="#{compraCabBean.pesquisar()}">
 					</p:commandButton>
 
 				</p:toolbarGroup>
@@ -98,30 +100,32 @@
 
 			</p:toolbar>
 
+			<p:defaultCommand target="txtPesquisa" />
+
 		</h:form>
 
 		<!-- TABELA DE LANÇAMENTO -->
 		<h:form prependId="false" id="frm-tabela">
 			<p:dataTable id="tblCompra" var="cp"
-				value="#{contaAReceberBean.listaContaARecebers}"
+				value="#{compraCabBean.listaDeCompraCab}"
 				style="margin-top: 10px; margin-bottom:10px;" rows="12" lazy="false"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
-				scrollHeight="345" rowStyleClass="#{cp.dias le 0 ? null : 'red'}"
-				selection="#{contaAReceberBean.listaContasSelecionadas}"
+				scrollHeight="345"
+				selection="#{compraCabBean.listaDeCompraCabSelecionadas}"
 				rowKey="#{cp.id}">
 
 				<p:ajax event="rowSelect" update="toolbar-botoes "
-					listener="#{contaAReceberBean.rowSelect}" />
+					listener="#{compraCabBean.rowSelect}" />
 				<p:ajax event="rowUnselect" update="toolbar-botoes "
-					listener="#{contaAReceberBean.rowUnSelect}" />
+					listener="#{compraCabBean.rowUnSelect}" />
 				<p:ajax event="toggleSelect" update="toolbar-botoes "
-					listener="#{contaAReceberBean.onRowSelectAll}" />
+					listener="#{compraCabBean.onRowSelectAll}" />
 				<p:ajax event="rowSelectCheckbox" update="toolbar-botoes "
-					listener="#{contaAReceberBean.rowSelectCheckBox}" />
+					listener="#{compraCabBean.rowSelectCheckBox}" />
 				<p:ajax event="rowUnselectCheckbox" update="toolbar-botoes "
-					listener="#{contaAReceberBean.rowUnSelect}" />
+					listener="#{compraCabBean.rowUnSelect}" />
 
 
 
@@ -129,8 +133,9 @@
 					style="width:1px;text-align:center" />
 
 
-				<p:column sortBy="#{cp.cliente}" headerText="Fornecedor" width="195">
-					<h:outputText value="#{cp.cliente.nome}" />
+				<p:column sortBy="#{cp.fornecedor}" headerText="Fornecedor"
+					width="195">
+					<h:outputText value="#{cp.fornecedor.nome}" />
 				</p:column>
 
 				<p:column sortBy="#{cp.documento}"
@@ -141,28 +146,28 @@
 
 				<p:column style="text-align: center; width:50px;"
 					headerText="Emissão">
-					<h:outputText value="#{cp.dataDoc}">
+					<h:outputText value="#{cp.dataEmissao}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
 				<p:column style="text-align: center;width:50px;"
-					headerText="Entrada" sortBy="#{cp.dataVencto}">
-					<h:outputText value="#{cp.dataVencto}">
+					headerText="Entrada" sortBy="#{cp.dataEntrada}">
+					<h:outputText value="#{cp.dataEntrada}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
 				<p:column style="text-align: right;width:60px;"
 					headerText="Valor da Nota">
-					<h:outputText value="#{cp.valor}">
+					<h:outputText value="#{cp.valorNota}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 
 				<p:column style="text-align: right;width:60px;"
 					headerText="Valor do Iten(s)">
-					<h:outputText value="#{cp.valorApagar}">
+					<h:outputText value="#{cp.valorItens}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>

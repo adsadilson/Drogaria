@@ -86,7 +86,12 @@ public class CompraCabRepository implements Serializable {
 
 		// fazemos uma associação (join) com cliente e Vendedor nomeamos como "c
 		// e v"
-		criteria.createAlias("fornecedor", "f").createAlias("funcionario", "u");
+		criteria.createAlias("fornecedor", "f");
+		
+		if (StringUtils.isNotBlank(filtro.getDocumento())) {
+			criteria.add(Restrictions.ilike("documento", filtro.getDocumento(), MatchMode.ANYWHERE));
+		}
+
 
 		if (filtro.getNumeroDe() != null) {
 			// id deve ser maior ou igual (ge = greater or equals) a

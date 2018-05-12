@@ -50,6 +50,8 @@ public class CompraDet implements Serializable {
 
 	@Transient
 	private BigDecimal totalDeItensGeral = BigDecimal.ZERO;
+	
+	private Long vinculo;
 
 	public Long getId() {
 		return id;
@@ -129,6 +131,16 @@ public class CompraDet implements Serializable {
 
 	public void setTotalDeItensGeral(BigDecimal totalDeItensGeral) {
 		this.totalDeItensGeral = totalDeItensGeral;
+	}
+	
+	
+
+	public Long getVinculo() {
+		return vinculo;
+	}
+
+	public void setVinculo(Long vinculo) {
+		this.vinculo = vinculo;
 	}
 
 	@Override
