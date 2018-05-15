@@ -38,7 +38,7 @@ public class CabContaAPagarRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Unidade de Medida n�o pode ser exclu�da");
+			throw new NegocioException("Conta apagar não pode ser excluída");
 		}
 	}
 

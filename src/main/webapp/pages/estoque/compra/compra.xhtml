@@ -58,20 +58,6 @@
 						<p:resetInput target="dgCompra" />
 					</p:commandButton>
 
-					<p:commandButton icon="fa fa-pencil" value="Editar"
-						style="margin-left:3px; margin-right: 3px;"
-						process="@this tblCompra"
-						oncomplete="#{contaAReceberBean.permitirEditar == 'true'} ? 
-						PF('dialogLancCR').show() : PF('dialogInfoEdicao').show()"
-						update=""
-						disabled="#{compraCabBean.listaDeCompraCabSelecionadas.size()!=1}">
-					</p:commandButton>
-
-					<p:commandButton icon="fa fa-trash" value="Excluir"
-						style="margin-right: 3px;" process="@this"
-						disabled="#{compraCabBean.listaDeCompraCabSelecionadas.size()==0}">
-					</p:commandButton>
-
 					<p:separator />
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
@@ -112,60 +98,59 @@
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 				emptyMessage="Nenhuma registro encontrado." scrollable="true"
-				scrollHeight="345"
-				selection="#{compraCabBean.listaDeCompraCabSelecionadas}"
-				rowKey="#{cp.id}">
+				scrollHeight="345" rowKey="#{cp.id}">
 
-				<p:ajax event="rowSelect" update="toolbar-botoes "
-					listener="#{compraCabBean.rowSelect}" />
-				<p:ajax event="rowUnselect" update="toolbar-botoes "
-					listener="#{compraCabBean.rowUnSelect}" />
-				<p:ajax event="toggleSelect" update="toolbar-botoes "
-					listener="#{compraCabBean.onRowSelectAll}" />
-				<p:ajax event="rowSelectCheckbox" update="toolbar-botoes "
-					listener="#{compraCabBean.rowSelectCheckBox}" />
-				<p:ajax event="rowUnselectCheckbox" update="toolbar-botoes "
-					listener="#{compraCabBean.rowUnSelect}" />
-
-
-
-				<p:column selectionMode="multiple"
-					style="width:1px;text-align:center" />
-
-
-				<p:column sortBy="#{cp.fornecedor}" headerText="Fornecedor"
-					width="195">
-					<h:outputText value="#{cp.fornecedor.nome}" />
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						action="#{compraCabBean.editarCompra()}"
+						oncomplete="#{cp.permitirEdicao == 'SIM'} ? PF('dialogInfo').show() : PF('dialogCompra').show()"
+						process="@this" update="dialogInfo">
+						<f:setPropertyActionListener
+							target="#{compraCabBean.compraCabSelecionado}" value="#{cp}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{compraCabBean.compraCabSelecionado}" value="#{cp}" />
+					</p:commandButton>
 				</p:column>
 
 				<p:column sortBy="#{cp.documento}"
-					style="text-align: right; width:45px;" headerText="Documento">
+					style="text-align: right; width:100px;" headerText="Documento">
 					<h:outputText value="#{cp.documento}">
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: center; width:50px;"
+				<p:column sortBy="#{cp.fornecedor}" headerText="Fornecedor">
+					<h:outputText value="#{cp.fornecedor.id} - #{cp.fornecedor.nome}" />
+				</p:column>
+
+				<p:column style="text-align: center; width:100px;"
 					headerText="Emissão">
 					<h:outputText value="#{cp.dataEmissao}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: center;width:50px;"
+				<p:column style="text-align: center;width:100px;"
 					headerText="Entrada" sortBy="#{cp.dataEntrada}">
 					<h:outputText value="#{cp.dataEntrada}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: right;width:60px;"
+				<p:column style="text-align: right;width:130px;"
 					headerText="Valor da Nota">
 					<h:outputText value="#{cp.valorNota}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
 
-				<p:column style="text-align: right;width:60px;"
+				<p:column style="text-align: right;width:130px;"
 					headerText="Valor do Iten(s)">
 					<h:outputText value="#{cp.valorItens}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
@@ -177,18 +162,16 @@
 			<p:confirmDialog header="Confirmação de Exclusão"
 				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
 				<f:facet name="message">
-					<h:outputText
-						value="Tem certeza que deseja excluir o(s) registro(s):" />
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
 					<br />
-					<p:repeat value="#{contaAReceberBean.contaAReceberSelecionado}"
-						var="car">
+					<p:repeat value="#{compraCabBean.compraCabSelecionado}" var="car">
 						<h:panelGrid columns="3" cellpadding="1">
 							<h:outputText value="#{car.documento}"
 								style="font-weight: bold; margin-right:10px;" />
-							<h:outputText value="#{car.cliente.nome}"
+							<h:outputText value="#{fn:substring(car.fornecedor.nome,0,25)}"
 								style="font-weight: bold; margin-right:10px;" />
-							<h:outputText value="#{car.valor}" style="font-weight: bold;">
+							<h:outputText value="#{car.valorNota}" style="font-weight: bold;">
 								<f:convertNumber type="currency" />
 							</h:outputText>
 						</h:panelGrid>
@@ -197,7 +180,7 @@
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					actionListener="#{contaAReceberBean.excluirSelecionados}"
+					actionListener="#{compraCabBean.excluirCompra()}"
 					update="tblCompra toolbar-botoes" process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
@@ -601,7 +584,8 @@
 						<p:toolbar styleClass="semPreenchimento" style="margin-top:30px;">
 							<p:toolbarGroup>
 								<p:commandButton icon="fa fa-save" value="Salvar"
-									process="@this" action="#{compraCabBean.salvar()}" update=""
+									process="@this" action="#{compraCabBean.salvar()}"
+									update="tblCompra"
 									oncomplete="if(args.sucesso == true) PF('dialogCompra').hide()">
 								</p:commandButton>
 							</p:toolbarGroup>
@@ -760,6 +744,13 @@
 
 			</h:form>
 
+		</p:dialog>
+
+		<p:dialog header="Informação" widgetVar="dialogInfo" modal="true"
+			id="dialogInfo" height="140" width="500" responsive="true"
+			styleClass="box-success" closeOnEscape="true" appendTo="@(body)">
+			<p:outputLabel
+				value="Não é permitido a editar este documento, pois o mesmo possui baixa." />
 		</p:dialog>
 
 	</ui:define>

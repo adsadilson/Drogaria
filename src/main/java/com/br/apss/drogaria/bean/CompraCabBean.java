@@ -23,7 +23,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.util.Messages;
-import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
@@ -40,6 +39,7 @@ import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.service.CabContaApagarService;
 import com.br.apss.drogaria.service.CompraCabService;
+import com.br.apss.drogaria.service.ContaAPagarService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
@@ -56,6 +56,8 @@ public class CompraCabBean implements Serializable {
 	private CompraDet compraDet;
 
 	private CompraDet compraDetSelecionado;
+
+	private CompraCab compraCabSelecionado;
 
 	private List<CompraCab> listaDeCompraCab = new ArrayList<CompraCab>();
 
@@ -89,6 +91,9 @@ public class CompraCabBean implements Serializable {
 
 	@Inject
 	private CabContaApagarService cabContaApagarService;
+
+	@Inject
+	private ContaAPagarService contaAPagarService;
 
 	private BigDecimal totalAParcelar = BigDecimal.ZERO;
 
@@ -159,6 +164,29 @@ public class CompraCabBean implements Serializable {
 
 		this.setTotalAParcelar(n);
 
+	}
+
+	public void editarCompra() {
+		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
+		for (ContaAPagar c : cps) {
+			if (!c.getStatus().contains("ABERTO")) {
+				this.compraCabSelecionado.setPermitirEdicao("SIM");
+				break;
+			}
+		}
+	}
+
+	public void excluirCompra() {
+		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
+		for (ContaAPagar c : cps) {
+			if (!c.getStatus().contains("ABERTO")) {
+				throw new NegocioException("Não é permitido excluir o documento: "
+						+ this.compraCabSelecionado.getDocumento() + ", pois o mesmo possui baixar.");
+			}
+			this.cabContaApagarService.porVinculo(this.compraCabSelecionado.getVinculo());
+			this.compraCabService.excluir(this.compraCabSelecionado);
+			Messages.addGlobalInfo("Registro excluido com sucesso.");
+		}
 	}
 
 	public void calcValorCusto() {
@@ -371,6 +399,7 @@ public class CompraCabBean implements Serializable {
 
 	public void rowSelect(SelectEvent event) {
 		editar();
+
 	}
 
 	public void rowSelectCheckBox(SelectEvent event) {
@@ -509,6 +538,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setToggle(boolean isToggle) {
 		this.isToggle = isToggle;
+	}
+
+	public CompraCab getCompraCabSelecionado() {
+		return compraCabSelecionado;
+	}
+
+	public void setCompraCabSelecionado(CompraCab compraCabSelecionado) {
+		this.compraCabSelecionado = compraCabSelecionado;
 	}
 
 }

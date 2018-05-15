@@ -71,6 +71,9 @@ public class CompraCab implements Serializable {
 
 	private Long vinculo;
 
+	@Transient
+	private String permitirEdicao = "SIM";
+
 	public Long getId() {
 		return id;
 	}
@@ -183,6 +186,14 @@ public class CompraCab implements Serializable {
 
 	public void setVinculo(Long vinculo) {
 		this.vinculo = vinculo;
+	}
+
+	public String getPermitirEdicao() {
+		return permitirEdicao;
+	}
+
+	public void setPermitirEdicao(String permitirEdicao) {
+		this.permitirEdicao = permitirEdicao;
 	}
 
 	@Override
