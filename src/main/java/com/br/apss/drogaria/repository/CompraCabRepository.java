@@ -16,6 +16,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.model.CompraCab;
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -32,6 +33,7 @@ public class CompraCabRepository implements Serializable {
 
 	public void excluir(CompraCab obj) {
 		try {
+			excluirListaContasApagar(obj);
 			obj = porId(obj.getId());
 			manager.remove(obj);
 			manager.flush();
@@ -39,6 +41,25 @@ public class CompraCabRepository implements Serializable {
 		} catch (Exception e) {
 			throw new NegocioException("Compra não pode ser excluído");
 		}
+	}
+
+	public void excluirListaContasApagar(CompraCab obj) {
+
+		List<ContaAPagar> listContas = manager
+				.createQuery("from ContaAPagar where movimentacao_vinculo = :vinculo order by id", ContaAPagar.class)
+				.setParameter("vinculo", obj.getVinculo()).getResultList();
+
+		for (ContaAPagar cp : listContas) {
+			manager.createNativeQuery("delete from cab_conta_apagar_conta_apagar where conta_apagar_id = :id")
+					.setParameter("id", cp.getId()).executeUpdate();
+		}
+		
+		manager.createNativeQuery("delete from cab_conta_apagar where vinculo = :vinculo")
+		.setParameter("vinculo", obj.getVinculo()).executeUpdate();
+
+		manager.createNativeQuery("delete from conta_apagar where movimentacao_vinculo = :vinculo")
+				.setParameter("vinculo", obj.getVinculo()).executeUpdate();
+
 	}
 
 	public CompraCab porId(Long id) {
@@ -58,7 +79,6 @@ public class CompraCabRepository implements Serializable {
 		return (CompraCab) manager.createQuery("select p from CompraCab p JOIN p.itens i where p.id =:id")
 				.setParameter("id", id).getSingleResult();
 	}
-
 
 	@SuppressWarnings("unchecked")
 	public List<CompraCab> filtrados(CompraCabFilter filtro) {
@@ -87,11 +107,10 @@ public class CompraCabRepository implements Serializable {
 		// fazemos uma associação (join) com cliente e Vendedor nomeamos como "c
 		// e v"
 		criteria.createAlias("fornecedor", "f");
-		
+
 		if (StringUtils.isNotBlank(filtro.getDocumento())) {
 			criteria.add(Restrictions.ilike("documento", filtro.getDocumento(), MatchMode.ANYWHERE));
 		}
-
 
 		if (filtro.getNumeroDe() != null) {
 			// id deve ser maior ou igual (ge = greater or equals) a

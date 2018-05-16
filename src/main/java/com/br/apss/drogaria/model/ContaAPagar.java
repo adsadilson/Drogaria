@@ -83,7 +83,7 @@ public class ContaAPagar implements Serializable {
 	@Column(length = 20)
 	private String status;
 
-	@Column(name = "movimentancao_vinculo")
+	@Column(name = "movimentacao_vinculo")
 	private Long agrupadorMovimentacao;
 
 	@Transient

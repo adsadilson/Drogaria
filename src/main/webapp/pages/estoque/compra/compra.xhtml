@@ -105,8 +105,8 @@
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
 						styleClass="semPreenchimento"
 						action="#{compraCabBean.editarCompra()}"
-						oncomplete="#{cp.permitirEdicao == 'SIM'} ? PF('dialogInfo').show() : PF('dialogCompra').show()"
-						process="@this" update="dialogInfo">
+						oncomplete="#{compraCabBean.edicao eq 'N' } ? PF('dialogInfo').show() : PF('dialogCompra').show()"
+						process="@this" update="dialogInfo frmEntrada">
 						<f:setPropertyActionListener
 							target="#{compraCabBean.compraCabSelecionado}" value="#{cp}" />
 					</p:commandButton>
@@ -310,6 +310,7 @@
 							<p:inputText id="txtVlrNota" required="true"
 								validatorMessage="O valor da nota é menor do que o minimo 
 								permitido de '0,01'"
+								onkeypress="event.keyCode==13?setfocus('txtVlrProduto'):''"
 								disabled="#{compraCabBean.listaDeItens.size() > 0}"
 								value="#{compraCabBean.compraCab.valorNota}"
 								onfocus="formatoMoeda('txtVlrNota')" size="15">
@@ -686,8 +687,7 @@
 			modal="true" resizable="false" draggable="true" id="dgEdicaoParcela"
 			closeOnEscape="true" width="300" height="200" appendTo="@(body)">
 
-			<p:ajax event="close" update="totalGeralParcelas"
-				listener="#{compraCabBean.recalcularParcela()}" />
+			<p:ajax event="close" update="" />
 
 			<h:form id="editParcela" prependId="false"
 				onkeypress="if (event.keyCode == 13) { return false; }">
@@ -737,7 +737,7 @@
 							process="@this editParcela"
 							onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
-							update="edit tblPagto" id="salvarCommandButtonParcela">
+							update="edit tblPagto totalGeralParcelas" id="salvarCommandButtonParcela">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>

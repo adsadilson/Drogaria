@@ -97,6 +97,8 @@ public class CompraCabBean implements Serializable {
 
 	private BigDecimal totalAParcelar = BigDecimal.ZERO;
 
+	private String edicao = "S";
+
 	private boolean isToggle = false;
 
 	@PostConstruct
@@ -170,10 +172,19 @@ public class CompraCabBean implements Serializable {
 		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
 		for (ContaAPagar c : cps) {
 			if (!c.getStatus().contains("ABERTO")) {
-				this.compraCabSelecionado.setPermitirEdicao("SIM");
+				this.setEdicao("N");
 				break;
 			}
 		}
+		this.compraCab = this.compraCabSelecionado;
+		enderecoFornecedor();
+		this.listaDeItens = this.compraCabSelecionado.getItens();
+		this.cabContaApagar = this.cabContaApagarService.porVinculo(this.compraCabSelecionado.getVinculo());
+		this.listaParcelas = this.cabContaApagar.getListaContaAPagars();
+		this.compraDet = new CompraDet();
+		this.parcela = new ContaAPagar();
+		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
+		this.parcela.setTotalGeralDeParcelas(recalcularParcela());
 	}
 
 	public void excluirCompra() {
@@ -183,10 +194,11 @@ public class CompraCabBean implements Serializable {
 				throw new NegocioException("Não é permitido excluir o documento: "
 						+ this.compraCabSelecionado.getDocumento() + ", pois o mesmo possui baixar.");
 			}
-			this.cabContaApagarService.porVinculo(this.compraCabSelecionado.getVinculo());
-			this.compraCabService.excluir(this.compraCabSelecionado);
-			Messages.addGlobalInfo("Registro excluido com sucesso.");
 		}
+
+		this.compraCabService.excluir(this.compraCabSelecionado);
+		pesquisar();
+		Messages.addGlobalInfo("Registro excluido com sucesso.");
 	}
 
 	public void calcValorCusto() {
@@ -196,15 +208,13 @@ public class CompraCabBean implements Serializable {
 		BigDecimal resultado = BigDecimal.ZERO;
 
 		if (!compraDet.getQuantidade().equals(null) && compraDet.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
-			if (!perc.equals(BigDecimal.ZERO)) {
-				dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100)).setScale(2,
-						RoundingMode.HALF_UP);
-				soma = dif.add(compraDet.getValorTotal()).setScale(2, RoundingMode.HALF_UP);
-				compraDet.setValorTotalLiquido(soma);
-				resultado = soma.divide(compraDet.getQuantidade(), 2, RoundingMode.HALF_UP);
-				compraDet.setValorUnitario(resultado);
-				compraDet.setAcrDesc(dif);
-			}
+			dif = (compraDet.getValorTotal().multiply(perc)).divide(new BigDecimal(100)).setScale(2,
+					RoundingMode.HALF_UP);
+			soma = dif.add(compraDet.getValorTotal()).setScale(2, RoundingMode.HALF_UP);
+			compraDet.setValorTotalLiquido(soma);
+			resultado = soma.divide(compraDet.getQuantidade(), 2, RoundingMode.HALF_UP);
+			compraDet.setValorUnitario(resultado);
+			compraDet.setAcrDesc(dif);
 		}
 	}
 
@@ -244,6 +254,7 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void salvarEdicaoItem() {
+		calcValorCusto();
 		this.compraDet = new CompraDet();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
 	}
@@ -546,6 +557,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setCompraCabSelecionado(CompraCab compraCabSelecionado) {
 		this.compraCabSelecionado = compraCabSelecionado;
+	}
+
+	public String getEdicao() {
+		return edicao;
+	}
+
+	public void setEdicao(String edicao) {
+		this.edicao = edicao;
 	}
 
 }

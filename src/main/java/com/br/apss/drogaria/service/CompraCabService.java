@@ -6,7 +6,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.br.apss.drogaria.model.CompraCab;
-import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.repository.CompraCabRepository;
 import com.br.apss.drogaria.util.jpa.Transacional;
@@ -28,8 +27,7 @@ public class CompraCabService implements Serializable {
 
 	@Transacional
 	public void excluir(CompraCab obj) {
-		capService.porVinculo(1931633597L);
-		//dao.excluir(obj);
+		dao.excluir(obj);
 	}
 
 
