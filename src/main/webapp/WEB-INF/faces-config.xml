@@ -4,16 +4,23 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd"
 	version="2.2">
 
+	<application>
+		<action-listener>org.primefaces.application.DialogActionListener</action-listener>
+		<navigation-handler>org.primefaces.application.DialogNavigationHandler</navigation-handler>
+		<view-handler>org.primefaces.application.DialogViewHandler</view-handler>
+	</application>
+
 	<factory>
 		<exception-handler-factory>
-			com.br.apss.drogaria.util.jsf.JsfExceptionHandlerFactory</exception-handler-factory>
+			com.br.apss.drogaria.util.jsf.JsfExceptionHandlerFactory
+		</exception-handler-factory>
 	</factory>
 
 	<!-- Definição do PhaseListener da autenticação -->
 	<lifecycle>
 		<phase-listener>com.br.apss.drogaria.security.AutenticacaoListener</phase-listener>
 	</lifecycle>
-	
+
 	<validator>
 		<validator-id>dtMovimentacaoValidation</validator-id>
 		<validator-class>com.br.apss.drogaria.validadors.DtMovimentacaoValidation</validator-class>

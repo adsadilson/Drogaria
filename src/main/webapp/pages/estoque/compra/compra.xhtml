@@ -31,6 +31,10 @@
 	width: 150px !important;
 }
 
+.rotuloFiltro1 {
+	width: 150px !important;
+}
+
 .campoCabecalho {
 	width: 400px !important;
 }
@@ -61,14 +65,14 @@
 					<p:separator />
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						actionListener="#{contaAReceberBean.novoFiltro()}" update=""
+						actionListener="#{contaAReceberBean.novoFiltro()}" update="frm-dialog"
 						oncomplete="PF('dialogFiltro').show()" process="@this">
 					</p:commandButton>
 
 					<p:outputLabel value="Documento"
 						style="margin-left:10px; margin-right:10px; color:black" />
 
-					<p:inputText id="txtDoc" value="#{compraCabBean.filtro.documento}"
+					<p:inputText id="txtDoc" value="#{compraCabBean.filtro.doc}"
 						immediate="true">
 					</p:inputText>
 
@@ -105,7 +109,6 @@
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
 						styleClass="semPreenchimento"
 						action="#{compraCabBean.editarCompra()}"
-						oncomplete="#{compraCabBean.edicao eq 'N' } ? PF('dialogInfo').show() : PF('dialogCompra').show()"
 						process="@this" update="dialogInfo frmEntrada">
 						<f:setPropertyActionListener
 							target="#{compraCabBean.compraCabSelecionado}" value="#{cp}" />
@@ -746,11 +749,104 @@
 
 		</p:dialog>
 
-		<p:dialog header="Informação" widgetVar="dialogInfo" modal="true"
-			id="dialogInfo" height="140" width="500" responsive="true"
-			styleClass="box-success" closeOnEscape="true" appendTo="@(body)">
-			<p:outputLabel
-				value="Não é permitido a editar este documento, pois o mesmo possui baixa." />
+		
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			resizable="false" draggable="true" id="dgFiltro" visible="false"
+			closeOnEscape="true" width="398" height="250" appendTo="@(body)">
+
+			<h:form id="frm-dialog" prependId="false" style="margin-top:10px;">
+
+				<h:panelGrid columnClasses="rotuloFiltro1,campoFiltro1" columns="2">
+
+					<p:outputLabel value="Fornecedor" />
+					<p:selectOneMenu id="combFornecedorFiltro" autoWidth="false"
+						filter="true" value="#{compraCabBean.filtro.fornecedor}"
+						filterMatchMode="contains" style="width:215px;"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{compraCabBean.listaDeFornecedores}"
+							var="pessoa" itemLabel="#{pessoa.nome}" itemValue="#{pessoa}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Emissão" />
+					<h:panelGroup>
+						<p:calendar id="txtFiltroDtIni"
+							value="#{compraCabBean.filtro.emissaoIni}" size="10"
+							pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtFiltroDtIni')">
+							<p:ajax event="dateSelect" process="@this" />
+						</p:calendar>
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:calendar value="#{compraCabBean.filtro.emissaoFim}"
+							size="10" id="txtEmissaoDtFim" pattern="dd/MM/yyyy"
+							locale="pt_BR" onfocus="mascaraDtCalendar('txtEmissaoDtFim')">
+							<p:ajax event="dateSelect" process="@this" />
+							<f:attribute name="startDate"
+								value="#{compraCabBean.filtro.emissaoIni}" />
+							<f:validator validatorId="primeDateRangeValidator" />
+						</p:calendar>
+					</h:panelGroup>
+
+					<p:outputLabel value="Entrada" />
+					<h:panelGroup>
+						<p:calendar id="txtFiltroDtVenctoIni"
+							value="#{compraCabBean.filtro.entradaIni}" size="10"
+							pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtFiltroDtVenctoIni')">
+							<p:ajax event="dateSelect" process="@this" />
+						</p:calendar>
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:calendar value="#{compraCabBean.filtro.entradaFim}"
+							size="10" id="txtFiltroDtVenctoFim" pattern="dd/MM/yyyy"
+							locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtFiltroDtVenctoFim')">
+							<p:ajax event="dateSelect" process="@this" />
+							<f:attribute name="startDate"
+								value="#{compraCabBean.filtro.entradaIni}" />
+							<f:validator validatorId="primeDateRangeValidator" />
+						</p:calendar>
+					</h:panelGroup>
+
+					<p:outputLabel value="Documento" />
+					<p:inputText value="#{compraCabBean.filtro.doc}"
+						style="width:230px;" />
+
+					<p:outputLabel value="Valor da Nota" />
+					<h:panelGroup>
+						<p:inputNumber value="#{compraCabBean.filtro.valorNT1}" size="10"
+							decimalSeparator="," thousandSeparator="." />
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:inputNumber value="#{compraCabBean.filtro.valorNT2}" size="10"
+							decimalSeparator="," thousandSeparator="." />
+					</h:panelGroup>
+					
+					<p:outputLabel value="Valor do Produto" />
+					<h:panelGroup>
+						<p:inputNumber value="#{compraCabBean.filtro.valorP1}" size="10"
+							decimalSeparator="," thousandSeparator="." />
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:inputNumber value="#{compraCabBean.filtro.valorP2}" size="10"
+							decimalSeparator="," thousandSeparator="." />
+					</h:panelGroup>
+
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							actionListener="#{compraCabBean.pesquisar}"
+							id="btnFiltroPesquisar" process="frm-dialog"
+							oncomplete="if(args.sucesso == true) PF('dialogFiltro').hide()"
+							update="frm-tabela frm-menu frm-dialog" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
 		</p:dialog>
 
 	</ui:define>

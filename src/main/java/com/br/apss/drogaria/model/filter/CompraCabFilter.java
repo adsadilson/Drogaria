@@ -1,75 +1,32 @@
 package com.br.apss.drogaria.model.filter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.br.apss.drogaria.enums.StatusPedido;
+import com.br.apss.drogaria.model.Pessoa;
 
 public class CompraCabFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Long numeroDe;
-	private Long numeroAte;
-	private Date dataCriacaoDe;
-	private Date dataCriacaoAte;
-	private String nomeVendedor;
-	private String nomeCliente;
 	private StatusPedido[] statuses;
 	private String origem;
-	private String documento;
 	private int priRegistro;
 	private int qtdeRegistros;
 	private String campoOrder;
 	private boolean asc;
-
-	public Long getNumeroDe() {
-		return numeroDe;
-	}
-
-	public void setNumeroDe(Long numeroDe) {
-		this.numeroDe = numeroDe;
-	}
-
-	public Long getNumeroAte() {
-		return numeroAte;
-	}
-
-	public void setNumeroAte(Long numeroAte) {
-		this.numeroAte = numeroAte;
-	}
-
-	public Date getDataCriacaoDe() {
-		return dataCriacaoDe;
-	}
-
-	public void setDataCriacaoDe(Date dataCriacaoDe) {
-		this.dataCriacaoDe = dataCriacaoDe;
-	}
-
-	public Date getDataCriacaoAte() {
-		return dataCriacaoAte;
-	}
-
-	public void setDataCriacaoAte(Date dataCriacaoAte) {
-		this.dataCriacaoAte = dataCriacaoAte;
-	}
-
-	public String getNomeVendedor() {
-		return nomeVendedor;
-	}
-
-	public void setNomeVendedor(String nomeVendedor) {
-		this.nomeVendedor = nomeVendedor;
-	}
-
-	public String getNomeCliente() {
-		return nomeCliente;
-	}
-
-	public void setNomeCliente(String nomeCliente) {
-		this.nomeCliente = nomeCliente;
-	}
+	private Date emissaoIni;
+	private Date emissaoFim;
+	private Date entradaIni;
+	private Date entradaFim;
+	private BigDecimal valorNT1;
+	private BigDecimal valorNT2;
+	private BigDecimal valorP1;
+	private BigDecimal valorP2;
+	private String doc;
+	private Pessoa fornecedor;
 
 	public StatusPedido[] getStatuses() {
 		return statuses;
@@ -119,12 +76,84 @@ public class CompraCabFilter implements Serializable {
 		this.asc = asc;
 	}
 
-	public String getDocumento() {
-		return documento;
+	public Date getEmissaoIni() {
+		return emissaoIni;
 	}
 
-	public void setDocumento(String documento) {
-		this.documento = documento;
+	public void setEmissaoIni(Date emissaoIni) {
+		this.emissaoIni = emissaoIni;
+	}
+
+	public Date getEmissaoFim() {
+		return emissaoFim;
+	}
+
+	public void setEmissaoFim(Date emissaoFim) {
+		this.emissaoFim = emissaoFim;
+	}
+
+	public Date getEntradaIni() {
+		return entradaIni;
+	}
+
+	public void setEntradaIni(Date entradaIni) {
+		this.entradaIni = entradaIni;
+	}
+
+	public Date getEntradaFim() {
+		return entradaFim;
+	}
+
+	public void setEntradaFim(Date entradaFim) {
+		this.entradaFim = entradaFim;
+	}
+
+	public BigDecimal getValorNT1() {
+		return valorNT1;
+	}
+
+	public void setValorNT1(BigDecimal valorNT1) {
+		this.valorNT1 = valorNT1;
+	}
+
+	public BigDecimal getValorNT2() {
+		return valorNT2;
+	}
+
+	public void setValorNT2(BigDecimal valorNT2) {
+		this.valorNT2 = valorNT2;
+	}
+
+	public BigDecimal getValorP1() {
+		return valorP1;
+	}
+
+	public void setValorP1(BigDecimal valorP1) {
+		this.valorP1 = valorP1;
+	}
+
+	public BigDecimal getValorP2() {
+		return valorP2;
+	}
+
+	public void setValorP2(BigDecimal valorP2) {
+		this.valorP2 = valorP2;
+	}
+
+	public String getDoc() {
+		return doc;
+	}
+
+	public void setDoc(String doc) {
+		this.doc = doc;
+	}
+
+	public Pessoa getFornecedor() {
+		return fornecedor;
+	}
+
+	public void setFornecedor(Pessoa fornecedor) {
+		this.fornecedor = fornecedor;
 	}
 
 }

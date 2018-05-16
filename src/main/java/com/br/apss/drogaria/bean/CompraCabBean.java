@@ -108,7 +108,7 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void pesquisar() {
-		if (!StringUtils.isNotBlank(this.filtro.getDocumento())) {
+		if (!StringUtils.isNotBlank(this.filtro.getDoc())) {
 			throw new NegocioException("Informe o documento!");
 		}
 		this.listaDeCompraCab.clear();
@@ -169,13 +169,15 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void editarCompra() {
+		RequestContext req = RequestContext.getCurrentInstance();
 		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
 		for (ContaAPagar c : cps) {
 			if (!c.getStatus().contains("ABERTO")) {
-				this.setEdicao("N");
-				break;
+				throw new NegocioException("Não é permitido a editar este documento: "
+						+ this.compraCabSelecionado.getDocumento() + ", pois o mesmo possui baixa.");
 			}
 		}
+
 		this.compraCab = this.compraCabSelecionado;
 		enderecoFornecedor();
 		this.listaDeItens = this.compraCabSelecionado.getItens();
@@ -185,6 +187,9 @@ public class CompraCabBean implements Serializable {
 		this.parcela = new ContaAPagar();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
 		this.parcela.setTotalGeralDeParcelas(recalcularParcela());
+		
+		req.execute("PF('dialogCompra').show();");
+
 	}
 
 	public void excluirCompra() {

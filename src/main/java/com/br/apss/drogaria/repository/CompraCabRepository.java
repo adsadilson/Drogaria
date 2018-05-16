@@ -108,48 +108,45 @@ public class CompraCabRepository implements Serializable {
 		// e v"
 		criteria.createAlias("fornecedor", "f");
 
-		if (StringUtils.isNotBlank(filtro.getDocumento())) {
-			criteria.add(Restrictions.ilike("documento", filtro.getDocumento(), MatchMode.ANYWHERE));
+		if (StringUtils.isNotBlank(filtro.getDoc())) {
+			criteria.add(Restrictions.ilike("documento", filtro.getDoc(), MatchMode.ANYWHERE));
 		}
 
-		if (filtro.getNumeroDe() != null) {
-			// id deve ser maior ou igual (ge = greater or equals) a
-			// filtro.numeroDe
-			criteria.add(Restrictions.ge("id", filtro.getNumeroDe()));
+
+		if (filtro.getEmissaoIni() != null) {
+			criteria.add(Restrictions.ge("dataEmissao", filtro.getEmissaoIni()));
 		}
 
-		if (filtro.getNumeroAte() != null) {
-			// id deve ser menor ou igual (le = lower or equal) a
-			// filtro.numeroDe
-			criteria.add(Restrictions.le("id", filtro.getNumeroAte()));
+		if (filtro.getEmissaoFim() != null) {
+			criteria.add(Restrictions.le("dataEmissao", filtro.getEmissaoFim()));
+		}
+		
+		if (filtro.getEntradaIni() != null) {
+			criteria.add(Restrictions.ge("dataEntrada", filtro.getEntradaIni()));
 		}
 
-		if (filtro.getDataCriacaoDe() != null) {
-			criteria.add(Restrictions.ge("dataCriacao", filtro.getDataCriacaoDe()));
+		if (filtro.getEntradaFim() != null) {
+			criteria.add(Restrictions.le("dataEntrada", filtro.getEntradaFim()));
 		}
 
-		if (filtro.getDataCriacaoAte() != null) {
-			criteria.add(Restrictions.le("dataCriacao", filtro.getDataCriacaoAte()));
+		if (filtro.getFornecedor() != null) {
+			criteria.add(Restrictions.eq("fornecedor.id", filtro.getFornecedor().getId()));
 		}
 
-		if (StringUtils.isNotBlank(filtro.getNomeCliente())) {
-			// acessamos o nome do cliente associado ao compraCab pelo alias
-			// "c",
-			// criado anteriormente
-			criteria.add(Restrictions.ilike("f.nome", filtro.getNomeCliente(), MatchMode.ANYWHERE));
+		if (filtro.getValorNT1() != null) {
+			criteria.add(Restrictions.ge("valorNota", filtro.getValorNT1()));
 		}
 
-		if (StringUtils.isNotBlank(filtro.getNomeVendedor())) {
-			// acessamos o nome do vendedor associado ao compraCab pelo alias
-			// "v",
-			// criado anteriormente
-			criteria.add(Restrictions.ilike("u.nome", filtro.getNomeVendedor(), MatchMode.ANYWHERE));
+		if (filtro.getValorNT2() != null) {
+			criteria.add(Restrictions.le("valorNota", filtro.getValorNT2()));
+		}
+		
+		if (filtro.getValorP1() != null) {
+			criteria.add(Restrictions.ge("valorItens", filtro.getValorP1()));
 		}
 
-		if (filtro.getStatuses() != null && filtro.getStatuses().length > 0) {
-			// adicionamos uma restrição "in", passando um array de constantes
-			// da enum StatusCompraCab
-			// criteria.add(Restrictions.in("status", filtro.getStatuses()));
+		if (filtro.getValorP2() != null) {
+			criteria.add(Restrictions.le("valorItens", filtro.getValorP2()));
 		}
 
 		return criteria;
