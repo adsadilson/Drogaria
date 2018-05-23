@@ -28,7 +28,7 @@
 		<style>
 <!--
 .rotuloCabecalho {
-	width: 150px !important;
+	width: 160px !important;
 }
 
 .rotuloFiltro1 {
@@ -36,7 +36,7 @@
 }
 
 .campoCabecalho {
-	width: 400px !important;
+	width: 600px !important;
 }
 
 .red {
@@ -65,7 +65,7 @@
 					<p:separator />
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						actionListener="#{contaAReceberBean.novoFiltro()}" update="frm-dialog"
+						actionListener="#{compraCabBean.novoFiltro()}" update="frm-dialog"
 						oncomplete="PF('dialogFiltro').show()" process="@this">
 					</p:commandButton>
 
@@ -108,8 +108,8 @@
 					exportable="false">
 					<p:commandButton icon="ui-icon-pencil" title="Editar"
 						styleClass="semPreenchimento"
-						action="#{compraCabBean.editarCompra()}"
-						process="@this" update="dialogInfo frmEntrada">
+						action="#{compraCabBean.editarCompra()}" process="@this"
+						update="frmEntrada">
 						<f:setPropertyActionListener
 							target="#{compraCabBean.compraCabSelecionado}" value="#{cp}" />
 					</p:commandButton>
@@ -249,9 +249,23 @@
 							style="margin-top:15px; margin-left:15px;"
 							columnClasses="rotuloCabecalho,campoCabecalho">
 
+							<p:outputLabel for="combDep" value="Deposito" />
+							<p:selectOneMenu id="combDep" required="true" autoWidth="false"
+								filter="true" filterMatchMode="contains" style="width:270px;"
+								converter="omnifaces.SelectItemsConverter"
+								value="#{compraCabBean.compraCab.deposito}"
+								requiredMessage="Selecione deposito">
+								<f:selectItem itemLabel="Selecione um deposito"
+									itemValue="#{null}" />
+								<f:selectItems value="#{compraCabBean.listaDeDepositos}"
+									var="d" itemLabel="#{d.nome}" itemValue="#{d}" />
+								<p:ajax event="change" process="@this"
+									oncomplete="$(function(){PrimeFaces.focus('combFor');});"  />
+							</p:selectOneMenu>
+
 							<p:outputLabel for="combFor" value="Fornecedor" />
 							<p:selectOneMenu id="combFor" required="true" autoWidth="false"
-								filter="true" filterMatchMode="contains" style="width:370px;"
+								filter="true" filterMatchMode="contains" style="width:400px;"
 								converter="omnifaces.SelectItemsConverter"
 								value="#{compraCabBean.compraCab.fornecedor}"
 								requiredMessage="Selecione fornecedor">
@@ -266,7 +280,7 @@
 							</p:selectOneMenu>
 
 							<p:spacer />
-							<p:inputTextarea id="txtEnd" rows="5" style="width: 98%;"
+							<p:inputTextarea id="txtEnd" rows="5" style="width: 420px;"
 								value="#{compraCabBean.compraCab.fornecedor.endereco}"
 								disabled="true" />
 
@@ -278,7 +292,7 @@
 									listener="#{compraCabBean.consultarNota()}" />
 							</p:inputText>
 
-							<p:outputLabel for="txtEmissao" value="Emissão" />
+							<p:outputLabel for="txtEmissao" value="Data Emissão" />
 							<p:calendar id="txtEmissao" size="15" pattern="dd/MM/yyyy"
 								locale="pt_BR" required="true" immediate="true"
 								value="#{compraCabBean.compraCab.dataEmissao}"
@@ -287,7 +301,7 @@
 								<p:ajax event="dateSelect" process="@this" update="txtEntrada" />
 							</p:calendar>
 
-							<p:outputLabel for="txtEntrada" value="Entrada" />
+							<p:outputLabel for="txtEntrada" value="Data Entrada" />
 							<p:calendar id="txtEntrada" size="15" pattern="dd/MM/yyyy"
 								locale="pt_BR" required="true"
 								mindate="#{compraCabBean.compraCab.dataEmissao}"
@@ -310,23 +324,25 @@
 							</p:inputText>
 
 							<p:outputLabel for="txtVlrNota" value="Valor da Nota" />
-							<p:inputText id="txtVlrNota" required="true"
-								validatorMessage="O valor da nota é menor do que o minimo 
-								permitido de '0,01'"
-								onkeypress="event.keyCode==13?setfocus('txtVlrProduto'):''"
-								disabled="#{compraCabBean.listaDeItens.size() > 0}"
-								value="#{compraCabBean.compraCab.valorNota}"
-								onfocus="formatoMoeda('txtVlrNota')" size="15">
-								<f:validateDoubleRange minimum="0.01" />
-								<f:convertNumber type="currency" />
-								<p:ajax process="@this" update="groupDif txtVlrPag" event="blur"
-									listener="#{compraCabBean.calcDiferenca()}" />
-							</p:inputText>
 
-
-							<p:outputLabel value="Diferênça (+/-)" />
 							<h:panelGroup id="groupDif">
-								<p:inputText id="txtDiferenca" disabled="true" size="15"
+								<p:inputText id="txtVlrNota" required="true"
+									validatorMessage="O valor da nota é menor do que o minimo 
+								permitido de '0,01'"
+									onkeypress="event.keyCode==13?setfocus('txtVlrProduto'):''"
+									disabled="#{compraCabBean.listaDeItens.size() > 0}"
+									value="#{compraCabBean.compraCab.valorNota}"
+									onfocus="formatoMoeda('txtVlrNota')" size="15">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+									<p:ajax process="@this" update="groupDif txtVlrPag"
+										event="blur" listener="#{compraCabBean.calcDiferenca()}" />
+								</p:inputText>
+
+
+								<p:outputLabel value="Acr/Desc (+/-)"
+									style="margin-left:15px; margin-right:5px;" />
+								<p:inputText id="txtDiferenca" disabled="true" size="9"
 									value="#{compraCabBean.compraCab.acrDesc}">
 									<f:convertNumber type="currency" />
 								</p:inputText>
@@ -740,7 +756,8 @@
 							process="@this editParcela"
 							onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 							oncomplete="if(!args.validationFailed) PF('dialogEdicaoParcela').hide()"
-							update="edit tblPagto totalGeralParcelas" id="salvarCommandButtonParcela">
+							update="edit tblPagto totalGeralParcelas"
+							id="salvarCommandButtonParcela">
 						</p:commandButton>
 					</p:toolbarGroup>
 				</p:toolbar>
@@ -749,7 +766,7 @@
 
 		</p:dialog>
 
-		
+
 		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
 			resizable="false" draggable="true" id="dgFiltro" visible="false"
 			closeOnEscape="true" width="398" height="250" appendTo="@(body)">
@@ -778,9 +795,9 @@
 						</p:calendar>
 						<p:outputLabel value="a"
 							style="margin-left:8px; margin-right:8px;" />
-						<p:calendar value="#{compraCabBean.filtro.emissaoFim}"
-							size="10" id="txtEmissaoDtFim" pattern="dd/MM/yyyy"
-							locale="pt_BR" onfocus="mascaraDtCalendar('txtEmissaoDtFim')">
+						<p:calendar value="#{compraCabBean.filtro.emissaoFim}" size="10"
+							id="txtEmissaoDtFim" pattern="dd/MM/yyyy" locale="pt_BR"
+							onfocus="mascaraDtCalendar('txtEmissaoDtFim')">
 							<p:ajax event="dateSelect" process="@this" />
 							<f:attribute name="startDate"
 								value="#{compraCabBean.filtro.emissaoIni}" />
@@ -798,9 +815,8 @@
 						</p:calendar>
 						<p:outputLabel value="a"
 							style="margin-left:8px; margin-right:8px;" />
-						<p:calendar value="#{compraCabBean.filtro.entradaFim}"
-							size="10" id="txtFiltroDtVenctoFim" pattern="dd/MM/yyyy"
-							locale="pt_BR"
+						<p:calendar value="#{compraCabBean.filtro.entradaFim}" size="10"
+							id="txtFiltroDtVenctoFim" pattern="dd/MM/yyyy" locale="pt_BR"
 							onfocus="mascaraDtCalendar('txtFiltroDtVenctoFim')">
 							<p:ajax event="dateSelect" process="@this" />
 							<f:attribute name="startDate"
@@ -822,7 +838,7 @@
 						<p:inputNumber value="#{compraCabBean.filtro.valorNT2}" size="10"
 							decimalSeparator="," thousandSeparator="." />
 					</h:panelGroup>
-					
+
 					<p:outputLabel value="Valor do Produto" />
 					<h:panelGroup>
 						<p:inputNumber value="#{compraCabBean.filtro.valorP1}" size="10"
@@ -841,7 +857,7 @@
 						<p:commandButton value="Pesquisar" icon="fa fa-search"
 							actionListener="#{compraCabBean.pesquisar}"
 							id="btnFiltroPesquisar" process="frm-dialog"
-							oncomplete="if(args.sucesso == true) PF('dialogFiltro').hide()"
+							oncomplete="PF('dialogFiltro').hide()"
 							update="frm-tabela frm-menu frm-dialog" />
 					</p:toolbarGroup>
 				</p:toolbar>

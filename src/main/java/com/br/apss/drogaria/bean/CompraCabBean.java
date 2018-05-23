@@ -33,6 +33,7 @@ import com.br.apss.drogaria.model.CabContaApagar;
 import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.CompraDet;
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.Deposito;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.Usuario;
@@ -40,6 +41,7 @@ import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.service.CabContaApagarService;
 import com.br.apss.drogaria.service.CompraCabService;
 import com.br.apss.drogaria.service.ContaAPagarService;
+import com.br.apss.drogaria.service.DepositoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
@@ -64,6 +66,8 @@ public class CompraCabBean implements Serializable {
 	private List<CompraCab> listaDeCompraCabSelecionadas = new ArrayList<CompraCab>();
 
 	private List<Pessoa> listaDeFornecedores = new ArrayList<Pessoa>();
+
+	private List<Deposito> listaDeDepositos = new ArrayList<Deposito>();
 
 	private List<CompraDet> listaDeItens = new ArrayList<CompraDet>();
 
@@ -93,6 +97,9 @@ public class CompraCabBean implements Serializable {
 	private CabContaApagarService cabContaApagarService;
 
 	@Inject
+	private DepositoService depositoService;
+
+	@Inject
 	private ContaAPagarService contaAPagarService;
 
 	private BigDecimal totalAParcelar = BigDecimal.ZERO;
@@ -105,18 +112,21 @@ public class CompraCabBean implements Serializable {
 	public void inicializar() {
 		filtro = new CompraCabFilter();
 		carregarListaDeFornecedores();
+		carregarListaDeDepositos();
 	}
 
 	public void pesquisar() {
-		if (!StringUtils.isNotBlank(this.filtro.getDoc())) {
-			throw new NegocioException("Informe o documento!");
-		}
 		this.listaDeCompraCab.clear();
-		this.listaDeCompraCab = compraCabService.filtrados(filtro);
+		this.listaDeCompraCab = compraCabService.filtrados(this.filtro);
+		this.filtro = new CompraCabFilter();
 	}
 
 	private void carregarListaDeFornecedores() {
 		this.listaDeFornecedores = pessoaService.listarFornecedore();
+	}
+	
+	private void carregarListaDeDepositos() {
+		this.listaDeDepositos = depositoService.listarTodos();
 	}
 
 	public void enderecoFornecedor() {
@@ -139,6 +149,10 @@ public class CompraCabBean implements Serializable {
 		this.parcela = new ContaAPagar();
 		this.listaDeItens = new ArrayList<CompraDet>();
 		this.listaParcelas = new ArrayList<ContaAPagar>();
+	}
+
+	public void novoFiltro() {
+		this.filtro = new CompraCabFilter();
 	}
 
 	private Usuario obterUsuario() {
@@ -183,11 +197,12 @@ public class CompraCabBean implements Serializable {
 		this.listaDeItens = this.compraCabSelecionado.getItens();
 		this.cabContaApagar = this.cabContaApagarService.porVinculo(this.compraCabSelecionado.getVinculo());
 		this.listaParcelas = this.cabContaApagar.getListaContaAPagars();
+		this.totalAParcelar = this.compraCabSelecionado.getValorNota();
 		this.compraDet = new CompraDet();
 		this.parcela = new ContaAPagar();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
 		this.parcela.setTotalGeralDeParcelas(recalcularParcela());
-		
+
 		req.execute("PF('dialogCompra').show();");
 
 	}
@@ -570,6 +585,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setEdicao(String edicao) {
 		this.edicao = edicao;
+	}
+
+	public List<Deposito> getListaDeDepositos() {
+		return listaDeDepositos;
+	}
+
+	public void setListaDeDepositos(List<Deposito> listaDeDepositos) {
+		this.listaDeDepositos = listaDeDepositos;
 	}
 
 }

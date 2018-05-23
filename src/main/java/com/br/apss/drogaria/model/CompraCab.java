@@ -66,6 +66,10 @@ public class CompraCab implements Serializable {
 	@JoinColumn(name = "fornecedor_id", nullable = false)
 	private Pessoa fornecedor;
 
+	@ManyToOne
+	@JoinColumn(name = "deposito_id", nullable = false)
+	private Deposito deposito;
+
 	@OneToMany(mappedBy = "compraCab", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CompraDet> itens = new ArrayList<>();
 
@@ -194,6 +198,14 @@ public class CompraCab implements Serializable {
 
 	public void setPermitirEdicao(String permitirEdicao) {
 		this.permitirEdicao = permitirEdicao;
+	}
+
+	public Deposito getDeposito() {
+		return deposito;
+	}
+
+	public void setDeposito(Deposito deposito) {
+		this.deposito = deposito;
 	}
 
 	@Override
