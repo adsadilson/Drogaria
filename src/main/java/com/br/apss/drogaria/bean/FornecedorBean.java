@@ -88,7 +88,7 @@ public class FornecedorBean implements Serializable {
 				filtro.setQuantidadeRegistros(pageSize);
 				filtro.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
 				filtro.setCampoOrdenacao(sortField);
-				filtro.setFonecedor(true);
+				filtro.setFornecedor(true);
 
 				setRowCount(fornecedorService.quantidadeFiltrados(filtro));
 

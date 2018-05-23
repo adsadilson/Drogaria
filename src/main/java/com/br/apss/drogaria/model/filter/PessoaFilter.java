@@ -15,7 +15,7 @@ public class PessoaFilter implements Serializable {
 	private String campoOrdenacao;
 	private boolean ascendente;
 	private Boolean cliente = false;
-	private Boolean fonecedor = false;
+	private Boolean fornecedor = false;
 	private Boolean funcionario = false;
 
 	public String getNome() {
@@ -90,12 +90,12 @@ public class PessoaFilter implements Serializable {
 		this.cliente = cliente;
 	}
 
-	public Boolean getFonecedor() {
-		return fonecedor;
+	public Boolean getFornecedor() {
+		return fornecedor;
 	}
 
-	public void setFonecedor(Boolean fonecedor) {
-		this.fonecedor = fonecedor;
+	public void setFornecedor(Boolean fornecedor) {
+		this.fornecedor = fornecedor;
 	}
 
 	public Boolean getFuncionario() {

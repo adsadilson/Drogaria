@@ -87,7 +87,7 @@ public class PessoaRepository implements Serializable {
 		if (filtro.getCliente()) {
 			criteria.add(Restrictions.eq("cliente", true));
 		}
-		if (filtro.getFonecedor()) {
+		if (filtro.getFornecedor()) {
 			criteria.add(Restrictions.eq("fornecedor", true));
 		}
 		if (filtro.getFuncionario()) {

@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/layoutCaixa.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="corpo">
+
+		<style>
+<!--
+.text-aqua {
+	color: #00c0ef !important;
+}
+
+a {
+	color: #3c8dbc;
+}
+
+.small {
+	font-weight: normal;
+	line-height: 1;
+	color: #777;
+	font-size: 65%;
+}
+
+h2, .h2 {
+	font-size: 30px;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: inherit;
+	text-align: center;
+}
+-->
+</style>
+
+		<br />
+		<div style="margin-left: 30px;">
+			<h:graphicImage library="images" name="apss22.png" height="100px" />
+		</div>
+		<br />
+		<br />
+		<div style="margin-left: 150px; width: 550px;">
+			<h2>
+				Bem vindo ao <span class="text-aqua"> <i>Frente de Loja</i></span>!
+				<br /> 
+				<span >Do sistema SGE. </span>
+			</h2>
+			<h:form prependId="false">
+				<ui:remove>
+					<p:inputText style="width:96%" styleClass="moeda"
+						onfocus="mascaraMoeda();" converter="moedaConverter">
+					</p:inputText>
+					<p:inputText style="width:96%" styleClass="moeda"
+						onfocus="formatarMoeda(this)" />
+					<p:inputText style="width:85%" id="teste"
+						onfocus="formatoMoeda('teste')" />
+					<p:commandButton value="Error"
+						action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
+				</ui:remove>
+			</h:form>
+		</div>
+
+
+	</ui:define>
+
+</ui:composition>

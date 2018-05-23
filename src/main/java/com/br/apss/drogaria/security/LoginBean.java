@@ -32,15 +32,14 @@ public class LoginBean implements Serializable {
 
 	@Inject
 	private UsuarioService usuarioService;
-	
+
 	@SuppressWarnings("unused")
 	private FlyWay flyWay = new FlyWay();
-	
+
 	/******************** Metodos ***********************/
-	
-	
+
 	public LoginBean() {
-		//flyWay.uploadBaseDado();
+		// flyWay.uploadBaseDado();
 	}
 
 	@SuppressWarnings("unused")
@@ -50,24 +49,33 @@ public class LoginBean implements Serializable {
 		usuarioLogado = usuarioService.autenticacao(this.usuario.getEmail(), hash.toHex());
 
 		if (null != usuarioLogado) {
-			for (GrupoUsuario g : usuarioLogado.getGrupos()) {
-				for (Permissao p : g.getPermissoes()) {
-					//System.out.println(p.getControleMenu().getFuncao());
-				}
-			}
-		}
-
-		if (null != usuarioLogado) {
 			try {
 
 				HttpSession session;
 				FacesContext ctx = FacesContext.getCurrentInstance();
 				session = (HttpSession) ctx.getExternalContext().getSession(false);
 				session.setAttribute("usuarioAutenticado", usuarioLogado);
-				
-			
-				
-				Faces.redirect("./");
+
+				Boolean v = false;
+				for (GrupoUsuario g : usuarioLogado.getGrupos()) {
+					for (Permissao p : g.getPermissoes()) {
+						/*
+						 * if(p.getControleMenu().getFuncao().equals("OPERADOR DE CAIXA")) {
+						 * System.out.println(p.getControleMenu().getFuncao()); break; }
+						 */
+						if (g.getNome().contains("OPERADOR DE CAIXA")) {
+							v = true;
+							break;
+						}
+					}
+				}
+
+				if (v == true) {
+					Faces.redirect("/drogaria/homeCX.xhtml");
+				} else {
+					Faces.redirect("./");
+				}
+
 			} catch (IOException e) {
 				e.printStackTrace();
 				Messages.addGlobalError(e.getMessage());

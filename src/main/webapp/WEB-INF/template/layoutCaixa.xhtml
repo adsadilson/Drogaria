@@ -39,33 +39,17 @@
 
 			<h:form style="display: inline-block">
 				<p:menubar styleClass="menu-sistema">
-					<p:submenu label="Cadastros">
+					<p:submenu label="Operações">
+						<p:menuitem value="Cancelar Ultima Venda" />
+						<p:menuitem value="Suprimento de Caixa" />
+						<p:menuitem value="Sangria" />
 						<p:menuitem value="Clientes"
 							outcome="/pages/cadastro/cliente/cliente" />
-						<p:menuitem value="Fornecedores"
-							outcome="/pages/cadastro/fornecedor/fornecedor" />
-						<p:menuitem value="Funcionários"
-							outcome="/pages/cadastro/funcionario/funcionario" />
-						<p:submenu label="Usuários">
-							<p:menuitem value="Cadastro de Usuário"
-								outcome="/pages/cadastro/usuario/usuario" />
-							<p:menuitem value="Grupo de Usuário"
-								outcome="/pages/cadastro/grupoUsuario/grupoUsuario" />
-							<p:menuitem value="Troca senha"
-								outcome="/pages/cadastro/trocaSenha/trocaSenha" />
-						</p:submenu>
 						<p:separator />
 						<p:submenu label="Produtos">
 							<p:menuitem value="Produto"
 								outcome="/pages/cadastro/produto/produto" />
-							<p:menuitem value="Categorias"
-								outcome="/pages/cadastro/categoria/categoria" />
-							<p:menuitem value="SubCategorias"
-								outcome="/pages/cadastro/subCategoria/subCategoria" />
-							<p:menuitem value="Unidade de Medida"
-								outcome="/pages/cadastro/unidadeMedida/unidadeMedida" />
-							<p:menuitem value="Deposito de Produto"
-								outcome="/pages/cadastro/deposito/deposito" />
+
 						</p:submenu>
 						<p:submenu label="Outros">
 							<ui:remove>
@@ -78,30 +62,35 @@
 								outcome="/pages/cadastro/controleMenu/controleMenu" />
 						</p:submenu>
 					</p:submenu>
-					<p:submenu label="Financeiro">
-						<p:menuitem value="Movto de Contas"
-							outcome="/pages/financeiro/movimentacao/movimentacao" />
-						<p:menuitem value="Conta a Pagar"
-							outcome="/pages/financeiro/contaAPagar/contaAPagar" />
-						<p:menuitem value="Conta a Receber"
-							outcome="/pages/financeiro/contaAReceber/contaAReceber" />
+					
+					<p:submenu label="Consultas">
+						<p:menuitem value="Vendas" />
+						<p:menuitem value="Clientes" />
+						<p:menuitem value="Produtos" />
 					</p:submenu>
-					<p:submenu label="Comercial">
-						<p:menuitem value="Conferência de Caixa"
-						outcome="/pages/comercial/caixa/conferencia_caixa" />
-					</p:submenu>
-					<p:submenu label="Estoque">
-						<p:menuitem value="Entrada de Mercadoria"
-							outcome="/pages/estoque/compra/compra" />
-						<p:menuitem value="Correçao de Estoque" />
-						<p:menuitem value="Transferência de Estoque" />
-					</p:submenu>
+
+					<ui:remove>
+						<p:submenu label="Financeiro">
+							<p:menuitem value="Movto de Contas"
+								outcome="/pages/financeiro/movimentacao/movimentacao" />
+							<p:menuitem value="Conta a Pagar"
+								outcome="/pages/financeiro/contaAPagar/contaAPagar" />
+							<p:menuitem value="Conta a Receber"
+								outcome="/pages/financeiro/contaAReceber/contaAReceber" />
+						</p:submenu>
+						<p:submenu label="Estoque">
+							<p:menuitem value="Entrada de Mercadoria"
+								outcome="/pages/estoque/compra/compra" />
+							<p:menuitem value="Correçao de Estoque" />
+							<p:menuitem value="Transferência de Estoque" />
+						</p:submenu>
+					</ui:remove>
 					<p:menuitem value="Sair" action="#{loginBean.logout()}" />
 				</p:menubar>
 			</h:form>
 
 			<span
-				style="float: right; height: 30px; line-height: 30px; margin-left: 90px">
+				style="float: right; height: 30px; line-height: 30px; margin-left: 190px">
 				Olá #{loginBean.usuarioLogado.nome}! </span>
 
 		</div>
