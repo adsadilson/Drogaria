@@ -207,15 +207,15 @@ public class ContaAPagarBean implements Serializable {
 	public void cancelarPagamentos() {
 
 		if (this.pagamentoSelecionado.getFormaBaixa() == FormaBaixa.BI) {
-			pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
+			pagamentoService.cancelarPagamento(pagamentoSelecionado);
 		} else {
 			this.listaMovimentacoes.clear();
 			this.listaMovimentacoes = pagamentoSelecionado.getListaMovimentacoes();
 			if (this.listaMovimentacoes.size() > 1) {
-				pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
+				pagamentoService.cancelarPagamento(pagamentoSelecionado);
 			} else {
 
-				pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
+				pagamentoService.cancelarPagamento(pagamentoSelecionado);
 			}
 		}
 

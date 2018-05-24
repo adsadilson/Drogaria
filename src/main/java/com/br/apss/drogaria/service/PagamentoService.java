@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.ContaAPagarHistorico;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
@@ -21,6 +22,9 @@ public class PagamentoService implements Serializable {
 
 	@Inject
 	private ContaAPagarRepository contaAPagarRepository;
+
+	@Inject
+	private ContaAPagarHistoricoService cpHistoricoService;
 
 	@Transacional
 	public void salvar(Pagamento obj) {
@@ -43,14 +47,23 @@ public class PagamentoService implements Serializable {
 	}
 
 	@Transacional
-	public void excluirPagtoEstornaCP(Pagamento obj) {
-		dao.excluir(obj);
-		/*for (ContaAPagar c : obj.getListaContaAPagars()) {
+	public void cancelarPagamento(Pagamento obj) {
+	
+		List<Pagamento> listaPagto = dao.porVinculo(obj.getAgrupadorContaApagar());
+		for (Pagamento p : listaPagto) {
+				dao.excluirPagamentoContaApagar(p.getId());
+				dao.excluirPagtoMovimentacao(p.getId());
+		}
+		dao.excluirPorVinculo(obj.getAgrupadorContaApagar());
+
+		List<ContaAPagarHistorico> list = cpHistoricoService.listaVinculo(obj.getAgrupadorContaApagar());
+		for (ContaAPagarHistorico cph : list) {
 			ContaAPagar cp = new ContaAPagar();
-			cp.setId(c.getId());
-			cp.setValorPago(cp.getValorApagar());
-			contaAPagarRepository.baixaSimples(cp);
-		}*/
+			cp.setId(cph.getContaApagar().getId());
+			cp.setValorApagar(cph.getValorAnterio());
+			cp.setVinculo(cph.getVinculoAnterio());
+			contaAPagarRepository.cancelarPagto(cp);
+		}
 	}
 
 	public List<Pagamento> porVinculo(Long vinculo) {

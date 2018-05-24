@@ -358,8 +358,6 @@ public class ContaAPagarService implements Serializable {
 
 			for (ContaAPagar cp : listaContaAPagars) {
 				
-				BigDecimal valorAnterio = cp.getValorApagar();
-
 				ContaAPagar contaAPagar = new ContaAPagar();
 				contaAPagar.setId(cp.getId());
 				contaAPagar.setStatus("PAGAMENTO TOTAL");
@@ -375,12 +373,12 @@ public class ContaAPagarService implements Serializable {
 				ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
 
 				cpHistorico.setContaApagar(contaAPagar);
-				cpHistorico.setValorAnterio(valorAnterio);
-				cpHistorico.setValorAtual(cp.getPagoTB());
+				cpHistorico.setValorAnterio(cp.getSaldoDevedor());
+				cpHistorico.setValorAtual(cp.getValorApagar());
+				cpHistorico.setValorPago(cp.getPagoTB());
 				cpHistorico.setUsuario(pagamento.getUsuario());
-				cpHistorico.setValorDesc(contaAPagar.getDescTB());
-				cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
-				cpHistorico.setPagamento(pagamento);
+				cpHistorico.setValorDesc(cp.getDescTB());
+				cpHistorico.setValorMultaJuros(cp.getMultaTB());
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
 				cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
 
@@ -509,7 +507,7 @@ public class ContaAPagarService implements Serializable {
 					cp.setValorPago(c.getValorPago().subtract(cph.getValorAtual()));
 					cp.setVinculo(cph.getVinculoAnterio());
 					cp.setStatus("PAGAMENTO PARCIAL");
-					dao.estornaPagamento(cp);
+					dao.cancelarPagto(cp);
 					cpHistoricoService.excluir(cph);
 				}
 				pagamentoService.excluirListaPagto(listaPagto);

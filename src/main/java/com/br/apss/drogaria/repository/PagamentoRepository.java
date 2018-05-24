@@ -54,7 +54,7 @@ public class PagamentoRepository implements Serializable {
 		try {
 
 			for (Pagamento pagamento : obj) {
-				excluirPagamentoMovimentacao(pagamento.getId());
+				//excluirPagamentoMovimentacao(pagamento.getId());
 			}
 
 			List<Movimentacao> movto = obj.get(0).getListaMovimentacoes();
@@ -73,7 +73,7 @@ public class PagamentoRepository implements Serializable {
 		}
 	}
 
-	public void excluirPagamentoMovimentacao(Long id) throws Exception {
+	public void excluirPagtoMovimentacao(Long id)  {
 		try {
 			manager.createNativeQuery("delete from pagamento_movimentacao where pagamento_id = :id")
 					.setParameter("id", id).executeUpdate();
@@ -82,9 +82,36 @@ public class PagamentoRepository implements Serializable {
 		}
 	}
 
-	public void excluirMovimentacao(Long id) throws Exception {
+	public void excluirMovimentacao(Long id)  {
 		try {
 			manager.createNativeQuery("delete from movimentacao where id = :id").setParameter("id", id).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void excluirPorVinculo(Long vinculo) {
+		try {
+			manager.createNativeQuery("delete from Pagamento where conta_apagar_vinculo = :vinculo")
+					.setParameter("vinculo", vinculo).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void excluirPagamentoContaApagar(Long id) {
+		try {
+			manager.createNativeQuery("delete from pagamento_conta_apagar where pagamento_id = :id")
+					.setParameter("id", id).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void excluirPagamentoMovimentacao(Long id) {
+		try {
+			manager.createNativeQuery("delete from pagamento_movimentacao where pagamento_id = :id").setParameter("id", id)
+					.executeUpdate();
 		} catch (Exception e) {
 			throw e;
 		}
@@ -109,7 +136,7 @@ public class PagamentoRepository implements Serializable {
 	public List<Pagamento> porVinculo(Long vinculo) {
 		try {
 			return manager
-					.createQuery("from Pagamento where agrupadorContaApagar = :vinculo order by id", Pagamento.class)
+					.createQuery("from Pagamento where conta_apagar_vinculo = :vinculo order by id", Pagamento.class)
 					.setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;

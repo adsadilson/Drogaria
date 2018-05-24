@@ -30,6 +30,9 @@ public class ContaAPagarHistorico implements Serializable {
 	@Column(name = "valor_atual", precision = 12, scale = 2)
 	private BigDecimal valorAtual = BigDecimal.ZERO;
 
+	@Column(name = "valor_pago", precision = 12, scale = 2)
+	private BigDecimal valorPago = BigDecimal.ZERO;
+
 	@Column(name = "valor_multa_juros", precision = 12, scale = 2)
 	private BigDecimal valorMultaJuros = BigDecimal.ZERO;
 
@@ -53,6 +56,9 @@ public class ContaAPagarHistorico implements Serializable {
 
 	@Column(name = "pagamento_vinculo_anterior")
 	private Long vinculoAnterio;
+
+	@Column(length = 20)
+	private String status;
 
 	public Long getId() {
 		return id;
@@ -132,6 +138,22 @@ public class ContaAPagarHistorico implements Serializable {
 
 	public void setPagamento(Pagamento pagamento) {
 		this.pagamento = pagamento;
+	}
+
+	public BigDecimal getValorPago() {
+		return valorPago;
+	}
+
+	public void setValorPago(BigDecimal valorPago) {
+		this.valorPago = valorPago;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	@Override

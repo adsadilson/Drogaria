@@ -51,13 +51,12 @@ public class ContaAPagarRepository implements Serializable {
 				.setParameter("id", obj.getId()).executeUpdate();
 	}
 
-	public void estornaPagamento(ContaAPagar contaAPagar) {
+	public void cancelarPagto(ContaAPagar contaAPagar) {
 		manager.createNativeQuery(
-				"update conta_apagar set valor_pago = :valorPago, valor_apagar =:valorApagar, "
-				+ "vinculo =:vinculo, status =:status where id = :id")
-				.setParameter("valorPago", contaAPagar.getValorPago())
+				"update conta_apagar set valor_apagar =:valorApagar, "
+				+ "vinculo =:vinculo where id = :id")
 				.setParameter("valorApagar", contaAPagar.getValorApagar())
-				.setParameter("vinculo", contaAPagar.getVinculo()).setParameter("status", contaAPagar.getStatus())
+				.setParameter("vinculo", contaAPagar.getVinculo())
 				.setParameter("id", contaAPagar.getId()).executeUpdate();
 	}
 
