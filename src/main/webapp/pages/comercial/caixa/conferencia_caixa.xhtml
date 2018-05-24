@@ -40,9 +40,9 @@
 			<h:panelGrid columns="9" style="margin-top:5px;">
 
 				<p:commandButton value="Novo" action="#{caixaBean.novoCaixa}"
-					icon="fa fa-file-o" update="panelCadNovo" process="@this"
+					icon="fa fa-file-o" update="frmNovoCaixa" process="@this"
 					oncomplete="PF('novoCaixa').show()">
-					<p:resetInput target="panelCadNovo" />
+					<p:resetInput target="frmNovoCaixa" />
 				</p:commandButton>
 				<p:commandButton icon="fa fa-download" title="Exportar para XLS"
 					ajax="false" immediate="true">
@@ -91,9 +91,6 @@
 				</p:selectOneMenu>
 			</h:panelGrid>
 
-
-
-
 			<p:dataTable id="tblConfCaixa" value="#{caixaBean.caixas}" var="cx"
 				style="margin-top: 20px" lazy="false"
 				emptyMessage="Nenhum registro encontrado." rows="11"
@@ -114,17 +111,17 @@
 					</p:commandButton>
 					<p:commandButton icon="ui-icon-trash" title="Excluir"
 						styleClass="semPreenchimento"
+						action="#{caixaBean.prepararExclusao()}"
 						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
 						update="confirmacaoExclusaoDialog">
-						<f:setPropertyActionListener
-							target="#{unidadeMedidaBean.unidadeMedidaSelecionado}"
-							value="#{unidade}" />
+						<f:setPropertyActionListener target="#{caixaBean.caixa}"
+							value="#{cx}" />
 					</p:commandButton>
 				</p:column>
 
-				<p:column headerText="Data" width="80" style="text-align: center">
+				<p:column headerText="Data" width="100" style="text-align: center">
 					<h:outputText value="#{cx.data}">
-						<f:convertDateTime pattern="dd/MM/yyy" />
+						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 				<p:column headerText="Responsável" width="350">
@@ -143,96 +140,67 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText
-						value="#{unidadeMedidaBean.unidadeMedidaSelecionado.nome} ?" />
+					<h:panelGroup>
+						<h:outputText value="#{caixaBean.caixaSelecionado.data} - ">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+						<h:outputText
+							value="#{caixaBean.caixaSelecionado.responsavel.nome}">
+						</h:outputText>
+					</h:panelGroup>
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					oncomplete="PF('confirmacaoExclusao').hide();"
-					update="tblConfCaixa" action="#{unidadeMedidaBean.excluir()}"
+					update="tblConfCaixa" action="#{caixaBean.excluir()}"
 					process="@this" />
 			</p:confirmDialog>
 
 		</h:form>
 
-		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-			width="321" height="154" resizable="false" draggable="true"
-			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
-
-			<h:form>
-
-				<p:focus for="txtFilterDescricao" />
-
-				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
-
-					<p:outputLabel value="Silga" />
-					<p:inputText id="txtFilterDescricao"
-						value="#{unidadeMedidaBean.filtro.nome}" style="width:98%;" />
-
-					<p:outputLabel value="Descrição" />
-					<p:inputText value="#{unidadeMedidaBean.filtro.descricao}"
-						style="width:98%;" />
-
-					<p:outputLabel value="Ativo" />
-					<p:selectOneMenu autoWidth="false" style="width:88%;"
-						value="#{unidadeMedidaBean.filtro.status}">
-						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-						<f:selectItem itemLabel="ATIVO" itemValue="true" />
-						<f:selectItem itemLabel="INATIVO" itemValue="false" />
-					</p:selectOneMenu>
-
-				</h:panelGrid>
-
-				<p:toolbar style="margin-top: 5px; margin-button:5px"
-					styleClass="semPreenchimento">
-					<p:toolbarGroup align="right" style="margin-right: 0px;">
-						<p:commandButton value="Pesquisar" icon="fa fa-search"
-							id="btnPesquisarFiltro" process="@this panelFiltro"
-							action="#{unidadeMedidaBean.pesquisar}"
-							oncomplete="PF('dialogFiltro').hide()"
-							update="tblConfCaixa panelFiltro" />
-					</p:toolbarGroup>
-				</p:toolbar>
-			</h:form>
-		</p:dialog>
-
-
 		<p:dialog widgetVar="novoCaixa" header="Criar novo Caixa" modal="true"
 			responsive="true" closable="true" width="auto" height="130"
 			draggable="true" resizable="false">
 
-			<p:panelGrid id="panelCadNovo" columns="2" styleClass="semBorda">
-				<p:outputLabel for="ncxData" value="Data" />
-				<p:inputText id="ncxData" onfocus="mascaraDtInput('ncxData')"
-					required="true" requiredMessage="Informe uma data" size="10"
-					value="#{caixaBean.caixa.data}">
-					<f:convertDateTime pattern="dd/MM/yyy" />
-				</p:inputText>
+			<h:form id="frmNovoCaixa" prependId="false">
 
-				<p:outputLabel for="ncxResponsavel" value="Responsável" />
-				<p:selectOneMenu id="ncxResponsavel" autoWidth="true"
-					required="true" filter="true"
-					value="#{caixaBean.caixa.responsavel}"
-					requiredMessage="Selecione um responsável" style="width:250px;">
-					<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-					<f:selectItems value="#{caixaBean.responsaveis}" var="resp"
-						itemLabel="#{resp.nome}" itemValue="#{resp}" />
-				</p:selectOneMenu>
-			</p:panelGrid>
+				<p:panelGrid id="panelCadNovo" columns="2" styleClass="semBorda">
+					<p:outputLabel for="txtDtAbertura" value="Data" />
+					<p:inputText id="txtDtAbertura"
+						onfocus="mascaraDtInput('txtDtAbertura')" required="true"
+						requiredMessage="Informe uma data" size="10"
+						value="#{caixaBean.caixa.data}">
+						<f:convertDateTime pattern="dd/MM/yyy" />
+					</p:inputText>
 
-			<p:toolbar styleClass="semPreenchimento"
-				style="margin-top:10px; margin-right:5px;">
-				<p:toolbarGroup align="right">
-					<p:commandButton value="Salvar"
-						process="@this tblConfCaixa panelCadNovo"
-						action="#{caixaBean.salvar}" update="panelCadNovo tblConfCaixa"
-						oncomplete="if(args.sucesso == true) PF('novoCaixa').hide()"
-						icon="fa fa-save" id="salvarCommandButtonDesp" />
-				</p:toolbarGroup>
-			</p:toolbar>
+					<p:outputLabel for="ncxResponsavel" value="Responsável" />
+					<p:selectOneMenu id="ncxResponsavel" autoWidth="true"
+						required="true" filter="true"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{caixaBean.caixa.responsavel}"
+						requiredMessage="Selecione um responsável" style="width:250px;">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{caixaBean.responsaveis}" var="r"
+							itemLabel="#{r.nome}" itemValue="#{r}" />
+					</p:selectOneMenu>
+				</p:panelGrid>
 
-			<p:defaultCommand target="salvarCommandButtonDesp" />
+				<p:toolbar styleClass="semPreenchimento"
+					style="margin-top:10px; margin-right:5px;">
+					<p:toolbarGroup align="right">
+						<p:commandButton value="Salvar"
+							process="@this, frmNovoCaixa, tblConfCaixa, "
+							action="#{caixaBean.salvar()}"
+							update="frmNovoCaixa, tblConfCaixa"
+							oncomplete="if(args.sucesso == true) PF('novoCaixa').hide()"
+							icon="fa fa-save" id="salvarCommandButton" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+				<p:defaultCommand target="salvarCommandButton" />
+
+			</h:form>
 
 		</p:dialog>
 

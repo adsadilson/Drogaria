@@ -30,9 +30,19 @@ public class ContaAPagarHistorico implements Serializable {
 	@Column(name = "valor_atual", precision = 12, scale = 2)
 	private BigDecimal valorAtual = BigDecimal.ZERO;
 
+	@Column(name = "valor_multa_juros", precision = 12, scale = 2)
+	private BigDecimal valorMultaJuros = BigDecimal.ZERO;
+
+	@Column(name = "valor_desc", precision = 12, scale = 2)
+	private BigDecimal valorDesc = BigDecimal.ZERO;
+
 	@ManyToOne
 	@JoinColumn(name = "conta_apagar_id")
 	private ContaAPagar contaApagar;
+
+	@ManyToOne
+	@JoinColumn(name = "pagamento_id")
+	private Pagamento pagamento;
 
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
@@ -98,6 +108,30 @@ public class ContaAPagarHistorico implements Serializable {
 
 	public void setVinculoAnterio(Long vinculoAnterio) {
 		this.vinculoAnterio = vinculoAnterio;
+	}
+
+	public BigDecimal getValorMultaJuros() {
+		return valorMultaJuros;
+	}
+
+	public void setValorMultaJuros(BigDecimal valorMultaJuros) {
+		this.valorMultaJuros = valorMultaJuros;
+	}
+
+	public BigDecimal getValorDesc() {
+		return valorDesc;
+	}
+
+	public void setValorDesc(BigDecimal valorDesc) {
+		this.valorDesc = valorDesc;
+	}
+
+	public Pagamento getPagamento() {
+		return pagamento;
+	}
+
+	public void setPagamento(Pagamento pagamento) {
+		this.pagamento = pagamento;
 	}
 
 	@Override

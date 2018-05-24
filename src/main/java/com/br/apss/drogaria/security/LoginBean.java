@@ -17,6 +17,7 @@ import org.omnifaces.util.Messages;
 import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.Usuario;
+import com.br.apss.drogaria.service.CaixaService;
 import com.br.apss.drogaria.service.UsuarioService;
 import com.br.apss.drogaria.util.jpa.FlyWay;
 
@@ -32,6 +33,9 @@ public class LoginBean implements Serializable {
 
 	@Inject
 	private UsuarioService usuarioService;
+	
+	@Inject
+	private CaixaService caixaService;
 
 	@SuppressWarnings("unused")
 	private FlyWay flyWay = new FlyWay();

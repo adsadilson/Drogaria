@@ -45,12 +45,12 @@ public class PagamentoService implements Serializable {
 	@Transacional
 	public void excluirPagtoEstornaCP(Pagamento obj) {
 		dao.excluir(obj);
-		for (ContaAPagar c : obj.getListaContaAPagars()) {
+		/*for (ContaAPagar c : obj.getListaContaAPagars()) {
 			ContaAPagar cp = new ContaAPagar();
 			cp.setId(c.getId());
 			cp.setValorPago(cp.getValorApagar());
 			contaAPagarRepository.baixaSimples(cp);
-		}
+		}*/
 	}
 
 	public List<Pagamento> porVinculo(Long vinculo) {

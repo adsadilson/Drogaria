@@ -1,7 +1,9 @@
 package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.view.ViewScoped;
@@ -50,10 +52,21 @@ public class CaixaBean implements Serializable {
 		caixa = new Caixa();
 		caixas = new ArrayList<Caixa>();
 	}
+	
+	public void prepararExclusao(){
+		this.caixaSelecionado = caixaService.porId(this.caixa.getId()) ;
+	}
+	
+	public String getDataInicioFormatada() {
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	    sdf.setLenient(false);
+	    return sdf.format(this.caixaSelecionado.getData());
+	}
 
 	public void excluir() {
-		caixaService.excluir(caixaSelecionado);
+		caixaService.excluir(this.caixaSelecionado);
 		Messages.addGlobalInfo("Registro excluido com sucesso!");
+		pesquisar();
 		caixaSelecionado = null;
 	}
 
@@ -129,9 +142,9 @@ public class CaixaBean implements Serializable {
 	public void salvar() {
 		Caixa caixaExistente = caixaService.consultarCaixa(caixa);
 		if (caixaExistente != null && !caixaExistente.equals(caixa)) {
-			Messages.addGlobalError("Já existe caixa aberto com essas informações.");
+			Messages.addGlobalError("Já existe caixa registrado com esses dados.");
 		} else {
-			this.caixa.setAbertura(caixa.getData());
+			this.caixa.setAbertura(new Date());
 			this.caixa.setStatus("ABERTO");
 			caixaService.salvar(this.caixa);
 			pesquisar();

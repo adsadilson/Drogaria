@@ -103,7 +103,7 @@
 						oncomplete="PF('confirmacaoExclusao').show()"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()==0}">
 					</p:commandButton>
-
+					
 					<ui:remove>
 						<p:commandButton icon="fa fa-copy" value="Duplicar"
 							style="margin-right: 3px;" id="btnDuplicar"
@@ -121,7 +121,7 @@
 						<p:resetInput target=":frm-baixa-titulo" />
 					</p:commandButton>
 
-					<p:commandButton icon="fa fa-dollar" value="Pago(s)"
+					<p:commandButton icon="fa fa-dollar" value="Cancelar Pagto(s)"
 						update=":frm-baixa-titulo" oncomplete="PF('dialogPago').show()"
 						action="#{contaAPagarBean.iniciarBaixaTitulo()}">
 						<p:resetInput target=":frm-baixa-titulo" />
@@ -868,7 +868,7 @@
 						exportable="false">
 						<p:commandButton icon="ui-icon-trash" title="Excluir"
 							update="tbl-pago" styleClass="semPreenchimento"
-							action="#{contaAPagarBean.excluirPagamentos()}">
+							action="#{contaAPagarBean.cancelarPagamentos()}">
 							<f:setPropertyActionListener
 								target="#{contaAPagarBean.pagamentoSelecionado}" value="#{pago}" />
 						</p:commandButton>

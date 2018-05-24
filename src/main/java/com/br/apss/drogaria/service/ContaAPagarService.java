@@ -164,6 +164,9 @@ public class ContaAPagarService implements Serializable {
 		cpHistorico.setValorAnterio(vlrAnterio);
 		cpHistorico.setValorAtual(contaAPagar.getPagoTB());
 		cpHistorico.setUsuario(pagamento.getUsuario());
+		cpHistorico.setValorDesc(contaAPagar.getDescTB());
+		cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
+		cpHistorico.setPagamento(pagamento);
 		cpHistorico.setAgrupadorPagamento(idAgrupador);
 		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
 
@@ -233,6 +236,9 @@ public class ContaAPagarService implements Serializable {
 				cpHistorico.setContaApagar(contaAPagar);
 				cpHistorico.setValorAnterio(vlrAnterio);
 				cpHistorico.setValorAtual(cp.getPagoTB());
+				cpHistorico.setValorDesc(contaAPagar.getDescTB());
+				cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
+				cpHistorico.setPagamento(pagamento);
 				cpHistorico.setUsuario(pagamento.getUsuario());
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
 				cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
@@ -372,6 +378,9 @@ public class ContaAPagarService implements Serializable {
 				cpHistorico.setValorAnterio(valorAnterio);
 				cpHistorico.setValorAtual(cp.getPagoTB());
 				cpHistorico.setUsuario(pagamento.getUsuario());
+				cpHistorico.setValorDesc(contaAPagar.getDescTB());
+				cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
+				cpHistorico.setPagamento(pagamento);
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
 				cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
 

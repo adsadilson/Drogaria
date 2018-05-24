@@ -33,34 +33,39 @@ h2, .h2 {
 	color: inherit;
 	text-align: center;
 }
+
+#conteudo-1 {
+	float: left;
+	width: 180px;
+}
+
+#conteudo-2 {
+	float: left;
+	width: 800px;
+	display: inline;
+	margin-left: 50px;
+	margin-top: 50px;
+}
 -->
 </style>
-
-		<br />
-		<div style="margin-left: 30px;">
-			<h:graphicImage library="images" name="apss22.png" height="100px" />
+		<h2 align="left">
+			Seja bem vindo ao sistema<span class="text-aqua"> <i>SGE</i>
+			</span>! <br />
+		</h2>
+		<div id="conteudo-1">
+			<h:panelGrid>
+				<p:commandButton value="Iniciar Venda" />
+				<p:commandButton value="Imprimir Venda" />
+				<p:commandButton value="Cancelar Venda" />
+				<p:commandButton value="Consultar Venda" />
+				<p:commandButton value="Cadastrar Cliente" />
+			</h:panelGrid>
 		</div>
-		<br />
-		<br />
-		<div style="margin-left: 150px; width: 550px;">
-			<h2>
-				Bem vindo ao <span class="text-aqua"> <i>Frente de Loja</i></span>!
-				<br /> 
-				<span >Do sistema SGE. </span>
-			</h2>
-			<h:form prependId="false">
-				<ui:remove>
-					<p:inputText style="width:96%" styleClass="moeda"
-						onfocus="mascaraMoeda();" converter="moedaConverter">
-					</p:inputText>
-					<p:inputText style="width:96%" styleClass="moeda"
-						onfocus="formatarMoeda(this)" />
-					<p:inputText style="width:85%" id="teste"
-						onfocus="formatoMoeda('teste')" />
-					<p:commandButton value="Error"
-						action="#{cadastroCategoriaBean.salvar()}"></p:commandButton>
-				</ui:remove>
-			</h:form>
+		<div id="conteudo-2">
+			<h1>Caixa Livre</h1>
+			<h:graphicImage library="images" name="venda1.png" height="250px" />
+			<h:graphicImage style="margin-left:15%" library="images"
+				name="venda3.jpg" height="200px" />
 		</div>
 
 

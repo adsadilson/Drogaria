@@ -204,7 +204,7 @@ public class ContaAPagarBean implements Serializable {
 
 	}
 
-	public void excluirPagamentos() {
+	public void cancelarPagamentos() {
 
 		if (this.pagamentoSelecionado.getFormaBaixa() == FormaBaixa.BI) {
 			pagamentoService.excluirPagtoEstornaCP(pagamentoSelecionado);
