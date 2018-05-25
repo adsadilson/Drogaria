@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,20 +45,17 @@ public class ContaAPagarRepository implements Serializable {
 
 	public void baixaSimples(ContaAPagar obj) {
 		manager.createNativeQuery(
-				"update conta_apagar set valor_pago = :valorPago, valor_apagar = :valorApagar, "
-				+ "vinculo = :vinculo, status =:status where id = :id")
-				.setParameter("valorPago", obj.getValorPago()).setParameter("valorApagar", obj.getValorApagar())
-				.setParameter("vinculo", obj.getVinculo()).setParameter("status", obj.getStatus())
+				"update conta_apagar set valor_apagar = :valorApagar, " + "vinculo = :vinculo where id = :id")
+				.setParameter("valorApagar", obj.getValorApagar()).setParameter("vinculo", obj.getVinculo())
 				.setParameter("id", obj.getId()).executeUpdate();
 	}
 
 	public void cancelarPagto(ContaAPagar contaAPagar) {
 		manager.createNativeQuery(
-				"update conta_apagar set valor_apagar =:valorApagar, "
-				+ "vinculo =:vinculo where id = :id")
+				"update conta_apagar set valor_apagar =:valorApagar, " + "vinculo =:vinculo where id = :id")
 				.setParameter("valorApagar", contaAPagar.getValorApagar())
-				.setParameter("vinculo", contaAPagar.getVinculo())
-				.setParameter("id", contaAPagar.getId()).executeUpdate();
+				.setParameter("vinculo", contaAPagar.getVinculo()).setParameter("id", contaAPagar.getId())
+				.executeUpdate();
 	}
 
 	public void excluir(ContaAPagar obj) {
@@ -171,8 +169,8 @@ public class ContaAPagarRepository implements Serializable {
 
 	public List<ContaAPagar> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from ContaAPagar where movimentacao_vinculo = :vinculo order by id", ContaAPagar.class)
-					.setParameter("vinculo", vinculo).getResultList();
+			return manager.createQuery("from ContaAPagar where movimentacao_vinculo = :vinculo order by id",
+					ContaAPagar.class).setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -184,9 +182,13 @@ public class ContaAPagarRepository implements Serializable {
 		Session session = manager.unwrap(Session.class);
 		Criteria criteria = session.createCriteria(ContaAPagar.class);
 
-		if (StringUtils.isBlank(filtro.getStatus())) {
-			criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL"));
-		}
+		criteria.add(Restrictions.gt("valorApagar", BigDecimal.ZERO));
+
+		/*
+		 * if (StringUtils.isBlank(filtro.getStatus())) {
+		 * criteria.add(Restrictions.in("status", "ABERTO",
+		 * "PAGAMENTO PARCIAL")); }
+		 */
 
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);
 

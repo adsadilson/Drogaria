@@ -21,6 +21,7 @@ import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
 import com.br.apss.drogaria.util.jpa.Transacional;
+import com.br.apss.drogaria.util.jsf.NegocioException;
 
 public class ContaAPagarService implements Serializable {
 
@@ -59,14 +60,11 @@ public class ContaAPagarService implements Serializable {
 
 		BigDecimal vlrAnterio = contaAPagar.getSaldoDevedor();
 
-		contaAPagar.setStatus("PAGAMENTO TOTAL");
 		pagamento.setTipoBaixa(TipoBaixa.TOTAL);
 		contaAPagar.setUsuario(pagamento.getUsuario());
-		contaAPagar.setValorPago(contaAPagar.getValorPago().add(contaAPagar.getPagoTB()));
 		contaAPagar.setSaldoDevedor(contaAPagar.getValorApagar());
 		contaAPagar.setVinculo(idAgrupador);
 		if (contaAPagar.getValorApagar().compareTo(contaAPagar.getPagoTB()) > 0) {
-			contaAPagar.setStatus("PAGAMENTO PARCIAL");
 			pagamento.setTipoBaixa(TipoBaixa.PARCIAL);
 			pagamento.setDescricao(pagamento.getDescricao() + " (P)");
 		}
@@ -166,7 +164,6 @@ public class ContaAPagarService implements Serializable {
 		cpHistorico.setUsuario(pagamento.getUsuario());
 		cpHistorico.setValorDesc(contaAPagar.getDescTB());
 		cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
-		cpHistorico.setPagamento(pagamento);
 		cpHistorico.setAgrupadorPagamento(idAgrupador);
 		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
 
@@ -215,18 +212,12 @@ public class ContaAPagarService implements Serializable {
 				contaAPagar.setDataVencto(cp.getDataVencto());
 				contaAPagar.setNumDoc(cp.getNumDoc());
 				contaAPagar.setParcela(cp.getParcela());
-				contaAPagar.setStatus("PAGAMENTO TOTAL");
 				contaAPagar.setTipoCobranca(cp.getTipoCobranca());
 				contaAPagar.setValor(cp.getValor());
 				contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
-				contaAPagar.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
 				contaAPagar.setVinculo(idAgrupador);
 				contaAPagar.setFornecedor(cp.getFornecedor());
 				contaAPagar.setUsuario(cp.getUsuario());
-
-				if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
-					contaAPagar.setStatus("PAGAMENTO PARCIAL");
-				}
 
 				listaCP.add(contaAPagar);
 				dao.baixaSimples(contaAPagar);
@@ -238,7 +229,6 @@ public class ContaAPagarService implements Serializable {
 				cpHistorico.setValorAtual(cp.getPagoTB());
 				cpHistorico.setValorDesc(contaAPagar.getDescTB());
 				cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
-				cpHistorico.setPagamento(pagamento);
 				cpHistorico.setUsuario(pagamento.getUsuario());
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
 				cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
@@ -357,16 +347,11 @@ public class ContaAPagarService implements Serializable {
 			Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
 
 			for (ContaAPagar cp : listaContaAPagars) {
-				
+
 				ContaAPagar contaAPagar = new ContaAPagar();
 				contaAPagar.setId(cp.getId());
-				contaAPagar.setStatus("PAGAMENTO TOTAL");
-				contaAPagar.setValorPago(cp.getValorPago().add(cp.getPagoTB()));
 				contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
 				contaAPagar.setVinculo(idAgrupador);
-				if (cp.getValorApagar().compareTo(cp.getPagoTB()) > 0) {
-					contaAPagar.setStatus("PAGAMENTO PARCIAL");
-				}
 
 				dao.baixaSimples(contaAPagar);
 
@@ -489,31 +474,12 @@ public class ContaAPagarService implements Serializable {
 	}
 
 	@Transacional
-	public void excluirContas(List<ContaAPagar> contas) throws Exception {
-
-		for (ContaAPagar c : contas) {
-
-			if (c.getStatus().equals("PAGAMENTO PARCIAL")) {
-
-				List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo());
-
-				List<ContaAPagarHistorico> listaCPHistorico = cpHistoricoService
-						.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
-
-				for (ContaAPagarHistorico cph : listaCPHistorico) {
-					ContaAPagar cp = new ContaAPagar();
-					cp.setId(cph.getContaApagar().getId());
-					cp.setValorApagar(cph.getValorAnterio());
-					cp.setValorPago(c.getValorPago().subtract(cph.getValorAtual()));
-					cp.setVinculo(cph.getVinculoAnterio());
-					cp.setStatus("PAGAMENTO PARCIAL");
-					dao.cancelarPagto(cp);
-					cpHistoricoService.excluir(cph);
-				}
-				pagamentoService.excluirListaPagto(listaPagto);
-			}
+	public void excluirContas(List<ContaAPagar> contas) {
+		try {
+			dao.excluirContas(contas);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		// dao.excluirContas(contas);
 	}
 
 	public List<ContaAPagar> listAll() {

@@ -205,20 +205,8 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void cancelarPagamentos() {
-
-		if (this.pagamentoSelecionado.getFormaBaixa() == FormaBaixa.BI) {
-			pagamentoService.cancelarPagamento(pagamentoSelecionado);
-		} else {
-			this.listaMovimentacoes.clear();
-			this.listaMovimentacoes = pagamentoSelecionado.getListaMovimentacoes();
-			if (this.listaMovimentacoes.size() > 1) {
-				pagamentoService.cancelarPagamento(pagamentoSelecionado);
-			} else {
-
-				pagamentoService.cancelarPagamento(pagamentoSelecionado);
-			}
-		}
-
+		List<Pagamento> listaPagto = pagamentoService.porVinculo(this.pagamentoSelecionado.getAgrupadorContaApagar());
+		pagamentoService.cancelarPagamento(listaPagto);
 		pesquisarPagamento();
 	}
 
@@ -243,15 +231,29 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void excluirSelecionados() {
-		try {
-			contaAPagarService.excluirContas(this.contaApagarSelecionadas);
-			this.contaApagarSelecionadas = new ArrayList<>();
-			pesquisar();
-			this.setTotalSelecionado(BigDecimal.ZERO);
-			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
-		} catch (Exception e) {
-			Messages.addGlobalError("Esse registro possui vinculo com outras tabelas!");
+
+		for (ContaAPagar c : this.contaApagarSelecionadas) {
+
+			List<Pagamento> listaPagto = pagamentoService
+					.porVinculo(c.getAgrupadorMovimentacao() == null ? null : c.getAgrupadorMovimentacao());
+			if (listaPagto.size() > 0) {
+				throw new NegocioException("Registro(s) não pode ser excluido pois possui baixar!");
+			}
+
+			List<ContaAPagar> listaCp = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
+			for (ContaAPagar cp : listaCp) {
+				if (!c.equals(cp)) {
+					throw new NegocioException("Registro de numero: " + c.getNumDoc()
+							+ " possui mais parcelas por favor seleciona para excluir!");
+				}
+			}
 		}
+
+		contaAPagarService.excluirContas(contaApagarSelecionadas);
+		this.contaApagarSelecionadas = new ArrayList<>();
+		pesquisar();
+		this.setTotalSelecionado(BigDecimal.ZERO);
+		Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
 	}
 
 	public void excluirPagamentoAbaixar() {
@@ -319,7 +321,7 @@ public class ContaAPagarBean implements Serializable {
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getAgrupadorMovimentacao());
 
 			for (ContaAPagar par : this.listaParcelas) {
-				if (!par.getStatus().contains("ABERTO")) {
+				if (par.getValorApagar().compareTo(BigDecimal.ZERO) > 0) {
 					this.permitirEditar = "false";
 					break;
 				}
@@ -373,7 +375,6 @@ public class ContaAPagarBean implements Serializable {
 
 					for (int i = 0; i < this.listaParcelas.size(); i++) {
 						this.listaParcelas.get(i).setDataDoc(this.cabContaApagar.getDataDoc());
-						this.listaParcelas.get(i).setStatus("ABERTO");
 						this.listaParcelas.get(i).setUsuario(obterUsuario());
 						this.listaParcelas.get(i).setFornecedor(this.cabContaApagar.getFornecedor());
 						this.listaParcelas.get(i).setAgrupadorMovimentacao(this.cabContaApagar.getVinculo());
@@ -480,7 +481,7 @@ public class ContaAPagarBean implements Serializable {
 				movto.setDescricao(
 						"PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getFornecedor().getNome());
 
-				if (c.getValorApagar().compareTo(c.getValorPago()) > 0) {
+				if (c.getValorApagar().compareTo(BigDecimal.ZERO) > 0) {
 					movto.setDescricao("PG. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
 							+ c.getFornecedor().getNome() + " (P)");
 				}
@@ -697,11 +698,9 @@ public class ContaAPagarBean implements Serializable {
 			contaAPagar.setDataVencto(cp.getDataVencto());
 			contaAPagar.setNumDoc(cp.getNumDoc());
 			contaAPagar.setParcela(cp.getParcela());
-			contaAPagar.setStatus(cp.getStatus());
 			contaAPagar.setTipoCobranca(cp.getTipoCobranca());
 			contaAPagar.setValor(cp.getValor());
 			contaAPagar.setValorApagar(cp.getValorApagar());
-			contaAPagar.setValorPago(cp.getValorPago());
 			contaAPagar.setPagoTB(cp.getValorApagar());
 			contaAPagar.setVinculo(cp.getVinculo());
 			contaAPagar.setFornecedor(cp.getFornecedor());
@@ -884,7 +883,7 @@ public class ContaAPagarBean implements Serializable {
 
 	public void informativo() {
 		labelInfo = "sim";
-		if (contaAPagar.getValorApagar().compareTo(contaAPagar.getValorPago()) <= 0) {
+		if (contaAPagar.getValorApagar().compareTo(BigDecimal.ZERO) <= 0) {
 			labelInfo = "nao";
 		}
 	}

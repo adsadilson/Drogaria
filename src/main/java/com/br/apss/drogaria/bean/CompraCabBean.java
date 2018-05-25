@@ -186,7 +186,7 @@ public class CompraCabBean implements Serializable {
 		RequestContext req = RequestContext.getCurrentInstance();
 		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
 		for (ContaAPagar c : cps) {
-			if (!c.getStatus().contains("ABERTO")) {
+			if (!c.getValorApagar().compareTo("ABERTO")) {
 				throw new NegocioException("Não é permitido a editar este documento: "
 						+ this.compraCabSelecionado.getDocumento() + ", pois o mesmo possui baixa.");
 			}
@@ -396,7 +396,6 @@ public class CompraCabBean implements Serializable {
 			ap.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
 			ap.setNumDoc(this.compraCab.getDocumento());
 			ap.setDataDoc(this.compraCab.getDataEntrada());
-			ap.setStatus("ABERTO");
 			ap.setDataVencto(i == 0 ? somaDias(this.compraCab.getDataEntrada(), 30)
 					: somaDias(this.compraCab.getDataEntrada(), this.parcela.getPeriodo() * (i + 1)));
 			ap.setValor(i == 0 ? primeiraParcela : valorParcela);

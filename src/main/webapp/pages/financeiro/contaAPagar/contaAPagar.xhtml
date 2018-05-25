@@ -820,7 +820,7 @@
 			draggable="true" id="dgPago" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 			
-			<p:ajax event="close" update="frm-tabela" />
+			<p:ajax event="close" update="tbl-conta-apagar" />
 
 			<h:form>
 
@@ -869,7 +869,7 @@
 					<p:column headerText="Ação" style="text-align: cente; width:45px;"
 						exportable="false">
 						<p:commandButton icon="ui-icon-trash" title="Excluir"
-							update="tbl-pago" styleClass="semPreenchimento"
+							update="tbl-pago tbl-conta-apagar" styleClass="semPreenchimento"
 							action="#{contaAPagarBean.cancelarPagamentos()}">
 							<f:setPropertyActionListener
 								target="#{contaAPagarBean.pagamentoSelecionado}" value="#{pago}" />

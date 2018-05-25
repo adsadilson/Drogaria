@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAPagarHistorico;
+import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
@@ -47,21 +48,33 @@ public class PagamentoService implements Serializable {
 	}
 
 	@Transacional
-	public void cancelarPagamento(Pagamento obj) {
-	
-		List<Pagamento> listaPagto = dao.porVinculo(obj.getAgrupadorContaApagar());
-		for (Pagamento p : listaPagto) {
-				dao.excluirPagamentoContaApagar(p.getId());
-				dao.excluirPagtoMovimentacao(p.getId());
-		}
-		dao.excluirPorVinculo(obj.getAgrupadorContaApagar());
+	public void cancelarPagamento(List<Pagamento> listaPagto) {
 
-		List<ContaAPagarHistorico> list = cpHistoricoService.listaVinculo(obj.getAgrupadorContaApagar());
-		for (ContaAPagarHistorico cph : list) {
+		for (Pagamento p : listaPagto) {
+			// Excluir os registros da tabela pagamento_conta_apagar
+			dao.excluirPagamentoContaApagar(p.getId());
+			// Excluir os registros da tabela pagamento_movimentacao
+			dao.excluirPagtoMovimentacao(p.getId());
+		}
+
+		List<Movimentacao> movto = listaPagto.get(0).getListaMovimentacoes();
+		for (Movimentacao m : movto) {
+			// Excluir os registros da tabela movimentacao
+			dao.excluirMovimentacao(m.getId());
+		}
+
+		// Excluir os registros da tabela pagamento
+		dao.excluirPorVinculo(listaPagto.get(0).getAgrupadorContaApagar());
+
+		List<ContaAPagarHistorico> listaCPHistorico = cpHistoricoService
+				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
+		
+		for (ContaAPagarHistorico cph : listaCPHistorico) {
 			ContaAPagar cp = new ContaAPagar();
 			cp.setId(cph.getContaApagar().getId());
 			cp.setValorApagar(cph.getValorAnterio());
 			cp.setVinculo(cph.getVinculoAnterio());
+			// Atualiza os registros da tabela conta_apagar
 			contaAPagarRepository.cancelarPagto(cp);
 		}
 	}

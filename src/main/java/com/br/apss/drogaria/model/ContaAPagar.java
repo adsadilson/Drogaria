@@ -65,9 +65,6 @@ public class ContaAPagar implements Serializable {
 	@Column(name = "valor_apagar", precision = 12, scale = 2)
 	private BigDecimal valorApagar = BigDecimal.ZERO;
 
-	@Column(name = "valor_pago", precision = 12, scale = 2)
-	private BigDecimal valorPago = BigDecimal.ZERO;
-
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "conta_apagar_movimentacao", joinColumns = @JoinColumn(name = "conta_apagar_id"), inverseJoinColumns = @JoinColumn(name = "movimentacao_id"))
 	private List<Movimentacao> movimentacoes = new ArrayList<Movimentacao>();
@@ -79,9 +76,6 @@ public class ContaAPagar implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
-
-	@Column(length = 20)
-	private String status;
 
 	@Column(name = "movimentacao_vinculo")
 	private Long agrupadorMovimentacao;
@@ -158,14 +152,6 @@ public class ContaAPagar implements Serializable {
 		this.valor = valor;
 	}
 
-	public BigDecimal getValorPago() {
-		return valorPago;
-	}
-
-	public void setValorPago(BigDecimal valorPago) {
-		this.valorPago = valorPago;
-	}
-
 	public List<Movimentacao> getMovimentacoes() {
 		return movimentacoes;
 	}
@@ -180,14 +166,6 @@ public class ContaAPagar implements Serializable {
 
 	public void setParcela(String parcela) {
 		this.parcela = parcela;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
 	}
 
 	public TipoCobranca getTipoCobranca() {
@@ -293,7 +271,6 @@ public class ContaAPagar implements Serializable {
 	public void setTotalGeralDeParcelas(BigDecimal totalGeralDeParcelas) {
 		this.totalGeralDeParcelas = totalGeralDeParcelas;
 	}
-
 
 	@Override
 	public int hashCode() {
