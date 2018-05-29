@@ -63,6 +63,8 @@
 .campoBaixaSimple1 {
 	width: 130px !important;
 }
+
+
 -->
 </style>
 
@@ -82,7 +84,7 @@
 
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo" id="btnNovo"
+					<p:commandButton icon="fa fa-file-o" value="Novo" id="btnNovo" 
 						update="dgCadastro" oncomplete="PF('dialogCadastro').show()"
 						process="@this" action="#{contaAPagarBean.novo}">
 						<p:resetInput target="dgCadastro" />
@@ -90,7 +92,7 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
-						process="@this frm-tabela" 
+						process="@this frm-tabela"
 						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? 
 						PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
 						update="dgCadastro dgInfoEdicao"
@@ -103,7 +105,7 @@
 						oncomplete="PF('confirmacaoExclusao').show()"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()==0}">
 					</p:commandButton>
-					
+
 					<ui:remove>
 						<p:commandButton icon="fa fa-copy" value="Duplicar"
 							style="margin-right: 3px;" id="btnDuplicar"
@@ -223,8 +225,9 @@
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
 				</p:column>
-				
-				<p:column style="text-align: right;width:80px;" headerText="Valor à Pagar">
+
+				<p:column style="text-align: right;width:80px;"
+					headerText="Valor à Pagar">
 					<h:outputText value="#{cp.valorApagar}">
 						<f:convertNumber type="currency" currencySymbol="R$" />
 					</h:outputText>
@@ -246,7 +249,8 @@
 								style="font-weight: bold; margin-right:10px;" />
 							<h:outputText value="#{car.fornecedor.nome}"
 								style="font-weight: bold; margin-right:10px;" />
-							<h:outputText value="#{car.valorApagar}" style="font-weight: bold;">
+							<h:outputText value="#{car.valorApagar}"
+								style="font-weight: bold;">
 								<f:convertNumber type="currency" />
 							</h:outputText>
 						</h:panelGrid>
@@ -528,7 +532,7 @@
 
 					<p:tab title="Informações dos titulos"
 						rendered="#{contaAPagarBean.listaContasApagar.size()>1}">
-						
+
 						<p:dataTable id="tabela-parcela" style="width:auto;"
 							value="#{contaAPagarBean.listaContasApagar}" var="contaApagar"
 							rowIndexVar="idx" scrollable="true" scrollHeight="165"
@@ -564,7 +568,8 @@
 										<p:inputText style="width:85%" id="txtBaixaMultaJuro"
 											value="#{contaApagar.multaTB}" styleClass="moeda"
 											onfocus="mascaraMoeda();" converter="moedaConverter">
-											<p:ajax event="blur" listener="#{contaAPagarBean.calcularTotais}"
+											<p:ajax event="blur"
+												listener="#{contaAPagarBean.calcularTotais}"
 												update="tabela-parcela txtJuro txtVlrPago txtVlrAPagar 
 												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -583,7 +588,8 @@
 										<p:inputText style="width:85%" styleClass="moeda"
 											value="#{contaApagar.descTB}" onfocus="mascaraMoeda();"
 											converter="moedaConverter">
-											<p:ajax event="blur" listener="#{contaAPagarBean.calcularTotais}"
+											<p:ajax event="blur"
+												listener="#{contaAPagarBean.calcularTotais}"
 												update="tabela-parcela txtDesc txtVlrPago txtVlrAPagar 
 												txtBaixaPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
@@ -606,12 +612,13 @@
 										</h:outputLabel>
 									</f:facet>
 									<f:facet name="input">
-										<p:inputText value="#{contaApagar.pagoTB}"
-											style="width:90%" styleClass="moeda"
-											converter="moedaConverter" onfocus="mascaraMoeda();">
-											<p:ajax event="change" 
+										<p:inputText value="#{contaApagar.pagoTB}" style="width:90%"
+											styleClass="moeda" converter="moedaConverter"
+											onfocus="mascaraMoeda();">
+											<p:ajax event="change"
 												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
-												<p:ajax event="blur" update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla"/>
+											<p:ajax event="blur"
+												update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -625,7 +632,7 @@
 							<p:toolbarGroup align="right">
 
 								<hr />
-								<h:panelGrid columns="6" 
+								<h:panelGrid columns="6"
 									columnClasses="rotuloInfTitulo1, campoInfTitulo1,
 									rotuloInfTitulo1, campoInfTitulo1, rotuloInfTitulo1, campoInfTitulo2">
 
@@ -819,7 +826,7 @@
 			modal="true" width="770" height="430" resizable="true"
 			draggable="true" id="dgPago" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
-			
+
 			<p:ajax event="close" update="tbl-conta-apagar" />
 
 			<h:form>

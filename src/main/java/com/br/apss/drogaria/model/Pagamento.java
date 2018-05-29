@@ -92,6 +92,10 @@ public class Pagamento implements Serializable {
 	@Column(name = "conta_apagar_vinculo")
 	private Long agrupadorContaApagar;
 
+	@ManyToOne
+	@JoinColumn(name = "origem")
+	private Pagamento origem;
+
 	public Long getId() {
 		return id;
 	}
@@ -230,6 +234,14 @@ public class Pagamento implements Serializable {
 
 	public void setAgrupadorContaApagar(Long agrupadorContaApagar) {
 		this.agrupadorContaApagar = agrupadorContaApagar;
+	}
+
+	public Pagamento getOrigem() {
+		return origem;
+	}
+
+	public void setOrigem(Pagamento origem) {
+		this.origem = origem;
 	}
 
 	@Override

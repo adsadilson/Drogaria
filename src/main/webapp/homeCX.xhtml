@@ -36,7 +36,7 @@ h2, .h2 {
 
 #conteudo-1 {
 	float: left;
-	width: 180px;
+	width: 200px;
 }
 
 #conteudo-2 {
@@ -46,23 +46,41 @@ h2, .h2 {
 	margin-left: 50px;
 	margin-top: 50px;
 }
+
+.button {
+	width: 100%;
+	height: 60px;
+	font-size: 14px;
+	font-weight: bold;
+}
 -->
 </style>
-		<h2 align="left">
+		<!-- <h2 style="text-align: left; margin-left:225px;">
 			Seja bem vindo ao sistema<span class="text-aqua"> <i>SGE</i>
 			</span>! <br />
-		</h2>
+		</h2> -->
 		<div id="conteudo-1">
-			<h:panelGrid>
-				<p:commandButton value="Iniciar Venda" />
-				<p:commandButton value="Imprimir Venda" />
-				<p:commandButton value="Cancelar Venda" />
-				<p:commandButton value="Consultar Venda" />
-				<p:commandButton value="Cadastrar Cliente" />
+			<h:panelGrid width="100%">
+				<p:commandButton value="Iniciar Venda" styleClass="button"
+					icon="venda-icon" />
+				<p:commandButton value="Imprimir Venda" styleClass="button" />
+				<p:commandButton value="Cancelar Venda" styleClass="button" />
+				<p:commandButton value="Consultar Venda" styleClass="button" />
+				<p:commandButton value="Cadastrar Cliente" styleClass="button" />
+			</h:panelGrid>
+			<h:panelGrid columns="2" style="margin-top: 35%; margin-left:10px;">
+				<h:outputText value="Nr Caixa:" />
+				<h:outputText value="0001" />
+				<h:outputText value="Data:" />
+				<h:outputText value="28/05/2018" />
+				<h:outputText value="Responsável:" />
+				<h:outputText value="RONALDO" />
+				<h:outputText value="Status:" />
+				<h:outputText value="ABERTO" />
 			</h:panelGrid>
 		</div>
 		<div id="conteudo-2">
-			<h1>Caixa Livre</h1>
+			<h1 style="font-weight: bold; font-size: 48px;">CAIXA LIVRE</h1>
 			<h:graphicImage library="images" name="venda1.png" height="250px" />
 			<h:graphicImage style="margin-left:15%" library="images"
 				name="venda3.jpg" height="200px" />

@@ -1,5 +1,11 @@
 @charset "utf-8";
 
+.venda-icon {
+	background-image: url(../resources/images/cart_add32.png) !important;
+	width: 64px;
+	height: 64px;
+}
+
 .ui-selectonemenu {
 	vertical-align: middle;
 }
@@ -140,6 +146,10 @@ h1 {
 
 )
 no-repeat
+
+
+
+
 
 
 
