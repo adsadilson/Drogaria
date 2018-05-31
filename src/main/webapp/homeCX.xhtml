@@ -43,14 +43,14 @@ h2, .h2 {
 	float: left;
 	width: 800px;
 	display: inline;
-	margin-left: 50px;
+	margin-left: 80px;
 	margin-top: 50px;
 }
 
 .button {
 	width: 100%;
 	height: 60px;
-	font-size: 14px;
+	font-size: 12px;
 	font-weight: bold;
 }
 -->
@@ -63,10 +63,10 @@ h2, .h2 {
 			<h:panelGrid width="100%">
 				<p:commandButton value="Iniciar Venda" styleClass="button"
 					icon="venda-icon" />
-				<p:commandButton value="Imprimir Venda" styleClass="button" />
-				<p:commandButton value="Cancelar Venda" styleClass="button" />
-				<p:commandButton value="Consultar Venda" styleClass="button" />
-				<p:commandButton value="Cadastrar Cliente" styleClass="button" />
+				<p:commandButton icon="print-icon" value="Imprimir Venda" styleClass="button" />
+				<p:commandButton icon="cancelar-venda-icon" value="Cancelar Venda" styleClass="button" />
+				<p:commandButton icon="consultar-venda-icon" value="Consultar Venda" styleClass="button" />
+				<p:commandButton icon="cliente-add-icon" value="Cadastrar Cliente" styleClass="button" />
 			</h:panelGrid>
 			<h:panelGrid columns="2" style="margin-top: 35%; margin-left:10px;">
 				<h:outputText value="Nr Caixa:" />

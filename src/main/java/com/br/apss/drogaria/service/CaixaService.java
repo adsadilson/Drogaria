@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -19,7 +20,10 @@ public class CaixaService implements Serializable {
 
 	public Caixa consultarCaixa(Caixa cx) {
 		return dao.consultarCaixa(cx);
+	}
 
+	public Caixa consultarCaixaPorUserData(Long user, Date data) {
+		return dao.consultarCaixa(user, data);
 	}
 
 	@Transacional

@@ -6,6 +6,32 @@
 	height: 64px;
 }
 
+.print-icon {
+	background-image: url(../resources/images/print-2.png) !important;
+	width: 64px;
+	height: 64px;
+}
+
+.cancelar-venda-icon {
+	background-image: url(../resources/images/cart_remove32.png) !important;
+	width: 64px;
+	height: 64px;
+}
+
+.cliente-add-icon {
+	background-image: url(../resources/images/cli_add.png) !important;
+	width: 64px;
+	height: 64px;
+}
+
+
+.consultar-venda-icon {
+	background-image: url(../resources/images/search.png) !important;
+	width: 64px;
+	height: 64px;
+}
+
+
 .ui-selectonemenu {
 	vertical-align: middle;
 }

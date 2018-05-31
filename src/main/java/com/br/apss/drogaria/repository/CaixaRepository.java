@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.repository;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,7 +19,6 @@ import com.br.apss.drogaria.model.Caixa;
 import com.br.apss.drogaria.model.filter.CaixaFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
-
 public class CaixaRepository implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -31,6 +31,15 @@ public class CaixaRepository implements Serializable {
 			return em.createQuery("from Caixa where data = :data and responsavel =:responsavel", Caixa.class)
 					.setParameter("data", cx.getData()).setParameter("responsavel", cx.getResponsavel())
 					.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+
+	public Caixa consultarCaixa(Long user, Date dt) {
+		try {
+			return em.createQuery("from Caixa where data = :dt and responsavel =:user", Caixa.class)
+					.setParameter("dt", dt).setParameter("user", user).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}

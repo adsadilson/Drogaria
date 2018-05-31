@@ -2,6 +2,7 @@ package com.br.apss.drogaria.security;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Enumeration;
 
 import javax.enterprise.context.SessionScoped;
@@ -14,12 +15,14 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.omnifaces.util.Faces;
 import org.omnifaces.util.Messages;
 
+import com.br.apss.drogaria.model.Caixa;
 import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.service.CaixaService;
 import com.br.apss.drogaria.service.UsuarioService;
 import com.br.apss.drogaria.util.jpa.FlyWay;
+import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
 @SessionScoped
@@ -33,7 +36,7 @@ public class LoginBean implements Serializable {
 
 	@Inject
 	private UsuarioService usuarioService;
-	
+
 	@Inject
 	private CaixaService caixaService;
 
@@ -69,6 +72,13 @@ public class LoginBean implements Serializable {
 						 */
 						if (g.getNome().contains("OPERADOR DE CAIXA")) {
 							v = true;
+							Caixa cx = caixaService.consultarCaixaPorUserData(usuarioLogado.getId(), new Date());
+							if (null != cx) {
+								if (cx.getStatus().contains("FECHADO")) {
+									throw new NegocioException(
+											"Caixa já fechado verificar com o administrador do sistema");
+								}
+							}
 							break;
 						}
 					}
