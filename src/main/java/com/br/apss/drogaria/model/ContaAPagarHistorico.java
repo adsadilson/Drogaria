@@ -2,6 +2,7 @@ package com.br.apss.drogaria.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "conta_apagar_historico")
@@ -39,6 +42,10 @@ public class ContaAPagarHistorico implements Serializable {
 	@Column(name = "valor_desc", precision = 12, scale = 2)
 	private BigDecimal valorDesc = BigDecimal.ZERO;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "data")
+	private Date data;
+
 	@ManyToOne
 	@JoinColumn(name = "conta_apagar_id")
 	private ContaAPagar contaApagar;
@@ -56,9 +63,6 @@ public class ContaAPagarHistorico implements Serializable {
 
 	@Column(name = "pagamento_vinculo_anterior")
 	private Long vinculoAnterio;
-
-	@Column(length = 20)
-	private String status;
 
 	public Long getId() {
 		return id;
@@ -148,12 +152,12 @@ public class ContaAPagarHistorico implements Serializable {
 		this.valorPago = valorPago;
 	}
 
-	public String getStatus() {
-		return status;
+	public Date getData() {
+		return data;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setData(Date data) {
+		this.data = data;
 	}
 
 	@Override

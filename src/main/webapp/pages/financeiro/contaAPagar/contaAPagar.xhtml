@@ -63,8 +63,6 @@
 .campoBaixaSimple1 {
 	width: 130px !important;
 }
-
-
 -->
 </style>
 
@@ -84,7 +82,7 @@
 
 				<p:toolbarGroup>
 
-					<p:commandButton icon="fa fa-file-o" value="Novo" id="btnNovo" 
+					<p:commandButton icon="fa fa-file-o" value="Novo" id="btnNovo"
 						update="dgCadastro" oncomplete="PF('dialogCadastro').show()"
 						process="@this" action="#{contaAPagarBean.novo}">
 						<p:resetInput target="dgCadastro" />
@@ -827,7 +825,8 @@
 			draggable="true" id="dgPago" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
-			<p:ajax event="close" update="tbl-conta-apagar" />
+			<p:ajax event="close" update="tbl-conta-apagar toolbar-totais"
+				listener="#{contaAPagarBean.pesquisar()}" />
 
 			<h:form>
 

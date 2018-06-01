@@ -21,7 +21,6 @@ import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
 import com.br.apss.drogaria.util.jpa.Transacional;
-import com.br.apss.drogaria.util.jsf.NegocioException;
 
 public class ContaAPagarService implements Serializable {
 
@@ -162,6 +161,7 @@ public class ContaAPagarService implements Serializable {
 		cpHistorico.setValorAnterio(vlrAnterio);
 		cpHistorico.setValorAtual(contaAPagar.getPagoTB());
 		cpHistorico.setUsuario(pagamento.getUsuario());
+		cpHistorico.setData(new Date());
 		cpHistorico.setValorDesc(contaAPagar.getDescTB());
 		cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
 		cpHistorico.setAgrupadorPagamento(idAgrupador);
@@ -226,8 +226,9 @@ public class ContaAPagarService implements Serializable {
 
 				cpHistorico.setContaApagar(contaAPagar);
 				cpHistorico.setValorAnterio(vlrAnterio);
-				cpHistorico.setValorAtual(cp.getPagoTB());
+				cpHistorico.setValorAtual(cp.getValorApagar().subtract(cp.getPagoTB()));
 				cpHistorico.setValorDesc(contaAPagar.getDescTB());
+				cpHistorico.setData(new Date());
 				cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
 				cpHistorico.setUsuario(pagamento.getUsuario());
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
@@ -359,8 +360,9 @@ public class ContaAPagarService implements Serializable {
 
 				cpHistorico.setContaApagar(contaAPagar);
 				cpHistorico.setValorAnterio(cp.getSaldoDevedor());
-				cpHistorico.setValorAtual(cp.getValorApagar());
+				cpHistorico.setValorAtual(cp.getValorApagar().subtract(cp.getPagoTB()));
 				cpHistorico.setValorPago(cp.getPagoTB());
+				cpHistorico.setData(new Date());
 				cpHistorico.setUsuario(pagamento.getUsuario());
 				cpHistorico.setValorDesc(cp.getDescTB());
 				cpHistorico.setValorMultaJuros(cp.getMultaTB());

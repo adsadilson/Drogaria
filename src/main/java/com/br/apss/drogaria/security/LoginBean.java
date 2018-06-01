@@ -67,18 +67,27 @@ public class LoginBean implements Serializable {
 				for (GrupoUsuario g : usuarioLogado.getGrupos()) {
 					for (Permissao p : g.getPermissoes()) {
 						/*
-						 * if(p.getControleMenu().getFuncao().equals("OPERADOR DE CAIXA")) {
-						 * System.out.println(p.getControleMenu().getFuncao()); break; }
+						 * if(p.getControleMenu().getFuncao().
+						 * equals("OPERADOR DE CAIXA")) {
+						 * System.out.println(p.getControleMenu().getFuncao());
+						 * break; }
 						 */
 						if (g.getNome().contains("OPERADOR DE CAIXA")) {
 							v = true;
-							Caixa cx = caixaService.consultarCaixaPorUserData(usuarioLogado.getId(), new Date());
+							usuarioLogado.setCadastro(new Date());
+							Caixa cx = caixaService.consultarCaixaPorUserData(usuarioLogado);
 							if (null != cx) {
 								if (cx.getStatus().contains("FECHADO")) {
 									throw new NegocioException(
-											"Caixa já fechado verificar com o administrador do sistema");
+											"Caixa já fechado por favor verifique com o administrador do sistema!");
 								}
+							} else {
+								/*cx.setResponsavel(usuarioLogado);
+								cx.setAbertura(new Date());
+								cx.setStatus("ABERTO");
+								caixaService.salvar(cx);*/
 							}
+
 							break;
 						}
 					}

@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -68,11 +69,14 @@ public class PagamentoService implements Serializable {
 
 		List<ContaAPagarHistorico> listaCPHistorico = cpHistoricoService
 				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
-		
+
 		for (ContaAPagarHistorico cph : listaCPHistorico) {
 			ContaAPagar cp = new ContaAPagar();
+			BigDecimal vlr = (cph.getValorAtual().add(cph.getValorPago().add(cph.getValorDesc())))
+					.subtract(cph.getValorMultaJuros());
+
 			cp.setId(cph.getContaApagar().getId());
-			cp.setValorApagar(cph.getValorAnterio());
+			cp.setValorApagar(vlr);
 			cp.setVinculo(cph.getVinculoAnterio());
 			// Atualiza os registros da tabela conta_apagar
 			contaAPagarRepository.cancelarPagto(cp);

@@ -16,11 +16,11 @@ import org.primefaces.event.CloseEvent;
 
 import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.model.Caixa;
-import com.br.apss.drogaria.model.Pessoa;
+import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.CaixaFilter;
-import com.br.apss.drogaria.model.filter.PessoaFilter;
+import com.br.apss.drogaria.model.filter.UsuarioFilter;
 import com.br.apss.drogaria.service.CaixaService;
-import com.br.apss.drogaria.service.PessoaService;
+import com.br.apss.drogaria.service.UsuarioService;
 import com.br.apss.drogaria.validadors.ValidarDataInicialFinal;
 
 
@@ -43,7 +43,7 @@ public class CaixaBean implements Serializable {
 	CaixaService caixaService;
 
 	@Inject
-	PessoaService pessoaService;
+	UsuarioService userService;
 
 	/********** Metodos **********/
 
@@ -90,12 +90,10 @@ public class CaixaBean implements Serializable {
 		return id;
 	}
 
-	public List<Pessoa> getResponsaveis() {
-		PessoaFilter pfiltro = new PessoaFilter();
-		pfiltro.setCliente(false);
-		pfiltro.setFuncionario(true);
-		pfiltro.setFornecedor(false);
-		return pessoaService.filtrados(pfiltro);
+	public List<Usuario> getResponsaveis() {
+		UsuarioFilter filtroUser = new UsuarioFilter();
+		filtroUser.setStatus(true);
+		return userService.filtrados(filtroUser);
 	}
 
 	public Status[] getStatus() {

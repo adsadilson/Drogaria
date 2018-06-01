@@ -2,14 +2,13 @@ package com.br.apss.drogaria.model.filter;
 
 import java.util.Date;
 
-import com.br.apss.drogaria.model.Pessoa;
-
+import com.br.apss.drogaria.model.Usuario;
 
 public class CaixaFilter {
 
 	private Date inicial;
 	private Date fim;
-	private Pessoa responsavel;
+	private Usuario responsavel;
 	private Date data;
 	private boolean status = true;
 
@@ -23,10 +22,6 @@ public class CaixaFilter {
 
 	public Date getInicial() {
 		return inicial;
-	}
-
-	public Pessoa getResponsavel() {
-		return responsavel;
 	}
 
 	public boolean isStatus() {
@@ -45,12 +40,16 @@ public class CaixaFilter {
 		this.inicial = inicial;
 	}
 
-	public void setResponsavel(Pessoa responsavel) {
-		this.responsavel = responsavel;
-	}
-
 	public void setStatus(boolean status) {
 		this.status = status;
+	}
+
+	public Usuario getResponsavel() {
+		return responsavel;
+	}
+
+	public void setResponsavel(Usuario responsavel) {
+		this.responsavel = responsavel;
 	}
 
 }

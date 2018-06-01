@@ -1,7 +1,6 @@
 package com.br.apss.drogaria.repository;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -16,6 +15,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.model.Caixa;
+import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.CaixaFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -36,10 +36,10 @@ public class CaixaRepository implements Serializable {
 		}
 	}
 
-	public Caixa consultarCaixa(Long user, Date dt) {
+	public Caixa consultarCaixa(Usuario user) {
 		try {
 			return em.createQuery("from Caixa where data = :dt and responsavel =:user", Caixa.class)
-					.setParameter("dt", dt).setParameter("user", user).getSingleResult();
+					.setParameter("dt", user.getCadastro()).setParameter("user", user).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}

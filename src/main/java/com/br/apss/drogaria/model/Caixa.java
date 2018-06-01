@@ -47,7 +47,7 @@ public class Caixa implements Serializable {
 
 	@OneToOne
 	@JoinColumn(name = "responsavel_id")
-	private Pessoa responsavel;
+	private Usuario responsavel;
 
 	@OneToOne
 	@JoinColumn(name = "usuario_id")
@@ -100,10 +100,6 @@ public class Caixa implements Serializable {
 		return id;
 	}
 
-	public Pessoa getResponsavel() {
-		return responsavel;
-	}
-
 	public String getStatus() {
 		return status;
 	}
@@ -148,7 +144,11 @@ public class Caixa implements Serializable {
 		this.id = id;
 	}
 
-	public void setResponsavel(Pessoa responsavel) {
+	public Usuario getResponsavel() {
+		return responsavel;
+	}
+
+	public void setResponsavel(Usuario responsavel) {
 		this.responsavel = responsavel;
 	}
 
