@@ -50,9 +50,8 @@ public class ContaAPagarHistorico implements Serializable {
 	@JoinColumn(name = "conta_apagar_id")
 	private ContaAPagar contaApagar;
 
-	@ManyToOne
-	@JoinColumn(name = "pagamento_id")
-	private Pagamento pagamento;
+	@Column(name = "pagamento_id")
+	private Long pagamento;
 
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
@@ -136,11 +135,11 @@ public class ContaAPagarHistorico implements Serializable {
 		this.valorDesc = valorDesc;
 	}
 
-	public Pagamento getPagamento() {
+	public Long getPagamento() {
 		return pagamento;
 	}
 
-	public void setPagamento(Pagamento pagamento) {
+	public void setPagamento(Long pagamento) {
 		this.pagamento = pagamento;
 	}
 

@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
 import com.br.apss.drogaria.model.ContaAPagarHistorico;
+import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
 public class ContaAPagarHistoricoRepository implements Serializable {
@@ -58,5 +59,10 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 			return null;
 		}
 	}
+	
+	public ContaAPagarHistorico ultimoHistorico(Pagamento p) {
+		return manager.createQuery("from ContaAPagarHistorico where agrupadorPagamento = :vinculo order by id",
+				ContaAPagarHistorico.class).setParameter("vinculo", p).getSingleResult();
+}
 
 }

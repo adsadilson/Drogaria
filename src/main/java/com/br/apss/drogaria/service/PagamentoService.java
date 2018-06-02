@@ -34,8 +34,8 @@ public class PagamentoService implements Serializable {
 	}
 
 	@Transacional
-	public void salvar(List<Pagamento> list) {
-		dao.save(list);
+	public List<Pagamento> salvar(List<Pagamento> list) {
+		return dao.save(list);
 	}
 
 	@Transacional
@@ -50,6 +50,10 @@ public class PagamentoService implements Serializable {
 
 	@Transacional
 	public void cancelarPagamento(List<Pagamento> listaPagto) {
+		
+		List<ContaAPagarHistorico> listaContaApagarHistorico = cpHistoricoService
+				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
+		
 
 		for (Pagamento p : listaPagto) {
 			// Excluir os registros da tabela pagamento_conta_apagar
@@ -80,6 +84,10 @@ public class PagamentoService implements Serializable {
 			cp.setVinculo(cph.getVinculoAnterio());
 			// Atualiza os registros da tabela conta_apagar
 			contaAPagarRepository.cancelarPagto(cp);
+		}
+		
+		for (ContaAPagarHistorico cph : listaCPHistorico) {
+			cpHistoricoService.excluir(cph);
 		}
 	}
 

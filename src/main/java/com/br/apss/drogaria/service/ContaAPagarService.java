@@ -356,7 +356,7 @@ public class ContaAPagarService implements Serializable {
 
 				dao.baixaSimples(contaAPagar);
 
-				ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
+				/*ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
 
 				cpHistorico.setContaApagar(contaAPagar);
 				cpHistorico.setValorAnterio(cp.getSaldoDevedor());
@@ -369,7 +369,7 @@ public class ContaAPagarService implements Serializable {
 				cpHistorico.setAgrupadorPagamento(idAgrupador);
 				cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
 
-				cpHistoricoService.salvar(cpHistorico);
+				cpHistoricoService.salvar(cpHistorico);*/
 
 			}
 
@@ -459,8 +459,26 @@ public class ContaAPagarService implements Serializable {
 				list.add(p);
 			}
 
-			pagamentoService.salvar(list);
+			List<Pagamento> listaPagto = pagamentoService.salvar(list);
+			
+			for (Pagamento pagto : listaPagto) {
 
+				for (ContaAPagar cp : listaContaAPagars) {
+					ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
+					cpHistorico.setContaApagar(cp);
+					cpHistorico.setValorAnterio(cp.getSaldoDevedor());
+					cpHistorico.setValorAtual(cp.getValorApagar().subtract(cp.getPagoTB()));
+					cpHistorico.setValorPago(cp.getPagoTB());
+					cpHistorico.setData(new Date());
+					cpHistorico.setUsuario(pagamento.getUsuario());
+					cpHistorico.setValorDesc(cp.getDescTB());
+					cpHistorico.setPagamento(pagto.getId());
+					cpHistorico.setValorMultaJuros(cp.getMultaTB());
+					cpHistorico.setAgrupadorPagamento(idAgrupador);
+					cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
+					cpHistoricoService.salvar(cpHistorico);
+				}
+			}
 		}
 
 	}
