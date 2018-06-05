@@ -122,9 +122,9 @@
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-dollar" value="Cancelar Pagto(s)"
-						update=":frm-baixa-titulo" oncomplete="PF('dialogPago').show()"
-						action="#{contaAPagarBean.iniciarBaixaTitulo()}">
-						<p:resetInput target=":frm-baixa-titulo" />
+						update=":tbl-pago" oncomplete="PF('dialogPago').show()"
+						action="#{contaAPagarBean.iniciarCancelamentoTitulo()}">
+						<p:resetInput target=":tbl-pago" />
 					</p:commandButton>
 
 					<p:separator />
@@ -616,7 +616,7 @@
 											<p:ajax event="change"
 												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 											<p:ajax event="blur"
-												update="txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
+												update="@this txtBaixaPago txtVlrPago labelVlrApagarBaixaMultipla" />
 										</p:inputText>
 									</f:facet>
 								</p:cellEditor>
@@ -828,7 +828,7 @@
 			<p:ajax event="close" update="tbl-conta-apagar toolbar-totais"
 				listener="#{contaAPagarBean.pesquisar()}" />
 
-			<h:form>
+			<h:form prependId="false" id="frm-titulo-pagos">
 
 				<h:panelGrid columns="6">
 
@@ -861,18 +861,18 @@
 					<p:commandButton icon="fa fa-search" value="PESQUISA"
 						style="margin-left:10px;" update="tbl-pago"
 						actionListener="#{contaAPagarBean.pesquisarPagamento()}" />
-
 				</h:panelGrid>
 
 
 				<p:dataTable id="tbl-pago" value="#{contaAPagarBean.model}"
-					var="pago" style="width:auto; margin-top: 10px; margin-bottom:10px;" rows="13"
+					var="pago"
+					style="width:auto; margin-top: 10px; margin-bottom:10px;" rows="13"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 					emptyMessage="Nenhuma registro encontrado." scrollable="true"
 					scrollHeight="345" lazy="true" rowKey="#{pago.id}">
 
-					<p:column headerText="Ação" style="text-align: cente; width:50px;"
+					<p:column headerText="Ação" style="text-align: cente; width:30px;"
 						exportable="false">
 						<p:commandButton icon="ui-icon-cancel" title="Cancelar pagamento"
 							update="tbl-pago tbl-conta-apagar" styleClass="semPreenchimento"
@@ -882,24 +882,19 @@
 						</p:commandButton>
 						<p:commandButton icon="ui-icon-search" title="Informações"
 							styleClass="semPreenchimento"
-							action="#{movimentacaoBean.carregarInfo()}"
-							oncomplete="PF('dialogInfo').show()" process="@this" update="">
+							action="#{contaAPagarBean.infoBaixa()}"
+							oncomplete="PF('dialogInfoBaixa').show()" process="@this"
+							update="frm-info">
 							<f:setPropertyActionListener
-								target="#{movimentacaoBean.movtoSelecionado}" value="#{pago}" />
-						</p:commandButton>
-						<p:commandButton icon="ui-icon-search" title="Informações"
-							styleClass="semPreenchimento"
-							action="#{movimentacaoBean.carregarInfo()}"
-							oncomplete="PF('dialogInfo').show()" process="@this" update="">
-							<f:setPropertyActionListener
-								target="#{movimentacaoBean.movtoSelecionado}" value="#{pago}" />
+								target="#{contaAPagarBean.pagamentoSelecionado}" value="#{pago}" />
 						</p:commandButton>
 					</p:column>
 
-					<p:column sortBy="" headerText="ID" width="20">
+					<p:column sortBy="" headerText="ID"
+						style="text-align: center; width:35px;">
 						<h:outputText value="#{pago.id}" />
 					</p:column>
-					
+
 					<p:column sortBy="" headerText="Descrição" width="180">
 						<h:outputText value="#{pago.descricao}" />
 					</p:column>
@@ -1089,6 +1084,26 @@
 						style="margin-left: 90px" height="45" />
 				</ui:remove>
 			</h:panelGrid>
+
+		</p:dialog>
+
+		<p:dialog header="Informação da baixa" widgetVar="dialogInfoBaixa"
+			modal="true" resizable="false" draggable="true" id="dgInfoBaixa"
+			closeOnEscape="true" width="450" height="155" appendTo="@(body)">
+			<h:form id="frm-info">
+				<p:dataTable id="tbl-info"
+					value="#{contaAPagarBean.listaPagamentos}" var="pg">
+					<p:column headerText="Pagamento">
+						<h:outputText value="#{pg.id} - #{pg.descricao} " />
+					</p:column>
+				</p:dataTable>
+				<p:dataTable value="#{contaAPagarBean.listaMovimentacoes}"
+					var="movto">
+					<p:column headerText="Movimentação">
+						<h:outputText value="#{movto.id} - #{movto.planoConta.nome} " />
+					</p:column>
+				</p:dataTable>
+			</h:form>
 
 		</p:dialog>
 

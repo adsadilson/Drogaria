@@ -54,7 +54,7 @@ public class PagamentoRepository implements Serializable {
 		try {
 
 			for (Pagamento pagamento : obj) {
-				//excluirPagamentoMovimentacao(pagamento.getId());
+				// excluirPagamentoMovimentacao(pagamento.getId());
 			}
 
 			List<Movimentacao> movto = obj.get(0).getListaMovimentacoes();
@@ -73,7 +73,7 @@ public class PagamentoRepository implements Serializable {
 		}
 	}
 
-	public void excluirPagtoMovimentacao(Long id)  {
+	public void excluirPagtoMovimentacao(Long id) {
 		try {
 			manager.createNativeQuery("delete from pagamento_movimentacao where pagamento_id = :id")
 					.setParameter("id", id).executeUpdate();
@@ -82,7 +82,7 @@ public class PagamentoRepository implements Serializable {
 		}
 	}
 
-	public void excluirMovimentacao(Long id)  {
+	public void excluirMovimentacao(Long id) {
 		try {
 			manager.createNativeQuery("delete from movimentacao where id = :id").setParameter("id", id).executeUpdate();
 		} catch (Exception e) {
@@ -110,8 +110,8 @@ public class PagamentoRepository implements Serializable {
 
 	public void excluirPagamentoMovimentacao(Long id) {
 		try {
-			manager.createNativeQuery("delete from pagamento_movimentacao where pagamento_id = :id").setParameter("id", id)
-					.executeUpdate();
+			manager.createNativeQuery("delete from pagamento_movimentacao where pagamento_id = :id")
+					.setParameter("id", id).executeUpdate();
 		} catch (Exception e) {
 			throw e;
 		}

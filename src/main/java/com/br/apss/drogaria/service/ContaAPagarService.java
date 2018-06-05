@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.omnifaces.util.Messages;
+
 import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoBaixa;
 import com.br.apss.drogaria.enums.TipoConta;
@@ -356,21 +358,6 @@ public class ContaAPagarService implements Serializable {
 
 				dao.baixaSimples(contaAPagar);
 
-				/*ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
-
-				cpHistorico.setContaApagar(contaAPagar);
-				cpHistorico.setValorAnterio(cp.getSaldoDevedor());
-				cpHistorico.setValorAtual(cp.getValorApagar().subtract(cp.getPagoTB()));
-				cpHistorico.setValorPago(cp.getPagoTB());
-				cpHistorico.setData(new Date());
-				cpHistorico.setUsuario(pagamento.getUsuario());
-				cpHistorico.setValorDesc(cp.getDescTB());
-				cpHistorico.setValorMultaJuros(cp.getMultaTB());
-				cpHistorico.setAgrupadorPagamento(idAgrupador);
-				cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
-
-				cpHistoricoService.salvar(cpHistorico);*/
-
 			}
 
 			for (int j = 0; j < listaContaAPagars.size(); j++) {
@@ -444,7 +431,7 @@ public class ContaAPagarService implements Serializable {
 				Pagamento p = new Pagamento();
 
 				p.setDataLanc(new Date());
-				p.setDataPago(pagto.getDataPago());
+				p.setDataPago(pagamento.getDataPago());
 				p.setDescricao(pagto.getDescricao());
 				p.setFormaBaixa(pagto.getFormaBaixa());
 				p.setValor(pagto.getValor());
@@ -460,7 +447,7 @@ public class ContaAPagarService implements Serializable {
 			}
 
 			List<Pagamento> listaPagto = pagamentoService.salvar(list);
-			
+
 			for (Pagamento pagto : listaPagto) {
 
 				for (ContaAPagar cp : listaContaAPagars) {
@@ -479,6 +466,8 @@ public class ContaAPagarService implements Serializable {
 					cpHistoricoService.salvar(cpHistorico);
 				}
 			}
+
+			Messages.addGlobalInfo("Titulo(s) baixado(s) com sucesso.");
 		}
 
 	}

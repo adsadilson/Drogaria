@@ -112,7 +112,8 @@ public class PagamentoService implements Serializable {
 	}
 
 	public List<Pagamento> filtrados(PagamentoFilter filtro) {
-		return dao.filtrados(filtro);
+		List<Pagamento> list = dao.filtrados(filtro);
+		return list;
 	}
 
 	public List<Pagamento> listarTodos() {
