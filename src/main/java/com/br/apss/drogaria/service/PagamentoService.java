@@ -2,6 +2,8 @@ package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -14,6 +16,7 @@ import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.repository.ContaAPagarRepository;
 import com.br.apss.drogaria.repository.PagamentoRepository;
 import com.br.apss.drogaria.util.jpa.Transacional;
+import com.br.apss.drogaria.util.jsf.NegocioException;
 
 public class PagamentoService implements Serializable {
 
@@ -50,16 +53,28 @@ public class PagamentoService implements Serializable {
 
 	@Transacional
 	public void cancelarPagamento(List<Pagamento> listaPagto) {
-		
+
 		List<ContaAPagarHistorico> listaContaApagarHistorico = cpHistoricoService
 				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
-		
 
-		for (Pagamento p : listaPagto) {
+		ContaAPagarHistorico cp = listaContaApagarHistorico.get(listaContaApagarHistorico.size() - 1);
+
+		Long cph = cpHistoricoService.maxId(cp);
+		ContaAPagarHistorico cp2 = cpHistoricoService.porId(cph);
+		
+		Format f =  new SimpleDateFormat("dd/MM/yyyy");
+		Pagamento p = dao.porId(cp2.getPagamento());
+
+		if (!cp.equals(cp2)) {
+			throw new NegocioException("É necessário cancelar primeiro o pagamento de nº: " + cp2.getPagamento()
+					+ " pago em " + f.format(p.getDataPago()));
+		}
+
+		for (Pagamento p2 : listaPagto) {
 			// Excluir os registros da tabela pagamento_conta_apagar
-			dao.excluirPagamentoContaApagar(p.getId());
+			dao.excluirPagamentoContaApagar(p2.getId());
 			// Excluir os registros da tabela pagamento_movimentacao
-			dao.excluirPagtoMovimentacao(p.getId());
+			dao.excluirPagtoMovimentacao(p2.getId());
 		}
 
 		List<Movimentacao> movto = listaPagto.get(0).getListaMovimentacoes();
@@ -74,21 +89,22 @@ public class PagamentoService implements Serializable {
 		List<ContaAPagarHistorico> listaCPHistorico = cpHistoricoService
 				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
 
-		for (ContaAPagarHistorico cph : listaCPHistorico) {
-			ContaAPagar cp = new ContaAPagar();
-			BigDecimal vlr = (cph.getValorAtual().add(cph.getValorPago().add(cph.getValorDesc())))
-					.subtract(cph.getValorMultaJuros());
+		for (ContaAPagarHistorico cph1 : listaCPHistorico) {
+			ContaAPagar cp3 = new ContaAPagar();
+			BigDecimal vlr = (cph1.getValorAtual().add(cph1.getValorPago().add(cph1.getValorDesc())))
+					.subtract(cph1.getValorMultaJuros());
 
-			cp.setId(cph.getContaApagar().getId());
-			cp.setValorApagar(vlr);
-			cp.setVinculo(cph.getVinculoAnterio());
+			cp3.setId(cph1.getContaApagar().getId());
+			cp3.setValorApagar(vlr);
+			cp3.setVinculo(cph1.getVinculoAnterio());
 			// Atualiza os registros da tabela conta_apagar
-			contaAPagarRepository.cancelarPagto(cp);
+			contaAPagarRepository.cancelarPagto(cp3);
 		}
-		
-		for (ContaAPagarHistorico cph : listaCPHistorico) {
-			cpHistoricoService.excluir(cph);
+
+		for (ContaAPagarHistorico cph2 : listaCPHistorico) {
+			cpHistoricoService.excluir(cph2);
 		}
+
 	}
 
 	public List<Pagamento> porVinculo(Long vinculo) {

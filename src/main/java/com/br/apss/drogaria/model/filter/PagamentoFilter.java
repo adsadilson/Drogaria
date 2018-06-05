@@ -12,7 +12,7 @@ public class PagamentoFilter implements Serializable {
 
 	private Date dtIni = new Date();
 	private Date dtFim = new Date();
-	private Date dataLimite = new Date();
+	private Date dataLimite;
 	private Pessoa fornecedor;
 	private BigDecimal valor1;
 	private BigDecimal valor2;

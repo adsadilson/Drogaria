@@ -821,7 +821,7 @@
 
 		<!-- Titulos pagos -->
 		<p:dialog header="Titulo(s) Pago(s)" widgetVar="dialogPago"
-			modal="true" width="770" height="430" resizable="true"
+			modal="true" width="780" height="430" resizable="false"
 			draggable="true" id="dgPago" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
@@ -866,15 +866,15 @@
 
 
 				<p:dataTable id="tbl-pago" value="#{contaAPagarBean.model}"
-					var="pago" style="margin-top: 10px; margin-bottom:10px;" rows="13"
+					var="pago" style="width:auto; margin-top: 10px; margin-bottom:10px;" rows="13"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
 				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
 					emptyMessage="Nenhuma registro encontrado." scrollable="true"
-					scrollHeight="350" lazy="true" rowKey="#{pago.id}">
+					scrollHeight="345" lazy="true" rowKey="#{pago.id}">
 
-					<p:column headerText="Ação" style="text-align: cente; width:45px;"
+					<p:column headerText="Ação" style="text-align: cente; width:50px;"
 						exportable="false">
-						<p:commandButton icon="ui-icon-trash" title="Excluir"
+						<p:commandButton icon="ui-icon-cancel" title="Cancelar pagamento"
 							update="tbl-pago tbl-conta-apagar" styleClass="semPreenchimento"
 							action="#{contaAPagarBean.cancelarPagamentos()}">
 							<f:setPropertyActionListener
@@ -896,7 +896,11 @@
 						</p:commandButton>
 					</p:column>
 
-					<p:column sortBy="" headerText="Descrição" width="200">
+					<p:column sortBy="" headerText="ID" width="20">
+						<h:outputText value="#{pago.id}" />
+					</p:column>
+					
+					<p:column sortBy="" headerText="Descrição" width="180">
 						<h:outputText value="#{pago.descricao}" />
 					</p:column>
 

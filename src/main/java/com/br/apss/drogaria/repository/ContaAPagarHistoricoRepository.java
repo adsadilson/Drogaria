@@ -45,10 +45,10 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 	public ContaAPagarHistorico porId(Long id) {
 		return manager.find(ContaAPagarHistorico.class, id);
 	}
-	
+
 	public ContaAPagarHistorico porVinculo(Long vinculo) {
-			return manager.createQuery("from ContaAPagarHistorico where agrupadorPagamento = :vinculo order by id",
-					ContaAPagarHistorico.class).setParameter("vinculo", vinculo).getSingleResult();
+		return manager.createQuery("from ContaAPagarHistorico where agrupadorPagamento = :vinculo order by id",
+				ContaAPagarHistorico.class).setParameter("vinculo", vinculo).getSingleResult();
 	}
 
 	public List<ContaAPagarHistorico> listaVinculo(Long vinculo) {
@@ -59,10 +59,15 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 			return null;
 		}
 	}
-	
+
 	public ContaAPagarHistorico ultimoHistorico(Pagamento p) {
 		return manager.createQuery("from ContaAPagarHistorico where agrupadorPagamento = :vinculo order by id",
 				ContaAPagarHistorico.class).setParameter("vinculo", p).getSingleResult();
-}
+	}
+
+	public Long maxID(ContaAPagarHistorico h) {
+		return manager.createQuery("select max(cph.id) from ContaAPagarHistorico cph where cph.contaApagar.id = :id",
+				Long.class).setParameter("id", h.getContaApagar().getId()).getSingleResult();
+	}
 
 }

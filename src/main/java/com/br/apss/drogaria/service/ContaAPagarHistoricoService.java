@@ -31,11 +31,20 @@ public class ContaAPagarHistoricoService implements Serializable {
 		dao.excluir(obj);
 	}
 
+	public ContaAPagarHistorico porId(Long id) {
+		return dao.porId(id);
+	}
+
 	public ContaAPagarHistorico porVinculo(Long vinculo) {
 		return dao.porVinculo(vinculo);
 	}
+
 	public List<ContaAPagarHistorico> listaVinculo(Long vinculo) {
 		return dao.listaVinculo(vinculo);
+	}
+
+	public Long maxId(ContaAPagarHistorico cph) {
+		return dao.maxID(cph);
 	}
 
 }
