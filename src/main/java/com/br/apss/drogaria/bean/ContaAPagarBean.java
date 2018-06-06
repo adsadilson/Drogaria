@@ -39,6 +39,7 @@ import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaApagar;
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.ContaAPagarHistorico;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.Pessoa;
@@ -48,6 +49,7 @@ import com.br.apss.drogaria.model.filter.ContaAPagarFilter;
 import com.br.apss.drogaria.model.filter.PagamentoFilter;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.CabContaApagarService;
+import com.br.apss.drogaria.service.ContaAPagarHistoricoService;
 import com.br.apss.drogaria.service.ContaAPagarService;
 import com.br.apss.drogaria.service.MovimentacaoService;
 import com.br.apss.drogaria.service.PagamentoService;
@@ -81,6 +83,8 @@ public class ContaAPagarBean implements Serializable {
 	private List<ContaAPagar> contaApagarSelecionadas = new ArrayList<ContaAPagar>();
 
 	private List<ContaAPagar> listaContasApagar = new ArrayList<ContaAPagar>();
+
+	List<ContaAPagarHistorico> listaContaApagarHistorico = new ArrayList<ContaAPagarHistorico>();
 
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
 
@@ -116,10 +120,13 @@ public class ContaAPagarBean implements Serializable {
 	@Inject
 	private GeradorVinculo gerarVinculo;
 
-	private Long idVinculo = null;
-
 	@Inject
 	private CabContaApagarService cabContaApagarService;
+
+	@Inject
+	private ContaAPagarHistoricoService cphService;
+
+	private Long idVinculo = null;
 
 	SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -154,9 +161,6 @@ public class ContaAPagarBean implements Serializable {
 	private String descricao;
 
 	private String labelInfo = "sim";
-
-	@Inject
-	CabContaApagarService service;
 
 	/******************** Metodos ***********************/
 
@@ -209,11 +213,10 @@ public class ContaAPagarBean implements Serializable {
 		pagamentoService.cancelarPagamento(listaPagto);
 		pesquisarPagamento();
 	}
-	
-	
+
 	public void infoBaixa() {
 		listaPagamentos = pagamentoService.porVinculo(this.pagamentoSelecionado.getAgrupadorContaApagar());
-		listaMovimentacoes = listaPagamentos.get(0).getListaMovimentacoes();
+		listaContaApagarHistorico = cphService.listaVinculo(listaPagamentos.get(0).getAgrupadorContaApagar());
 	}
 
 	public void inicializar() {
@@ -238,28 +241,29 @@ public class ContaAPagarBean implements Serializable {
 
 	public void excluirSelecionados() {
 
+		RequestContext req = RequestContext.getCurrentInstance();
+
 		for (ContaAPagar c : this.contaApagarSelecionadas) {
 
-			List<Pagamento> listaPagto = pagamentoService
-					.porVinculo(c.getAgrupadorMovimentacao() == null ? null : c.getAgrupadorMovimentacao());
+			List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo() == null ? null : c.getVinculo());
 			if (listaPagto.size() > 0) {
+				FacesContext.getCurrentInstance().validationFailed();
 				throw new NegocioException("Registro(s) não pode ser excluido pois possui baixar!");
 			}
 
 			List<ContaAPagar> listaCp = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
-			for (ContaAPagar cp : listaCp) {
-				if (!c.equals(cp)) {
-					throw new NegocioException("Registro de numero: " + c.getNumDoc()
-							+ " possui mais parcelas por favor seleciona para excluir!");
-				}
+			if (listaCp.size() > 1) {
+				contaAPagar = c;
+				req.execute("PF('informativoExclusao').show();");
+
 			}
 		}
-
-		contaAPagarService.excluirContas(contaApagarSelecionadas);
-		this.contaApagarSelecionadas = new ArrayList<>();
-		pesquisar();
-		this.setTotalSelecionado(BigDecimal.ZERO);
-		Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
+		/*
+		 * contaAPagarService.excluirContas(contaApagarSelecionadas);
+		 * this.contaApagarSelecionadas = new ArrayList<>(); pesquisar();
+		 * this.setTotalSelecionado(BigDecimal.ZERO);
+		 * Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
+		 */
 	}
 
 	public void excluirPagamentoAbaixar() {
@@ -692,6 +696,7 @@ public class ContaAPagarBean implements Serializable {
 		this.pagamento = new Pagamento();
 		this.pagamento.setDataPago(new Date());
 		this.pagamento.setFormaBaixa(FormaBaixa.BI);
+		this.setDescricao("descrição");
 		this.movimentacao = new Movimentacao();
 		this.listaMovimentacoes.clear();
 		this.setLabelInfo("nao");
@@ -794,7 +799,7 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void pesquisar() {
-
+		this.contaApagarSelecionadas.clear();
 		listaContaAPagars.clear();
 		listaContaAPagars = contaAPagarService.filtrados(filtro);
 
@@ -1026,16 +1031,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
-	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
-	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
-	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
-	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
-	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
-	 * c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
+	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
+	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
+	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
+	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
+	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
+	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
@@ -1308,6 +1313,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setTotalAParcelar(BigDecimal totalAParcelar) {
 		this.totalAParcelar = totalAParcelar;
+	}
+
+	public List<ContaAPagarHistorico> getListaContaApagarHistorico() {
+		return listaContaApagarHistorico;
+	}
+
+	public void setListaContaApagarHistorico(List<ContaAPagarHistorico> listaContaApagarHistorico) {
+		this.listaContaApagarHistorico = listaContaApagarHistorico;
 	}
 
 }

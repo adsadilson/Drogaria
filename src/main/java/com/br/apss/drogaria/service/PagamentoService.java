@@ -6,6 +6,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import com.br.apss.drogaria.model.ContaAPagar;
@@ -61,13 +62,14 @@ public class PagamentoService implements Serializable {
 
 		Long cph = cpHistoricoService.maxId(cp);
 		ContaAPagarHistorico cp2 = cpHistoricoService.porId(cph);
-		
-		Format f =  new SimpleDateFormat("dd/MM/yyyy");
+
+		Format f = new SimpleDateFormat("dd/MM/yyyy");
 		Pagamento p = dao.porId(cp2.getPagamento());
 
 		if (!cp.equals(cp2)) {
-			throw new NegocioException("É necessário cancelar primeiro o pagamento de nº: " + cp2.getPagamento()
-					+ " pago em " + f.format(p.getDataPago()));
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("É necessário cancelar primeiro o pagamento de código: " + cp2.getPagamento()
+					+ "\n" + "pago em " + f.format(p.getDataPago()));
 		}
 
 		for (Pagamento p2 : listaPagto) {

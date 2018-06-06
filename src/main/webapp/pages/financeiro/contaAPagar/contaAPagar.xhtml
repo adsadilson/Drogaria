@@ -258,7 +258,7 @@
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					actionListener="#{contaAPagarBean.excluirSelecionados}"
-					update="frm-tabela toolbar-botoes" process="@this"
+					update=":frm-tabela toolbar-botoes" process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
@@ -385,7 +385,6 @@
 
 
 		<!-- BAIXA DE TITULOS -->
-
 		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
 			draggable="true" closeOnEscape="true" width="750" height="400"
@@ -825,7 +824,8 @@
 			draggable="true" id="dgPago" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
-			<p:ajax event="close" update="tbl-conta-apagar toolbar-totais"
+			<p:ajax event="close"
+				update="frm-tabela toolbar-botoes tbl-conta-apagar toolbar-totais"
 				listener="#{contaAPagarBean.pesquisar()}" />
 
 			<h:form prependId="false" id="frm-titulo-pagos">
@@ -872,25 +872,29 @@
 					emptyMessage="Nenhuma registro encontrado." scrollable="true"
 					scrollHeight="345" lazy="true" rowKey="#{pago.id}">
 
-					<p:column headerText="Ação" style="text-align: cente; width:30px;"
+					<p:column headerText="Ação" style="text-align: cente; width:10px;"
 						exportable="false">
 						<p:commandButton icon="ui-icon-cancel" title="Cancelar pagamento"
-							update="tbl-pago tbl-conta-apagar" styleClass="semPreenchimento"
-							action="#{contaAPagarBean.cancelarPagamentos()}">
+							process="@this" update="confirmacaoCancelamentoDialog"
+							oncomplete="PF('confirmacaoCancelamento').show()"
+							styleClass="semPreenchimento">
 							<f:setPropertyActionListener
 								target="#{contaAPagarBean.pagamentoSelecionado}" value="#{pago}" />
 						</p:commandButton>
-						<p:commandButton icon="ui-icon-search" title="Informações"
-							styleClass="semPreenchimento"
-							action="#{contaAPagarBean.infoBaixa()}"
-							oncomplete="PF('dialogInfoBaixa').show()" process="@this"
-							update="frm-info">
-							<f:setPropertyActionListener
-								target="#{contaAPagarBean.pagamentoSelecionado}" value="#{pago}" />
-						</p:commandButton>
+						<ui:remove>
+							<p:commandButton icon="ui-icon-search" title="Informações"
+								styleClass="semPreenchimento"
+								action="#{contaAPagarBean.infoBaixa()}"
+								oncomplete="PF('dialogInfoBaixa').show()" process="@this"
+								update="frm-info">
+								<f:setPropertyActionListener
+									target="#{contaAPagarBean.pagamentoSelecionado}"
+									value="#{pago}" />
+							</p:commandButton>
+						</ui:remove>
 					</p:column>
 
-					<p:column sortBy="" headerText="ID"
+					<p:column sortBy="" headerText="Código"
 						style="text-align: center; width:35px;">
 						<h:outputText value="#{pago.id}" />
 					</p:column>
@@ -913,6 +917,34 @@
 					</p:column>
 
 				</p:dataTable>
+
+				<p:confirmDialog header="Confirmação de Cancelamento"
+					widgetVar="confirmacaoCancelamento" appendTo="@(body)"
+					id="confirmacaoCancelamentoDialog">
+					<f:facet name="message">
+						<h:outputText
+							value="Tem certeza que deseja cancelar o(s) registro(s):" />
+						<br />
+						<br />
+						<p:repeat value="#{contaAPagarBean.pagamentoSelecionado}" var="pg">
+							<h:panelGrid columns="3" cellpadding="1">
+								<h:outputText value="#{pg.id}"
+									style="font-weight: bold; margin-right:10px;" />
+								<h:outputText value="#{pg.descricao}"
+									style="font-weight: bold; margin-right:10px;" />
+								<h:outputText value="#{pg.valorPago}" style="font-weight: bold;">
+									<f:convertNumber type="currency" />
+								</h:outputText>
+							</h:panelGrid>
+						</p:repeat>
+					</f:facet>
+					<p:button value="Não"
+						onclick="PF('confirmacaoCancelamento').hide(); return false;" />
+					<p:commandButton value="Sim"
+						actionListener="#{contaAPagarBean.cancelarPagamentos()}"
+						update="tbl-pago" process="@this"
+						oncomplete="if(!args.validationFailed) PF('confirmacaoCancelamento').hide()" />
+				</p:confirmDialog>
 
 			</h:form>
 
@@ -1089,7 +1121,7 @@
 
 		<p:dialog header="Informação da baixa" widgetVar="dialogInfoBaixa"
 			modal="true" resizable="false" draggable="true" id="dgInfoBaixa"
-			closeOnEscape="true" width="450" height="155" appendTo="@(body)">
+			closeOnEscape="true" width="650" height="300" appendTo="@(body)">
 			<h:form id="frm-info">
 				<p:dataTable id="tbl-info"
 					value="#{contaAPagarBean.listaPagamentos}" var="pg">
@@ -1097,15 +1129,51 @@
 						<h:outputText value="#{pg.id} - #{pg.descricao} " />
 					</p:column>
 				</p:dataTable>
-				<p:dataTable value="#{contaAPagarBean.listaMovimentacoes}"
-					var="movto">
-					<p:column headerText="Movimentação">
-						<h:outputText value="#{movto.id} - #{movto.planoConta.nome} " />
+				<p:dataTable value="#{contaAPagarBean.listaContaApagarHistorico}"
+					var="t">
+					<f:facet name="header">
+        				Titulo(s) pago(s)
+   					 </f:facet>
+					<p:column headerText="ID">
+						<h:outputText value="#{t.contaApagar.id}" />
 					</p:column>
+					<p:column headerText="Vlr Anterio">
+						<h:outputText value="#{t.valorAnterio} " />
+					</p:column>
+					<p:column headerText="Vlr Atual">
+						<h:outputText value="#{t.valorAtual} " />
+					</p:column>
+					<p:column headerText="Vlr Desc">
+						<h:outputText value="#{t.valorDesc} " />
+					</p:column>
+					<p:column headerText="Vlr Multa">
+						<h:outputText value="#{t.valorMultaJuros} " />
+					</p:column>
+					<p:column headerText="Vlr Pago">
+						<h:outputText value="#{t.valorPago} " />
+					</p:column>
+
 				</p:dataTable>
 			</h:form>
 
 		</p:dialog>
+
+
+		<p:confirmDialog header="Informativo" widgetVar="informativoExclusao"
+			appendTo="@(body)" id="informativoExclusaoDialog" width="400">
+			<f:facet name="message">
+				<h:outputText value="O registro de documento:" />
+				<h:outputText value="#{contaAPagarBean.contaAPagar.numDoc}" />
+				<h:outputText value="deseja continuar?" />
+				<br />
+			</f:facet>
+			<p:button value="Não"
+				onclick="PF('confirmacaoCancelamento').hide(); return false;" />
+			<p:commandButton value="Sim"
+				actionListener="#{contaAPagarBean.cancelarPagamentos()}"
+				update="tbl-pago" process="@this"
+				oncomplete="if(!args.validationFailed) PF('confirmacaoCancelamento').hide()" />
+		</p:confirmDialog>
 
 
 	</ui:define>

@@ -74,7 +74,7 @@ public class ContaAPagarRepository implements Serializable {
 		// lista de movimentação
 		List<Movimentacao> m = new ArrayList<>();
 
-		// Exclusão da tabela cab_conta_apagar
+		// Exclusão da tabela cab_conta_apagar_conta_apagar
 		for (ContaAPagar c : contas) {
 			excluirCabCContaApagar(c.getId());
 		}
@@ -85,8 +85,8 @@ public class ContaAPagarRepository implements Serializable {
 			m = c.getMovimentacoes();
 
 			c = manager.find(ContaAPagar.class, c.getId());
-			excluirCabContaApagar(c.getVinculo());
-			excluirVinculo(c.getId());
+			excluirCabContaApagar(c.getAgrupadorMovimentacao());
+			excluirContaApagarMovimentacao(c.getId());
 
 			manager.remove(c);
 		}
@@ -100,7 +100,7 @@ public class ContaAPagarRepository implements Serializable {
 		}
 	}
 
-	public void excluirVinculo(Long id) {
+	public void excluirContaApagarMovto(Long id) {
 		manager.createNativeQuery("delete from conta_apagar_movimentacao where conta_apagar_id = :id")
 				.setParameter("id", id).executeUpdate();
 	}
