@@ -157,20 +157,6 @@ public class ContaAPagarService implements Serializable {
 
 		List<Pagamento> list = new ArrayList<Pagamento>();
 
-		ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
-
-		cpHistorico.setContaApagar(contaAPagar);
-		cpHistorico.setValorAnterio(vlrAnterio);
-		cpHistorico.setValorAtual(contaAPagar.getPagoTB());
-		cpHistorico.setUsuario(pagamento.getUsuario());
-		cpHistorico.setData(new Date());
-		cpHistorico.setValorDesc(contaAPagar.getDescTB());
-		cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
-		cpHistorico.setAgrupadorPagamento(idAgrupador);
-		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
-
-		cpHistoricoService.salvar(cpHistorico);
-
 		Pagamento pagto = new Pagamento();
 
 		pagto.setDataLanc(new Date());
@@ -189,7 +175,23 @@ public class ContaAPagarService implements Serializable {
 		pagto.setListaMovimentacoes(listaMovimentacoes);
 		list.add(pagto);
 
-		pagamentoService.salvar(list);
+		List<Pagamento> listaPagto = pagamentoService.salvar(list);
+
+		ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
+
+		cpHistorico.setContaApagar(contaAPagar);
+		cpHistorico.setValorAnterio(vlrAnterio);
+		cpHistorico.setValorAtual(contaAPagar.getValorApagar());
+		cpHistorico.setValorPago(contaAPagar.getPagoTB());
+		cpHistorico.setUsuario(pagamento.getUsuario());
+		cpHistorico.setData(new Date());
+		cpHistorico.setPagamento(listaPagto.get(0).getId());
+		cpHistorico.setValorDesc(contaAPagar.getDescTB());
+		cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
+		cpHistorico.setAgrupadorPagamento(idAgrupador);
+		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
+
+		cpHistoricoService.salvar(cpHistorico);
 
 	}
 
@@ -198,149 +200,10 @@ public class ContaAPagarService implements Serializable {
 			List<Pagamento> listaPagamentos, Pagamento pagamento) {
 
 		if (pagamento.getFormaBaixa() == FormaBaixa.BI) {
-
-			List<ContaAPagar> listaCP = new ArrayList<ContaAPagar>();
-
-			for (ContaAPagar cp : listaContaAPagars) {
-
-				ContaAPagar contaAPagar = new ContaAPagar();
-				Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
-				Long idAgrupadorAnterio = cp.getVinculo() == null ? idAgrupador : cp.getVinculo();
-				BigDecimal vlrAnterio = cp.getSaldoDevedor();
-
-				contaAPagar.setId(cp.getId());
-				contaAPagar.setAgrupadorMovimentacao(cp.getAgrupadorMovimentacao());
-				contaAPagar.setDataDoc(cp.getDataDoc());
-				contaAPagar.setDataVencto(cp.getDataVencto());
-				contaAPagar.setNumDoc(cp.getNumDoc());
-				contaAPagar.setParcela(cp.getParcela());
-				contaAPagar.setTipoCobranca(cp.getTipoCobranca());
-				contaAPagar.setValor(cp.getValor());
-				contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
-				contaAPagar.setVinculo(idAgrupador);
-				contaAPagar.setFornecedor(cp.getFornecedor());
-				contaAPagar.setUsuario(cp.getUsuario());
-
-				listaCP.add(contaAPagar);
-				dao.baixaSimples(contaAPagar);
-
-				ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
-
-				cpHistorico.setContaApagar(contaAPagar);
-				cpHistorico.setValorAnterio(vlrAnterio);
-				cpHistorico.setValorAtual(cp.getValorApagar().subtract(cp.getPagoTB()));
-				cpHistorico.setValorDesc(contaAPagar.getDescTB());
-				cpHistorico.setData(new Date());
-				cpHistorico.setValorMultaJuros(contaAPagar.getMultaTB());
-				cpHistorico.setUsuario(pagamento.getUsuario());
-				cpHistorico.setAgrupadorPagamento(idAgrupador);
-				cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
-
-				cpHistoricoService.salvar(cpHistorico);
-
-			}
-
-			for (int i = 0; i < listaMovimentacoes.size(); i++) {
-
-				Movimentacao movto = new Movimentacao();
-				Pagamento pagto = new Pagamento();
-				ContaAPagar cp = new ContaAPagar();
-
-				List<Pagamento> list = new ArrayList<Pagamento>();
-				List<Movimentacao> listM = new ArrayList<Movimentacao>();
-				List<ContaAPagar> listCP = new ArrayList<ContaAPagar>();
-
-				cp.setId(listaCP.get(i).getId());
-				listCP.add(cp);
-
-				movto.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
-				movto.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
-				movto.setUsuario(listaMovimentacoes.get(i).getUsuario());
-				movto.setDescricao(listaMovimentacoes.get(i).getDescricao());
-				movto.setVinculo(listaMovimentacoes.get(i).getVinculo());
-				movto.setDocumento(listaMovimentacoes.get(i).getDocumento());
-				movto.setPessoa(listaMovimentacoes.get(i).getPessoa());
-				movto.setVlrEntrada(null);
-				movto.setVlrSaida(listaMovimentacoes.get(i).getVlrSaida());
-				movto.setTipoLanc(TipoLanc.PC);
-				movto.setTipoConta(TipoConta.CC);
-				movto.setPlanoConta(listaMovimentacoes.get(i).getPlanoConta());
-				movto.setPlanoContaPai(listaMovimentacoes.get(i).getPlanoContaPai());
-
-				listM.add(movto);
-
-				if (listaContaAPagars.get(i).getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
-
-					Movimentacao movtoMulta = new Movimentacao();
-
-					PlanoConta pl1Multa = new PlanoConta();
-					pl1Multa = contaService.porNome("JUROS/MULTA CP");
-
-					PlanoConta pl2Multa = new PlanoConta();
-					pl2Multa = contaService.porId(pl1Multa.getContaPai().getId());
-
-					movtoMulta.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
-					movtoMulta.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
-					movtoMulta.setUsuario(listaMovimentacoes.get(i).getUsuario());
-					movtoMulta.setDescricao("PG JURUOS/MULTA " + listaMovimentacoes.get(i).getDescricao());
-					movtoMulta.setVinculo(listaMovimentacoes.get(i).getVinculo());
-					movtoMulta.setDocumento(listaMovimentacoes.get(i).getDocumento());
-					movtoMulta.setPessoa(listaMovimentacoes.get(i).getPessoa());
-					movtoMulta.setVlrEntrada(null);
-					movtoMulta.setVlrSaida(listaContaAPagars.get(i).getMultaTB());
-					movtoMulta.setTipoLanc(TipoLanc.PC);
-					movtoMulta.setTipoConta(TipoConta.D);
-					movtoMulta.setPlanoConta(pl1Multa);
-					movtoMulta.setPlanoContaPai(pl2Multa);
-					listM.add(movtoMulta);
-				}
-
-				if (listaContaAPagars.get(i).getDescTB().compareTo(BigDecimal.ZERO) > 0) {
-
-					Movimentacao movtoDesc = new Movimentacao();
-
-					PlanoConta pl1Desc = new PlanoConta();
-					pl1Desc = contaService.porNome("RECEITAS C/DESC./JUROS E MULTA");
-
-					PlanoConta pl2Desc = new PlanoConta();
-					pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());
-
-					movtoDesc.setDataDoc(listaMovimentacoes.get(i).getDataDoc());
-					movtoDesc.setDataLanc(listaMovimentacoes.get(i).getDataLanc());
-					movtoDesc.setUsuario(listaMovimentacoes.get(i).getUsuario());
-					movtoDesc.setDescricao("REC DESCONTO " + listaMovimentacoes.get(i).getDescricao());
-					movtoDesc.setVinculo(listaMovimentacoes.get(i).getVinculo());
-					movtoDesc.setDocumento(listaMovimentacoes.get(i).getDocumento());
-					movtoDesc.setPessoa(listaMovimentacoes.get(i).getPessoa());
-					movtoDesc.setVlrEntrada(listaContaAPagars.get(i).getDescTB());
-					movtoDesc.setVlrSaida(null);
-					movtoDesc.setTipoLanc(TipoLanc.PC);
-					movtoDesc.setTipoConta(TipoConta.R);
-					movtoDesc.setPlanoConta(pl1Desc);
-					movtoDesc.setPlanoContaPai(pl2Desc);
-					listM.add(movtoDesc);
-				}
-
-				listM = movtoService.salvar(listM);
-
-				pagto.setDataLanc(new Date());
-				pagto.setDataPago(listaPagamentos.get(i).getDataPago());
-				pagto.setDescricao(listaPagamentos.get(i).getDescricao());
-				pagto.setFormaBaixa(FormaBaixa.BI);
-				pagto.setValor(listaPagamentos.get(i).getValor());
-				pagto.setValorDesc(listaCP.get(i).getDescTB());
-				pagto.setValorMultaJuros(listaCP.get(i).getMultaTB());
-				pagto.setValorAPagar(listaCP.get(i).getSaldoDevedor()
-						.add(listaCP.get(i).getMultaTB().subtract(listaCP.get(i).getDescTB())));
-				pagto.setValorPago(listaPagamentos.get(i).getValorPago());
-				pagto.setUsuario(listaPagamentos.get(i).getUsuario());
-				pagto.setListaContaAPagars(listaCP);
-				pagto.setAgrupadorContaApagar(listaCP.get(i).getVinculo());
-				pagto.setTipoBaixa(listaPagamentos.get(i).getTipoBaixa());
-				pagto.setListaMovimentacoes(listM);
-				list.add(pagto);
-
-				pagamentoService.salvar(list);
+			for (int i = 0; i < listaContaAPagars.size(); i++) {
+				ContaAPagar contaAPagar = listaContaAPagars.get(i);
+				Pagamento pagto = listaPagamentos.get(i);
+				baixaSimples(contaAPagar, pagto);
 			}
 		} else {
 

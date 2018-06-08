@@ -238,7 +238,7 @@ public class ContaAPagarBean implements Serializable {
 		this.totalDasParcelas = BigDecimal.ZERO;
 		this.totalDaNotaMovimentacao = BigDecimal.ZERO;
 	}
-
+	
 	public void excluirSelecionados() {
 
 		RequestContext req = RequestContext.getCurrentInstance();

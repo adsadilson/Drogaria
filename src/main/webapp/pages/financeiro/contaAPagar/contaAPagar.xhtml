@@ -923,14 +923,14 @@
 					id="confirmacaoCancelamentoDialog">
 					<f:facet name="message">
 						<h:outputText
-							value="Tem certeza que deseja cancelar o(s) registro(s):" />
+							value="Tem certeza que deseja cancelar o registro:" />
 						<br />
 						<br />
 						<p:repeat value="#{contaAPagarBean.pagamentoSelecionado}" var="pg">
 							<h:panelGrid columns="3" cellpadding="1">
 								<h:outputText value="#{pg.id}"
 									style="font-weight: bold; margin-right:10px;" />
-								<h:outputText value="#{pg.descricao}"
+								<h:outputText value="#{fn:substring(pg.descricao,0,36)}"
 									style="font-weight: bold; margin-right:10px;" />
 								<h:outputText value="#{pg.valorPago}" style="font-weight: bold;">
 									<f:convertNumber type="currency" />
