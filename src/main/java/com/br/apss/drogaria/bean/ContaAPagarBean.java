@@ -238,26 +238,47 @@ public class ContaAPagarBean implements Serializable {
 		this.totalDasParcelas = BigDecimal.ZERO;
 		this.totalDaNotaMovimentacao = BigDecimal.ZERO;
 	}
-	
+
 	public void excluirSelecionados() {
-
-		RequestContext req = RequestContext.getCurrentInstance();
-
+		List<ContaAPagar> novaLista = new ArrayList<>();
+		List<ContaAPagar> contaMultiplas = new ArrayList<>();
+		List<Pagamento> p = new ArrayList<>();
 		for (ContaAPagar c : this.contaApagarSelecionadas) {
-
-			List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo() == null ? null : c.getVinculo());
-			if (listaPagto.size() > 0) {
-				FacesContext.getCurrentInstance().validationFailed();
-				throw new NegocioException("Registro(s) não pode ser excluido pois possui baixar!");
+			List<ContaAPagar> conta1 = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
+			for (ContaAPagar c1 : conta1) {
+				if (!novaLista.contains(c1)) {
+					novaLista.add(c1);
+				} else {
+					if (!contaMultiplas.contains(c)) {
+						contaMultiplas.add(c);
+					}
+					continue;
+				}
 			}
+		}
 
-			List<ContaAPagar> listaCp = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
-			if (listaCp.size() > 1) {
-				contaAPagar = c;
-				req.execute("PF('informativoExclusao').show();");
+		for (ContaAPagar n : novaLista) {
+			List<Pagamento> listaPagto = pagamentoService.porVinculo(n.getVinculo() == null ? null : n.getVinculo());
+			if (!listaPagto.contains(n)) {
 
 			}
 		}
+
+		/* RequestContext req = RequestContext.getCurrentInstance(); */
+		/*
+		 * List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo() ==
+		 * null ? null : c.getVinculo());
+		 * 
+		 * if (listaPagto.size() > 0) {
+		 * FacesContext.getCurrentInstance().validationFailed(); throw new
+		 * NegocioException("Registro(s) não pode ser excluido pois possui baixar!"); }
+		 * List<ContaAPagar> listaCp =
+		 * contaAPagarService.porVinculo(c.getAgrupadorMovimentacao()); if
+		 * (listaCp.size() > 1) { contaAPagar = c;
+		 * req.execute("PF('informativoExclusao').show();");
+		 * 
+		 * }
+		 */
 		/*
 		 * contaAPagarService.excluirContas(contaApagarSelecionadas);
 		 * this.contaApagarSelecionadas = new ArrayList<>(); pesquisar();
@@ -1031,16 +1052,16 @@ public class ContaAPagarBean implements Serializable {
 
 	/*
 	 * public void duplicarLancamento() { for (ContaAPagar cp :
-	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) {
-	 * ContaAPagar c = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(),
-	 * 30 * (i + 1))); c.setDataLanc(cp.getDataLanc());
-	 * c.setValor(cp.getValor()); c.setValorPago(cp.getValorPago());
-	 * c.setVlrApagar(cp.getVlrApagar()); c.setFornecedor(cp.getFornecedor());
-	 * c.setUsuario(cp.getUsuario()); c.setTipoCobranca(cp.getTipoCobranca());
-	 * c.setStatus(cp.getStatus()); c.setNumDoc(cp.getNumDoc());
+	 * contaApagarSelecionadas) { for (int i = 0; i < numVezes; i++) { ContaAPagar c
+	 * = new ContaAPagar(); c.setDataDoc(somaDias(cp.getDataDoc(), 30 * (i + 1)));
+	 * c.setDataLanc(cp.getDataLanc()); c.setValor(cp.getValor());
+	 * c.setValorPago(cp.getValorPago()); c.setVlrApagar(cp.getVlrApagar());
+	 * c.setFornecedor(cp.getFornecedor()); c.setUsuario(cp.getUsuario());
+	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
+	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
