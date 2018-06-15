@@ -240,18 +240,26 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void excluirSelecionados() {
+
 		List<ContaAPagar> novaLista = new ArrayList<>();
 		List<ContaAPagar> contaMultiplas = new ArrayList<>();
-		List<Pagamento> p = new ArrayList<>();
+		List<ContaAPagar> pagtos = new ArrayList<>();
+
 		for (ContaAPagar c : this.contaApagarSelecionadas) {
+
 			List<ContaAPagar> conta1 = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
+
 			for (ContaAPagar c1 : conta1) {
-				if (!novaLista.contains(c1)) {
-					novaLista.add(c1);
-				} else {
+
+				if (conta1.size() > 1) {
 					if (!contaMultiplas.contains(c)) {
 						contaMultiplas.add(c);
 					}
+				}
+
+				if (!novaLista.contains(c1)) {
+					novaLista.add(c1);
+				} else {
 					continue;
 				}
 			}
@@ -259,12 +267,43 @@ public class ContaAPagarBean implements Serializable {
 
 		for (ContaAPagar n : novaLista) {
 			List<Pagamento> listaPagto = pagamentoService.porVinculo(n.getVinculo() == null ? null : n.getVinculo());
-			if (!listaPagto.contains(n)) {
-
+			if (listaPagto.size() > 0) {
+				pagtos.add(n);
+			} else {
+				continue;
 			}
 		}
 
-		/* RequestContext req = RequestContext.getCurrentInstance(); */
+		if (pagtos.size() > 0) {
+
+			String strings = "";
+			for (ContaAPagar cp : pagtos) {
+				if (!strings.contains(cp.getNumDoc())) {
+					strings += cp.getNumDoc() + ", ";
+				}
+			}
+
+			throw new NegocioException(
+					"Os titulo(s) de documento: " + strings + " n„o pode ser excluÌdo pois possui pagamentos");
+		}
+
+		if (contaMultiplas.size() > 0) {
+
+			String strings = "";
+			for (ContaAPagar cp : pagtos) {
+				if (!strings.contains(cp.getNumDoc())) {
+					strings += cp.getNumDoc() + ", ";
+				}
+			}
+
+			RequestContext req = RequestContext.getCurrentInstance();
+			req.execute("PF('informativoExclusao').show();" + strings);
+
+		} else {
+
+		}
+
+		/*  */
 		/*
 		 * List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo() ==
 		 * null ? null : c.getVinculo());
@@ -275,7 +314,7 @@ public class ContaAPagarBean implements Serializable {
 		 * List<ContaAPagar> listaCp =
 		 * contaAPagarService.porVinculo(c.getAgrupadorMovimentacao()); if
 		 * (listaCp.size() > 1) { contaAPagar = c;
-		 * req.execute("PF('informativoExclusao').show();");
+		 * 
 		 * 
 		 * }
 		 */
@@ -1060,8 +1099,8 @@ public class ContaAPagarBean implements Serializable {
 	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
 	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar s√≥ numero converter em int e soma com
-	 * i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar s√≥ numero converter em int e soma
+	 * com i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
