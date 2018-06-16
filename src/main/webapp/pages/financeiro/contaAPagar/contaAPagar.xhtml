@@ -258,7 +258,7 @@
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
 					actionListener="#{contaAPagarBean.excluirSelecionados}"
-					update=":frm-tabela toolbar-botoes" process="@this"
+					update=":frm-tabela toolbar-botoes confirmacaoExDialog" process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
@@ -1159,20 +1159,18 @@
 		</p:dialog>
 
 
-		<p:confirmDialog header="Informativo" widgetVar="informativoExclusao"
-			appendTo="@(body)" id="informativoExclusaoDialog" width="400">
+		<p:confirmDialog header="Confirmação" widgetVar="confirmacaoEx"
+			appendTo="@(body)" id="confirmacaoExDialog" width="400">
 			<f:facet name="message">
-				<h:outputText value="O registro de documento:" />
-				<h:outputText value="#{contaAPagarBean.contaAPagar.numDoc}" />
-				<h:outputText value="deseja continuar?" />
-				<br />
+				<h:outputText value="O(s) registro(s) de documento(s): #{contaAPagarBean.informacao}" /><br/>
+				<h:outputText value="possui mais parcelas que serão excluidas juntas deseja continuar ?" /><br/>
 			</f:facet>
 			<p:button value="Não"
-				onclick="PF('confirmacaoCancelamento').hide(); return false;" />
+				onclick="PF('confirmacaoEx').hide(); return false;" />
 			<p:commandButton value="Sim"
 				actionListener="#{contaAPagarBean.cancelarPagamentos()}"
 				update="tbl-pago" process="@this"
-				oncomplete="if(!args.validationFailed) PF('confirmacaoCancelamento').hide()" />
+				oncomplete="if(!args.validationFailed) PF('confirmacaoEx').hide()" />
 		</p:confirmDialog>
 
 

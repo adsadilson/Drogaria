@@ -162,6 +162,8 @@ public class ContaAPagarBean implements Serializable {
 
 	private String labelInfo = "sim";
 
+	private String informacao = "";
+
 	/******************** Metodos ***********************/
 
 	public void pesquisarPagamento() {
@@ -211,7 +213,6 @@ public class ContaAPagarBean implements Serializable {
 	public void cancelarPagamentos() {
 		List<Pagamento> listaPagto = pagamentoService.porVinculo(this.pagamentoSelecionado.getAgrupadorContaApagar());
 		pagamentoService.cancelarPagamento(listaPagto);
-		pesquisarPagamento();
 	}
 
 	public void infoBaixa() {
@@ -242,18 +243,17 @@ public class ContaAPagarBean implements Serializable {
 	public void excluirSelecionados() {
 
 		List<ContaAPagar> novaLista = new ArrayList<>();
-		List<ContaAPagar> contaMultiplas = new ArrayList<>();
+		List<ContaAPagar> contasMultiplas = new ArrayList<>();
 		List<ContaAPagar> pagtos = new ArrayList<>();
 
 		for (ContaAPagar c : this.contaApagarSelecionadas) {
-
-			List<ContaAPagar> conta1 = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
-
-			for (ContaAPagar c1 : conta1) {
-
-				if (conta1.size() > 1) {
-					if (!contaMultiplas.contains(c)) {
-						contaMultiplas.add(c);
+			// Buscar as demais parcelas referente ao titulo relacionado
+			List<ContaAPagar> contas = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
+			// Carregamento de uma nota lista completa e identificar as contas multiplas
+			for (ContaAPagar c1 : contas) {
+				if (contas.size() > 1) {
+					if (!contasMultiplas.contains(c)) {
+						contasMultiplas.add(c);
 					}
 				}
 
@@ -265,8 +265,9 @@ public class ContaAPagarBean implements Serializable {
 			}
 		}
 
+		// Identificar quais documento exitem pagamentos
 		for (ContaAPagar n : novaLista) {
-			List<Pagamento> listaPagto = pagamentoService.porVinculo(n.getVinculo() == null ? null : n.getVinculo());
+			List<Pagamento> listaPagto = pagamentoService.porVinculo(n.getVinculo() == null ? 0 : n.getVinculo());
 			if (listaPagto.size() > 0) {
 				pagtos.add(n);
 			} else {
@@ -274,30 +275,27 @@ public class ContaAPagarBean implements Serializable {
 			}
 		}
 
+		// Lista quais documentos foram pagos
 		if (pagtos.size() > 0) {
-
 			String strings = "";
 			for (ContaAPagar cp : pagtos) {
 				if (!strings.contains(cp.getNumDoc())) {
 					strings += cp.getNumDoc() + ", ";
 				}
 			}
-
 			throw new NegocioException(
-					"Os titulo(s) de documento: " + strings + " n�o pode ser exclu�do pois possui pagamentos");
+					"Os titulo(s) de documento: " + strings + " não pode ser excluído pois possui pagamentos");
 		}
 
-		if (contaMultiplas.size() > 0) {
-
-			String strings = "";
-			for (ContaAPagar cp : pagtos) {
-				if (!strings.contains(cp.getNumDoc())) {
-					strings += cp.getNumDoc() + ", ";
+		// Lista quais documentos multiplos
+		if (contasMultiplas.size() > 0) {
+			for (ContaAPagar cm : contasMultiplas) {
+				if (!informacao.contains(cm.getNumDoc())) {
+					informacao += cm.getNumDoc() + ", ";
 				}
 			}
-
 			RequestContext req = RequestContext.getCurrentInstance();
-			req.execute("PF('informativoExclusao').show();" + strings);
+			req.execute("PF('confirmacaoEx').show();");
 
 		} else {
 
@@ -747,7 +745,6 @@ public class ContaAPagarBean implements Serializable {
 	public void iniciarCancelamentoTitulo() {
 		filtroPagamento.setDtIni(null);
 		filtroPagamento.setDtFim(null);
-		pesquisarPagamento();
 	}
 
 	public void iniciarBaixaTitulo() {
@@ -889,9 +886,11 @@ public class ContaAPagarBean implements Serializable {
 			}
 		}
 
+		this.model = null;
 		this.setTotalSelecionado(BigDecimal.ZERO);
 		RequestContext request = RequestContext.getCurrentInstance();
 		request.addCallbackParam("sucesso", true);
+
 	}
 
 	public Date getDataAtualFormatada() {
@@ -1010,7 +1009,7 @@ public class ContaAPagarBean implements Serializable {
 				Integer row = event.getRowIndex();
 				dataModel.setRowIndex(row);
 
-				throw new NegocioException("Valor informando a pagar maior que o titulo!");
+				Messages.addGlobalInfo("Valor informando a pagar maior que o titulo!");
 			}
 		}
 
@@ -1099,8 +1098,8 @@ public class ContaAPagarBean implements Serializable {
 	 * c.setTipoCobranca(cp.getTipoCobranca()); c.setStatus(cp.getStatus());
 	 * c.setNumDoc(cp.getNumDoc());
 	 * 
-	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma
-	 * com i depois // converter em string int p =
+	 * if (null != cp.getParcela()) { // pegar só numero converter em int e soma com
+	 * i depois // converter em string int p =
 	 * Integer.parseInt(cp.getParcela().replaceAll("\\D", "")); p = p + (i + 1);
 	 * c.setParcela("D/" + String.valueOf(p)); } else { c.setParcela("D/" + (i +
 	 * 1)); }
@@ -1381,6 +1380,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setListaContaApagarHistorico(List<ContaAPagarHistorico> listaContaApagarHistorico) {
 		this.listaContaApagarHistorico = listaContaApagarHistorico;
+	}
+
+	public String getInformacao() {
+		return informacao;
+	}
+
+	public void setInformacao(String informacao) {
+		this.informacao = informacao;
 	}
 
 }
