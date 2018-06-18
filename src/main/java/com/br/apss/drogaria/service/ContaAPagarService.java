@@ -73,7 +73,7 @@ public class ContaAPagarService implements Serializable {
 
 		listaContaAPagars.add(contaAPagar);
 
-		dao.baixaSimples(contaAPagar);
+		dao.updateNasContasApagar(contaAPagar);
 
 		List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
@@ -195,19 +195,26 @@ public class ContaAPagarService implements Serializable {
 
 	}
 
-	@Transacional
+	@Transacional // Baixar varias contas de uma só vez
 	public void baixaMultiplas(List<ContaAPagar> listaContaAPagars, List<Movimentacao> listaMovimentacoes,
 			List<Pagamento> listaPagamentos, Pagamento pagamento) {
 
+		// Verificar a condicao se é baixa individual (BI) ou baixa agrupada (BA)
 		if (pagamento.getFormaBaixa() == FormaBaixa.BI) {
+			// Baixa individual
 			for (int i = 0; i < listaContaAPagars.size(); i++) {
+				/*
+				 * Percorrer o for para carregar os objetos para fazer a baixa ultilizado o
+				 * metodo da baixa simples
+				 */
 				ContaAPagar contaAPagar = listaContaAPagars.get(i);
 				Pagamento pagto = listaPagamentos.get(i);
 				baixaSimples(contaAPagar, pagto);
 			}
-		} else {
 
-			BigDecimal valorMutla = BigDecimal.ZERO;
+		} else {
+			// Baixa agrupada
+			BigDecimal valorMulta = BigDecimal.ZERO;
 			BigDecimal valorDesc = BigDecimal.ZERO;
 
 			Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
@@ -218,21 +225,23 @@ public class ContaAPagarService implements Serializable {
 				contaAPagar.setId(cp.getId());
 				contaAPagar.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
 				contaAPagar.setVinculo(idAgrupador);
-
-				dao.baixaSimples(contaAPagar);
+				// Altera o valor de cada titulo a pagar
+				dao.updateNasContasApagar(contaAPagar);
 
 			}
 
+			// Unifica os valores de multas e descontos
 			for (int j = 0; j < listaContaAPagars.size(); j++) {
 				if (listaContaAPagars.get(j).getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
-					valorMutla = valorMutla.add(listaContaAPagars.get(j).getMultaTB());
+					valorMulta = valorMulta.add(listaContaAPagars.get(j).getMultaTB());
 				}
 				if (listaContaAPagars.get(j).getDescTB().compareTo(BigDecimal.ZERO) > 0) {
 					valorDesc = valorDesc.add(listaContaAPagars.get(j).getDescTB());
 				}
 			}
 
-			if (valorMutla.compareTo(BigDecimal.ZERO) > 0) {
+			// Se existir valor de multar add na lista de movimentacao
+			if (valorMulta.compareTo(BigDecimal.ZERO) > 0) {
 
 				Movimentacao movtoMulta = new Movimentacao();
 
@@ -250,7 +259,7 @@ public class ContaAPagarService implements Serializable {
 				movtoMulta.setDocumento(null);
 				movtoMulta.setPessoa(null);
 				movtoMulta.setVlrEntrada(null);
-				movtoMulta.setVlrSaida(valorMutla);
+				movtoMulta.setVlrSaida(valorMulta);
 				movtoMulta.setTipoLanc(TipoLanc.PC);
 				movtoMulta.setTipoConta(TipoConta.D);
 				movtoMulta.setPlanoConta(pl1Multa);
@@ -258,6 +267,7 @@ public class ContaAPagarService implements Serializable {
 				listaMovimentacoes.add(movtoMulta);
 			}
 
+			// Se existir valor de desconto add na lista de movimentacao
 			if (valorDesc.compareTo(BigDecimal.ZERO) > 0) {
 
 				Movimentacao movtoDesc = new Movimentacao();
@@ -285,8 +295,10 @@ public class ContaAPagarService implements Serializable {
 
 			}
 
+			// Salvar toda movimentação na tabela e retorna a lista salvar
 			listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
 
+			// Criar uma nova lista do tipo pagamento para receber novas atualizações
 			List<Pagamento> list = new ArrayList<>();
 
 			for (Pagamento pagto : listaPagamentos) {
@@ -306,9 +318,11 @@ public class ContaAPagarService implements Serializable {
 				p.setListaContaAPagars(listaContaAPagars); //
 				p.setAgrupadorContaApagar(idAgrupador);
 				p.setListaMovimentacoes(listaMovimentacoes);
+				// Carregar a nova lista
 				list.add(p);
 			}
 
+			// Salvando a nova lista no banco e recuperar a mesma
 			List<Pagamento> listaPagto = pagamentoService.salvar(list);
 
 			for (Pagamento pagto : listaPagto) {
@@ -326,6 +340,7 @@ public class ContaAPagarService implements Serializable {
 					cpHistorico.setValorMultaJuros(cp.getMultaTB());
 					cpHistorico.setAgrupadorPagamento(idAgrupador);
 					cpHistorico.setVinculoAnterio(cp.getVinculo() == null ? idAgrupador : cp.getVinculo());
+					// Salvando o historico do pagamento do titulo
 					cpHistoricoService.salvar(cpHistorico);
 				}
 			}

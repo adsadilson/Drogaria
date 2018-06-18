@@ -84,9 +84,11 @@ public class ContaAPagarBean implements Serializable {
 
 	private List<ContaAPagar> listaContasApagar = new ArrayList<ContaAPagar>();
 
-	List<ContaAPagarHistorico> listaContaApagarHistorico = new ArrayList<ContaAPagarHistorico>();
+	private List<ContaAPagarHistorico> listaContaApagarHistorico = new ArrayList<ContaAPagarHistorico>();
 
 	private List<PlanoConta> listaContas = new ArrayList<PlanoConta>();
+
+	private List<ContaAPagar> listaParaExclusao = new ArrayList<ContaAPagar>();
 
 	private List<Pagamento> listaPagamentos;
 
@@ -156,8 +158,6 @@ public class ContaAPagarBean implements Serializable {
 
 	private boolean isToggle = false;
 
-	private String permitirEditar;
-
 	private String descricao;
 
 	private String labelInfo = "sim";
@@ -166,27 +166,21 @@ public class ContaAPagarBean implements Serializable {
 
 	/******************** Metodos ***********************/
 
+	// Pesquisar pagamentos pagos
 	public void pesquisarPagamento() {
-
 		if (!validarDatas(filtroPagamento.getDtIni(), filtroPagamento.getDtFim())) {
-
 			model = new LazyDataModel<Pagamento>() {
-
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public List<Pagamento> load(int first, int pageSize, String sortField, SortOrder sortOrder,
 						Map<String, Object> filters) {
-
 					setRowCount(pagamentoService.quantidadeFiltrados(filtroPagamento));
-
 					filtroPagamento.setPrimeiroRegistro(first);
 					filtroPagamento.setQtdeRegistro(pageSize);
 					filtroPagamento.setOrdenacao(sortField);
 					filtroPagamento.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
-
 					return pagamentoService.filtrados(filtroPagamento);
-
 				}
 
 				@Override
@@ -201,13 +195,11 @@ public class ContaAPagarBean implements Serializable {
 				}
 
 			};
-
 			RequestContext request = RequestContext.getCurrentInstance();
 			request.addCallbackParam("sucesso", true);
 		} else {
 			Messages.addGlobalError("Data inicio maior do que data final!");
 		}
-
 	}
 
 	public void cancelarPagamentos() {
@@ -240,12 +232,9 @@ public class ContaAPagarBean implements Serializable {
 		this.totalDaNotaMovimentacao = BigDecimal.ZERO;
 	}
 
-	public void excluirSelecionados() {
-
-		List<ContaAPagar> novaLista = new ArrayList<>();
-		List<ContaAPagar> contasMultiplas = new ArrayList<>();
-		List<ContaAPagar> pagtos = new ArrayList<>();
-
+	public void validarContasParaExclusao() {
+		List<ContaAPagar> contasMultiplas = new ArrayList<ContaAPagar>();
+		List<ContaAPagar> pagtos = new ArrayList<ContaAPagar>();
 		for (ContaAPagar c : this.contaApagarSelecionadas) {
 			// Buscar as demais parcelas referente ao titulo relacionado
 			List<ContaAPagar> contas = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
@@ -256,9 +245,8 @@ public class ContaAPagarBean implements Serializable {
 						contasMultiplas.add(c);
 					}
 				}
-
-				if (!novaLista.contains(c1)) {
-					novaLista.add(c1);
+				if (!this.listaParaExclusao.contains(c1)) {
+					this.listaParaExclusao.add(c1);
 				} else {
 					continue;
 				}
@@ -266,7 +254,7 @@ public class ContaAPagarBean implements Serializable {
 		}
 
 		// Identificar quais documento exitem pagamentos
-		for (ContaAPagar n : novaLista) {
+		for (ContaAPagar n : this.listaParaExclusao) {
 			List<Pagamento> listaPagto = pagamentoService.porVinculo(n.getVinculo() == null ? 0 : n.getVinculo());
 			if (listaPagto.size() > 0) {
 				pagtos.add(n);
@@ -298,30 +286,14 @@ public class ContaAPagarBean implements Serializable {
 			req.execute("PF('confirmacaoEx').show();");
 
 		} else {
-
+			excluirContasSelecionadas();
 		}
+	}
 
-		/*  */
-		/*
-		 * List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo() ==
-		 * null ? null : c.getVinculo());
-		 * 
-		 * if (listaPagto.size() > 0) {
-		 * FacesContext.getCurrentInstance().validationFailed(); throw new
-		 * NegocioException("Registro(s) não pode ser excluido pois possui baixar!"); }
-		 * List<ContaAPagar> listaCp =
-		 * contaAPagarService.porVinculo(c.getAgrupadorMovimentacao()); if
-		 * (listaCp.size() > 1) { contaAPagar = c;
-		 * 
-		 * 
-		 * }
-		 */
-		/*
-		 * contaAPagarService.excluirContas(contaApagarSelecionadas);
-		 * this.contaApagarSelecionadas = new ArrayList<>(); pesquisar();
-		 * this.setTotalSelecionado(BigDecimal.ZERO);
-		 * Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
-		 */
+	public void excluirContasSelecionadas() {
+		contaAPagarService.excluirContas(this.listaParaExclusao);
+		pesquisar();
+		Messages.addGlobalInfo("Registro(s) excluido(s) com sucesso!");
 	}
 
 	public void excluirPagamentoAbaixar() {
@@ -346,6 +318,7 @@ public class ContaAPagarBean implements Serializable {
 		}
 	}
 
+	// Edição de parcela de pagamento
 	public void abrirEdicao() {
 		this.parcelaEditar = new ContaAPagar();
 		this.parcelaEditar.setParcela(this.parcela.getParcela());
@@ -355,11 +328,8 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void salvarEdicaoParcela() {
-
 		BigDecimal recalculo = BigDecimal.ZERO;
-
 		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.parcelaEditar.getDataVencto())) {
-
 			for (ContaAPagar pp : this.listaParcelas) {
 				if (pp.getParcela().equals(this.parcelaEditar.getParcela())) {
 					pp.setDataVencto(this.parcelaEditar.getDataVencto());
@@ -373,44 +343,35 @@ public class ContaAPagarBean implements Serializable {
 			FacesContext.getCurrentInstance().validationFailed();
 			throw new NegocioException("A data de vencimento dever ser maior que a data de entrada!");
 		}
-
 	}
 
 	public void editar() {
 
-		this.permitirEditar = "true";
-
 		this.parcela = new ContaAPagar();
 		this.movimentacao = new Movimentacao();
-		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
+		BigDecimal t2 = BigDecimal.ZERO;
 
 		for (ContaAPagar cp : this.contaApagarSelecionadas) {
+			this.listaParcelas = contaAPagarService.porVinculo(cp.getAgrupadorMovimentacao());
+			for (ContaAPagar c : this.listaParcelas) {
+				List<Pagamento> listaPagto = pagamentoService.porVinculo(c.getVinculo() == null ? 0 : c.getVinculo());
+				if (listaPagto.size() > 0) {
+					throw new NegocioException("Registro não pode ser editado pois existem parcela(s) paga(s)!");
+				}
+			}
 
 			this.listaParcelas = contaAPagarService.porVinculo(cp.getAgrupadorMovimentacao());
+			this.listaMovimentacoes = cp.getMovimentacoes();
+			this.cabContaApagar = cabContaApagarService.porVinculo(cp.getAgrupadorMovimentacao());
 
-			for (ContaAPagar par : this.listaParcelas) {
-				if (par.getValorApagar().compareTo(BigDecimal.ZERO) > 0) {
-					this.permitirEditar = "false";
-					break;
-				}
-				this.permitirEditar = "true";
-				t = t.add(par.getValor());
+			for (Movimentacao m : this.listaMovimentacoes) {
+				t2 = t2.add(m.getVlrSaida());
 			}
-
-			if (this.permitirEditar == "true") {
-
-				this.listaParcelas = contaAPagarService.porVinculo(cp.getAgrupadorMovimentacao());
-				this.listaMovimentacoes = cp.getMovimentacoes();
-				this.cabContaApagar = cabContaApagarService.porVinculo(cp.getAgrupadorMovimentacao());
-
-				for (Movimentacao m : this.listaMovimentacoes) {
-					t2 = t2.add(m.getVlrSaida());
-				}
-
-				this.parcela.setValor(t);
-				this.setTotalDasParcelas(t);
-				this.movimentacao.setTotalRateio(t2);
-			}
+			this.parcela.setValor(t2);
+			this.setTotalDasParcelas(t2);
+			this.movimentacao.setTotalRateio(t2);
+			RequestContext req = RequestContext.getCurrentInstance();
+			req.execute("PF('dialogCadastro').show();");
 		}
 	}
 
@@ -519,13 +480,11 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void formaBaixa() {
-
 		if (this.pagamento.getFormaBaixa().equals(FormaBaixa.BI)) {
 			this.pagamento.setDescricao(null);
 		} else {
 			this.listaMovimentacoes.clear();
 			this.listaPagamentos.clear();
-
 		}
 	}
 
@@ -674,7 +633,6 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void rowSelect(SelectEvent event) {
-		editar();
 		this.setTotalSelecionado(BigDecimal.ZERO);
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValorApagar()));
 		if (this.contaApagarSelecionadas.size() > 1) {
@@ -687,12 +645,10 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void rowSelectCheckBox(SelectEvent event) {
-		editar();
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAPagar) event.getObject()).getValorApagar()));
 	}
 
 	public void rowUnSelect(UnselectEvent event) {
-		editar();
 		this.setTotalSelecionado(
 				this.getTotalSelecionado().subtract(((ContaAPagar) event.getObject()).getValorApagar()));
 	}
@@ -1262,14 +1218,6 @@ public class ContaAPagarBean implements Serializable {
 		this.tipoConta = tipoConta;
 	}
 
-	public String getPermitirEditar() {
-		return permitirEditar;
-	}
-
-	public void setPermitirEditar(String permitirEditar) {
-		this.permitirEditar = permitirEditar;
-	}
-
 	public BigDecimal getTotalMultaJuros() {
 		return totalMultaJuros;
 	}
@@ -1388,6 +1336,14 @@ public class ContaAPagarBean implements Serializable {
 
 	public void setInformacao(String informacao) {
 		this.informacao = informacao;
+	}
+
+	public List<ContaAPagar> getListaParaExclusao() {
+		return listaParaExclusao;
+	}
+
+	public void setListaParaExclusao(List<ContaAPagar> listaParaExclusao) {
+		this.listaParaExclusao = listaParaExclusao;
 	}
 
 }

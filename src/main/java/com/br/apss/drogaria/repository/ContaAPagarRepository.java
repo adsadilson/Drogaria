@@ -43,7 +43,7 @@ public class ContaAPagarRepository implements Serializable {
 		return retorno;
 	}
 
-	public void baixaSimples(ContaAPagar obj) {
+	public void updateNasContasApagar(ContaAPagar obj) {
 		manager.createNativeQuery(
 				"update conta_apagar set valor_apagar = :valorApagar, " + "vinculo = :vinculo where id = :id")
 				.setParameter("valorApagar", obj.getValorApagar()).setParameter("vinculo", obj.getVinculo())
@@ -186,8 +186,7 @@ public class ContaAPagarRepository implements Serializable {
 
 		/*
 		 * if (StringUtils.isBlank(filtro.getStatus())) {
-		 * criteria.add(Restrictions.in("status", "ABERTO",
-		 * "PAGAMENTO PARCIAL")); }
+		 * criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL")); }
 		 */
 
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);

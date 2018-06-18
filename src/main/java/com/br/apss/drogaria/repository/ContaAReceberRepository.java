@@ -61,11 +61,11 @@ public class ContaAReceberRepository implements Serializable {
 			Criterion p1 = Restrictions.eq("cliente.id", filtro.getCliente().getId());
 			criteria.add(p1);
 		}
-		
+
 		if (StringUtils.isBlank(filtro.getStatus())) {
 			criteria.add(Restrictions.in("status", "ABERTO", "RECEBIMENTO PARCIAL"));
 		}
-		
+
 		if (StringUtils.isNotBlank(filtro.getDoc())) {
 			criteria.add(Restrictions.ilike("documento", filtro.getDoc(), MatchMode.ANYWHERE));
 		}
@@ -139,21 +139,18 @@ public class ContaAReceberRepository implements Serializable {
 
 	public List<ContaAReceber> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from ContaAReceber where movimentacao_vinculo = :vinculo order by id", ContaAReceber.class)
-					.setParameter("vinculo", vinculo).getResultList();
+			return manager.createQuery("from ContaAReceber where movimentacao_vinculo = :vinculo order by id",
+					ContaAReceber.class).setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;
 		}
 	}
-	
-	
-	public void baixaSimples(ContaAReceber obj) {
-		manager.createNativeQuery(
-				"update conta_areceber set valor_pago = :valorPago, valor_apagar = :valorApagar, "
-				+ "vinculo = :vinculo, status =:status where id = :id")
-				.setParameter("valorPago", obj.getValorPago()).setParameter("valorApagar", obj.getValorApagar())
-				.setParameter("vinculo", obj.getVinculo()).setParameter("status", obj.getStatus())
-				.setParameter("id", obj.getId()).executeUpdate();
+
+	public void updateNasContasAReceber(ContaAReceber obj) {
+		manager.createNativeQuery("update conta_areceber set valor_pago = :valorPago, valor_apagar = :valorApagar, "
+				+ "vinculo = :vinculo, status =:status where id = :id").setParameter("valorPago", obj.getValorPago())
+				.setParameter("valorApagar", obj.getValorApagar()).setParameter("vinculo", obj.getVinculo())
+				.setParameter("status", obj.getStatus()).setParameter("id", obj.getId()).executeUpdate();
 	}
 
 }

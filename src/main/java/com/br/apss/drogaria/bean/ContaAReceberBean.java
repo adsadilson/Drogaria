@@ -34,7 +34,6 @@ import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoLanc;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.CabContaAReceber;
-import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.Pessoa;
@@ -782,10 +781,9 @@ public class ContaAReceberBean implements Serializable {
 			}
 		}
 
-		 saldo = p.subtract(c);
+		saldo = p.subtract(c);
 	}
-	
-	
+
 	public void salvarBaixaMultiplas() {
 
 		BigDecimal c = BigDecimal.ZERO;
@@ -884,13 +882,11 @@ public class ContaAReceberBean implements Serializable {
 	}
 
 	public void formaBaixa() {
-
 		if (this.recebimento.getFormaBaixa().equals(FormaBaixa.BI)) {
 			this.recebimento.setDescricao(null);
 		} else {
 			this.listaDeMovtos.clear();
 			this.listaDeRecebimentos.clear();
-
 		}
 	}
 
@@ -911,8 +907,8 @@ public class ContaAReceberBean implements Serializable {
 	}
 
 	/*
-	 * public String getCalculaDif() { BigDecimal dif = contaARce.getValor();
-	 * for (ContaAReceber cr : listaDeParcelas) { dif.subtract(cr.getValor()); }
+	 * public String getCalculaDif() { BigDecimal dif = contaARce.getValor(); for
+	 * (ContaAReceber cr : listaDeParcelas) { dif.subtract(cr.getValor()); }
 	 * NumberFormat nf = NumberFormat.getCurrencyInstance(); String formatado =
 	 * nf.format(dif); return formatado; }
 	 */

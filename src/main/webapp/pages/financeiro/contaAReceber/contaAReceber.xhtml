@@ -75,22 +75,34 @@
 						style="margin-right: 3px;" process="@this"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 					</p:commandButton>
+					
+					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+						actionListener="#{contaAReceberBean.novoFiltro()}"
+						style="color:#8904B1;"
+						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
+						process="@this">
+						<p:resetInput target="dgFiltro" />
+					</p:commandButton>
+					
+					<p:separator />
+					
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
 						id="btnRecebimento" update=":frm-baixa-titulo"
+						style="color:#173B0B;"
 						oncomplete="PF('baixaTitulo').show()"
 						action="#{contaAReceberBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 						<p:resetInput target="" />
 					</p:commandButton>
+					
+					<p:commandButton icon="fa fa-dollar" value="Cancelar Rec.(s)"
+						style="margin-left: 3px; color:#8A0808;" 
+						oncomplete="PF('dialogPago').show()"
+						action="#{contaAPagarBean.iniciarCancelamentoTitulo()}">
+						<p:resetInput target="" />
+					</p:commandButton>
 
 					<p:separator />
-
-					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						actionListener="#{contaAReceberBean.novoFiltro()}"
-						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
-						process="@this">
-						<p:resetInput target="dgFiltro" />
-					</p:commandButton>
 
 					<p:outputLabel value="CLIENTE"
 						style="margin-left:10px; margin-right:10px; color:black" />
@@ -170,7 +182,7 @@
 				</p:column>
 
 				<p:column sortBy="#{cp.cliente}" headerText="Cliente" width="195">
-					<h:outputText value="#{cp.cliente.nome}" />
+					<h:outputText value="#{cp.cliente.id} - #{fn:substring(cp.cliente.nome,0,44)}" />
 				</p:column>
 
 				<p:column style="text-align: center; width:50px;"
@@ -606,23 +618,6 @@
 
 		</p:dialog>
 
-		<p:dialog header="Edição bloqueada" widgetVar="dialogInfoEdicao"
-			modal="true" resizable="false" draggable="true" id="dgInfoEdicao"
-			closeOnEscape="true" width="300" height="75" appendTo="@(body)">
-
-			<h:panelGrid style="margin-top:15px;">
-				<p:outputLabel
-					value="Não é possivel editar Conta a receber pois existem parcela(s) paga(s)" />
-				<ui:remove>
-					<h:graphicImage library="images" name="canceloFile48.png"
-						style="margin-left: 90px" height="45" />
-				</ui:remove>
-			</h:panelGrid>
-
-		</p:dialog>
-
-
-
 		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
 			resizable="false" draggable="true" id="dgFiltro" visible="false"
 			closeOnEscape="true" width="398" height="225" appendTo="@(body)">
@@ -715,7 +710,7 @@
 
 
 		<!-- Recebimento de titulos -->
-		<p:dialog header="Recebimento de titulo(s)" widgetVar="baixaTitulo"
+		<p:dialog header="Recebimento(s) de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
 			draggable="true" closeOnEscape="true" width="750" height="400"
 			appendTo="@(body)">
@@ -1021,12 +1016,11 @@
 
 							<p:outputLabel value="Forma da baixa" />
 
-							<p:outputLabel value="Conta à debitar" for="txtContaBaixar" />
+							<p:outputLabel value="Conta à creditar" for="txtContaBaixar" />
 
 							<p:outputLabel value="Data Baixa" for="dtBaixa" />
 
 							<p:selectOneMenu autoWidth="false" style="width:110px;"
-								disabled="true"
 								value="#{contaAReceberBean.recebimento.formaBaixa}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo">
@@ -1036,7 +1030,6 @@
 									update="txtBaixaMultiplaDesc dataTableRecebimento txtBaixaPago"
 									listener="#{contaAReceberBean.formaBaixa()}" />
 							</p:selectOneMenu>
-
 
 							<p:selectOneMenu autoWidth="false" style="width:378px"
 								id="txtContaBaixar" required="true" filter="true"
@@ -1067,7 +1060,6 @@
 								disabled="#{contaAReceberBean.recebimento.formaBaixa eq 'BI'}" />
 
 							<h:panelGroup>
-
 								<p:inputText id="txtBaixaPago" size="11" required="true"
 									requiredMessage="Informe o valor."
 									validatorMessage="O valor de recebimento é menor do que o 
@@ -1086,7 +1078,6 @@
 									labelVlrApagarBaixaMultipla"
 									icon="fa fa-download" styleClass="semPreenchimento">
 								</p:commandButton>
-
 							</h:panelGroup>
 
 						</h:panelGrid>
@@ -1150,10 +1141,6 @@
 			</h:form>
 
 		</p:dialog>
-
-
-
-
 
 
 	</ui:define>

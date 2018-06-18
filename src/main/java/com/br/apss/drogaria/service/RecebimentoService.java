@@ -28,8 +28,8 @@ public class RecebimentoService implements Serializable {
 	}
 
 	@Transacional
-	public void salvar(List<Recebimento> list) {
-		dao.save(list);
+	public List<Recebimento> salvar(List<Recebimento> list) {
+		return dao.save(list);
 	}
 
 	@Transacional
@@ -49,7 +49,7 @@ public class RecebimentoService implements Serializable {
 			ContaAReceber cp = new ContaAReceber();
 			cp.setId(c.getId());
 			cp.setValorPago(cp.getValorApagar());
-			//ContaAReceberRepository.baixaSimples(cp);
+			// ContaAReceberRepository.baixaSimples(cp);
 		}
 	}
 

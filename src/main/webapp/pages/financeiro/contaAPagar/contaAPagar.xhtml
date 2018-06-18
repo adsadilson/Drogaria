@@ -90,10 +90,8 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;" id="btnEdit"
-						process="@this frm-tabela"
-						oncomplete="#{contaAPagarBean.permitirEditar == 'true'} ? 
-						PF('dialogCadastro').show() : PF('dialogInfoEdicao').show()"
-						update="dgCadastro dgInfoEdicao"
+						process="@this frm-tabela" action="#{contaAPagarBean.editar()}"
+						update="dgCadastro"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
 					</p:commandButton>
 
@@ -104,17 +102,19 @@
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size()==0}">
 					</p:commandButton>
 
-					<ui:remove>
-						<p:commandButton icon="fa fa-copy" value="Duplicar"
-							style="margin-right: 3px;" id="btnDuplicar"
-							update="form-duplicar"
-							oncomplete="PF('duplicarContaApagar').show()"
-							disabled="#{contaAPagarBean.contaApagarSelecionadas.size()!=1}">
-						</p:commandButton>
-					</ui:remove>
+					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+						actionListener="#{contaAPagarBean.novoFiltro()}"
+						style="color:#8904B1;"
+						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
+						process="@this">
+						<p:resetInput target="frm-dialog" />
+					</p:commandButton>
+
+					<p:separator />
 
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
 						id="btnRecebimento" update=":frm-baixa-titulo"
+						style="color:#173B0B;"
 						oncomplete="PF('baixaTitulo').show()"
 						action="#{contaAPagarBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size() == 0}">
@@ -122,18 +122,10 @@
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-dollar" value="Cancelar Pagto(s)"
-						update=":tbl-pago" oncomplete="PF('dialogPago').show()"
+						style="margin-left: 3px; color:#8A0808;" update=":tbl-pago"
+						oncomplete="PF('dialogPago').show()"
 						action="#{contaAPagarBean.iniciarCancelamentoTitulo()}">
 						<p:resetInput target=":tbl-pago" />
-					</p:commandButton>
-
-					<p:separator />
-
-					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
-						actionListener="#{contaAPagarBean.novoFiltro()}"
-						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
-						process="@this">
-						<p:resetInput target="frm-dialog" />
 					</p:commandButton>
 
 				</p:toolbarGroup>
@@ -211,7 +203,6 @@
 					</h:outputText>
 				</p:column>
 
-
 				<p:column style="text-align: center; width: 17px;"
 					headerText="Dia(s)">
 					<h:outputText value="#{cp.dias > 0 ? cp.dias : null}">
@@ -245,7 +236,7 @@
 						<h:panelGrid columns="3" cellpadding="1">
 							<h:outputText value="#{car.numDoc}"
 								style="font-weight: bold; margin-right:10px;" />
-							<h:outputText value="#{car.fornecedor.nome}"
+							<h:outputText value="#{fn:substring(car.fornecedor.nome,0,30)}"
 								style="font-weight: bold; margin-right:10px;" />
 							<h:outputText value="#{car.valorApagar}"
 								style="font-weight: bold;">
@@ -257,8 +248,9 @@
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					actionListener="#{contaAPagarBean.excluirSelecionados}"
-					update=":frm-tabela toolbar-botoes confirmacaoExDialog" process="@this"
+					actionListener="#{contaAPagarBean.validarContasParaExclusao}"
+					update=":frm-tabela toolbar-botoes confirmacaoExDialog"
+					process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
@@ -385,7 +377,7 @@
 
 
 		<!-- BAIXA DE TITULOS -->
-		<p:dialog header="Baixa de titulo(s)" widgetVar="baixaTitulo"
+		<p:dialog header="Pagamento(s) de titulo(s)" widgetVar="baixaTitulo"
 			modal="true" resizable="false" id="dialogBaixaTitulo"
 			draggable="true" closeOnEscape="true" width="750" height="400"
 			appendTo="@(body)">
@@ -433,7 +425,6 @@
 							</p:calendar>
 
 						</h:panelGrid>
-
 
 						<p:panel style="width:96%; margin-left:10px; margin-top:5px;">
 
@@ -623,7 +614,6 @@
 
 						</p:dataTable>
 
-
 						<p:toolbar style="margin-top:25px;" styleClass="semPreenchimento">
 
 							<p:toolbarGroup align="right">
@@ -654,7 +644,6 @@
 										value="#{contaAPagarBean.totalSelecionado}" size="10">
 										<f:convertNumber type="currency" />
 									</p:inputText>
-
 
 									<p:outputLabel value="Desconto" styleClass="corLabel" />
 									<p:inputText id="txtDesc" value="#{contaAPagarBean.totalDesc}"
@@ -729,7 +718,6 @@
 								disabled="#{contaAPagarBean.pagamento.formaBaixa eq 'BI'}" />
 
 							<h:panelGroup>
-
 								<p:inputText id="txtBaixaPago" size="11" required="true"
 									requiredMessage="Informe o valor."
 									validatorMessage="O valor de pagamento é menor do que o 
@@ -748,7 +736,6 @@
 									labelVlrApagarBaixaMultipla"
 									icon="fa fa-download" styleClass="semPreenchimento">
 								</p:commandButton>
-
 							</h:panelGroup>
 
 						</h:panelGrid>
@@ -805,13 +792,9 @@
 							</p:toolbarGroup>
 						</p:toolbar>
 
-
 					</p:tab>
 
-
 				</p:tabView>
-
-
 
 			</h:form>
 
@@ -922,8 +905,7 @@
 					widgetVar="confirmacaoCancelamento" appendTo="@(body)"
 					id="confirmacaoCancelamentoDialog">
 					<f:facet name="message">
-						<h:outputText
-							value="Tem certeza que deseja cancelar o registro:" />
+						<h:outputText value="Tem certeza que deseja cancelar o registro:" />
 						<br />
 						<br />
 						<p:repeat value="#{contaAPagarBean.pagamentoSelecionado}" var="pg">
@@ -1103,22 +1085,6 @@
 			</h:form>
 		</p:dialog>
 
-
-		<p:dialog header="Edição bloqueada" widgetVar="dialogInfoEdicao"
-			modal="true" resizable="false" draggable="true" id="dgInfoEdicao"
-			closeOnEscape="true" width="280" height="75" appendTo="@(body)">
-
-			<h:panelGrid style="margin-top:15px;">
-				<p:outputLabel
-					value="Não é possivel editar Conta a pagar pois existem parcela(s) paga(s)" />
-				<ui:remove>
-					<h:graphicImage library="images" name="canceloFile48.png"
-						style="margin-left: 90px" height="45" />
-				</ui:remove>
-			</h:panelGrid>
-
-		</p:dialog>
-
 		<p:dialog header="Informação da baixa" widgetVar="dialogInfoBaixa"
 			modal="true" resizable="false" draggable="true" id="dgInfoBaixa"
 			closeOnEscape="true" width="650" height="300" appendTo="@(body)">
@@ -1162,14 +1128,18 @@
 		<p:confirmDialog header="Confirmação" widgetVar="confirmacaoEx"
 			appendTo="@(body)" id="confirmacaoExDialog" width="400">
 			<f:facet name="message">
-				<h:outputText value="O(s) registro(s) de documento(s): #{contaAPagarBean.informacao}" /><br/>
-				<h:outputText value="possui mais parcelas que serão excluidas juntas deseja continuar ?" /><br/>
+				<h:outputText
+					value="O(s) registro(s) de documento(s): #{contaAPagarBean.informacao}" />
+				<br />
+				<h:outputText
+					value="possui mais parcelas que serão excluidas juntas! deseja continuar ?" />
+				<br />
 			</f:facet>
 			<p:button value="Não"
 				onclick="PF('confirmacaoEx').hide(); return false;" />
 			<p:commandButton value="Sim"
-				actionListener="#{contaAPagarBean.cancelarPagamentos()}"
-				update="tbl-pago" process="@this"
+				actionListener="#{contaAPagarBean.excluirContasSelecionadas()}"
+				update=":frm-tabela :toolbar-totais" process="@this"
 				oncomplete="if(!args.validationFailed) PF('confirmacaoEx').hide()" />
 		</p:confirmDialog>
 
