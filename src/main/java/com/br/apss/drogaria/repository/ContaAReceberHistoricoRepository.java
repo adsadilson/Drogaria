@@ -44,10 +44,10 @@ public class ContaAReceberHistoricoRepository implements Serializable {
 	public ContaAReceberHistorico porId(Long id) {
 		return manager.find(ContaAReceberHistorico.class, id);
 	}
-	
+
 	public ContaAReceberHistorico porVinculo(Long vinculo) {
-			return manager.createQuery("from ContaAReceberHistorico where agrupadorRecebimento = :vinculo order by id",
-					ContaAReceberHistorico.class).setParameter("vinculo", vinculo).getSingleResult();
+		return manager.createQuery("from ContaAReceberHistorico where agrupadorRecebimento = :vinculo order by id",
+				ContaAReceberHistorico.class).setParameter("vinculo", vinculo).getSingleResult();
 	}
 
 	public List<ContaAReceberHistorico> listaVinculo(Long vinculo) {
@@ -57,6 +57,13 @@ public class ContaAReceberHistoricoRepository implements Serializable {
 		} catch (NoResultException e) {
 			return null;
 		}
+	}
+
+	public Long maxID(ContaAReceberHistorico h) {
+		return manager
+				.createQuery("select max(cph.id) from ContaAReceberHistorico cph where cph.contaAReceber.id = :id",
+						Long.class)
+				.setParameter("id", h.getContaAReceber().getId()).getSingleResult();
 	}
 
 }

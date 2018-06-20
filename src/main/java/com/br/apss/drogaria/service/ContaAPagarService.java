@@ -56,6 +56,7 @@ public class ContaAPagarService implements Serializable {
 
 		List<ContaAPagar> listaContaAPagars = new ArrayList<ContaAPagar>();
 
+		// Gerador do codigo de vinculo
 		Long idAgrupador = gerarVinculo.gerar(Pagamento.class);
 		Long idAgrupadorAnterio = contaAPagar.getVinculo() == null ? idAgrupador : contaAPagar.getVinculo();
 
@@ -71,10 +72,13 @@ public class ContaAPagarService implements Serializable {
 		}
 		contaAPagar.setValorApagar(contaAPagar.getValorApagar().subtract(contaAPagar.getPagoTB()));
 
+		// Seta o objeto na lista de contas a pagar para vincular ao pagamento
 		listaContaAPagars.add(contaAPagar);
 
+		// Update na tabela conta a pagar
 		dao.updateNasContasApagar(contaAPagar);
 
+		// Lista de Movimentação
 		List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
 		Movimentacao movto = new Movimentacao();
@@ -99,8 +103,10 @@ public class ContaAPagarService implements Serializable {
 		movto.setPlanoConta(pl1);
 		movto.setPlanoContaPai(pl2);
 
+		// Add objeto movimentação na lista para salvar posterior
 		listaMovimentacoes.add(movto);
 
+		// Criação do objeto movimentação caso aja multa
 		if (contaAPagar.getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
 
 			Movimentacao movtoMulta = new Movimentacao();
@@ -124,9 +130,11 @@ public class ContaAPagarService implements Serializable {
 			movtoMulta.setTipoConta(TipoConta.D);
 			movtoMulta.setPlanoConta(pl1Multa);
 			movtoMulta.setPlanoContaPai(pl2Multa);
+			// Add na lista de movimentação
 			listaMovimentacoes.add(movtoMulta);
 		}
 
+		// Criação do objeto movimentação caso aja desconto
 		if (contaAPagar.getDescTB().compareTo(BigDecimal.ZERO) > 0) {
 
 			Movimentacao movtoDesc = new Movimentacao();
@@ -150,15 +158,17 @@ public class ContaAPagarService implements Serializable {
 			movtoDesc.setTipoConta(TipoConta.R);
 			movtoDesc.setPlanoConta(pl1Desc);
 			movtoDesc.setPlanoContaPai(pl2Desc);
+			// Add na lista de movimentação
 			listaMovimentacoes.add(movtoDesc);
 		}
 
+		// Salvar a lista de movimentação na tabela e recuperando a mesma
 		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
 
+		// Criação da lista de pagamento para receber os objetos
 		List<Pagamento> list = new ArrayList<Pagamento>();
 
 		Pagamento pagto = new Pagamento();
-
 		pagto.setDataLanc(new Date());
 		pagto.setDataPago(pagamento.getDataPago());
 		pagto.setDescricao(pagamento.getDescricao());
@@ -173,10 +183,13 @@ public class ContaAPagarService implements Serializable {
 		pagto.setAgrupadorContaApagar(idAgrupador);
 		pagto.setTipoBaixa(pagamento.getTipoBaixa());
 		pagto.setListaMovimentacoes(listaMovimentacoes);
+		// Add na lista
 		list.add(pagto);
 
+		// Salvando a lista de recebimento preenchida e recuperando a mesma
 		List<Pagamento> listaPagto = pagamentoService.salvar(list);
 
+		// Criação do objeto conta a pagar historico
 		ContaAPagarHistorico cpHistorico = new ContaAPagarHistorico();
 
 		cpHistorico.setContaApagar(contaAPagar);
@@ -191,6 +204,7 @@ public class ContaAPagarService implements Serializable {
 		cpHistorico.setAgrupadorPagamento(idAgrupador);
 		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
 
+		// Salvando o objeto historico preenchindo
 		cpHistoricoService.salvar(cpHistorico);
 
 	}

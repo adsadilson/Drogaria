@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -27,6 +28,7 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
@@ -42,11 +44,13 @@ import com.br.apss.drogaria.model.Recebimento;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.ContaAReceberFilter;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
+import com.br.apss.drogaria.model.filter.RecebimentoFilter;
 import com.br.apss.drogaria.service.CabContaAReceberService;
 import com.br.apss.drogaria.service.ContaAReceberService;
 import com.br.apss.drogaria.service.MovimentacaoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.PlanoContaService;
+import com.br.apss.drogaria.service.RecebimentoService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -62,9 +66,15 @@ public class ContaAReceberBean implements Serializable {
 
 	private ContaAReceber contaAReceber;
 
+	private RecebimentoFilter filtroRecebimento;
+
 	private List<ContaAReceber> listaContaARecebers;
 
 	private LazyDataModel<ContaAReceber> model;
+
+	private LazyDataModel<Recebimento> modelRec;
+
+	private Recebimento recebimentoSelecionado;
 
 	private Pessoa clienteSelecionado;
 
@@ -94,6 +104,9 @@ public class ContaAReceberBean implements Serializable {
 
 	@Inject
 	private MovimentacaoService movtoService;
+
+	@Inject
+	private RecebimentoService recebimentoService;
 
 	@Inject
 	private ContaAReceberService contaAReceberService;
@@ -141,6 +154,7 @@ public class ContaAReceberBean implements Serializable {
 	@PostConstruct
 	public void inicializar() {
 		filtro = new ContaAReceberFilter();
+		this.filtroRecebimento = new RecebimentoFilter();
 		this.listaContaARecebers = new ArrayList<ContaAReceber>();
 		carregarListaDeClientes();
 	}
@@ -188,7 +202,6 @@ public class ContaAReceberBean implements Serializable {
 
 					for (int i = 0; i < this.listaDeParcelas.size(); i++) {
 						this.listaDeParcelas.get(i).setDataDoc(this.cabContaAReceber.getDataDoc());
-						this.listaDeParcelas.get(i).setStatus("ABERTO");
 						this.listaDeParcelas.get(i).setUsuario(obterUsuario());
 						this.listaDeParcelas.get(i).setCliente(this.cabContaAReceber.getCliente());
 						this.listaDeParcelas.get(i).setAgrupadorMovimentacao(this.cabContaAReceber.getVinculo());
@@ -240,6 +253,12 @@ public class ContaAReceberBean implements Serializable {
 
 	public void excluir() {
 		Messages.addGlobalInfo("Registro excluido com sucesso");
+	}
+
+	public void cancelarRecebimentos() {
+		List<Recebimento> listaPagto = recebimentoService
+				.porVinculo(this.recebimentoSelecionado.getAgrupadorContaAReceber());
+		recebimentoService.cancelarRecebimento(listaPagto);
 	}
 
 	public void pesquisar() {
@@ -414,7 +433,7 @@ public class ContaAReceberBean implements Serializable {
 			ContaAReceber cr = new ContaAReceber();
 			cr.setTipoRecebimento(this.parcela.getTipoRecebimento());
 			cr.setParcela((i + 1) + "/" + this.parcela.getNumVezes());
-			cr.setDocumento(this.cabContaAReceber.getDocumento());
+			cr.setNumDoc(this.cabContaAReceber.getDocumento());
 			cr.setDataVencto(i == 0 ? this.cabContaAReceber.getDataVencto()
 					: somaDias(this.cabContaAReceber.getDataVencto(), this.parcela.getPeriodo() * i));
 			cr.setValor(i == 0 ? primeiraParcela : valorParcela);
@@ -469,10 +488,6 @@ public class ContaAReceberBean implements Serializable {
 			this.listaDeParcelas = contaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
 
 			for (ContaAReceber par : this.listaDeParcelas) {
-				if (!par.getStatus().contains("ABERTO")) {
-					this.permitirEditar = "false";
-					break;
-				}
 				this.permitirEditar = "true";
 				t = t.add(par.getValor());
 			}
@@ -505,6 +520,11 @@ public class ContaAReceberBean implements Serializable {
 		this.filtro = new ContaAReceberFilter();
 	}
 
+	public void iniciarCancelamentoTitulo() {
+		filtroRecebimento.setDtIni(null);
+		filtroRecebimento.setDtFim(null);
+	}
+
 	public void iniciarBaixaTitulo() {
 
 		this.listaDeRecebimentos = new ArrayList<Recebimento>();
@@ -531,20 +551,18 @@ public class ContaAReceberBean implements Serializable {
 			contaAReceber = new ContaAReceber();
 			contaAReceber.setId(cr.getId());
 			contaAReceber.setDataVencto(cr.getDataVencto());
-			contaAReceber.setDocumento(cr.getDocumento());
+			contaAReceber.setNumDoc(cr.getNumDoc());
 			contaAReceber.setParcela(cr.getParcela());
-			contaAReceber.setStatus(cr.getStatus());
 			contaAReceber.setTipoRecebimento(cr.getTipoRecebimento());
 			contaAReceber.setValor(cr.getValor());
 			contaAReceber.setValorApagar(cr.getValorApagar());
-			contaAReceber.setValorPago(cr.getValorPago());
 			contaAReceber.setPagoTB(cr.getValorApagar());
 			contaAReceber.setVinculo(cr.getVinculo());
 			contaAReceber.setCliente(cr.getCliente());
 			contaAReceber.setDataDoc(cr.getDataDoc());
 
 			this.recebimento.setDescricao(
-					"PG. NT." + cr.getDocumento() + " Parc." + cr.getParcela() + " - " + cr.getCliente().getNome());
+					"PG. NT." + cr.getNumDoc() + " Parc." + cr.getParcela() + " - " + cr.getCliente().getNome());
 
 			contaAReceber.setSaldoDevedor(cr.getValorApagar());
 
@@ -581,10 +599,10 @@ public class ContaAReceberBean implements Serializable {
 				pl2 = contaService.porId(pl1.getContaPai().getId());
 
 				movto.setDescricao(
-						"REC. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - " + c.getCliente().getNome());
+						"REC. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getCliente().getNome());
 
-				if (c.getValorApagar().compareTo(c.getValorPago()) > 0) {
-					movto.setDescricao("REC. NT." + c.getDocumento() + " Parc." + c.getParcela() + " - "
+				if (c.getValorApagar().compareTo(BigDecimal.ZERO) > 0) {
+					movto.setDescricao("REC. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
 							+ c.getCliente().getNome() + " (P)");
 				}
 
@@ -596,7 +614,7 @@ public class ContaAReceberBean implements Serializable {
 				movto.setVinculo(idVinculo);
 				movto.setVlrEntrada(null);
 				movto.setVlrSaida(c.getPagoTB());
-				movto.setDocumento(c.getDocumento());
+				movto.setDocumento(c.getNumDoc());
 				movto.setPessoa(c.getCliente());
 				movto.setTipoLanc(TipoLanc.PC);
 				movto.setTipoConta(TipoConta.CC);
@@ -754,13 +772,6 @@ public class ContaAReceberBean implements Serializable {
 		}
 	}
 
-	public void informativo() {
-		labelInfo = "sim";
-		if (contaAReceber.getValorApagar().compareTo(contaAReceber.getValorPago()) <= 0) {
-			labelInfo = "nao";
-		}
-	}
-
 	public void calcularValorApagar() {
 		BigDecimal c = BigDecimal.ZERO;
 		BigDecimal p = BigDecimal.ZERO;
@@ -814,6 +825,46 @@ public class ContaAReceberBean implements Serializable {
 		this.listaContasSelecionadas.clear();
 		pesquisar();
 		/* rowToggleSelect(); */
+	}
+
+	// Pesquisar pagamentos pagos
+	public void pesquisarRecebimento() {
+		if (!validarDatas(filtroRecebimento.getDtIni(), filtroRecebimento.getDtFim())) {
+			modelRec = new LazyDataModel<Recebimento>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public List<Recebimento> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+						Map<String, Object> filters) {
+					setRowCount(recebimentoService.quantidadeFiltrados(filtroRecebimento));
+					filtroRecebimento.setPrimeiroRegistro(first);
+					filtroRecebimento.setQtdeRegistro(pageSize);
+					filtroRecebimento.setOrdenacao(sortField);
+					filtroRecebimento.setAscendente(SortOrder.ASCENDING.equals(sortOrder));
+					return recebimentoService.filtrados(filtroRecebimento);
+				}
+
+				@Override
+				public Recebimento getRowData(String rowKey) {
+					recebimentoSelecionado = recebimentoService.porId(Long.valueOf(rowKey));
+					return recebimentoSelecionado;
+				}
+
+				@Override
+				public String getRowKey(Recebimento objeto) {
+					return recebimentoSelecionado.getId().toString();
+				}
+
+			};
+			RequestContext request = RequestContext.getCurrentInstance();
+			request.addCallbackParam("sucesso", true);
+		} else {
+			Messages.addGlobalError("Data inicio maior do que data final!");
+		}
+	}
+
+	public List<Pessoa> getCarregarClientes() {
+		return pessoaService.listarClientes();
 	}
 
 	public void onCellEdit(CellEditEvent event) {
@@ -921,6 +972,14 @@ public class ContaAReceberBean implements Serializable {
 
 	public void setModel(LazyDataModel<ContaAReceber> model) {
 		this.model = model;
+	}
+
+	public LazyDataModel<Recebimento> getModelRec() {
+		return modelRec;
+	}
+
+	public void setModelRec(LazyDataModel<Recebimento> modelRec) {
+		this.modelRec = modelRec;
 	}
 
 	public ContaAReceberFilter getFiltro() {
@@ -1169,6 +1228,22 @@ public class ContaAReceberBean implements Serializable {
 
 	public void setSaldo(BigDecimal saldo) {
 		this.saldo = saldo;
+	}
+
+	public RecebimentoFilter getFiltroRecebimento() {
+		return filtroRecebimento;
+	}
+
+	public void setFiltroRecebimento(RecebimentoFilter filtroRecebimento) {
+		this.filtroRecebimento = filtroRecebimento;
+	}
+
+	public Recebimento getRecebimentoSelecionado() {
+		return recebimentoSelecionado;
+	}
+
+	public void setRecebimentoSelecionado(Recebimento recebimentoSelecionado) {
+		this.recebimentoSelecionado = recebimentoSelecionado;
 	}
 
 }

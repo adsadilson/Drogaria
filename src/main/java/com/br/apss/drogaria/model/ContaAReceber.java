@@ -25,7 +25,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.br.apss.drogaria.enums.FormaBaixa;
 import com.br.apss.drogaria.enums.TipoCobranca;
 
 @Entity
@@ -50,12 +49,8 @@ public class ContaAReceber implements Serializable {
 	@Column(name = "data_doc")
 	private Date dataDoc;
 
-	@Temporal(TemporalType.DATE)
-	@Column(name = "data_pagto")
-	private Date dataPagto;
-
-	@Column(name = "documento", length = 15)
-	private String documento;
+	@Column(name = "num_doc", length = 15)
+	private String numDoc;
 
 	@Column(name = "parcela", length = 5)
 	private String parcela;
@@ -74,9 +69,6 @@ public class ContaAReceber implements Serializable {
 	@Column(name = "valor_apagar", precision = 12, scale = 2)
 	private BigDecimal valorApagar = BigDecimal.ZERO;
 
-	@Column(name = "valor_pago", precision = 12, scale = 2)
-	private BigDecimal valorPago = BigDecimal.ZERO;
-
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "conta_areceber_movimentacao", joinColumns = @JoinColumn(name = "conta_areceber_id"), inverseJoinColumns = @JoinColumn(name = "movimentacao_id"))
 	private List<Movimentacao> movimentacoes = new ArrayList<Movimentacao>();
@@ -84,13 +76,6 @@ public class ContaAReceber implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_recebimento", length = 40)
 	private TipoCobranca tipoRecebimento;
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "forma_baixa", length = 45)
-	private FormaBaixa formaBaixa;
-
-	@Column(length = 20)
-	private String status;
 
 	@Column(name = "movimentacao_vinculo")
 	private Long agrupadorMovimentacao;
@@ -143,22 +128,6 @@ public class ContaAReceber implements Serializable {
 		this.dataVencto = dataVencto;
 	}
 
-	public Date getDataPagto() {
-		return dataPagto;
-	}
-
-	public void setDataPagto(Date dataPagto) {
-		this.dataPagto = dataPagto;
-	}
-
-	public String getDocumento() {
-		return documento;
-	}
-
-	public void setDocumento(String documento) {
-		this.documento = documento == null ? null : documento.toUpperCase();
-	}
-
 	public Pessoa getCliente() {
 		return cliente;
 	}
@@ -173,14 +142,6 @@ public class ContaAReceber implements Serializable {
 
 	public void setValor(BigDecimal valor) {
 		this.valor = valor;
-	}
-
-	public BigDecimal getValorPago() {
-		return valorPago;
-	}
-
-	public void setValorPago(BigDecimal valorPago) {
-		this.valorPago = valorPago;
 	}
 
 	public List<Movimentacao> getMovimentacoes() {
@@ -199,14 +160,6 @@ public class ContaAReceber implements Serializable {
 		this.parcela = parcela;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public TipoCobranca getTipoRecebimento() {
 		return tipoRecebimento;
 	}
@@ -221,14 +174,6 @@ public class ContaAReceber implements Serializable {
 
 	public void setDias(int dias) {
 		this.dias = dias;
-	}
-
-	public FormaBaixa getFormaBaixa() {
-		return formaBaixa;
-	}
-
-	public void setFormaBaixa(FormaBaixa formaBaixa) {
-		this.formaBaixa = formaBaixa;
 	}
 
 	public int getNumVezes() {
@@ -319,6 +264,14 @@ public class ContaAReceber implements Serializable {
 		this.pagoTB = pagoTB;
 	}
 
+	public String getNumDoc() {
+		return numDoc;
+	}
+
+	public void setNumDoc(String numDoc) {
+		this.numDoc = numDoc;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -342,7 +295,7 @@ public class ContaAReceber implements Serializable {
 		} else if (!id.equals(other.id)) {
 			return false;
 		} else if (id.equals(null) && other.id.equals(null)) {
-			if (!this.getDataVencto().equals(other.getDataVencto()) || !this.getDocumento().equals(other.getDocumento())
+			if (!this.getDataVencto().equals(other.getDataVencto()) || !this.getNumDoc().equals(other.getNumDoc())
 					|| !this.getValor().equals(other.getValor())) {
 				return false;
 			}

@@ -34,8 +34,17 @@ public class ContaAReceberHistoricoService implements Serializable {
 	public ContaAReceberHistorico porVinculo(Long vinculo) {
 		return dao.porVinculo(vinculo);
 	}
+
 	public List<ContaAReceberHistorico> listaVinculo(Long vinculo) {
 		return dao.listaVinculo(vinculo);
+	}
+
+	public Long maxId(ContaAReceberHistorico cp) {
+		return dao.maxID(cp);
+	}
+
+	public ContaAReceberHistorico porId(Long cph) {
+		return dao.porId(cph);
 	}
 
 }

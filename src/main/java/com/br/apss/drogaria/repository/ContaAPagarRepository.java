@@ -184,11 +184,6 @@ public class ContaAPagarRepository implements Serializable {
 
 		criteria.add(Restrictions.gt("valorApagar", BigDecimal.ZERO));
 
-		/*
-		 * if (StringUtils.isBlank(filtro.getStatus())) {
-		 * criteria.add(Restrictions.in("status", "ABERTO", "PAGAMENTO PARCIAL")); }
-		 */
-
 		criteria.createAlias("fornecedor", "fornecedor", Criteria.INNER_JOIN);
 
 		if (filtro.getFornecedor() != null) {

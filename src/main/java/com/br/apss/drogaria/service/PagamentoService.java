@@ -103,6 +103,7 @@ public class PagamentoService implements Serializable {
 			contaAPagarRepository.cancelarPagto(cp3);
 		}
 
+		// Excluir os registros da tabela historico_conta_apagar
 		for (ContaAPagarHistorico cph2 : listaCPHistorico) {
 			cpHistoricoService.excluir(cph2);
 		}

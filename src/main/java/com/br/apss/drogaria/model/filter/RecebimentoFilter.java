@@ -13,7 +13,7 @@ public class RecebimentoFilter implements Serializable {
 	private Date dtIni = new Date();
 	private Date dtFim = new Date();
 	private Date dataLimite = new Date();
-	private Pessoa fornecedor;
+	private Pessoa cliente;
 	private BigDecimal valor1;
 	private BigDecimal valor2;
 	private int primeiroRegistro;
@@ -41,12 +41,12 @@ public class RecebimentoFilter implements Serializable {
 		this.dtFim = dtFim;
 	}
 
-	public Pessoa getFornecedor() {
-		return fornecedor;
+	public Pessoa getCliente() {
+		return cliente;
 	}
 
-	public void setFornecedor(Pessoa fornecedor) {
-		this.fornecedor = fornecedor;
+	public void setCliente(Pessoa cliente) {
+		this.cliente = cliente;
 	}
 
 	public BigDecimal getValor1() {

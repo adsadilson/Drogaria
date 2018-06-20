@@ -95,28 +95,29 @@ public class ContaAReceberService implements Serializable {
 
 		List<ContaAReceber> listaContaARecebers = new ArrayList<ContaAReceber>();
 
+		// Gerador do codigo de vinculo
 		Long idAgrupador = gerarVinculo.gerar(Recebimento.class);
 		Long idAgrupadorAnterio = contaAReceber.getVinculo() == null ? idAgrupador : contaAReceber.getVinculo();
 
 		BigDecimal vlrAnterio = contaAReceber.getSaldoDevedor();
 
-		contaAReceber.setStatus("RECEBIMENTO TOTAL");
 		recebimento.setTipoBaixa(TipoBaixa.TOTAL);
 		contaAReceber.setUsuario(recebimento.getUsuario());
-		contaAReceber.setValorPago(contaAReceber.getValorPago().add(contaAReceber.getPagoTB()));
 		contaAReceber.setSaldoDevedor(contaAReceber.getValorApagar());
 		contaAReceber.setVinculo(idAgrupador);
 		if (contaAReceber.getValorApagar().compareTo(contaAReceber.getPagoTB()) > 0) {
-			contaAReceber.setStatus("RECEBIMENTO PARCIAL");
 			recebimento.setTipoBaixa(TipoBaixa.PARCIAL);
 			recebimento.setDescricao(recebimento.getDescricao() + " (P)");
 		}
 		contaAReceber.setValorApagar(contaAReceber.getValorApagar().subtract(contaAReceber.getPagoTB()));
 
+		// Seta o objeto na lista de contas a receber para vincular ao recebimento
 		listaContaARecebers.add(contaAReceber);
 
+		// Update na tabela conta a receber
 		dao.updateNasContasAReceber(contaAReceber);
 
+		// Lista de Movimentação
 		List<Movimentacao> listaMovimentacoes = new ArrayList<Movimentacao>();
 
 		Movimentacao movto = new Movimentacao();
@@ -132,7 +133,7 @@ public class ContaAReceberService implements Serializable {
 		movto.setUsuario(recebimento.getUsuario());
 		movto.setDescricao(recebimento.getDescricao());
 		movto.setVinculo(recebimento.getVinculo());
-		movto.setDocumento(contaAReceber.getDocumento());
+		movto.setDocumento(contaAReceber.getNumDoc());
 		movto.setPessoa(contaAReceber.getCliente());
 		movto.setVlrEntrada(contaAReceber.getPagoTB());
 		movto.setVlrSaida(null);
@@ -141,8 +142,10 @@ public class ContaAReceberService implements Serializable {
 		movto.setPlanoConta(pl1);
 		movto.setPlanoContaPai(pl2);
 
+		// Add objeto movimentação na lista para salvar posterior
 		listaMovimentacoes.add(movto);
 
+		// Criação do objeto movimentação caso aja multa
 		if (contaAReceber.getMultaTB().compareTo(BigDecimal.ZERO) > 0) {
 
 			Movimentacao movtoMulta = new Movimentacao();
@@ -158,7 +161,7 @@ public class ContaAReceberService implements Serializable {
 			movtoMulta.setUsuario(recebimento.getUsuario());
 			movtoMulta.setDescricao("REC JUROS/MULTA " + recebimento.getDescricao());
 			movtoMulta.setVinculo(recebimento.getVinculo());
-			movtoMulta.setDocumento(contaAReceber.getDocumento());
+			movtoMulta.setDocumento(contaAReceber.getNumDoc());
 			movtoMulta.setPessoa(contaAReceber.getCliente());
 			movtoMulta.setVlrEntrada(contaAReceber.getMultaTB());
 			movtoMulta.setVlrSaida(null);
@@ -166,9 +169,11 @@ public class ContaAReceberService implements Serializable {
 			movtoMulta.setTipoConta(TipoConta.R);
 			movtoMulta.setPlanoConta(pl1Multa);
 			movtoMulta.setPlanoContaPai(pl2Multa);
+			// Add na lista de movimentação
 			listaMovimentacoes.add(movtoMulta);
 		}
 
+		// Criação do objeto movimentação caso aja desconto
 		if (contaAReceber.getDescTB().compareTo(BigDecimal.ZERO) > 0) {
 
 			Movimentacao movtoDesc = new Movimentacao();
@@ -184,7 +189,7 @@ public class ContaAReceberService implements Serializable {
 			movtoDesc.setUsuario(recebimento.getUsuario());
 			movtoDesc.setDescricao("DESCONTO " + recebimento.getDescricao());
 			movtoDesc.setVinculo(recebimento.getVinculo());
-			movtoDesc.setDocumento(contaAReceber.getDocumento());
+			movtoDesc.setDocumento(contaAReceber.getNumDoc());
 			movtoDesc.setPessoa(contaAReceber.getCliente());
 			movtoDesc.setVlrEntrada(null);
 			movtoDesc.setVlrSaida(contaAReceber.getDescTB());
@@ -192,43 +197,56 @@ public class ContaAReceberService implements Serializable {
 			movtoDesc.setTipoConta(TipoConta.D);
 			movtoDesc.setPlanoConta(pl1Desc);
 			movtoDesc.setPlanoContaPai(pl2Desc);
+			// Add na lista de movimentação
 			listaMovimentacoes.add(movtoDesc);
 		}
 
+		// Salvar a lista de movimentação na tabela e recuperando a mesma
 		listaMovimentacoes = movtoService.salvar(listaMovimentacoes);
 
+		// Criação da lista de recebimento para receber os objetos
 		List<Recebimento> list = new ArrayList<Recebimento>();
 
-		ContaAReceberHistorico cpHistorico = new ContaAReceberHistorico();
+		Recebimento recto = new Recebimento();
+		recto.setDataLanc(new Date());
+		recto.setDataPago(recebimento.getDataPago());
+		recto.setDescricao(recebimento.getDescricao());
+		recto.setFormaBaixa(recebimento.getFormaBaixa());
+		recto.setValor(contaAReceber.getValor());
+		recto.setValorAPagar(contaAReceber.getSaldoDevedor());
+		recto.setValorDesc(contaAReceber.getDescTB());
+		recto.setValorMultaJuros(contaAReceber.getMultaTB());
+		recto.setValorPago(contaAReceber.getPagoTB());
+		recto.setUsuario(recebimento.getUsuario());
+		recto.setListaContaARecebers(listaContaARecebers);
+		recto.setAgrupadorContaAReceber(idAgrupador);
+		recto.setTipoBaixa(recebimento.getTipoBaixa());
+		recto.setListaMovimentacoes(listaMovimentacoes);
+		// Add na lista
+		list.add(recto);
 
-		cpHistorico.setContaAReceber(contaAReceber);
-		cpHistorico.setValorAnterio(vlrAnterio);
-		cpHistorico.setValorAtual(contaAReceber.getPagoTB());
-		cpHistorico.setUsuario(recebimento.getUsuario());
-		cpHistorico.setAgrupadorRecebimento(idAgrupador);
-		cpHistorico.setVinculoAnterio(idAgrupadorAnterio);
+		// Salvando a lista de recebimento preenchida e recuperando a mesma
+		List<Recebimento> listaRec = recebimentoService.salvar(list);
 
-		rcHistoricoService.salvar(cpHistorico);
+		// Criação do objeto conta a receber historico
+		ContaAReceberHistorico rcHistorico = new ContaAReceberHistorico();
 
-		Recebimento pagto = new Recebimento();
+		rcHistorico.setVinculoAnterio(idAgrupadorAnterio);
 
-		pagto.setDataLanc(new Date());
-		pagto.setDataPago(recebimento.getDataPago());
-		pagto.setDescricao(recebimento.getDescricao());
-		pagto.setFormaBaixa(recebimento.getFormaBaixa());
-		pagto.setValor(contaAReceber.getValor());
-		pagto.setValorAPagar(contaAReceber.getSaldoDevedor());
-		pagto.setValorDesc(contaAReceber.getDescTB());
-		pagto.setValorMultaJuros(contaAReceber.getMultaTB());
-		pagto.setValorPago(contaAReceber.getPagoTB());
-		pagto.setUsuario(recebimento.getUsuario());
-		pagto.setListaContaARecebers(listaContaARecebers);
-		pagto.setAgrupadorContaAReceber(idAgrupador);
-		pagto.setTipoBaixa(recebimento.getTipoBaixa());
-		pagto.setListaMovimentacoes(listaMovimentacoes);
-		list.add(pagto);
+		rcHistorico.setContaAReceber(contaAReceber);
+		rcHistorico.setValorAnterio(vlrAnterio);
+		rcHistorico.setValorAtual(contaAReceber.getValorApagar());
+		rcHistorico.setValorPago(contaAReceber.getPagoTB());
+		rcHistorico.setUsuario(recebimento.getUsuario());
+		rcHistorico.setData(new Date());
+		rcHistorico.setRecebimento(listaRec.get(0).getId());
+		rcHistorico.setValorDesc(contaAReceber.getDescTB());
+		rcHistorico.setValorMultaJuros(contaAReceber.getMultaTB());
+		rcHistorico.setAgrupadorRecebimento(idAgrupador);
+		rcHistorico.setVinculoAnterio(idAgrupadorAnterio);
 
-		recebimentoService.salvar(list);
+		// Salvando o objeto historico preenchindo
+		rcHistoricoService.salvar(rcHistorico);
 
 	}
 

@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.repository;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -56,18 +57,16 @@ public class ContaAReceberRepository implements Serializable {
 
 		Criteria criteria = session.createCriteria(ContaAReceber.class);
 
+		criteria.add(Restrictions.gt("valorApagar", BigDecimal.ZERO));
+
 		criteria.createAlias("cliente", "cliente", Criteria.INNER_JOIN);
 		if (filtro.getCliente() != null) {
 			Criterion p1 = Restrictions.eq("cliente.id", filtro.getCliente().getId());
 			criteria.add(p1);
 		}
 
-		if (StringUtils.isBlank(filtro.getStatus())) {
-			criteria.add(Restrictions.in("status", "ABERTO", "RECEBIMENTO PARCIAL"));
-		}
-
 		if (StringUtils.isNotBlank(filtro.getDoc())) {
-			criteria.add(Restrictions.ilike("documento", filtro.getDoc(), MatchMode.ANYWHERE));
+			criteria.add(Restrictions.ilike("numDoc", filtro.getDoc(), MatchMode.ANYWHERE));
 		}
 
 		if (filtro.getDataEmissaoIni() != null) {
@@ -147,10 +146,18 @@ public class ContaAReceberRepository implements Serializable {
 	}
 
 	public void updateNasContasAReceber(ContaAReceber obj) {
-		manager.createNativeQuery("update conta_areceber set valor_pago = :valorPago, valor_apagar = :valorApagar, "
-				+ "vinculo = :vinculo, status =:status where id = :id").setParameter("valorPago", obj.getValorPago())
+		manager.createNativeQuery(
+				"update conta_areceber set valor_apagar = :valorApagar, " + "vinculo = :vinculo where id = :id")
 				.setParameter("valorApagar", obj.getValorApagar()).setParameter("vinculo", obj.getVinculo())
-				.setParameter("status", obj.getStatus()).setParameter("id", obj.getId()).executeUpdate();
+				.setParameter("id", obj.getId()).executeUpdate();
+	}
+
+	public void cancelarRecebimento(ContaAReceber contaAReceber) {
+		manager.createNativeQuery(
+				"update conta_areceber set valor_apagar =:valorApagar, " + "vinculo =:vinculo where id = :id")
+				.setParameter("valorApagar", contaAReceber.getValorApagar())
+				.setParameter("vinculo", contaAReceber.getVinculo()).setParameter("id", contaAReceber.getId())
+				.executeUpdate();
 	}
 
 }

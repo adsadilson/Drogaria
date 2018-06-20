@@ -67,7 +67,7 @@
 						process="@this tblContaAReceber"
 						oncomplete="#{contaAReceberBean.permitirEditar == 'true'} ? 
 						PF('dialogLancCR').show() : PF('dialogInfoEdicao').show()"
-						update="dgLancCR dgInfoEdicao"
+						update="dgLancCR"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()!=1}">
 					</p:commandButton>
 
@@ -75,30 +75,28 @@
 						style="margin-right: 3px;" process="@this"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 					</p:commandButton>
-					
+
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
 						actionListener="#{contaAReceberBean.novoFiltro()}"
-						style="color:#8904B1;"
-						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
-						process="@this">
+						style="color:#8904B1;" update="frm-dialog"
+						oncomplete="PF('dialogFiltro').show()" process="@this">
 						<p:resetInput target="dgFiltro" />
 					</p:commandButton>
-					
+
 					<p:separator />
-					
+
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
 						id="btnRecebimento" update=":frm-baixa-titulo"
-						style="color:#173B0B;"
-						oncomplete="PF('baixaTitulo').show()"
+						style="color:#173B0B;" oncomplete="PF('baixaTitulo').show()"
 						action="#{contaAReceberBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 						<p:resetInput target="" />
 					</p:commandButton>
-					
+
 					<p:commandButton icon="fa fa-dollar" value="Cancelar Rec.(s)"
-						style="margin-left: 3px; color:#8A0808;" 
+						style="margin-left: 3px; color:#8A0808;"
 						oncomplete="PF('dialogPago').show()"
-						action="#{contaAPagarBean.iniciarCancelamentoTitulo()}">
+						action="#{contaAReceberBean.iniciarCancelamentoTitulo()}">
 						<p:resetInput target="" />
 					</p:commandButton>
 
@@ -170,9 +168,9 @@
 				<p:column selectionMode="multiple"
 					style="width:1px;text-align:center" />
 
-				<p:column sortBy="#{cp.documento}"
+				<p:column sortBy="#{cp.numDoc}"
 					style="text-align: right; width:35px;" headerText="Documento">
-					<h:outputText value="#{cp.documento}">
+					<h:outputText value="#{cp.numDoc}">
 					</h:outputText>
 				</p:column>
 
@@ -182,7 +180,8 @@
 				</p:column>
 
 				<p:column sortBy="#{cp.cliente}" headerText="Cliente" width="195">
-					<h:outputText value="#{cp.cliente.id} - #{fn:substring(cp.cliente.nome,0,44)}" />
+					<h:outputText
+						value="#{cp.cliente.id} - #{fn:substring(cp.cliente.nome,0,44)}" />
 				</p:column>
 
 				<p:column style="text-align: center; width:50px;"
@@ -231,7 +230,7 @@
 					<p:repeat value="#{contaAReceberBean.contaAReceberSelecionado}"
 						var="car">
 						<h:panelGrid columns="3" cellpadding="1">
-							<h:outputText value="#{car.documento}"
+							<h:outputText value="#{car.numDoc}"
 								style="font-weight: bold; margin-right:10px;" />
 							<h:outputText value="#{car.cliente.nome}"
 								style="font-weight: bold; margin-right:10px;" />
@@ -509,7 +508,7 @@
 								</p:column>
 								<p:column style="text-align:center; width:100px;"
 									headerText="Documento">
-									<h:outputText value="#{p.documento}" />
+									<h:outputText value="#{p.numDoc}" />
 								</p:column>
 								<p:column style="text-align:center; width:110px;"
 									headerText="Vencimento">
@@ -749,7 +748,7 @@
 							</p:selectOneMenu>
 
 							<p:inputText size="15" disabled="true"
-								value="#{contaAReceberBean.contaAReceber.documento} | #{contaAReceberBean.contaAReceber.parcela}" />
+								value="#{contaAReceberBean.contaAReceber.numDoc} | #{contaAReceberBean.contaAReceber.parcela}" />
 
 							<p:calendar size="13" pattern="dd/MM/yyyy" locale="pt_BR"
 								value="#{contaAReceberBean.recebimento.dataPago}"
@@ -816,9 +815,7 @@
 									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
-									<p:ajax process="@this" event="change"
-										listener="#{contaAReceberBean.informativo()}"
-										update="labelInf" />
+									<p:ajax process="@this" event="change" update="labelInf" />
 								</p:inputText>
 
 								<p:outputLabel value="Descrição" />
@@ -872,7 +869,7 @@
 								<h:outputText value="#{contaAReceber.parcela}" />
 							</p:column>
 							<p:column style="width:25px;" headerText="Doc.">
-								<h:outputLabel value="#{contaAReceber.documento}" />
+								<h:outputLabel value="#{contaAReceber.numDoc}" />
 							</p:column>
 
 							<p:column style="text-align:right; width:60px;"
@@ -1141,6 +1138,128 @@
 			</h:form>
 
 		</p:dialog>
+		
+		
+		<!-- Titulos recebidos -->
+		<p:dialog header="Titulo(s) Recebido(s)" widgetVar="dialogPago"
+			modal="true" width="780" height="430" resizable="false"
+			draggable="true" id="dgPago" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<p:ajax event="close"
+				update="frm-tabela toolbar-botoes"
+				listener="#{contaAReceberBean.pesquisar()}" />
+
+			<h:form prependId="false" id="frm-titulo-pagos">
+
+				<h:panelGrid columns="6">
+
+					<p:outputLabel value="Cliente"
+						style="margin-left:10px; margin-right:10px; color:black" />
+
+					<p:selectOneMenu autoWidth="false" filter="true"
+						value="#{contaAReceberBean.filtroRecebimento.cliente}"
+						filterMatchMode="contains" style="width:250px;"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{contaAReceberBean.carregarClientes}"
+							var="p" itemLabel="#{p.nome}" itemValue="#{p}" />
+					</p:selectOneMenu>
+
+					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR"
+						style="margin-left:5px;" id="dtInicio"
+						onfocus="mascaraDtCalendar('dtInicio')" styleClass="cssCalender"
+						value="#{contaAReceberBean.filtroRecebimento.dtIni}">
+						<p:ajax event="dateSelect" process="@this" />
+					</p:calendar>
+					<p:outputLabel value="ATÉ"
+						style="margin-left:5px; margin-right:5px; color:black" />
+					<p:calendar size="8" pattern="dd/MM/yyyy" locale="pt_BR" id="dtFim"
+						mindate="#{contaAReceberBean.filtroRecebimento.dataLimite}"
+						onfocus="mascaraDtCalendar('dtFim')" styleClass="cssCalender"
+						value="#{contaAReceberBean.filtroRecebimento.dtFim}">
+						<p:ajax event="dateSelect" process="@this" />
+					</p:calendar>
+					<p:commandButton icon="fa fa-search" value="PESQUISA"
+						style="margin-left:10px;" update="tbl-pago"
+						actionListener="#{contaAReceberBean.pesquisarRecebimento()}" />
+				</h:panelGrid>
+
+
+				<p:dataTable id="tbl-pago" value="#{contaAReceberBean.modelRec}"
+					var="pago"
+					style="width:auto; margin-top: 10px; margin-bottom:10px;" rows="13"
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink}  
+				{NextPageLink} {LastPageLink} {CurrentPageReport} {JumpToPageDropdown}"
+					emptyMessage="Nenhuma registro encontrado." scrollable="true"
+					scrollHeight="345" lazy="true" rowKey="#{pago.id}">
+
+					<p:column headerText="Ação" style="text-align: cente; width:10px;"
+						exportable="false">
+						<p:commandButton icon="ui-icon-cancel" title="Cancelar pagamento"
+							process="@this" update="confirmacaoCancelamentoDialog"
+							oncomplete="PF('confirmacaoCancelamento').show()"
+							styleClass="semPreenchimento">
+							<f:setPropertyActionListener
+								target="#{contaAReceberBean.recebimentoSelecionado}" value="#{pago}" />
+						</p:commandButton>
+					</p:column>
+
+					<p:column sortBy="" headerText="Código"
+						style="text-align: center; width:35px;">
+						<h:outputText value="#{pago.id}" />
+					</p:column>
+
+					<p:column sortBy="" headerText="Descrição" width="180">
+						<h:outputText value="#{pago.descricao}" />
+					</p:column>
+
+					<p:column style="text-align: center; width:50px;"
+						headerText="Pago em">
+						<h:outputText value="#{pago.dataPago}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+					</p:column>
+
+					<p:column style="text-align: right;width:60px;" headerText="Valor">
+						<h:outputText value="#{pago.valorPago}">
+							<f:convertNumber type="currency" currencySymbol="R$" />
+						</h:outputText>
+					</p:column>
+
+				</p:dataTable>
+
+				<p:confirmDialog header="Confirmação de Cancelamento"
+					widgetVar="confirmacaoCancelamento" appendTo="@(body)"
+					id="confirmacaoCancelamentoDialog">
+					<f:facet name="message">
+						<h:outputText value="Tem certeza que deseja cancelar o registro:" />
+						<br />
+						<br />
+						<p:repeat value="#{contaAReceberBean.recebimentoSelecionado}" var="pg">
+							<h:panelGrid columns="3" cellpadding="1">
+								<h:outputText value="#{pg.id}"
+									style="font-weight: bold; margin-right:10px;" />
+								<h:outputText value="#{fn:substring(pg.descricao,0,36)}"
+									style="font-weight: bold; margin-right:10px;" />
+								<h:outputText value="#{pg.valorPago}" style="font-weight: bold;">
+									<f:convertNumber type="currency" />
+								</h:outputText>
+							</h:panelGrid>
+						</p:repeat>
+					</f:facet>
+					<p:button value="Não"
+						onclick="PF('confirmacaoCancelamento').hide(); return false;" />
+					<p:commandButton value="Sim"
+						actionListener="#{contaAReceberBean.cancelarRecebimentos()}"
+						update="tbl-pago" process="@this"
+						oncomplete="if(!args.validationFailed) PF('confirmacaoCancelamento').hide()" />
+				</p:confirmDialog>
+
+			</h:form>
+
+		</p:dialog>
+		
 
 
 	</ui:define>

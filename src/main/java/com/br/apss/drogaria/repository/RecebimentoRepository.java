@@ -73,16 +73,16 @@ public class RecebimentoRepository implements Serializable {
 		}
 	}
 
-	public void excluirRecebimentoMovimentacao(Long id) throws Exception {
+	public void excluirRecebimentoMovimentacao(Long id) {
 		try {
-			manager.createNativeQuery("delete from Recebimento_movimentacao where Recebimento_id = :id")
+			manager.createNativeQuery("delete from recebimento_movimentacao where recebimento_id = :id")
 					.setParameter("id", id).executeUpdate();
 		} catch (Exception e) {
 			throw e;
 		}
 	}
 
-	public void excluirMovimentacao(Long id) throws Exception {
+	public void excluirMovimentacao(Long id) {
 		try {
 			manager.createNativeQuery("delete from movimentacao where id = :id").setParameter("id", id).executeUpdate();
 		} catch (Exception e) {
@@ -108,9 +108,8 @@ public class RecebimentoRepository implements Serializable {
 
 	public List<Recebimento> porVinculo(Long vinculo) {
 		try {
-			return manager
-					.createQuery("from Recebimento where agrupadorContaApagar = :vinculo order by id", Recebimento.class)
-					.setParameter("vinculo", vinculo).getResultList();
+			return manager.createQuery("from Recebimento where agrupadorContaApagar = :vinculo order by id",
+					Recebimento.class).setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -139,7 +138,7 @@ public class RecebimentoRepository implements Serializable {
 		 * filtro.getPlanoConta().getId()); criteria.add(p1);
 		 */
 
-		if (null != filtro.getFornecedor()) {
+		if (null != filtro.getCliente()) {
 			criteria.add(Restrictions.eq("cliente", true));
 		}
 
@@ -172,6 +171,20 @@ public class RecebimentoRepository implements Serializable {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
 		criteria.setProjection(Projections.rowCount());
 		return ((Number) criteria.uniqueResult()).intValue();
+	}
+
+	public void excluirRecebimentoContaAReceber(Long id) {
+		try {
+			manager.createNativeQuery("delete from recebimento_conta_areceber where recebimento_id = :id")
+					.setParameter("id", id).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public void excluirPorVinculo(Long agrupadorContaAReceber) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
