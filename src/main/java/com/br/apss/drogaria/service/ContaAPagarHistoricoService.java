@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAPagarHistorico;
 import com.br.apss.drogaria.repository.ContaAPagarHistoricoRepository;
 import com.br.apss.drogaria.util.jpa.Transacional;
@@ -43,8 +44,9 @@ public class ContaAPagarHistoricoService implements Serializable {
 		return dao.listaVinculo(vinculo);
 	}
 
-	public Long maxId(ContaAPagarHistorico cph) {
-		return dao.maxID(cph);
+	public ContaAPagarHistorico maiorRegistroPeloID(ContaAPagar obj) {
+		Long id = dao.maiorRegistroPeloID(obj);
+		return dao.porId(id);
 	}
 
 }

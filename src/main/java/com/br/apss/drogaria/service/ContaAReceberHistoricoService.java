@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.ContaAReceberHistorico;
 import com.br.apss.drogaria.repository.ContaAReceberHistoricoRepository;
 import com.br.apss.drogaria.util.jpa.Transacional;
@@ -39,12 +40,14 @@ public class ContaAReceberHistoricoService implements Serializable {
 		return dao.listaVinculo(vinculo);
 	}
 
-	public Long maxId(ContaAReceberHistorico cp) {
-		return dao.maxID(cp);
+	public ContaAReceberHistorico maiorRegistroPeloID(ContaAReceber obj) {
+		// Acha o maior ID passado o proprio id
+		Long id = dao.maiorRegistroPeloID(obj);
+		return dao.porId(id);
 	}
 
-	public ContaAReceberHistorico porId(Long cph) {
-		return dao.porId(cph);
+	public ContaAReceberHistorico porId(Long obj) {
+		return dao.porId(obj);
 	}
 
 }

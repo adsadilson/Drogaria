@@ -222,6 +222,7 @@ public class ContaAReceberService implements Serializable {
 		recto.setAgrupadorContaAReceber(idAgrupador);
 		recto.setTipoBaixa(recebimento.getTipoBaixa());
 		recto.setListaMovimentacoes(listaMovimentacoes);
+		recto.setCliente(listaContaARecebers.get(0).getCliente());
 		// Add na lista
 		list.add(recto);
 
@@ -276,7 +277,7 @@ public class ContaAReceberService implements Serializable {
 				contaAReceber.setId(cp.getId());
 				contaAReceber.setValorApagar(cp.getValorApagar().subtract(cp.getPagoTB()));
 				contaAReceber.setVinculo(idAgrupador);
-				// Altera o valor de cada titulo a receber
+				// Alterar o valor de cada titulo a receber
 				dao.updateNasContasAReceber(contaAReceber);
 
 			}
@@ -308,7 +309,7 @@ public class ContaAReceberService implements Serializable {
 				movtoMulta.setDescricao("PG JURUOS/MULTA ");
 				movtoMulta.setVinculo(recebimento.getVinculo());
 				movtoMulta.setDocumento(null);
-				movtoMulta.setPessoa(null);
+				movtoMulta.setPessoa(listaContaARecebers.get(0).getCliente());
 				movtoMulta.setVlrEntrada(valorMulta);
 				movtoMulta.setVlrSaida(null);
 				movtoMulta.setTipoLanc(TipoLanc.RR);
@@ -335,7 +336,7 @@ public class ContaAReceberService implements Serializable {
 				movtoDesc.setDescricao("RECEBIMENTO DE DESCONTOS ");
 				movtoDesc.setVinculo(recebimento.getVinculo());
 				movtoDesc.setDocumento(null);
-				movtoDesc.setPessoa(null);
+				movtoDesc.setPessoa(listaContaARecebers.get(0).getCliente());
 				movtoDesc.setVlrEntrada(null);
 				movtoDesc.setVlrSaida(valorDesc);
 				movtoDesc.setTipoLanc(TipoLanc.RR);
@@ -354,23 +355,24 @@ public class ContaAReceberService implements Serializable {
 
 			for (Recebimento pagto : listaRecebimentos) {
 
-				Recebimento p = new Recebimento();
+				Recebimento recto = new Recebimento();
 
-				p.setDataLanc(new Date());
-				p.setDataPago(pagto.getDataPago());
-				p.setDescricao(pagto.getDescricao());
-				p.setFormaBaixa(pagto.getFormaBaixa());
-				p.setValor(pagto.getValor());
-				p.setValorAPagar(pagto.getValorAPagar());
-				p.setValorDesc(pagto.getValorDesc());
-				p.setValorMultaJuros(pagto.getValorMultaJuros());
-				p.setValorPago(pagto.getValorPago());
-				p.setUsuario(pagto.getUsuario());
-				p.setListaContaARecebers(listaContaARecebers); //
-				p.setAgrupadorContaAReceber(idAgrupador);
-				p.setListaMovimentacoes(listaMovimentacoes);
+				recto.setDataLanc(new Date());
+				recto.setDataPago(pagto.getDataPago());
+				recto.setDescricao(pagto.getDescricao());
+				recto.setFormaBaixa(pagto.getFormaBaixa());
+				recto.setValor(pagto.getValor());
+				recto.setValorAPagar(pagto.getValorAPagar());
+				recto.setValorDesc(pagto.getValorDesc());
+				recto.setValorMultaJuros(pagto.getValorMultaJuros());
+				recto.setValorPago(pagto.getValorPago());
+				recto.setUsuario(pagto.getUsuario());
+				recto.setListaContaARecebers(listaContaARecebers); //
+				recto.setAgrupadorContaAReceber(idAgrupador);
+				recto.setListaMovimentacoes(listaMovimentacoes);
+				recto.setCliente(listaContaARecebers.get(0).getCliente());
 				// Carregar a nova lista
-				list.add(p);
+				list.add(recto);
 			}
 
 			// Salvando a nova lista no banco e recuperar a mesma

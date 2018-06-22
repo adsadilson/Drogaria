@@ -10,8 +10,8 @@ public class RecebimentoFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Date dtIni = new Date();
-	private Date dtFim = new Date();
+	private Date dtIni;
+	private Date dtFim;
 	private Date dataLimite = new Date();
 	private Pessoa cliente;
 	private BigDecimal valor1;

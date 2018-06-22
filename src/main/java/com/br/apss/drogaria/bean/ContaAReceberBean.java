@@ -256,9 +256,11 @@ public class ContaAReceberBean implements Serializable {
 	}
 
 	public void cancelarRecebimentos() {
-		List<Recebimento> listaPagto = recebimentoService
+		// Busca todos os recebimento vinculados
+		List<Recebimento> listaDeRecebidos = recebimentoService
 				.porVinculo(this.recebimentoSelecionado.getAgrupadorContaAReceber());
-		recebimentoService.cancelarRecebimento(listaPagto);
+		// Chama metodo de cancelamento de recebimento
+		recebimentoService.cancelarRecebimento(listaDeRecebidos);
 	}
 
 	public void pesquisar() {
@@ -292,6 +294,7 @@ public class ContaAReceberBean implements Serializable {
 		}
 
 		setTotalSelecionado(BigDecimal.ZERO);
+		this.modelRec = null;
 
 	}
 
@@ -521,8 +524,9 @@ public class ContaAReceberBean implements Serializable {
 	}
 
 	public void iniciarCancelamentoTitulo() {
-		filtroRecebimento.setDtIni(null);
-		filtroRecebimento.setDtFim(null);
+		this.filtroRecebimento.setDtIni(new Date());
+		this.filtroRecebimento.setDtFim(new Date());
+		this.filtroRecebimento.setCliente(filtro.getCliente());
 	}
 
 	public void iniciarBaixaTitulo() {
@@ -955,6 +959,10 @@ public class ContaAReceberBean implements Serializable {
 			return;
 		}
 		this.setTotalSelecionado(BigDecimal.ZERO);
+	}
+
+	public void dataLimite() {
+		this.filtroRecebimento.setDataLimite(filtroRecebimento.getDtIni());
 	}
 
 	/*

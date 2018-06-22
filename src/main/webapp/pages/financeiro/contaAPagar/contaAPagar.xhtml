@@ -66,7 +66,6 @@
 -->
 </style>
 
-
 		<f:metadata>
 			<o:viewAction action="#{contaAPagarBean.inicializar()}" />
 		</f:metadata>
@@ -122,10 +121,10 @@
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-dollar" value="Cancelar Pagto(s)"
-						style="margin-left: 3px; color:#8A0808;" update=":tbl-pago"
+						style="margin-left: 3px; color:#8A0808;" update="frm-titulo-pagos"
 						oncomplete="PF('dialogPago').show()"
 						action="#{contaAPagarBean.iniciarCancelamentoTitulo()}">
-						<p:resetInput target=":tbl-pago" />
+						<p:resetInput target="frm-titulo-pagos" />
 					</p:commandButton>
 
 				</p:toolbarGroup>
@@ -831,7 +830,8 @@
 						style="margin-left:5px;" id="dtInicio"
 						onfocus="mascaraDtCalendar('dtInicio')" styleClass="cssCalender"
 						value="#{contaAPagarBean.filtroPagamento.dtIni}">
-						<p:ajax event="dateSelect" process="@this" />
+						<p:ajax event="dateSelect" process="@this"
+							listener="#{contaAPagarBean.dataLimite()}" update="dtFim" />
 					</p:calendar>
 					<p:outputLabel value="ATÉ"
 						style="margin-left:5px; margin-right:5px; color:black" />

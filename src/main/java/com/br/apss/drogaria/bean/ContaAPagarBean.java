@@ -699,8 +699,9 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void iniciarCancelamentoTitulo() {
-		filtroPagamento.setDtIni(null);
-		filtroPagamento.setDtFim(null);
+		filtroPagamento.setDtIni(new Date());
+		filtroPagamento.setDtFim(new Date());
+		filtroPagamento.setDataLimite(new Date());
 	}
 
 	public void iniciarBaixaTitulo() {
@@ -1042,6 +1043,10 @@ public class ContaAPagarBean implements Serializable {
 		NumberFormat nf = NumberFormat.getCurrencyInstance();
 		String formatado = nf.format(dif);
 		return formatado;
+	}
+
+	public void dataLimite() {
+		this.filtroPagamento.setDataLimite(filtroPagamento.getDtIni());
 	}
 
 	/*

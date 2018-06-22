@@ -65,30 +65,32 @@ public class RecebimentoService implements Serializable {
 	@Transacional
 	public void cancelarRecebimento(List<Recebimento> listaRecebimento) {
 
+		// Carregar a lista de todos os historicos referentes aos recebimentos
 		List<ContaAReceberHistorico> listaContaAReceberHistorico = rcHistoricoService
 				.listaVinculo(listaRecebimento.get(0).getAgrupadorContaAReceber());
 
-		ContaAReceberHistorico cp = listaContaAReceberHistorico.get(listaContaAReceberHistorico.size() - 1);
-
-		Long cph = rcHistoricoService.maxId(cp);
-		ContaAReceberHistorico cp2 = rcHistoricoService.porId(cph);
-
-		Format f = new SimpleDateFormat("dd/MM/yyyy");
-		Recebimento p = dao.porId(cp2.getRecebimento());
-
-		if (!cp.equals(cp2)) {
-			FacesContext.getCurrentInstance().validationFailed();
-			throw new NegocioException("É necessário cancelar primeiro o recebimento de código: " + cp2.getRecebimento()
-					+ "\n" + "recebido em " + f.format(p.getDataPago()));
+		for (ContaAReceberHistorico c : listaContaAReceberHistorico) {
+			// ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(cr);
+			ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(c.getContaAReceber());
+			// Faz a comparação entre os objetos se for diferente ele entra no if
+			if (!c.equals(cr2)) {
+				// Recuperar objeto recebimento
+				Recebimento r = dao.porId(cr2.getRecebimento());
+				FacesContext.getCurrentInstance().validationFailed();
+				Format f = new SimpleDateFormat("dd/MM/yyyy");
+				throw new NegocioException("É necessário cancelar primeiro o recebimento de código: "
+						+ cr2.getRecebimento() + "\n" + "recebido em " + f.format(r.getDataPago()));
+			}
 		}
 
 		for (Recebimento p2 : listaRecebimento) {
-			// Excluir os registros da tabela recebimento_conta_arecebe
+			// Excluir os registros da tabela recebimento_conta_areceber
 			dao.excluirRecebimentoContaAReceber(p2.getId());
 			// Excluir os registros da tabela recebimento_movimentacao
 			dao.excluirRecebimentoMovimentacao(p2.getId());
 		}
 
+		// Carregar a lista de movimentação
 		List<Movimentacao> movto = listaRecebimento.get(0).getListaMovimentacoes();
 		for (Movimentacao m : movto) {
 			// Excluir os registros da tabela movimentacao
@@ -98,10 +100,8 @@ public class RecebimentoService implements Serializable {
 		// Excluir os registros da tabela recebimento
 		dao.excluirPorVinculo(listaRecebimento.get(0).getAgrupadorContaAReceber());
 
-		List<ContaAReceberHistorico> listaCPHistorico = rcHistoricoService
-				.listaVinculo(listaRecebimento.get(0).getAgrupadorContaAReceber());
-
-		for (ContaAReceberHistorico cph1 : listaCPHistorico) {
+		// Laço para atualizar os registros da tabela conta_areceber
+		for (ContaAReceberHistorico cph1 : listaContaAReceberHistorico) {
 			ContaAReceber cp3 = new ContaAReceber();
 			BigDecimal vlr = (cph1.getValorAtual().add(cph1.getValorPago().add(cph1.getValorDesc())))
 					.subtract(cph1.getValorMultaJuros());
@@ -109,12 +109,12 @@ public class RecebimentoService implements Serializable {
 			cp3.setId(cph1.getContaAReceber().getId());
 			cp3.setValorApagar(vlr);
 			cp3.setVinculo(cph1.getVinculoAnterio());
-			// Atualizar os registros da tabela conta_areceber
+			// update na tabela conta_areceber
 			contaAReceberRepository.cancelarRecebimento(cp3);
 		}
 
 		// Excluir os registros da tabela historico_conta_areceber
-		for (ContaAReceberHistorico cph2 : listaCPHistorico) {
+		for (ContaAReceberHistorico cph2 : listaContaAReceberHistorico) {
 			rcHistoricoService.excluir(cph2);
 		}
 

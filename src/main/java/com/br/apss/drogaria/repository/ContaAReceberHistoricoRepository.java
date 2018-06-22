@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import com.br.apss.drogaria.model.ContaAReceber;
 import com.br.apss.drogaria.model.ContaAReceberHistorico;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -59,11 +60,10 @@ public class ContaAReceberHistoricoRepository implements Serializable {
 		}
 	}
 
-	public Long maxID(ContaAReceberHistorico h) {
-		return manager
-				.createQuery("select max(cph.id) from ContaAReceberHistorico cph where cph.contaAReceber.id = :id",
-						Long.class)
-				.setParameter("id", h.getContaAReceber().getId()).getSingleResult();
+	// Pegar o maior registro pelo ID da conta a receber
+	public Long maiorRegistroPeloID(ContaAReceber obj) {
+		return manager.createQuery("select max(c.id) from ContaAReceberHistorico c where c.contaAReceber.id = :id",
+				Long.class).setParameter("id", obj.getId()).getSingleResult();
 	}
 
 }

@@ -84,6 +84,10 @@ public class Recebimento implements Serializable {
 	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 
+	@ManyToOne
+	@JoinColumn(name = "cliente_id")
+	private Pessoa cliente;
+
 	@Transient
 	private PlanoConta conta;
 
@@ -230,6 +234,14 @@ public class Recebimento implements Serializable {
 
 	public void setAgrupadorContaAReceber(Long agrupadorContaAReceber) {
 		this.agrupadorContaAReceber = agrupadorContaAReceber;
+	}
+
+	public Pessoa getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Pessoa cliente) {
+		this.cliente = cliente;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.ContaAPagarHistorico;
 import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -65,9 +66,9 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 				ContaAPagarHistorico.class).setParameter("vinculo", p).getSingleResult();
 	}
 
-	public Long maxID(ContaAPagarHistorico h) {
-		return manager.createQuery("select max(cph.id) from ContaAPagarHistorico cph where cph.contaApagar.id = :id",
-				Long.class).setParameter("id", h.getContaApagar().getId()).getSingleResult();
+	public Long maiorRegistroPeloID(ContaAPagar obj) {
+		return manager.createQuery("select max(c.id) from ContaAPagar c where c.contaApagar.id = :id", Long.class)
+				.setParameter("id", obj.getId()).getSingleResult();
 	}
 
 }

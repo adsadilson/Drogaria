@@ -10,8 +10,8 @@ public class PagamentoFilter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Date dtIni = new Date();
-	private Date dtFim = new Date();
+	private Date dtIni;
+	private Date dtFim;
 	private Date dataLimite;
 	private Pessoa fornecedor;
 	private BigDecimal valor1;
@@ -20,10 +20,6 @@ public class PagamentoFilter implements Serializable {
 	private int qtdeRegistro;
 	private String ordenacao;
 	private Boolean ascendente = true;
-
-	public void getDataFimMin() {
-		this.dataLimite = this.dtIni;
-	}
 
 	public Date getDtIni() {
 		return dtIni;

@@ -58,18 +58,17 @@ public class PagamentoService implements Serializable {
 		List<ContaAPagarHistorico> listaContaApagarHistorico = cpHistoricoService
 				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
 
-		ContaAPagarHistorico cp = listaContaApagarHistorico.get(listaContaApagarHistorico.size() - 1);
-
-		Long cph = cpHistoricoService.maxId(cp);
-		ContaAPagarHistorico cp2 = cpHistoricoService.porId(cph);
-
-		Format f = new SimpleDateFormat("dd/MM/yyyy");
-		Pagamento p = dao.porId(cp2.getPagamento());
-
-		if (!cp.equals(cp2)) {
-			FacesContext.getCurrentInstance().validationFailed();
-			throw new NegocioException("É necessário cancelar primeiro o pagamento de código: " + cp2.getPagamento()
-					+ "\n" + "pago em " + f.format(p.getDataPago()));
+		for (ContaAPagarHistorico c : listaContaApagarHistorico) {
+			ContaAPagarHistorico cr2 = cpHistoricoService.maiorRegistroPeloID(c.getContaApagar());
+			// Faz a comparação entre os objetos se for diferente ele entra no if
+			if (!c.equals(cr2)) {
+				// Recuperar objeto recebimento
+				Pagamento p = dao.porId(cr2.getPagamento());
+				FacesContext.getCurrentInstance().validationFailed();
+				Format f = new SimpleDateFormat("dd/MM/yyyy");
+				throw new NegocioException("É necessário cancelar primeiro o pagamento de código: " + cr2.getPagamento()
+						+ "\n" + "pago em " + f.format(p.getDataPago()));
+			}
 		}
 
 		for (Pagamento p2 : listaPagto) {
@@ -88,10 +87,7 @@ public class PagamentoService implements Serializable {
 		// Excluir os registros da tabela pagamento
 		dao.excluirPorVinculo(listaPagto.get(0).getAgrupadorContaApagar());
 
-		List<ContaAPagarHistorico> listaCPHistorico = cpHistoricoService
-				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
-
-		for (ContaAPagarHistorico cph1 : listaCPHistorico) {
+		for (ContaAPagarHistorico cph1 : listaContaApagarHistorico) {
 			ContaAPagar cp3 = new ContaAPagar();
 			BigDecimal vlr = (cph1.getValorAtual().add(cph1.getValorPago().add(cph1.getValorDesc())))
 					.subtract(cph1.getValorMultaJuros());
@@ -104,7 +100,7 @@ public class PagamentoService implements Serializable {
 		}
 
 		// Excluir os registros da tabela historico_conta_apagar
-		for (ContaAPagarHistorico cph2 : listaCPHistorico) {
+		for (ContaAPagarHistorico cph2 : listaContaApagarHistorico) {
 			cpHistoricoService.excluir(cph2);
 		}
 

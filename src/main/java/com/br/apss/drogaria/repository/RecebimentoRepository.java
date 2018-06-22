@@ -108,7 +108,7 @@ public class RecebimentoRepository implements Serializable {
 
 	public List<Recebimento> porVinculo(Long vinculo) {
 		try {
-			return manager.createQuery("from Recebimento where agrupadorContaApagar = :vinculo order by id",
+			return manager.createQuery("from Recebimento where agrupadorContaAReceber = :vinculo order by id",
 					Recebimento.class).setParameter("vinculo", vinculo).getResultList();
 		} catch (NoResultException e) {
 			return null;
@@ -138,9 +138,7 @@ public class RecebimentoRepository implements Serializable {
 		 * filtro.getPlanoConta().getId()); criteria.add(p1);
 		 */
 
-		if (null != filtro.getCliente()) {
-			criteria.add(Restrictions.eq("cliente", true));
-		}
+		criteria.add(Restrictions.eq("cliente", filtro.getCliente()));
 
 		if (filtro.getDtIni() != null) {
 			criteria.add(Restrictions.ge("dataPago", filtro.getDtIni()));
@@ -182,8 +180,13 @@ public class RecebimentoRepository implements Serializable {
 		}
 	}
 
-	public void excluirPorVinculo(Long agrupadorContaAReceber) {
-		// TODO Auto-generated method stub
+	public void excluirPorVinculo(Long vinculo) {
+		try {
+			manager.createNativeQuery("delete from Recebimento where conta_areceber_vinculo = :vinculo")
+					.setParameter("vinculo", vinculo).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
 
 	}
 
