@@ -68,6 +68,11 @@ public class CabContaAReceberRepository implements Serializable {
 		}
 	}
 
+	// Pegar o maior ID da tabela
+	public Long maiorID() {
+		return manager.createQuery("select max(cc.id) from CabContaAReceber cc", Long.class).getSingleResult();
+	}
+
 	@SuppressWarnings({ "deprecation" })
 	private Criteria criarCriteriaParaFiltro(CabContaAReceberFilter filtro) {
 

@@ -548,7 +548,7 @@
 						<p:commandButton value="Salvar" icon="fa fa-save"
 							process="panelGridCabNota @this"
 							action="#{contaAReceberBean.salvar()}"
-							update="panelGridCabNota tblContaAReceber"
+							update="panelGridCabNota tblContaAReceber toolbarTotais"
 							oncomplete="if(args.sucesso == true) PF('dialogLancCR').hide()">
 						</p:commandButton>
 					</p:toolbarGroup>
@@ -816,7 +816,12 @@
 									onfocus="formatoMoeda('txtBaixaSimpleVlrPago')">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
-									<p:ajax process="@this" event="change" update="labelInf" />
+									<p:ajax process="@this txtBaixaSimpleVlrApagar" event="change"
+										listener="#{contaAReceberBean.informativo()}"
+										update="labelInf" />
+										<p:ajax process="@this txtBaixaSimpleVlrApagar" event="blur"
+										listener="#{contaAReceberBean.informativo()}"
+										update="labelInf" />
 								</p:inputText>
 
 								<p:outputLabel value="Descrição" />
@@ -832,11 +837,11 @@
 							<p:toolbarGroup>
 								<h:panelGroup id="labelInf">
 									<p:outputLabel styleClass="red"
-										rendered="#{contaAReceberBean.labelInfo eq 'sim'}"
+										rendered="#{contaAReceberBean.informativo()}"
 										style="margin-left:10px"
 										value="A diferença do recebimento será gerado outra fatura!" />
 									<p:outputLabel styleClass="corLabel"
-										rendered="#{contaAReceberBean.labelInfo eq 'nao'}" value=""
+										rendered="!#{contaAReceberBean.informativo()}" value=""
 										style="margin-left:10px" />
 								</h:panelGroup>
 							</p:toolbarGroup>

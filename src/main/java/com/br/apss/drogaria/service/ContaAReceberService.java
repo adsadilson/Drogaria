@@ -107,7 +107,7 @@ public class ContaAReceberService implements Serializable {
 		contaAReceber.setVinculo(idAgrupador);
 		if (contaAReceber.getValorApagar().compareTo(contaAReceber.getPagoTB()) > 0) {
 			recebimento.setTipoBaixa(TipoBaixa.PARCIAL);
-			recebimento.setDescricao(recebimento.getDescricao() + " (P)");
+			recebimento.setDescricao(recebimento.getDescricao() + " (R)");
 		}
 		contaAReceber.setValorApagar(contaAReceber.getValorApagar().subtract(contaAReceber.getPagoTB()));
 
@@ -325,7 +325,7 @@ public class ContaAReceberService implements Serializable {
 				Movimentacao movtoDesc = new Movimentacao();
 
 				PlanoConta pl1Desc = new PlanoConta();
-				pl1Desc = contaService.porNome("RECEITAS COM DESCONTOS");
+				pl1Desc = contaService.porNome("RECEITAS C/DESC./JUROS E MULTA");
 
 				PlanoConta pl2Desc = new PlanoConta();
 				pl2Desc = contaService.porId(pl1Desc.getContaPai().getId());

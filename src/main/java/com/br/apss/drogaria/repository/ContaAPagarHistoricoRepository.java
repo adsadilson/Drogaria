@@ -67,7 +67,8 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 	}
 
 	public Long maiorRegistroPeloID(ContaAPagar obj) {
-		return manager.createQuery("select max(c.id) from ContaAPagar c where c.contaApagar.id = :id", Long.class)
+		return manager
+				.createQuery("select max(c.id) from ContaAPagarHistorico c where c.contaApagar.id = :id", Long.class)
 				.setParameter("id", obj.getId()).getSingleResult();
 	}
 

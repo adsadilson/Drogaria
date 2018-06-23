@@ -55,10 +55,12 @@ public class PagamentoService implements Serializable {
 	@Transacional
 	public void cancelarPagamento(List<Pagamento> listaPagto) {
 
+		// Carregar a lista de todos os historicos referentes aos pagamento
 		List<ContaAPagarHistorico> listaContaApagarHistorico = cpHistoricoService
 				.listaVinculo(listaPagto.get(0).getAgrupadorContaApagar());
 
 		for (ContaAPagarHistorico c : listaContaApagarHistorico) {
+			// ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(c);
 			ContaAPagarHistorico cr2 = cpHistoricoService.maiorRegistroPeloID(c.getContaApagar());
 			// Faz a comparação entre os objetos se for diferente ele entra no if
 			if (!c.equals(cr2)) {

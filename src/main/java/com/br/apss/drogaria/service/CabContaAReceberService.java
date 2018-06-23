@@ -50,4 +50,8 @@ public class CabContaAReceberService implements Serializable {
 	public int quantidadeFiltrados(CabContaAReceberFilter filtro) {
 		return dao.quantidadeFiltrados(filtro);
 	}
+
+	public Long maiorID() {
+		return dao.maiorID();
+	}
 }

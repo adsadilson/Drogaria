@@ -182,6 +182,7 @@ public class ContaAReceberBean implements Serializable {
 
 					if (this.cabContaAReceber.getId() == null) {
 						this.cabContaAReceber.setVinculo(gerarVinculo.gerar(Movimentacao.class));
+						this.cabContaAReceber.setDocumento("Lanc: " + cabContaAReceberService.maiorID());
 					}
 
 					for (int i = 0; i < this.listaDeMovtos.size(); i++) {
@@ -203,12 +204,10 @@ public class ContaAReceberBean implements Serializable {
 					for (int i = 0; i < this.listaDeParcelas.size(); i++) {
 						this.listaDeParcelas.get(i).setDataDoc(this.cabContaAReceber.getDataDoc());
 						this.listaDeParcelas.get(i).setUsuario(obterUsuario());
+						this.listaDeParcelas.get(i).setNumDoc(this.cabContaAReceber.getDocumento());
 						this.listaDeParcelas.get(i).setCliente(this.cabContaAReceber.getCliente());
 						this.listaDeParcelas.get(i).setAgrupadorMovimentacao(this.cabContaAReceber.getVinculo());
 						this.listaDeParcelas.get(i).setValorApagar(this.listaDeParcelas.get(i).getValor());
-					}
-
-					for (int i = 0; i < this.listaDeParcelas.size(); i++) {
 						this.listaDeParcelas.get(i).setMovimentacoes(this.listaDeMovtos);
 					}
 
@@ -605,11 +604,6 @@ public class ContaAReceberBean implements Serializable {
 				movto.setDescricao(
 						"REC. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - " + c.getCliente().getNome());
 
-				if (c.getValorApagar().compareTo(BigDecimal.ZERO) > 0) {
-					movto.setDescricao("REC. NT." + c.getNumDoc() + " Parc." + c.getParcela() + " - "
-							+ c.getCliente().getNome() + " (P)");
-				}
-
 				this.recebimento.setUsuario(obterUsuario());
 
 				movto.setDataDoc(this.recebimento.getDataPago());
@@ -831,7 +825,14 @@ public class ContaAReceberBean implements Serializable {
 		/* rowToggleSelect(); */
 	}
 
-	// Pesquisar pagamentos pagos
+	public boolean informativo() {
+		if (contaAReceber.getValorApagar().compareTo(contaAReceber.getPagoTB()) <= 0) {
+			return false;
+		}
+		return true;
+	}
+
+	// Pesquisar recebimentos pagos
 	public void pesquisarRecebimento() {
 		if (!validarDatas(filtroRecebimento.getDtIni(), filtroRecebimento.getDtFim())) {
 			modelRec = new LazyDataModel<Recebimento>() {
