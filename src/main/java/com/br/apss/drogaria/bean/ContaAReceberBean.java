@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnifaces.util.Messages;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
@@ -81,6 +82,8 @@ public class ContaAReceberBean implements Serializable {
 	private List<Pessoa> listaDeClientes = new ArrayList<Pessoa>();
 
 	private List<ContaAReceber> listaContasSelecionadas = new ArrayList<ContaAReceber>();
+
+	private List<ContaAReceber> listaParaExclusao = new ArrayList<ContaAReceber>();
 
 	private List<ContaAReceber> listaContasAReceber = new ArrayList<ContaAReceber>();
 
@@ -151,6 +154,8 @@ public class ContaAReceberBean implements Serializable {
 
 	private BigDecimal saldo;
 
+	private String informacao = "";
+
 	@PostConstruct
 	public void inicializar() {
 		filtro = new ContaAReceberFilter();
@@ -182,7 +187,7 @@ public class ContaAReceberBean implements Serializable {
 
 					if (this.cabContaAReceber.getId() == null) {
 						this.cabContaAReceber.setVinculo(gerarVinculo.gerar(Movimentacao.class));
-						this.cabContaAReceber.setDocumento("Lanc: " + cabContaAReceberService.maiorID());
+						this.cabContaAReceber.setDocumento("" + cabContaAReceberService.maiorID());
 					}
 
 					for (int i = 0; i < this.listaDeMovtos.size(); i++) {
@@ -243,6 +248,7 @@ public class ContaAReceberBean implements Serializable {
 
 			contaAReceberService.baixaSimples(this.contaAReceber, this.recebimento);
 			Messages.addGlobalInfo("Titulo baixado com sucesso!");
+			listaContasSelecionadas.clear();
 		} else {
 			FacesContext.getCurrentInstance().validationFailed();
 			throw new NegocioException("A data de recebimento dever ser maior ou igual a data de lançamento ("
@@ -479,35 +485,32 @@ public class ContaAReceberBean implements Serializable {
 
 	public void editar() {
 
-		this.permitirEditar = "true";
-
 		this.parcela = new ContaAReceber();
 		this.movto = new Movimentacao();
-		BigDecimal t = BigDecimal.ZERO, t2 = BigDecimal.ZERO;
+		BigDecimal t2 = BigDecimal.ZERO;
 
-		for (ContaAReceber cr : this.listaContasSelecionadas) {
-
-			this.listaDeParcelas = contaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
-
-			for (ContaAReceber par : this.listaDeParcelas) {
-				this.permitirEditar = "true";
-				t = t.add(par.getValor());
-			}
-
-			if (this.permitirEditar == "true") {
-
-				this.listaDeParcelas = contaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
-				this.listaDeMovtos = cr.getMovimentacoes();
-				this.cabContaAReceber = cabContaAReceberService.porVinculo(cr.getAgrupadorMovimentacao());
-
-				for (Movimentacao m : this.listaDeMovtos) {
-					t2 = t2.add(m.getVlrEntrada());
+		for (ContaAReceber cp : this.listaContasSelecionadas) {
+			this.listaDeParcelas = contaAReceberService.porVinculo(cp.getAgrupadorMovimentacao());
+			for (ContaAReceber c : listaDeParcelas) {
+				List<Recebimento> listaPagto = recebimentoService
+						.porVinculo(c.getVinculo() == null ? 0 : c.getVinculo());
+				if (listaPagto.size() > 0) {
+					throw new NegocioException("Registro não pode ser editado pois existem parcela(s) recebida(s)!");
 				}
-
-				this.parcela.setValor(t);
-				this.parcela.setTotalPagamento(t);
-				this.movto.setTotalRateio(t2);
 			}
+
+			this.listaDeParcelas = contaAReceberService.porVinculo(cp.getAgrupadorMovimentacao());
+			this.listaDeMovtos = cp.getMovimentacoes();
+			this.cabContaAReceber = cabContaAReceberService.porVinculo(cp.getAgrupadorMovimentacao());
+
+			for (Movimentacao m : this.listaDeMovtos) {
+				t2 = t2.add(m.getVlrEntrada());
+			}
+			this.parcela.setValor(t2);
+			this.parcela.setTotalPagamento(t2);
+			this.movto.setTotalRateio(t2);
+			RequestContext req = RequestContext.getCurrentInstance();
+			req.execute("PF('dialogLancCR').show();");
 		}
 	}
 
@@ -700,16 +703,89 @@ public class ContaAReceberBean implements Serializable {
 		}
 	}
 
-	public void excluirSelecionados() {
-		try {
-			contaAReceberService.excluirContas(this.listaContaARecebers);
-			// this.contaApagarSelecionadas = new ArrayList<>();
-			pesquisar();
-			this.setTotalSelecionado(BigDecimal.ZERO);
-			Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
-		} catch (Exception e) {
-			Messages.addGlobalError("Esse registro possui vinculo com outras tabelas!");
+	public void validarContasParaExclusao() {
+
+		// Armazenar as contas multiplas
+		List<ContaAReceber> contasMultiplas = new ArrayList<ContaAReceber>();
+
+		// Limpar a lista para exclusão
+		listaParaExclusao.clear();
+
+		// Armazenar as contas pagas
+		List<ContaAReceber> recbtos = new ArrayList<ContaAReceber>();
+
+		for (ContaAReceber c : this.listaContasSelecionadas) {
+			// Buscar as demais parcelas referente ao titulo relacionado
+			List<ContaAReceber> contas = contaAReceberService.porVinculo(c.getAgrupadorMovimentacao());
+
+			// Pecorrer a nova lista procurando se ha contas multiplas
+			for (ContaAReceber c1 : contas) {
+				// Se a lista for maior que 1 ela é uma conta multipla
+				if (contas.size() > 1) {
+					// Verificar se existem conta multipla na lista contasMultiplas
+					if (!contasMultiplas.contains(c)) {
+						// Se não existem é adcionado na lista
+						contasMultiplas.add(c);
+					}
+				}
+				// Carregar a lista para exclusão add as contas
+				if (!listaParaExclusao.contains(c1)) {
+					listaParaExclusao.add(c1);
+				} else {
+					continue;
+				}
+			}
 		}
+
+		// Identificar quais documentos exitem recebimentos
+		for (ContaAReceber n : listaParaExclusao) {
+			Long id = n.getVinculo();
+			List<Recebimento> listaPagto = recebimentoService.porVinculo(id == null ? 0 : id);
+			if (listaPagto.size() > 0) {
+				recbtos.add(n);
+			} else {
+				continue;
+			}
+		}
+
+		// Lista quais documentos foram pagos
+		if (recbtos.size() > 0) {
+			String strings = "";
+			for (ContaAReceber cp : recbtos) {
+				if (StringUtils.isBlank(cp.getNumDoc())) {
+					throw new NegocioException(
+							"Existem titulo(s) sem o número do documento, por favor entre em contato com administrador do sistema para corrigi-los! código do vinculo "
+									+ cp.getAgrupadorMovimentacao());
+				}
+				if (!strings.contains(cp.getNumDoc())) {
+					strings += cp.getNumDoc() + ", ";
+				}
+			}
+			throw new NegocioException(
+					"Os titulo(s) de documento: " + strings + " não pode ser excluído pois possui recebimentos");
+		}
+
+		// Lista quais são os documentos multiplos
+		if (contasMultiplas.size() > 0) {
+			setInformacao("");
+			for (ContaAReceber cm : contasMultiplas) {
+				if (!informacao.contains(cm.getNumDoc())) {
+					informacao += cm.getNumDoc() + ", ";
+				}
+			}
+			RequestContext req = RequestContext.getCurrentInstance();
+			req.execute("PF('confirmacaoEx').show();");
+
+		} else {
+			excluirContasSelecionadas();
+		}
+	}
+
+	public void excluirContasSelecionadas() {
+		contaAReceberService.excluirContas(listaParaExclusao);
+		pesquisar();
+		this.setTotalSelecionado(BigDecimal.ZERO);
+		Messages.addGlobalInfo("Parcela(s) excluida(s) com sucesso!");
 	}
 
 	public void excluirRecebimentoAbaixar() {
@@ -908,20 +984,17 @@ public class ContaAReceberBean implements Serializable {
 
 	/* Evento ao selecionar uma linha pelo checkbox */
 	public void rowSelectCheckBox(SelectEvent event) {
-		editar();
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAReceber) event.getObject()).getValorApagar()));
 	}
 
 	/* Evento ao deselecionar uma linha no datatable */
 	public void rowUnSelect(UnselectEvent event) {
-		editar();
 		this.setTotalSelecionado(
 				this.getTotalSelecionado().subtract(((ContaAReceber) event.getObject()).getValorApagar()));
 	}
 
 	/* Evento ao selecionar uma linha pelo checkbox */
 	public void rowSelect(SelectEvent event) {
-		editar();
 		this.setTotalSelecionado(BigDecimal.ZERO);
 		this.setTotalSelecionado(this.getTotalSelecionado().add(((ContaAReceber) event.getObject()).getValorApagar()));
 		if (this.listaContasSelecionadas.size() > 1) {
@@ -1253,6 +1326,22 @@ public class ContaAReceberBean implements Serializable {
 
 	public void setRecebimentoSelecionado(Recebimento recebimentoSelecionado) {
 		this.recebimentoSelecionado = recebimentoSelecionado;
+	}
+
+	public List<ContaAReceber> getListaParaExclusao() {
+		return listaParaExclusao;
+	}
+
+	public void setListaParaExclusao(List<ContaAReceber> listaParaExclusao) {
+		this.listaParaExclusao = listaParaExclusao;
+	}
+
+	public String getInformacao() {
+		return informacao;
+	}
+
+	public void setInformacao(String informacao) {
+		this.informacao = informacao;
 	}
 
 }

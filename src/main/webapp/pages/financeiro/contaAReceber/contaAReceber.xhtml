@@ -64,15 +64,15 @@
 
 					<p:commandButton icon="fa fa-pencil" value="Editar"
 						style="margin-left:3px; margin-right: 3px;"
-						process="@this tblContaAReceber"
-						oncomplete="#{contaAReceberBean.permitirEditar == 'true'} ? 
-						PF('dialogLancCR').show() : PF('dialogInfoEdicao').show()"
+						process="@this frm-tabela" action="#{contaAReceberBean.editar()}"
 						update="dgLancCR"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()!=1}">
 					</p:commandButton>
 
 					<p:commandButton icon="fa fa-trash" value="Excluir"
 						style="margin-right: 3px;" process="@this"
+						update="confirmacaoExclusaoDialog"
+						oncomplete="PF('confirmacaoExclusao').show()"
 						disabled="#{contaAReceberBean.listaContasSelecionadas.size()==0}">
 					</p:commandButton>
 
@@ -139,7 +139,7 @@
 		</h:form>
 
 
-		<!-- TABELA DE LANÇAMENTO EM CONTA -->
+		<!-- TABELA DE LANÇAMENTO -->
 		<h:form prependId="false" id="frm-tabela">
 			<p:dataTable id="tblContaAReceber" var="cp"
 				value="#{contaAReceberBean.listaContaARecebers}"
@@ -185,6 +185,12 @@
 						value="#{cp.cliente.id} - #{fn:substring(cp.cliente.nome,0,44)}" />
 				</p:column>
 
+				<p:column sortBy="#{cp.tipoRecebimento}"
+					style="text-align: center; width:20px;" headerText="Tipo">
+					<h:outputText value="#{cp.tipoRecebimento.sigla}">
+					</h:outputText>
+				</p:column>
+
 				<p:column style="text-align: center; width:50px;"
 					headerText="Emissão">
 					<h:outputText value="#{cp.dataDoc}">
@@ -228,7 +234,7 @@
 						value="Tem certeza que deseja excluir o(s) registro(s):" />
 					<br />
 					<br />
-					<p:repeat value="#{contaAReceberBean.contaAReceberSelecionado}"
+					<p:repeat value="#{contaAReceberBean.listaContasSelecionadas}"
 						var="car">
 						<h:panelGrid columns="3" cellpadding="1">
 							<h:outputText value="#{car.numDoc}"
@@ -244,8 +250,9 @@
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
 				<p:commandButton value="Sim"
-					actionListener="#{contaAReceberBean.excluirSelecionados}"
-					update="tblContaAReceber toolbar-botoes" process="@this"
+					actionListener="#{contaAReceberBean.validarContasParaExclusao()}"
+					update=":frm-tabela tblContaAReceber toolbar-botoes confirmacaoExDialog"
+					process="@this"
 					oncomplete="if(!args.validationFailed) PF('confirmacaoExclusao').hide()" />
 			</p:confirmDialog>
 
@@ -289,7 +296,6 @@
 
 
 		<!-- DIALOG DE LANÇAMENTO CONTAS A RECEBER -->
-
 		<p:dialog header="Lançamento Contas a Receber"
 			widgetVar="dialogLancCR" modal="true" width="750" height="430"
 			resizable="true" draggable="true" id="dgLancCR" visible="false"
@@ -482,7 +488,6 @@
 									id="salvarCommandButtonPagto" />
 							</h:panelGrid>
 
-
 							<p:dataTable id="tblPagto" style="width:99%;" styleClass="total"
 								emptyMessage="Nenhuma registro lançado" scrollable="true"
 								scrollHeight="160" value="#{contaAReceberBean.listaDeParcelas}"
@@ -499,17 +504,14 @@
 									</p:commandButton>
 
 								</p:column>
-								<p:column style="width:35px; text-align:center;"
-									headerText="Tipo">
-									<h:outputText value="#{p.tipoRecebimento.sigla}" />
+								<p:column style="width:150px; text-align:center;"
+									headerText="Tipo de Cobrança">
+									<h:outputText
+										value="#{p.tipoRecebimento.sigla} - #{p.tipoRecebimento.descricao}" />
 								</p:column>
 								<p:column style="width:60px; text-align:center;"
 									headerText="Parcela(s)">
 									<h:outputText value="#{p.parcela}" />
-								</p:column>
-								<p:column style="text-align:center; width:100px;"
-									headerText="Documento">
-									<h:outputText value="#{p.numDoc}" />
 								</p:column>
 								<p:column style="text-align:center; width:110px;"
 									headerText="Vencimento">
@@ -819,7 +821,7 @@
 									<p:ajax process="@this txtBaixaSimpleVlrApagar" event="change"
 										listener="#{contaAReceberBean.informativo()}"
 										update="labelInf" />
-										<p:ajax process="@this txtBaixaSimpleVlrApagar" event="blur"
+									<p:ajax process="@this txtBaixaSimpleVlrApagar" event="blur"
 										listener="#{contaAReceberBean.informativo()}"
 										update="labelInf" />
 								</p:inputText>
@@ -850,7 +852,7 @@
 									action="#{contaAReceberBean.salvarBaixaSimples}"
 									oncomplete="if(!args.validationFailed) PF('baixaTitulo').hide()"
 									process="@this panelGridBaixaSimples panelGridBaixaSimples1"
-									update="panelGridBaixaSimples panelGridBaixaSimples1"
+									update=":frm-tabela panelGridBaixaSimples panelGridBaixaSimples1"
 									icon="ui-icon-check">
 								</p:commandButton>
 							</p:toolbarGroup>
@@ -1130,6 +1132,7 @@
 							</p:toolbarGroup>
 							<p:toolbarGroup align="right">
 								<p:commandButton value="Confirmar" process="@this dtBaixa"
+									update=":frm-tabela"
 									oncomplete="if(!args.validationFailed) PF('baixaTitulo').hide()"
 									action="#{contaAReceberBean.salvarBaixaMultiplas}"
 									icon="ui-icon-check">
@@ -1267,6 +1270,25 @@
 			</h:form>
 
 		</p:dialog>
+
+		<p:confirmDialog header="Confirmação" widgetVar="confirmacaoEx"
+			appendTo="@(body)" id="confirmacaoExDialog" width="400">
+			<f:facet name="message">
+				<h:outputText value="O(s) registro(s) de documento(s): " />
+				<h:outputText style="font-weight: bold;"
+					value="#{contaAReceberBean.informacao}" />
+				<br />
+				<h:outputText
+					value="possui mais parcelas que serão excluidas juntas! deseja continuar ?" />
+				<br />
+			</f:facet>
+			<p:button value="Não"
+				onclick="PF('confirmacaoEx').hide(); return false;" />
+			<p:commandButton value="Sim"
+				actionListener="#{contaAReceberBean.excluirContasSelecionadas()}"
+				update=":frm-tabela :toolbarTotais" process="@this"
+				oncomplete="if(!args.validationFailed) PF('confirmacaoEx').hide()" />
+		</p:confirmDialog>
 
 
 

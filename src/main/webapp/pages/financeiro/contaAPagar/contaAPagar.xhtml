@@ -103,9 +103,8 @@
 
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
 						actionListener="#{contaAPagarBean.novoFiltro()}"
-						style="color:#8904B1;"
-						update="frm-dialog" oncomplete="PF('dialogFiltro').show()"
-						process="@this">
+						style="color:#8904B1;" update="frm-dialog"
+						oncomplete="PF('dialogFiltro').show()" process="@this">
 						<p:resetInput target="frm-dialog" />
 					</p:commandButton>
 
@@ -113,8 +112,7 @@
 
 					<p:commandButton icon="fa fa-check" value="Baixar Titulo(s)"
 						id="btnRecebimento" update=":frm-baixa-titulo"
-						style="color:#173B0B;"
-						oncomplete="PF('baixaTitulo').show()"
+						style="color:#173B0B;" oncomplete="PF('baixaTitulo').show()"
 						action="#{contaAPagarBean.iniciarBaixaTitulo()}"
 						disabled="#{contaAPagarBean.contaApagarSelecionadas.size() == 0}">
 						<p:resetInput target=":frm-baixa-titulo" />
@@ -137,7 +135,7 @@
 
 		</h:form>
 
-		<!-- TABELA DE LANÇAMENTO EM CONTA -->
+		<!-- TABELA DE LANÇAMENTO-->
 		<h:form id="frm-tabela" prependId="false">
 			<p:dataTable id="tbl-conta-apagar"
 				value="#{contaAPagarBean.listaContaAPagars}" var="cp"
@@ -293,7 +291,6 @@
 
 
 		<!-- LANÇAMENTO DE CONTAS -->
-
 		<p:dialog header="Lançamento Contas a Pagar"
 			widgetVar="dialogCadastro" modal="true" width="750" height="430"
 			resizable="false" draggable="true" id="dgCadastro" visible="false"
@@ -327,7 +324,8 @@
 					</p:calendar>
 
 					<p:outputLabel for="txtNum" value="Documento" />
-					<p:inputText id="txtNum" size="11"
+					<p:inputText id="txtNum" size="11" required="true"
+						requiredMessage="Informe o número para o documento"
 						value="#{contaAPagarBean.cabContaApagar.documento}">
 						<p:ajax event="blur" process="@this" />
 					</p:inputText>
@@ -1128,8 +1126,9 @@
 		<p:confirmDialog header="Confirmação" widgetVar="confirmacaoEx"
 			appendTo="@(body)" id="confirmacaoExDialog" width="400">
 			<f:facet name="message">
-				<h:outputText
-					value="O(s) registro(s) de documento(s): #{contaAPagarBean.informacao}" />
+				<h:outputText value="O(s) registro(s) de documento(s): " />
+				<h:outputText style="font-weight: bold;"
+					value="#{contaAPagarBean.informacao}" />
 				<br />
 				<h:outputText
 					value="possui mais parcelas que serão excluidas juntas! deseja continuar ?" />

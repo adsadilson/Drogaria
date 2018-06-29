@@ -233,8 +233,16 @@ public class ContaAPagarBean implements Serializable {
 	}
 
 	public void validarContasParaExclusao() {
+
+		// Armazenar as contas multiplas
 		List<ContaAPagar> contasMultiplas = new ArrayList<ContaAPagar>();
+
+		// Limpar lista de exclusão
+		listaParaExclusao.clear();
+
+		// Armazenar as contas pagas
 		List<ContaAPagar> pagtos = new ArrayList<ContaAPagar>();
+
 		for (ContaAPagar c : this.contaApagarSelecionadas) {
 			// Buscar as demais parcelas referente ao titulo relacionado
 			List<ContaAPagar> contas = contaAPagarService.porVinculo(c.getAgrupadorMovimentacao());
@@ -277,6 +285,8 @@ public class ContaAPagarBean implements Serializable {
 
 		// Lista quais documentos multiplos
 		if (contasMultiplas.size() > 0) {
+			// Limpar a variavel informacao
+			setInformacao("");
 			for (ContaAPagar cm : contasMultiplas) {
 				if (!informacao.contains(cm.getNumDoc())) {
 					informacao += cm.getNumDoc() + ", ";

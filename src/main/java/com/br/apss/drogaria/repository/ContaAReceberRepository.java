@@ -2,6 +2,7 @@ package com.br.apss.drogaria.repository;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.model.ContaAReceber;
+import com.br.apss.drogaria.model.Movimentacao;
 import com.br.apss.drogaria.model.filter.ContaAReceberFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -158,6 +160,62 @@ public class ContaAReceberRepository implements Serializable {
 				.setParameter("valorApagar", contaAReceber.getValorApagar())
 				.setParameter("vinculo", contaAReceber.getVinculo()).setParameter("id", contaAReceber.getId())
 				.executeUpdate();
+	}
+
+	public void excluirContas(List<ContaAReceber> contas) throws Exception {
+
+		// lista de movimentação
+		List<Movimentacao> m = new ArrayList<>();
+
+		// Exclusão da tabela cab_conta_areceber_conta_areceber
+		for (ContaAReceber c : contas) {
+			excluirCabCContaAReceber(c.getId());
+		}
+
+		for (ContaAReceber c : contas) {
+
+			// carregar a lista de movimentação
+			m = c.getMovimentacoes();
+
+			c = manager.find(ContaAReceber.class, c.getId());
+			excluirCabContaAReceber(c.getAgrupadorMovimentacao());
+			excluirContaAReceberMovimentacao(c.getId());
+
+			manager.remove(c);
+		}
+		// deleta os movimentos
+		for (Movimentacao movto : m) {
+			try {
+				excluirMovimentacao(movto.getId());
+			} catch (Exception e) {
+				throw e;
+			}
+		}
+	}
+
+	private void excluirMovimentacao(Long id) {
+		try {
+			manager.createNativeQuery("delete from movimentacao where id = :id").setParameter("id", id).executeUpdate();
+		} catch (Exception e) {
+			throw e;
+		}
+
+	}
+
+	private void excluirContaAReceberMovimentacao(Long id) {
+		manager.createNativeQuery("delete from conta_areceber_movimentacao where conta_areceber_id = :id")
+				.setParameter("id", id).executeUpdate();
+
+	}
+
+	public void excluirCabContaAReceber(Long id) {
+		manager.createNativeQuery("delete from cab_conta_areceber where vinculo = :id").setParameter("id", id)
+				.executeUpdate();
+	}
+
+	public void excluirCabCContaAReceber(Long id) {
+		manager.createNativeQuery("delete from cab_conta_areceber_conta_areceber where conta_areceber_id = :id")
+				.setParameter("id", id).executeUpdate();
 	}
 
 }

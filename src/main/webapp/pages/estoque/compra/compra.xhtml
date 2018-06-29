@@ -257,10 +257,10 @@
 								requiredMessage="Selecione deposito">
 								<f:selectItem itemLabel="Selecione um deposito"
 									itemValue="#{null}" />
-								<f:selectItems value="#{compraCabBean.listaDeDepositos}"
-									var="d" itemLabel="#{d.nome}" itemValue="#{d}" />
+								<f:selectItems value="#{compraCabBean.listaDeDepositos}" var="d"
+									itemLabel="#{d.nome}" itemValue="#{d}" />
 								<p:ajax event="change" process="@this"
-									oncomplete="$(function(){PrimeFaces.focus('combFor');});"  />
+									oncomplete="$(function(){PrimeFaces.focus('combFor');});" />
 							</p:selectOneMenu>
 
 							<p:outputLabel for="combFor" value="Fornecedor" />
@@ -298,7 +298,8 @@
 								value="#{compraCabBean.compraCab.dataEmissao}"
 								onfocus="mascaraDtCalendar('txtEmissao')"
 								requiredMessage="Informe a data emissão">
-								<p:ajax event="dateSelect" process="@this" update="txtEntrada" />
+								<p:ajax event="dateSelect" process="@this"
+									listener="#{compraCabBean.dataLimite()}" update="txtEntrada" />
 							</p:calendar>
 
 							<p:outputLabel for="txtEntrada" value="Data Entrada" />

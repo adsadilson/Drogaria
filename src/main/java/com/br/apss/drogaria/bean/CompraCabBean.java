@@ -34,6 +34,7 @@ import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.CompraDet;
 import com.br.apss.drogaria.model.ContaAPagar;
 import com.br.apss.drogaria.model.Deposito;
+import com.br.apss.drogaria.model.Pagamento;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.Usuario;
@@ -42,6 +43,7 @@ import com.br.apss.drogaria.service.CabContaApagarService;
 import com.br.apss.drogaria.service.CompraCabService;
 import com.br.apss.drogaria.service.ContaAPagarService;
 import com.br.apss.drogaria.service.DepositoService;
+import com.br.apss.drogaria.service.PagamentoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
 import com.br.apss.drogaria.util.jpa.GeradorVinculo;
@@ -100,6 +102,9 @@ public class CompraCabBean implements Serializable {
 	private DepositoService depositoService;
 
 	@Inject
+	private PagamentoService pagtoService;
+
+	@Inject
 	private ContaAPagarService contaAPagarService;
 
 	private BigDecimal totalAParcelar = BigDecimal.ZERO;
@@ -124,7 +129,7 @@ public class CompraCabBean implements Serializable {
 	private void carregarListaDeFornecedores() {
 		this.listaDeFornecedores = pessoaService.listarFornecedore();
 	}
-	
+
 	private void carregarListaDeDepositos() {
 		this.listaDeDepositos = depositoService.listarTodos();
 	}
@@ -186,7 +191,8 @@ public class CompraCabBean implements Serializable {
 		RequestContext req = RequestContext.getCurrentInstance();
 		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
 		for (ContaAPagar c : cps) {
-			if (!c.getValorApagar().compareTo("ABERTO")) {
+			List<Pagamento> listaPagto = pagtoService.porVinculo(c.getVinculo() == null ? 0 : c.getVinculo());
+			if (listaPagto.size() > 0) {
 				throw new NegocioException("Não é permitido a editar este documento: "
 						+ this.compraCabSelecionado.getDocumento() + ", pois o mesmo possui baixa.");
 			}
@@ -210,7 +216,8 @@ public class CompraCabBean implements Serializable {
 	public void excluirCompra() {
 		List<ContaAPagar> cps = contaAPagarService.porVinculo(this.compraCabSelecionado.getVinculo());
 		for (ContaAPagar c : cps) {
-			if (!c.getStatus().contains("ABERTO")) {
+			List<Pagamento> listaPagto = pagtoService.porVinculo(c.getVinculo() == null ? 0 : c.getVinculo());
+			if (listaPagto.size() > 0) {
 				throw new NegocioException("Não é permitido excluir o documento: "
 						+ this.compraCabSelecionado.getDocumento() + ", pois o mesmo possui baixar.");
 			}
@@ -219,6 +226,10 @@ public class CompraCabBean implements Serializable {
 		this.compraCabService.excluir(this.compraCabSelecionado);
 		pesquisar();
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
+	}
+
+	public void dataLimite() {
+		compraCab.setDataEntrada(compraCab.getDataEmissao());
 	}
 
 	public void calcValorCusto() {
@@ -592,6 +603,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setListaDeDepositos(List<Deposito> listaDeDepositos) {
 		this.listaDeDepositos = listaDeDepositos;
+	}
+
+	public PagamentoService getPagtoService() {
+		return pagtoService;
+	}
+
+	public void setPagtoService(PagamentoService pagtoService) {
+		this.pagtoService = pagtoService;
 	}
 
 }

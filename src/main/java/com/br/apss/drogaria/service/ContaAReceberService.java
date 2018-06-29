@@ -86,8 +86,12 @@ public class ContaAReceberService implements Serializable {
 	}
 
 	@Transacional
-	public void excluirContas(List<ContaAReceber> contas) throws Exception {
-
+	public void excluirContas(List<ContaAReceber> contas) {
+		try {
+			dao.excluirContas(contas);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Transacional
