@@ -1,0 +1,274 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Adm de Cartão</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo {
+	width: 100px;
+}
+
+.campo {
+	width: 250px;
+}
+
+.rotulo60 {
+	width: 85px !important;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{admCartaoBean.inicializar}" />
+		</f:metadata>
+
+		<h:form prependId="false">
+
+			<h1>Pesquisa Admin de Cartão</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+			<p:focus for="txtPesquisar" />
+
+			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Novo" icon="fa fa-file-o"
+						update="dgCadastro" action="#{admCartaoBean.novo()}"
+						oncomplete="PF('dialogCadastro').show()">
+						<p:resetInput target="dgCadastro" />
+					</p:commandButton>
+
+					<p:commandButton icon="fa fa-filter" title="Filtro Avançado"
+						update="dgFiltro" action="#{admCartaoBean.novoFiltro}"
+						style="margin-left:5px;" oncomplete="PF('dialogFiltro').show()" />
+
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblAdmCartao"
+							fileName="admCartaos" />
+					</p:commandButton>
+
+					<span class="ui-separator"> <span
+						class="ui-icon ui-icon-grip-dotted-vertical" />
+					</span>
+
+					<p:inputText size="30" placeholder="digite o nome"
+						title="Pesquisa pelo campo descrição"
+						style="margin-left:5px; margin-right:5px;" id="txtPesquisar"
+						value="#{admCartaoBean.filtro.nome}" />
+
+					<p:commandButton icon="fa fa-search" value="Pesquisar"
+						update="tblAdmCartao" id="btnPesquisar"
+						action="#{admCartaoBean.pesquisar()}">
+						<f:setPropertyActionListener value="principal"
+							target="#{admCartaoBean.filtro.origem}" />
+					</p:commandButton>
+
+					<p:defaultCommand target="btnPesquisar" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button value="Fechar" icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:dataTable id="tblAdmCartao"
+				value="#{admCartaoBean.listaAdmCartaos}" var="admCartao"
+				style="margin-top: 20px" lazy="false"
+				emptyMessage="Nenhum registro encontrado." rows="11"
+				paginator="true" paginatorAlwaysVisible="false"
+				paginatorPosition="bottom"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {NextPageLink} 
+				{LastPageLink} {RowsPerPageDropdown} {CurrentPageReport} {JumpToPageDropdown}">
+
+				<p:column headerText="Ação" style="width: 70px; text-align: center"
+					exportable="false">
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogCadastro').show()" process="@this"
+						update="dgCadastro" action="#{admCartaoBean.editar}">
+						<f:setPropertyActionListener
+							target="#{admCartaoBean.admCartaoSelecionado}"
+							value="#{admCartao}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-trash" title="Excluir"
+						styleClass="semPreenchimento"
+						oncomplete="PF('confirmacaoExclusao').show()" process="@this"
+						update="confirmacaoExclusaoDialog">
+						<f:setPropertyActionListener
+							target="#{admCartaoBean.admCartaoSelecionado}"
+							value="#{admCartao}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="Código" sortBy="#{admCartao.id}"
+					style="text-align:center; width:70px;">
+					<h:outputText value="#{admCartao.id}" />
+				</p:column>
+
+				<p:column headerText="Nome" sortBy="#{admCartao.nome}">
+					<h:outputText value="#{admCartao.nome}" />
+				</p:column>
+
+				<p:column headerText="Tipo" sortBy="#{admCartao.tipoCartao}"
+					style="text-align: center; width: 50px">
+					<h:outputText value="#{admCartao.tipoCartao.descricao}" />
+				</p:column>
+
+				<p:column headerText="Taxa" style="text-align: center; width: 50px">
+					<h:outputText value="#{admCartao.taxa}" />
+				</p:column>
+
+				<p:column headerText="Prazo" style="text-align: center; width: 50px">
+					<h:outputText value="#{admCartao.prazo}" />
+				</p:column>
+
+
+				<p:column headerText="Parcela(s)"
+					style="text-align: center; width: 90px">
+					<h:outputText value="#{admCartao.parcela}" />
+				</p:column>
+
+				<p:column headerText="C/Creditar"
+					style="text-align: center; width: 130px">
+					<h:outputText value="#{admCartao.contaCreditar.nome}" />
+				</p:column>
+
+				<p:column headerText="Operadora" sortBy="#{admCartao.operadora}"
+					style="text-align: center; width: 130px">
+					<h:outputText value="#{admCartao.operadora}" />
+				</p:column>
+
+				<p:column headerText="Status" sortBy="#{admCartao.status}"
+					style="text-align: center; width: 80px">
+					<h:outputText value="#{admCartao.status ? 'ATIVO' : 'INATIVO'}" />
+				</p:column>
+
+			</p:dataTable>
+
+			<p:confirmDialog header="Confirmação de Exclusão"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<f:facet name="message">
+					<h:outputText value="Tem certeza que deseja excluir o registro:" />
+					<br />
+					<h:outputText value="#{admCartaoBean.admCartaoSelecionado.nome} ?" />
+				</f:facet>
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					oncomplete="PF('confirmacaoExclusao').hide();"
+					update="tblAdmCartao" action="#{admCartaoBean.excluir()}"
+					process="@this" />
+			</p:confirmDialog>
+
+		</h:form>
+
+		<p:dialog
+			header="#{admCartaoBean.admCartao.inclusao ?'Adm de Cartão - Inclusão' :'Adm de Cartão - Edição'}"
+			widgetVar="dialogCadastro" modal="true" width="450" height="300"
+			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cadastro">
+
+				<h:panelGrid columns="2" columnClasses="rotulo, campo"
+					style="margin-top:10px;">
+
+					<p:outputLabel value="Nome" for="descricao" />
+					<p:inputText id="descricao" style="width:96%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{admCartaoBean.admCartao.nome}" />
+
+					<p:outputLabel value="Operadora" for="operadora" />
+					<p:inputText id="operadora" style="width:96%" maxlength="80"
+						required="true"
+						requiredMessage="O campo 'OPERADORA' é obrigatório."
+						value="#{admCartaoBean.admCartao.operadora}" />
+
+
+					<p:outputLabel value="Tipo" for="tipo" />
+					<p:selectOneMenu id="tipo" required="true" autoWidth="false"
+						style="width:80px;" converter="omnifaces.SelectItemsConverter"
+						requiredMessage="O campo 'TIPO' é obrigatório."
+						value="#{admCartaoBean.admCartao.tipoCartao}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{admCartaoBean.tipoCartao}" var="tipo"
+							itemValue="#{tipo}" itemLabel="#{tipo.descricao}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Taxa" for="txtTaxa" />
+					<p:inputNumber id="txtTaxa" size="10" required="true"
+						emptyValue="empty" value="#{admCartaoBean.admCartao.taxa}"
+						symbol=" %" symbolPosition="s">
+					</p:inputNumber>
+
+					<p:outputLabel value="Prazo" style="margin-right:2px;" />
+					<p:spinner size="1" min="1" max="45"
+						value="#{admCartaoBean.admCartao.prazo}" />
+
+					<p:outputLabel value="Parcela(s)" style="margin-right:2px;" />
+					<p:spinner size="1" min="1" max="100"
+						value="#{admCartaoBean.admCartao.parcela}" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectBooleanCheckbox value="#{admCartaoBean.admCartao.status}" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+							process="@this frm-cadastro tblAdmCartao"
+							action="#{admCartaoBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadastro').hide()"
+							update="tblAdmCartao growl frm-cadastro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
+			width="321" height="135" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
+
+			<h:form>
+
+				<p:focus for="txtFilterDescricao" />
+
+				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{admCartaoBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{admCartaoBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{admCartaoBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblAdmCartao panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

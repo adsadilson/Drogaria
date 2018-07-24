@@ -71,9 +71,9 @@ public class RecebimentoService implements Serializable {
 
 		for (ContaAReceberHistorico c : listaContaAReceberHistorico) {
 			// ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(cr);
-			ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(c.getContaAReceber());
+			ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(c.getContaAReceber(), c);
 			// Faz a comparação entre os objetos se for diferente ele entra no if
-			if (!c.equals(cr2)) {
+			if (c.getId().compareTo(cr2.getId()) < 0) {
 				// Recuperar objeto recebimento
 				Recebimento r = dao.porId(cr2.getRecebimento());
 				FacesContext.getCurrentInstance().validationFailed();

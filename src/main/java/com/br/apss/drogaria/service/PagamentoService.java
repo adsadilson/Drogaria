@@ -61,9 +61,9 @@ public class PagamentoService implements Serializable {
 
 		for (ContaAPagarHistorico c : listaContaApagarHistorico) {
 			// ContaAReceberHistorico cr2 = rcHistoricoService.maiorRegistroPeloID(c);
-			ContaAPagarHistorico cr2 = cpHistoricoService.maiorRegistroPeloID(c.getContaApagar());
+			ContaAPagarHistorico cr2 = cpHistoricoService.maiorRegistroPeloID(c.getContaApagar(), c);
 			// Faz a comparação entre os objetos se for diferente ele entra no if
-			if (!c.equals(cr2)) {
+			if (c.getId().compareTo(cr2.getId()) < 0) {
 				// Recuperar objeto recebimento
 				Pagamento p = dao.porId(cr2.getPagamento());
 				FacesContext.getCurrentInstance().validationFailed();

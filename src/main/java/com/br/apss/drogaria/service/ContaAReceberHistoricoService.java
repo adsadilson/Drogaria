@@ -40,10 +40,10 @@ public class ContaAReceberHistoricoService implements Serializable {
 		return dao.listaVinculo(vinculo);
 	}
 
-	public ContaAReceberHistorico maiorRegistroPeloID(ContaAReceber obj) {
+	public ContaAReceberHistorico maiorRegistroPeloID(ContaAReceber obj, ContaAReceberHistorico crH) {
 		// Acha o maior ID passado o proprio id
-		Long id = dao.maiorRegistroPeloID(obj);
-		return dao.porId(id);
+		Long id = dao.maiorRegistroPeloID(obj, crH);
+		return dao.porId(id == null ? crH.getId() : id);
 	}
 
 	public ContaAReceberHistorico porId(Long obj) {

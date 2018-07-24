@@ -61,9 +61,11 @@ public class ContaAReceberHistoricoRepository implements Serializable {
 	}
 
 	// Pegar o maior registro pelo ID da conta a receber
-	public Long maiorRegistroPeloID(ContaAReceber obj) {
-		return manager.createQuery("select max(c.id) from ContaAReceberHistorico c where c.contaAReceber.id = :id",
-				Long.class).setParameter("id", obj.getId()).getSingleResult();
+	public Long maiorRegistroPeloID(ContaAReceber obj, ContaAReceberHistorico crH) {
+		return manager.createQuery(
+				"select max(c.id) from ContaAReceberHistorico c where c.contaAReceber.id = :id and recebimento_vinculo_anterior <> :vinculo",
+				Long.class).setParameter("id", obj.getId()).setParameter("vinculo", crH.getVinculoAnterio())
+				.getSingleResult();
 	}
 
 }

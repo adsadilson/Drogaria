@@ -67,10 +67,8 @@ public class LoginBean implements Serializable {
 				for (GrupoUsuario g : usuarioLogado.getGrupos()) {
 					for (Permissao p : g.getPermissoes()) {
 						/*
-						 * if(p.getControleMenu().getFuncao().
-						 * equals("OPERADOR DE CAIXA")) {
-						 * System.out.println(p.getControleMenu().getFuncao());
-						 * break; }
+						 * if(p.getControleMenu().getFuncao(). equals("OPERADOR DE CAIXA")) {
+						 * System.out.println(p.getControleMenu().getFuncao()); break; }
 						 */
 						if (g.getNome().contains("OPERADOR DE CAIXA")) {
 							v = true;
@@ -82,10 +80,10 @@ public class LoginBean implements Serializable {
 											"Caixa já fechado por favor verifique com o administrador do sistema!");
 								}
 							} else {
-								/*cx.setResponsavel(usuarioLogado);
-								cx.setAbertura(new Date());
-								cx.setStatus("ABERTO");
-								caixaService.salvar(cx);*/
+								/*
+								 * cx.setResponsavel(usuarioLogado); cx.setAbertura(new Date());
+								 * cx.setStatus("ABERTO"); caixaService.salvar(cx);
+								 */
 							}
 
 							break;
@@ -94,7 +92,7 @@ public class LoginBean implements Serializable {
 				}
 
 				if (v == true) {
-					Faces.redirect("/drogaria/homeCX.xhtml");
+					Faces.redirect("/drogaria/homePDV.xhtml");
 				} else {
 					Faces.redirect("./");
 				}

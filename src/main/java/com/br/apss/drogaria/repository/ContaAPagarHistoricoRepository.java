@@ -66,10 +66,11 @@ public class ContaAPagarHistoricoRepository implements Serializable {
 				ContaAPagarHistorico.class).setParameter("vinculo", p).getSingleResult();
 	}
 
-	public Long maiorRegistroPeloID(ContaAPagar obj) {
-		return manager
-				.createQuery("select max(c.id) from ContaAPagarHistorico c where c.contaApagar.id = :id", Long.class)
-				.setParameter("id", obj.getId()).getSingleResult();
+	public Long maiorRegistroPeloID(ContaAPagar obj, ContaAPagarHistorico cpH) {
+		return manager.createQuery(
+				"select max(c.id) from ContaAPagarHistorico c where c.contaApagar.id = :id and pagamento_vinculo_anterior <> :vinculo",
+				Long.class).setParameter("id", obj.getId()).setParameter("vinculo", cpH.getVinculoAnterio())
+				.getSingleResult();
 	}
 
 }

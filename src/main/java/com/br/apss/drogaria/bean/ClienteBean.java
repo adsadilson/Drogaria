@@ -63,6 +63,13 @@ public class ClienteBean implements Serializable {
 		pesquisar();
 	}
 
+	public void consultarClientePorCpf() {
+		Pessoa clienteExistente = clienteService.porCpf(cliente.getCpfCnpj());
+		if (clienteExistente != null) {
+			cliente = clienteExistente;
+		}
+	}
+
 	public void editar() {
 		this.cliente = clienteService.porId(this.clienteSelecionado.getId());
 	}

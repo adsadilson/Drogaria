@@ -44,9 +44,9 @@ public class ContaAPagarHistoricoService implements Serializable {
 		return dao.listaVinculo(vinculo);
 	}
 
-	public ContaAPagarHistorico maiorRegistroPeloID(ContaAPagar obj) {
-		Long id = dao.maiorRegistroPeloID(obj);
-		return dao.porId(id);
+	public ContaAPagarHistorico maiorRegistroPeloID(ContaAPagar obj, ContaAPagarHistorico cpH) {
+		Long id = dao.maiorRegistroPeloID(obj, cpH);
+		return dao.porId(id == null ? cpH.getId() : id);
 	}
 
 }

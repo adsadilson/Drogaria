@@ -1,0 +1,875 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/template/layoutCaixa.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="corpo">
+
+		<style>
+<!--
+.text-aqua {
+	color: #00c0ef !important;
+}
+
+a {
+	color: #3c8dbc;
+}
+
+.small {
+	font-weight: normal;
+	line-height: 1;
+	color: #777;
+	font-size: 65%;
+}
+
+h2, .h2 {
+	font-size: 30px;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	color: inherit;
+	text-align: center;
+}
+
+#conteudo-1 {
+	float: left;
+	width: 200px;
+}
+
+#conteudo-2 {
+	float: left;
+	width: 800px;
+	display: inline;
+	margin-left: 80px;
+	margin-top: 50px;
+}
+
+.button {
+	width: 100%;
+	height: 60px;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.column-even {
+	width: 70%;
+}
+
+.column-lab {
+	width: 100px;;
+}
+
+.column-vlr {
+	width: 155px;;
+}
+
+.l-top {
+	vertical-align: top;
+}
+
+.panelBotoes {
+	border: none !important;
+	margin-top: 3px !important;
+	margin-bottom: 3px !important;
+	background: #f4f0ec !important;
+}
+
+.panelHeight225 {
+	height: 225px !important;
+}
+
+.panelHeight313 {
+	height: 313px !important;
+}
+
+.panelEspacamento0px .ui-panel-content {
+	padding: 0 !important;
+}
+
+.panelEspacamento2px .ui-panel-content {
+	padding-left: 15px !important;
+	padding-right: 15px !important;
+}
+
+.rotulo100 {
+	width: 85px !important;
+}
+
+.rotuloCart {
+	width: 100px !important;
+	text-align: right !important;
+	padding-right: 15px !important;
+}
+
+.rotuloCre {
+	width: 115px !important;
+	text-align: right !important;
+	padding-right: 15px !important;
+}
+
+.campo {
+	width: 250px;
+}
+
+.campo415 {
+	width: 445px !important;
+}
+
+.campo180 {
+	width: 180px !important;
+}
+
+.rotulo60 {
+	width: 85px !important;
+}
+-->
+</style>
+
+
+		<!-- <h2 style="text-align: left; margin-left:225px;">
+			Seja bem vindo ao sistema<span class="text-aqua"> <i>SGE</i>
+			</span>! <br />
+		</h2> -->
+		<div id="conteudo-1">
+			<h:panelGrid width="100%">
+				<p:commandButton value="Iniciar Venda" styleClass="button"
+					icon="venda-icon" update="dgIniciarVenda"
+					action="#{vendaPDVBean.novo()}"
+					oncomplete="PF('dialogIniciarVenda').show()" process="@this"
+					id="bntIniciarVenda">
+					<p:resetInput target="dgIniciarVenda" />
+				</p:commandButton>
+				<p:commandButton icon="print-icon" value="Imprimir Venda"
+					styleClass="button" />
+				<p:commandButton icon="cancelar-venda-icon" value="Cancelar Venda"
+					styleClass="button" />
+				<p:commandButton icon="consultar-venda-icon" value="Consultar Venda"
+					styleClass="button" />
+				<p:commandButton icon="cliente-add-icon" value="Cadastrar Cliente"
+					styleClass="button" title="Cadastrar" update="dgCadCliente"
+					action="#{clienteBean.novo()}" process="@this"
+					oncomplete="PF('dialogCadCliente').show()">
+					<p:resetInput target="dgCadCliente" />
+				</p:commandButton>
+			</h:panelGrid>
+			<h:panelGrid columns="2" style="margin-top: 35%; margin-left:10px;">
+				<h:outputText value="Nr Caixa:" />
+				<h:outputText value="0001" />
+				<h:outputText value="Data:" />
+				<h:outputText value="28/05/2018" />
+				<h:outputText value="Responsável:" />
+				<h:outputText value="RONALDO" />
+				<h:outputText value="Status:" />
+				<h:outputText value="ABERTO" />
+			</h:panelGrid>
+		</div>
+		<div id="conteudo-2">
+			<h1 style="font-weight: bold; font-size: 48px;">CAIXA LIVRE</h1>
+			<h:graphicImage library="images" name="venda1.png" height="250px" />
+			<h:graphicImage style="margin-left:15%" library="images"
+				name="venda3.jpg" height="200px" />
+		</div>
+
+		<!-- INICIAR VENDA -->
+		<p:dialog header="Venda PDV" widgetVar="dialogIniciarVenda"
+			modal="true" width="830" height="490" resizable="false"
+			draggable="true" id="dgIniciarVenda" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frmIniciarVenda"
+				onkeypress="if (event.keyCode == 13) { return true; }">
+
+				<p:growl autoUpdate="true" />
+
+				<p:tabView prependId="false" onTabShow="setaFocoTab(index)"
+					style="width: 100%; height: 427px; margin-top:10px; ">
+
+					<p:tab title="Lista de Itens">
+
+						<h:panelGrid styleClass="semBorda" columns="4" id="panelGridItem"
+							style="margin-top:5px; margin-left:10px;">
+
+							<p:outputLabel for="txtProduto"
+								value="Código Barra ou Descrição do produto" />
+							<p:outputLabel for="txtQtde" value="Quantidade" />
+							<p:outputLabel value="Preço Unit." />
+							<p:outputLabel for="txtVlrTotal" value="Total R$" />
+
+							<p:autoComplete size="43" value="#{vendaPDVBean.produto}"
+								forceSelection="true" minQueryLength="3" required="true"
+								id="txtProduto" requiredMessage="Informe o produto"
+								completeMethod="#{vendaPDVBean.completarProduto}" var="produto"
+								itemLabel="#{produto.nome}" itemValue="#{produto}"
+								onkeyup="setarConfirmacao(this, event)">
+
+								<p:ajax event="itemSelect"
+									oncomplete="setfocus('txtQtde'); confirmarProduto()"
+									update="txtVlrUnit txtVlrTotal"
+									listener="#{vendaPDVBean.setaProdutoPesquisado()}" />
+
+							</p:autoComplete>
+
+							<p:inputText id="txtQtde" required="true"
+								style="text-align: right;" onkeyup="somenteNumeros(this)"
+								onkeypress="event.keyCode==13?setfocusButtom('txtVlrTotal'):''"
+								validatorMessage="Informe uma quantidade"
+								converterMessage="Informe uma quantidade valida"
+								value="#{vendaPDVBean.vendaDet.quantidade}" size="9">
+								<f:validateDoubleRange minimum="0.01" />
+								<f:convertNumber pattern="##,###,###,###.##"
+									minFractionDigits="2" />
+								<p:ajax event="change" process="@this" update="txtVlrTotal"
+									oncomplete="" listener="#{vendaPDVBean.calcSubTotal()}" />
+							</p:inputText>
+
+							<p:inputText id="txtVlrUnit" required="true"
+								style="text-align: right;"
+								requiredMessage="Informe um valor custo" disabled="true"
+								value="#{vendaPDVBean.vendaDet.valorUnitario}"
+								onfocus="formatoMoeda('txtVlrUnit')" size="10">
+								<f:validateDoubleRange minimum="0.01" />
+								<f:convertNumber type="currency" maxFractionDigits="4" />
+								<p:ajax process="@this" />
+							</p:inputText>
+
+
+							<h:panelGroup>
+								<p:inputText id="txtVlrTotal" disabled="false"
+									style="text-align: right;"
+									validatorMessage="Informe um valor total"
+									onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+									value="#{vendaPDVBean.vendaDet.valorTotal}" size="10"
+									onfocus="formatoMoeda('txtVlrTotal')">
+									<f:validateDoubleRange minimum="0.01" />
+									<f:convertNumber type="currency" />
+									<p:ajax event="change" process="@this" update="txtVlrUnit"
+										listener="#{vendaPDVBean.calcSubTotalComDescAcre()}" />
+								</p:inputText>
+
+								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
+									style="margin-left:5px;" id="btnAddItem"
+									update="panelGridItem tblItens 
+									txtTotalItem panelGridResumoCalculo"
+									process="@this panelGridItem"
+									action="#{vendaPDVBean.addItem()}">
+									<p:focus for="txtProduto" />
+								</p:commandButton>
+
+							</h:panelGroup>
+
+						</h:panelGrid>
+
+						<p:dataTable value="#{vendaPDVBean.listaDeItensVendidos}"
+							var="obj" id="tblItens" emptyMessage="Nenhum registro lançado."
+							scrollable="true" scrollHeight="300"
+							style="margin-top: 1px; margin-left:10px; width:98%"
+							rowKey="#{obj.id}">
+
+							<p:column style="width: 320px">
+								<h:outputText value="#{fn:substring(obj.produto.nome,0,45)}" />
+							</p:column>
+
+							<p:column style="width: 80px; text-align: right;">
+								<h:outputText value="#{obj.quantidade}">
+									<f:convertNumber locale="pt_BR" minFractionDigits="0" />
+								</h:outputText>
+							</p:column>
+
+							<p:column style="width: 85px; text-align: right;">
+								<h:outputText value="#{obj.valorUnitario}">
+									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+								</h:outputText>
+							</p:column>
+
+							<p:column style="width: 90px; text-align: right;">
+								<h:outputText value="#{obj.valorTotal}">
+									<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText=""
+								style="text-align: center; padding: 0; width:70px"
+								exportable="false">
+								<p:commandButton title="Excluir" process="@this"
+									update="panelGridItem tblItens txtTotalItem panelGridResumoCalculo"
+									action="#{vendaPDVBean.removerItem()}" icon="ui-icon-trash"
+									styleClass="semPreenchimento">
+									<f:setPropertyActionListener value="#{obj}"
+										target="#{vendaPDVBean.vendaDet}" />
+								</p:commandButton>
+							</p:column>
+
+						</p:dataTable>
+
+						<p:toolbar styleClass="semPreenchimento" style="margin-top:26px;">
+							<p:toolbarGroup align="right">
+								<p:outputLabel value="Total:"
+									style="font-size:20px; margin-right:15px; color:black" />
+								<p:outputLabel styleClass="total" id="txtTotalItem"
+									value="#{vendaPDVBean.vendaCab.valorBruto}"
+									style="color:red; height: 32px; font-size: 20px; margin-right:90px;">
+									<f:convertNumber type="currency" />
+								</p:outputLabel>
+							</p:toolbarGroup>
+						</p:toolbar>
+
+					</p:tab>
+
+					<p:tab title="Fechamento da Venda">
+
+						<p:panel styleClass="panelEspacamento0px">
+							<h:panelGrid>
+								<p:outputLabel value="Seleção de Cliente" />
+								<h:panelGroup>
+
+									<p:autoComplete size="65"
+										value="#{vendaPDVBean.vendaCab.cliente}" forceSelection="true"
+										minQueryLength="3" id="txtCliente"
+										completeMethod="#{vendaPDVBean.completarCliente}" var="cli"
+										itemLabel="#{cli.nome}" itemValue="#{cli}">
+									</p:autoComplete>
+
+									<p:commandButton style="margin-left:10px;" icon="ui-icon-plus"
+										title="Cadastrar" update="dgCadCliente"
+										action="#{clienteBean.novo()}" process="@this"
+										oncomplete="PF('dialogCadCliente').show()">
+										<p:resetInput target="dgCadCliente" />
+									</p:commandButton>
+								</h:panelGroup>
+							</h:panelGrid>
+						</p:panel>
+
+
+						<h:panelGrid columns="2" style="width: 100%;" rowClasses="l-top"
+							columnClasses="column-even">
+							<h:panelGroup>
+								<p:panel styleClass="panelHeight313 panelEspacamento0px">
+									<p:panelGrid columns="7"
+										style="margin-left:3px; margin-top:5px; margin-bottom:5px;">
+										<p:commandLink title="Pagamento em Dinheiro"
+											update="dgPagtoDin" oncomplete="PF('dialogPagtoDin').show()"
+											process="@this">
+											<h:graphicImage library="images" name="money64px3.png" />
+											<p:resetInput target="dgPagtoDin" />
+										</p:commandLink>
+										<p:commandLink title="Pagamento em Cartão"
+											update="dgPagtoCart"
+											oncomplete="PF('dialogPagtoCart').show()" process="@this">
+											<h:graphicImage library="images" name="card64px.png" />
+											<p:resetInput target="dgPagtoCart" />
+										</p:commandLink>
+										<p:commandLink title="Pagamento em Cheque" update="dgPagtoChqe"
+											oncomplete="PF('dialogPagtoChqe').show()" process="@this">
+											<h:graphicImage library="images" name="cheque51.png" />
+											<p:resetInput target="dgPagtoChqe" />
+										</p:commandLink>
+										<ui:remove>
+											<p:commandLink title="Pagamento em Boleto Bancario">
+												<h:graphicImage library="images" name="boleto64px.png" />
+											</p:commandLink>
+										</ui:remove>
+										<p:commandLink title="Pagamento em Crediario"
+											update="dgPagtoCre" oncomplete="PF('dialogPagtoCre').show()"
+											process="@this">
+											<h:graphicImage library="images" name="carne.png" />
+											<p:resetInput target="dgPagtoCre" />
+										</p:commandLink>
+
+									</p:panelGrid>
+
+									<p:dataTable>
+										<p:column headerText="ID" style="width:30px;">
+										</p:column>
+										<p:column headerText="Forma de Pagamento" style="width:250px;">
+										</p:column>
+										<p:column headerText="Valor" style="width:80px;">
+										</p:column>
+										<p:column headerText="Ação">
+										</p:column>
+									</p:dataTable>
+								</p:panel>
+							</h:panelGroup>
+
+							<p:panel styleClass="panelHeight313 panelEspacamento2px">
+								<h:panelGrid columns="1" id="panelGridResumoCalculo">
+									<p:outputLabel value="Valor Bruto" />
+									<p:inputText value="#{vendaPDVBean.vendaCab.valorBruto}"
+										readonly="true" id="txtValorBruto"
+										style="width:94%; height: 20px; font-size: 16px; color: black; text-align: right;">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+									<p:outputLabel value="Desconto" />
+									<h:panelGroup>
+										<p:inputNumber size="4"
+											style="height: 20px; font-size: 16px; color: black; text-align: right;"
+											emptyValue="empty"
+											value="#{vendaPDVBean.vendaCab.valorEmPerc}" symbol="%"
+											symbolPosition="s">
+											<p:ajax event="change" update="panelGridResumoCalculo"
+												process="@this" listener="#{vendaPDVBean.calculoDescPerc()}" />
+										</p:inputNumber>
+										<p:inputText id="txtVlrDesc"
+											style="width:105px; margin-left: 5px; height: 20px; font-size: 16px; color: black; text-align: right;"
+											value="#{vendaPDVBean.vendaCab.desc}"
+											onfocus="formatoMoeda('txtVlrDesc')">
+											<f:convertNumber type="currency" />
+											<p:ajax event="change" process="@this"
+												update="panelGridResumoCalculo"
+												listener="#{vendaPDVBean.calculoDescReal()}" />
+										</p:inputText>
+									</h:panelGroup>
+
+									<p:outputLabel value="Valor a pagar" />
+									<p:inputText value="#{vendaPDVBean.vendaCab.valorLiquido}"
+										readonly="true"
+										style="width:94%; height: 20px; font-size: 16px; color: red; text-align: right;">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<p:outputLabel value="Valor recebido" />
+									<p:inputText value="#{vendaPDVBean.vendaCab.valorPago}"
+										readonly="true"
+										style="width:94%; height: 20px; font-size: 16px; color: blue; text-align: right;">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+
+									<hr />
+									<p:outputLabel value="Troco" />
+									<p:inputText value="#{vendaPDVBean.vendaCab.valorTroco}"
+										readonly="true"
+										style="width:94%; height: 32px; font-size: 18px; color: green; text-align: right;">
+										<f:convertNumber type="currency" />
+									</p:inputText>
+								</h:panelGrid>
+							</p:panel>
+						</h:panelGrid>
+
+					</p:tab>
+
+				</p:tabView>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog
+			header="#{clienteBean.cliente.inclusao ?'Cliente - Inclusão' :'Cliente - Edição'}"
+			widgetVar="dialogCadCliente" modal="true" width="564" height="350"
+			resizable="false" draggable="true" id="dgCadCliente" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-cad-cliente">
+
+				<h:panelGrid columns="4"
+					columnClasses="rotulo100,campo180,rotulo60,campo165">
+
+					<p:outputLabel value="Tipo" for="tp" />
+
+					<p:selectOneMenu autoWidth="false" style="width:133px;"
+						value="#{clienteBean.cliente.tipoPessoa}" id="tp" required="true">
+						<f:selectItems value="#{clienteBean.listaTipoPessoas}" var="tp"
+							itemLabel="#{tp.descricao}" itemValue="#{tp}" />
+						<p:ajax event="change" process="@this" update="textTipo labelTipo" />
+					</p:selectOneMenu>
+
+					<h:panelGroup id="labelTipo">
+						<p:outputLabel value="CPF" for="textCpf"
+							rendered='#{clienteBean.cliente.tipoPessoa=="F"}' />
+						<p:outputLabel value="CNPJ" for="textCnpj"
+							rendered='#{clienteBean.cliente.tipoPessoa=="J"}' />
+					</h:panelGroup>
+
+					<h:panelGroup id="textTipo">
+						<p:inputMask id="textCpf"
+							rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
+							mask="999.999.999-99" value="#{clienteBean.cliente.cpfCnpj}"
+							required="true" requiredMessage="O campo 'CPF' é obrigatório."
+							style="width: 155px;">
+							<p:ajax event="blur"
+								listener="#{clienteBean.consultarClientePorCpf}"
+								update="frm-cad-cliente" process="@this" />
+						</p:inputMask>
+						<p:inputMask id="textCnpj"
+							rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
+							mask="99.999.999/9999-99" value="#{clienteBean.cliente.cpfCnpj}"
+							required="true" requiredMessage="O campo 'CNPJ' é obrigatório."
+							style="width: 155px;">
+						</p:inputMask>
+					</h:panelGroup>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+
+					<p:outputLabel value="Nome" for="nome" />
+					<p:inputText id="nome" style="width:96%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{clienteBean.cliente.nome}" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2" columnClasses="rotulo100,campo415">
+					<p:outputLabel value="Cep" for="cep" />
+					<p:inputMask mask="99999-999" style="width:132px;"
+						value="#{clienteBean.cliente.cep}" id="cep" required="true"
+						requiredMessage="O campo 'CEP' é obrigatório." />
+
+					<p:outputLabel for="end" value="Endereço" />
+					<h:panelGroup>
+						<p:inputText style="width:335px;" id="end" required="true"
+							requiredMessage="O campo 'ENDEREÇO' é obrigatório."
+							value="#{clienteBean.cliente.endereco}" />
+						<p:inputText style="width:75px; margin-left:5px;"
+							value="#{clienteBean.cliente.num}" />
+					</h:panelGroup>
+
+					<p:outputLabel for="bai" value="Bairro" />
+					<h:panelGroup>
+						<p:inputText style="width:232px;" id="bai"
+							value="#{clienteBean.cliente.bairro}" required="true"
+							requiredMessage="O campo 'BAIRRO' é obrigatório." />
+						<p:outputLabel value="Compl."
+							style="margin-left:15px; margin-right:10px;" />
+						<p:inputText style="width:109px;"
+							value="#{clienteBean.cliente.complemento}" />
+					</h:panelGroup>
+
+					<p:outputLabel for="cidade" value="Cidade" />
+					<h:panelGroup>
+						<p:inputText style="width:232px;" id="cidade" required="true"
+							value="#{clienteBean.cliente.cidade}"
+							requiredMessage="O campo 'CIDADE' é obrigatório." />
+						<p:outputLabel for="est" value="Estado"
+							style="margin-left:15px; margin-right:10px;" />
+						<p:selectOneMenu autoWidth="false" style="width:80px;" id="est"
+							required="true" requiredMessage="O campo 'ESTADO' é obrigatório."
+							value="#{clienteBean.cliente.estado}">
+							<f:selectItems value="#{clienteBean.listaEstados}" var="uf"
+								itemLabel="#{uf.sigla}" itemValue="#{uf}" />
+						</p:selectOneMenu>
+					</h:panelGroup>
+
+
+					<p:spacer />
+					<p:spacer />
+
+					<p:outputLabel value="Telefone(s)" />
+					<h:panelGroup>
+						<p:inputText style="width:135px;"
+							value="#{clienteBean.cliente.celular}" />
+						<p:inputText
+							style="width:130px; margin-left:5px; margin-right:5px;"
+							value="#{clienteBean.cliente.telefone}" />
+						<p:inputText style="width:130px;"
+							value="#{clienteBean.cliente.telefone2}" />
+					</h:panelGroup>
+
+					<p:outputLabel value="E-mail" />
+					<p:inputText value="#{clienteBean.cliente.email}"
+						style="width:96%; text-transform: lowercase;" />
+
+					<p:outputLabel value="Site" />
+					<p:inputText value="#{clienteBean.cliente.site}"
+						style="width:96%; text-transform: lowercase;" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 7px;">
+						<p:commandButton value="Salvar" icon="fa fa-save"
+							id="btnSalvarCliente" process="@this frm-cad-cliente"
+							action="#{clienteBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogCadCliente').hide()" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Forma de Pagto - Cheque(s)"
+			widgetVar="dialogPagtoChq" modal="true" width="555" height="290"
+			resizable="false" draggable="true" id="dgPagtoChq" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-pg-chq">
+
+				<h:panelGrid columns="2" style="margin-top:10px;">
+					<p:outputLabel value="Valor" />
+					<p:outputLabel value="Bom para" />
+
+					<p:inputText size="12" id="vlrChq"
+						style="color: red; text-align: right;"
+						validatorMessage="Informe um valor"
+						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+						onfocus="formatoMoeda('vlrChq')">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+					<p:calendar size="10" onfocus="mascaraDtCalendar('dtBomPara')"
+						id="dtBomPara" locale="pt_BR" pattern="dd/MM/yyyy" />
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:outputLabel value="Nome do Titular" />
+					<p:inputText />
+					<p:inputText size="38" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:outputLabel value="CMC7" />
+					<p:spacer />
+					<p:inputText size="50" />
+					<p:commandButton value="Consultar">
+					</p:commandButton>
+				</h:panelGrid>
+
+				<h:panelGrid columns="8">
+					<p:outputLabel value="Comp." />
+					<p:outputLabel value="Banco" />
+					<p:outputLabel value="Agência" />
+					<p:outputLabel value="C1" />
+					<p:outputLabel value="Conta" />
+					<p:outputLabel value="C2" />
+					<p:outputLabel value="Nr Cheque" />
+					<p:outputLabel value="C3" />
+
+					<p:inputText size="3" readonly="true" />
+					<p:inputText size="5" readonly="true" />
+					<p:inputText size="8" readonly="true" />
+					<p:inputText style="width:12px;" readonly="true" />
+					<p:inputText size="10" readonly="true" />
+					<p:inputText style="width:12px;" readonly="true" />
+					<p:inputText size="10" readonly="true" />
+					<p:inputText style="width:12px;" readonly="true" />
+
+				</h:panelGrid>
+
+
+				<p:toolbar style="margin-top: 20px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup>
+						<p:selectBooleanCheckbox itemLabel="Cheque de terceiro"
+							style="color:black" />
+					</p:toolbarGroup>
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirma" icon="fa fa-check"
+							id="btnConfirmaChq" process="@this frm-pg-chq"
+							action="#{clienteBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogPagtoChq').hide()" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Forma de Pagto - Cartão(s)"
+			widgetVar="dialogPagtoCart" modal="true" width="450" height="230"
+			resizable="false" draggable="true" id="dgPagtoCart" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-pg-cart">
+
+				<h:panelGrid columns="2" style="margin-top:10px;"
+					columnClasses="rotuloCart">
+
+					<p:outputLabel value="Valor" style="height: 24x; font-size: 18px;" />
+					<p:inputText size="12" id="vlrCart"
+						style="color: red; text-align: right; height: 24x; font-size: 18px;"
+						validatorMessage="Informe um valor"
+						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+						onfocus="formatoMoeda('vlrCart')">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+					<p:outputLabel value="Tipo" />
+					<p:selectOneMenu autoWidth="false" style="width:98px;">
+						<f:selectItem itemLabel="CREDITO" itemValue="true" />
+						<f:selectItem itemLabel="DEBITO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Operadora" />
+					<p:selectOneMenu autoWidth="false" style="width:200px;">
+						<f:selectItem itemLabel="CI - VISA ELECTRON" itemValue="true" />
+						<f:selectItem itemLabel="RE - VISA CREDITO" itemValue="false" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel value="Parcela(s)" />
+					<p:selectOneMenu autoWidth="false" style="width:98px;">
+						<f:selectItem itemLabel="1 PARCELA" itemValue="true" />
+						<f:selectItem itemLabel="2 PARCELA" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Autorização" />
+					<p:inputText size="12" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 15px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirma" icon="fa fa-check"
+							id="btnConfirmaCart" process="@this frm-pg-cart"
+							action="#{clienteBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogPagtoCart').hide()" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Forma de Pagto - Crediario"
+			widgetVar="dialogPagtoCre" modal="true" width="450" height="230"
+			resizable="false" draggable="true" id="dgPagtoCre" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-pg-cre">
+
+				<h:panelGrid columns="2" style="margin-top:15px;"
+					columnClasses="rotuloCre">
+
+					<p:outputLabel value="Valor" style="height: 24x; font-size: 18px;" />
+					<p:inputText size="12" id="vlrCre"
+						style="color: red; text-align: right; height: 24x; font-size: 18px;"
+						validatorMessage="Informe um valor"
+						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+						onfocus="formatoMoeda('vlrCre')">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+					<p:outputLabel value="Parcela(s)" />
+					<p:selectOneMenu autoWidth="false" style="width:98px;">
+						<f:selectItem itemLabel="1 PARCELA" itemValue="true" />
+						<f:selectItem itemLabel="2 PARCELA" itemValue="false" />
+					</p:selectOneMenu>
+
+
+					<p:outputLabel value="Intervalor" />
+					<h:panelGroup>
+						<p:selectOneMenu autoWidth="false" style="width:40px;">
+							<f:selectItem itemLabel="1" itemValue="true" />
+							<f:selectItem itemLabel="120" itemValue="false" />
+						</p:selectOneMenu>
+						<p:outputLabel value="Dia(s)" style="margin-left:10px;" />
+					</h:panelGroup>
+
+					<p:outputLabel value="1º Vencimento" />
+					<p:calendar size="12" onfocus="mascaraDtCalendar('dt1vencto')"
+						id="dt1vencto" locale="pt_BR" pattern="dd/MM/yyyy" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 45px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirma" icon="fa fa-check"
+							id="btnConfirmaCre" process="@this frm-pg-cart"
+							action="#{clienteBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogPagtoCre').hide()" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog header="Forma de Pagto - Dinheiro"
+			widgetVar="dialogPagtoDin" modal="true" width="450" height="230"
+			resizable="false" draggable="true" id="dgPagtoDin" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-pg-din">
+
+				<h:panelGrid columns="2" style="margin-top:25px;"
+					columnClasses="rotuloCart">
+
+					<p:outputLabel value="Valor" style="height: 32px; font-size: 20px;" />
+					<p:inputText size="12" id="vlrDin"
+						style="width:94%; height: 32px; font-size: 20px; color: red; text-align: right;"
+						validatorMessage="Informe um valor"
+						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+						onfocus="formatoMoeda('vlrDin')">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 105px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirma" icon="fa fa-check"
+							id="btnConfirmaDin" process="@this frm-pg-din"
+							action="#{clienteBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogPagtoDin').hide()" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+
+		<p:dialog header="Forma de Pagto - Cheque(s)"
+			widgetVar="dialogPagtoChqe" modal="true" width="450" height="250"
+			resizable="false" draggable="true" id="dgPagtoChqe" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form prependId="false" id="frm-pg-chqe">
+
+				<h:panelGrid columns="2" style="margin-top:15px;"
+					columnClasses="rotuloCre">
+
+					<p:outputLabel value="Valor" style="height: 24x; font-size: 18px;" />
+					<p:inputText size="12" id="vlrChqe"
+						style="color: red; text-align: right; height: 24x; font-size: 18px;"
+						validatorMessage="Informe um valor"
+						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+						onfocus="formatoMoeda('vlrChqe')">
+						<f:validateDoubleRange minimum="0.01" />
+						<f:convertNumber type="currency" />
+					</p:inputText>
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText size="18"/>
+
+
+					<p:outputLabel value="Nome Titular" />
+					<p:inputText size="35"/>
+					
+					<p:outputLabel value="Nº Cheque" />
+					<p:inputText size="12"/>
+
+					<p:outputLabel value="Bom para" />
+					<p:calendar size="12" onfocus="mascaraDtCalendar('dtchqe')"
+						id="dtchqe" locale="pt_BR" pattern="dd/MM/yyyy" />
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 30px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirma" icon="fa fa-check"
+							id="btnConfirmaChqe" process="@this frm-pg-chqe"
+							action="#{clienteBean.salvar()}"
+							oncomplete="if(args.sucesso == true) PF('dialogPagtoChqe').hide()" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+
+		</p:dialog>
+
+
+	</ui:define>
+
+</ui:composition>

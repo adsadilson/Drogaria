@@ -73,6 +73,24 @@ function mascaraMoeda() {
 	});
 }
 
+function setarConfirmacao(campo, event){
+	if (event.keyCode == 13){
+		PrimeFaces.ab({s:"btnAddItem",p:"btnAddItem panelGridItem",u:"panelGridItem tblItens txtTotalItem txtValorBruto"});
+	}
+	if (isNaN(campo.value)){
+		localStorage.setItem("confirmar", "false");
+	}else{
+		localStorage.setItem("confirmar", "true");
+	}
+}
+
+function confirmarProduto(){
+	var confirmar = localStorage.getItem("confirmar");
+	if (confirmar == 'true') {
+		PrimeFaces.ab({s:"btnAddItem",p:"btnAddItem panelGridItem",u:"panelGridItem tblItens txtTotalItem txtValorBruto"});
+	}
+}
+
 function formatarMoeda(comp) {
 	id = comp.id;
 	$("#" + id).maskMoney({

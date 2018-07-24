@@ -3,32 +3,37 @@
 .venda-icon {
 	background-image: url(../resources/images/cart_add32.png) !important;
 	width: 64px;
-	height: 64px;
+	height: 32px;
+	top: 20px !important;
 }
 
 .print-icon {
 	background-image: url(../resources/images/print-2.png) !important;
 	width: 64px;
-	height: 64px;
+	height: 32px;
+	top: 20px !important;
 }
 
 .cancelar-venda-icon {
 	background-image: url(../resources/images/cart_remove32.png) !important;
 	width: 64px;
-	height: 64px;
+	height: 32px;
+	top: 20px !important;
 }
 
 .cliente-add-icon {
 	background-image: url(../resources/images/cli_add.png) !important;
 	width: 64px;
-	height: 64px;
+	height: 32px;
+	top: 20px !important;
 }
 
 
 .consultar-venda-icon {
 	background-image: url(../resources/images/search.png) !important;
 	width: 64px;
-	height: 64px;
+	height: 32px;
+	top: 20px !important;
 }
 
 
