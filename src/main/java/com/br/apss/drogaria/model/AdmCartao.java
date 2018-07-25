@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.DecimalMin;
 
 import com.br.apss.drogaria.enums.TipoCartao;
 
@@ -39,6 +40,7 @@ public class AdmCartao implements Serializable {
 	private TipoCartao tipoCartao;
 
 	@Column(name = "taxa", precision = 12, scale = 2)
+	@DecimalMin(value = "0.01", message = "O campo 'TAXA' tem quer ser maior que 0")
 	private BigDecimal taxa = BigDecimal.ZERO;
 
 	@Column(name = "prazo")
@@ -50,6 +52,14 @@ public class AdmCartao implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "conta_creditar", nullable = false)
 	private PlanoConta contaCreditar;
+
+	@ManyToOne
+	@JoinColumn(name = "conta_debitar_taxa", nullable = false)
+	private PlanoConta contaDebitarTaxa;
+
+	@ManyToOne
+	@JoinColumn(name = "conta_debitar_aluguel")
+	private PlanoConta contaDebitarAluguel;
 
 	private Boolean status = true;
 
@@ -66,7 +76,7 @@ public class AdmCartao implements Serializable {
 	}
 
 	public void setNome(String nome) {
-		this.nome = nome;
+		this.nome = nome.toUpperCase();
 	}
 
 	public String getOperadora() {
@@ -74,7 +84,7 @@ public class AdmCartao implements Serializable {
 	}
 
 	public void setOperadora(String operadora) {
-		this.operadora = operadora;
+		this.operadora = operadora.toUpperCase();
 	}
 
 	public TipoCartao getTipoCartao() {
@@ -123,6 +133,22 @@ public class AdmCartao implements Serializable {
 
 	public void setStatus(Boolean status) {
 		this.status = status;
+	}
+
+	public PlanoConta getContaDebitarTaxa() {
+		return contaDebitarTaxa;
+	}
+
+	public void setContaDebitarTaxa(PlanoConta contaDebitarTaxa) {
+		this.contaDebitarTaxa = contaDebitarTaxa;
+	}
+
+	public PlanoConta getContaDebitarAluguel() {
+		return contaDebitarAluguel;
+	}
+
+	public void setContaDebitarAluguel(PlanoConta contaDebitarAluguel) {
+		this.contaDebitarAluguel = contaDebitarAluguel;
 	}
 
 	public boolean isInclusao() {

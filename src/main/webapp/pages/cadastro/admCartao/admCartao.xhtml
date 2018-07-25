@@ -3,6 +3,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Pesquisa Adm de Cartão</ui:define>
@@ -15,7 +16,7 @@
 }
 
 .campo {
-	width: 250px;
+	width: 310px;
 }
 
 .rotulo60 {
@@ -111,32 +112,9 @@
 					<h:outputText value="#{admCartao.id}" />
 				</p:column>
 
-				<p:column headerText="Nome" sortBy="#{admCartao.nome}">
-					<h:outputText value="#{admCartao.nome}" />
-				</p:column>
-
 				<p:column headerText="Tipo" sortBy="#{admCartao.tipoCartao}"
-					style="text-align: center; width: 50px">
+					style="text-align: center; width: 65px">
 					<h:outputText value="#{admCartao.tipoCartao.descricao}" />
-				</p:column>
-
-				<p:column headerText="Taxa" style="text-align: center; width: 50px">
-					<h:outputText value="#{admCartao.taxa}" />
-				</p:column>
-
-				<p:column headerText="Prazo" style="text-align: center; width: 50px">
-					<h:outputText value="#{admCartao.prazo}" />
-				</p:column>
-
-
-				<p:column headerText="Parcela(s)"
-					style="text-align: center; width: 90px">
-					<h:outputText value="#{admCartao.parcela}" />
-				</p:column>
-
-				<p:column headerText="C/Creditar"
-					style="text-align: center; width: 130px">
-					<h:outputText value="#{admCartao.contaCreditar.nome}" />
 				</p:column>
 
 				<p:column headerText="Operadora" sortBy="#{admCartao.operadora}"
@@ -144,8 +122,40 @@
 					<h:outputText value="#{admCartao.operadora}" />
 				</p:column>
 
+				<p:column headerText="Nome" sortBy="#{admCartao.nome}">
+					<h:outputText value="#{fn:substring(admCartao.nome,0,30)}" />
+				</p:column>
+
+				<p:column headerText="Taxa %"
+					style="text-align: center; width: 50px">
+					<h:outputText value="#{admCartao.taxa}" />
+				</p:column>
+
+				<p:column headerText="Prazo" style="text-align: center; width: 50px">
+					<h:outputText value="#{admCartao.prazo}" />
+				</p:column>
+
+				<p:column headerText="Parcela(s)"
+					style="text-align: center; width: 75px">
+					<h:outputText value="#{admCartao.parcela}" />
+				</p:column>
+
+				<p:column headerText="C/Creditar ID"
+					style="text-align: center; width: 100px">
+					<h:outputText id="tbIDCR" value="#{admCartao.contaCreditar.id}" />
+					<p:tooltip for="tbIDCR"
+						value="#{admCartao.contaCreditar.id} - #{admCartao.contaCreditar.nome}" />
+				</p:column>
+
+				<p:column headerText="CD/Taxa ID"
+					style="text-align: center; width: 90px">
+					<h:outputText id="tbIDCD" value="#{admCartao.contaDebitarTaxa.id}" />
+					<p:tooltip for="tbIDCD"
+						value="#{admCartao.contaDebitarTaxa.id} - #{admCartao.contaDebitarTaxa.nome}" />
+				</p:column>
+
 				<p:column headerText="Status" sortBy="#{admCartao.status}"
-					style="text-align: center; width: 80px">
+					style="text-align: center; width:65px">
 					<h:outputText value="#{admCartao.status ? 'ATIVO' : 'INATIVO'}" />
 				</p:column>
 
@@ -156,7 +166,8 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText value="#{admCartaoBean.admCartaoSelecionado.nome} ?" />
+					<h:outputText
+						value="#{admCartaoBean.admCartaoSelecionado.id} - #{admCartaoBean.admCartaoSelecionado.nome} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
@@ -170,8 +181,8 @@
 
 		<p:dialog
 			header="#{admCartaoBean.admCartao.inclusao ?'Adm de Cartão - Inclusão' :'Adm de Cartão - Edição'}"
-			widgetVar="dialogCadastro" modal="true" width="450" height="300"
-			resizable="true" draggable="true" id="dgCadastro" visible="false"
+			widgetVar="dialogCadastro" modal="true" width="450" height="280"
+			resizable="false" draggable="true" id="dgCadastro" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false" id="frm-cadastro">
@@ -179,48 +190,82 @@
 				<h:panelGrid columns="2" columnClasses="rotulo, campo"
 					style="margin-top:10px;">
 
-					<p:outputLabel value="Nome" for="descricao" />
-					<p:inputText id="descricao" style="width:96%" maxlength="80"
-						required="true" requiredMessage="O campo 'NOME' é obrigatório."
-						value="#{admCartaoBean.admCartao.nome}" />
+					<p:outputLabel value="Tipo" for="tipo" />
+					<h:panelGroup>
+						<p:selectOneMenu id="tipo" required="true" autoWidth="false"
+							style="width:115px;" converter="omnifaces.SelectItemsConverter"
+							requiredMessage="O campo 'TIPO' é obrigatório."
+							value="#{admCartaoBean.admCartao.tipoCartao}">
+							<f:selectItem itemLabel="Selecione..." />
+							<f:selectItems value="#{admCartaoBean.tipoCartao}" var="tipo"
+								itemValue="#{tipo}" itemLabel="#{tipo.descricao}" />
+						</p:selectOneMenu>
+						<p:selectBooleanCheckbox value="#{admCartaoBean.admCartao.status}"
+							itemLabel="Ativo" style="margin-left:100px;" />
+					</h:panelGroup>
 
 					<p:outputLabel value="Operadora" for="operadora" />
-					<p:inputText id="operadora" style="width:96%" maxlength="80"
+					<p:inputText id="operadora" style="width:98%" maxlength="80"
 						required="true"
 						requiredMessage="O campo 'OPERADORA' é obrigatório."
 						value="#{admCartaoBean.admCartao.operadora}" />
 
+					<p:outputLabel value="Nome" for="descricao" />
+					<p:inputText id="descricao" style="width:98%" maxlength="80"
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
+						value="#{admCartaoBean.admCartao.nome}" />
 
-					<p:outputLabel value="Tipo" for="tipo" />
-					<p:selectOneMenu id="tipo" required="true" autoWidth="false"
-						style="width:80px;" converter="omnifaces.SelectItemsConverter"
-						requiredMessage="O campo 'TIPO' é obrigatório."
-						value="#{admCartaoBean.admCartao.tipoCartao}">
-						<f:selectItem itemLabel="Selecione..." />
-						<f:selectItems value="#{admCartaoBean.tipoCartao}" var="tipo"
-							itemValue="#{tipo}" itemLabel="#{tipo.descricao}" />
+					<p:outputLabel value="C/Creditar" for="txtCR" />
+					<p:selectOneMenu id="txtCR" required="true" autoWidth="false"
+						filter="true" filterMatchMode="contains" style="width:292px;"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{admCartaoBean.admCartao.contaCreditar}"
+						requiredMessage="O campo 'C/CREDITAR' é obrigatório.">
+						<f:selectItem itemLabel="Selecione uma conta..."
+							itemValue="#{null}" />
+						<f:selectItems value="#{admCartaoBean.contas}" var="conta"
+							itemLabel="#{conta.nome}" itemValue="#{conta}" />
 					</p:selectOneMenu>
 
-					<p:outputLabel value="Taxa" for="txtTaxa" />
-					<p:inputNumber id="txtTaxa" size="10" required="true"
-						emptyValue="empty" value="#{admCartaoBean.admCartao.taxa}"
-						symbol=" %" symbolPosition="s">
-					</p:inputNumber>
+					<p:outputLabel value="CD/Taxa(s)" for="txtCDT" />
+					<p:selectOneMenu id="txtCDT" required="true" autoWidth="false"
+						filter="true" filterMatchMode="contains" style="width:292px;"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{admCartaoBean.admCartao.contaDebitarTaxa}"
+						requiredMessage="O campo 'CD/TAXA(S)' é obrigatório.">
+						<f:selectItem itemLabel="Selecione uma conta..."
+							itemValue="#{null}" />
+						<f:selectItems value="#{admCartaoBean.contasDespesas}" var="conta"
+							itemLabel="#{conta.nome}" itemValue="#{conta}" />
+					</p:selectOneMenu>
 
-					<p:outputLabel value="Prazo" style="margin-right:2px;" />
-					<p:spinner size="1" min="1" max="45"
-						value="#{admCartaoBean.admCartao.prazo}" />
+					<p:spacer />
+					<h:panelGroup>
+						<h:panelGrid columns="3">
+							<p:outputLabel value="Taxa" for="txtTaxa" />
+							<p:outputLabel value="Prazo" style="margin-right:2px;"
+								for="txtPrazo" />
+							<p:outputLabel value="Parcela(s)" style="margin-right:2px;"
+								for="txtParc" />
 
-					<p:outputLabel value="Parcela(s)" style="margin-right:2px;" />
-					<p:spinner size="1" min="1" max="100"
-						value="#{admCartaoBean.admCartao.parcela}" />
+							<p:inputNumber id="txtTaxa" size="5" required="true"
+								emptyValue="empty" value="#{admCartaoBean.admCartao.taxa}"
+								symbol=" %" symbolPosition="s">
+							</p:inputNumber>
 
-					<p:outputLabel value="Ativo" />
-					<p:selectBooleanCheckbox value="#{admCartaoBean.admCartao.status}" />
+							<p:spinner size="5" min="1" max="45" id="txtPrazo"
+								value="#{admCartaoBean.admCartao.prazo}" />
+
+							<p:spinner size="5" min="1" max="100" id="txtParc"
+								value="#{admCartaoBean.admCartao.parcela}" />
+
+						</h:panelGrid>
+
+					</h:panelGroup>
 
 				</h:panelGrid>
 
-				<p:toolbar style="margin-top: 10px; margin-button:5px"
+				<p:toolbar style="margin-top: 20px; margin-button:5px"
 					styleClass="semPreenchimento">
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
@@ -234,7 +279,7 @@
 		</p:dialog>
 
 		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-			width="321" height="135" resizable="false" draggable="true"
+			width="325" height="170" resizable="false" draggable="true"
 			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
 
 			<h:form>
@@ -246,6 +291,19 @@
 					<p:outputLabel value="Nome" />
 					<p:inputText id="txtFilterDescricao"
 						value="#{admCartaoBean.filtro.nome}" style="width:98%;" />
+
+					<p:outputLabel value="Operadora" for="operadora" />
+					<p:inputText id="operadora" style="width:98%" maxlength="80"
+						value="#{admCartaoBean.filtro.operadora}" />
+
+					<p:outputLabel value="Tipo" />
+					<p:selectOneMenu id="tipo" autoWidth="false" style="width:88%;"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{admCartaoBean.filtro.tipoCartao}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{admCartaoBean.tipoCartao}" var="tipo"
+							itemValue="#{tipo}" itemLabel="#{tipo.descricao}" />
+					</p:selectOneMenu>
 
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
@@ -259,7 +317,7 @@
 
 				<p:toolbar style="margin-top: 5px; margin-button:5px"
 					styleClass="semPreenchimento">
-					<p:toolbarGroup align="right" style="margin-right: 0px;">
+					<p:toolbarGroup align="right" style="margin-right: 10px;">
 						<p:commandButton value="Pesquisar" icon="fa fa-search"
 							id="btnPesquisarFiltro" process="@this panelFiltro"
 							action="#{admCartaoBean.pesquisar}"

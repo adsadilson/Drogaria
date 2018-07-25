@@ -14,9 +14,14 @@ import org.primefaces.context.RequestContext;
 
 import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.enums.TipoCartao;
+import com.br.apss.drogaria.enums.TipoConta;
+import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.AdmCartao;
+import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.filter.AdmCartaoFilter;
+import com.br.apss.drogaria.model.filter.PlanoContaFilter;
 import com.br.apss.drogaria.service.AdmCartaoService;
+import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
 @Named
@@ -36,6 +41,9 @@ public class AdmCartaoBean implements Serializable {
 	@Inject
 	private AdmCartaoService admCartaoService;
 
+	@Inject
+	private PlanoContaService planoContaService;
+
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
@@ -49,7 +57,7 @@ public class AdmCartaoBean implements Serializable {
 
 		AdmCartao admCartaoExistente = admCartaoService.porNome(admCartao.getNome());
 		if (admCartaoExistente != null && !admCartaoExistente.equals(admCartao)) {
-			throw new NegocioException("J� existe um registro com essa nome informado.");
+			throw new NegocioException("Já existe um registro com essa nome informado.");
 		}
 
 		RequestContext request = RequestContext.getCurrentInstance();
@@ -85,12 +93,30 @@ public class AdmCartaoBean implements Serializable {
 		pesquisar();
 	}
 
+	// Listar de status
 	public List<Status> getStatus() {
 		return Arrays.asList(Status.values());
 	}
 
+	// Listar de tipo cartão
 	public List<TipoCartao> getTipoCartao() {
 		return Arrays.asList(TipoCartao.values());
+	}
+
+	// Listar as contas corrente
+	public List<PlanoConta> getContas() {
+		PlanoContaFilter cc = new PlanoContaFilter();
+		cc.setTipo(TipoConta.CC);
+		cc.setCategoria(TipoRelatorio.A);
+		return planoContaService.filtrados(cc);
+	}
+
+	// Listar as contas despesas
+	public List<PlanoConta> getContasDespesas() {
+		PlanoContaFilter cc = new PlanoContaFilter();
+		cc.setTipo(TipoConta.D);
+		cc.setCategoria(TipoRelatorio.A);
+		return planoContaService.filtrados(cc);
 	}
 
 	/******************** Getters e Setters ***************************/

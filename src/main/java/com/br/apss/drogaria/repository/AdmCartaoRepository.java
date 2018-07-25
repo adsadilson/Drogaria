@@ -102,8 +102,16 @@ public class AdmCartaoRepository implements Serializable {
 			criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
 		}
 
+		if (StringUtils.isNotBlank(filtro.getOperadora())) {
+			criteria.add(Restrictions.ilike("operadora", filtro.getOperadora(), MatchMode.ANYWHERE));
+		}
+
 		if (filtro.getTipo() != null) {
 			criteria.add(Restrictions.eq("tipo", filtro.getTipo()));
+		}
+
+		if (filtro.getTipoCartao() != null) {
+			criteria.add(Restrictions.eq("tipoCartao", filtro.getTipoCartao()));
 		}
 
 		if (filtro.getStatus() != null) {

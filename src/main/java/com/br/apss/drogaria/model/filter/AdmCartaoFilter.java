@@ -1,11 +1,14 @@
 package com.br.apss.drogaria.model.filter;
 
+import com.br.apss.drogaria.enums.TipoCartao;
 import com.br.apss.drogaria.enums.TipoConta;
 
 public class AdmCartaoFilter {
 
 	private String nome;
+	private String operadora;
 	private TipoConta tipo;
+	private TipoCartao tipoCartao;
 	private Boolean status;
 	private String origem;
 
@@ -43,6 +46,22 @@ public class AdmCartaoFilter {
 
 	public void setTipo(TipoConta tipo) {
 		this.tipo = tipo;
+	}
+
+	public String getOperadora() {
+		return operadora;
+	}
+
+	public void setOperadora(String operadora) {
+		this.operadora = operadora;
+	}
+
+	public TipoCartao getTipoCartao() {
+		return tipoCartao;
+	}
+
+	public void setTipoCartao(TipoCartao tipoCartao) {
+		this.tipoCartao = tipoCartao;
 	}
 
 }
