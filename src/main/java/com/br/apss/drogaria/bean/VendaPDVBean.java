@@ -5,17 +5,26 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.br.apss.drogaria.enums.TipoCartao;
+import com.br.apss.drogaria.model.AdmCartao;
+import com.br.apss.drogaria.model.FormaPagtoPDV;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.VendaCab;
 import com.br.apss.drogaria.model.VendaDet;
+import com.br.apss.drogaria.model.filter.AdmCartaoFilter;
 import com.br.apss.drogaria.model.filter.PessoaFilter;
+import com.br.apss.drogaria.service.AdmCartaoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
 
@@ -34,8 +43,19 @@ public class VendaPDVBean implements Serializable {
 
 	private Produto produto;
 
+	private FormaPagtoPDV formaPagto = new FormaPagtoPDV();;
+
+	private List<FormaPagtoPDV> listaDePagamentos = new ArrayList<FormaPagtoPDV>();
+
+	private List<AdmCartao> listaDeCartoes = new ArrayList<AdmCartao>();
+
+	private Map<String, Integer> parcs = new HashMap<String, Integer>();
+
 	@Inject
 	private ProdutoService produtoService;
+
+	@Inject
+	private AdmCartaoService admCartaoService;
 
 	@Inject
 	private PessoaService clienteService;
@@ -175,6 +195,49 @@ public class VendaPDVBean implements Serializable {
 		vendaCab.setValorTroco(vendaCab.getValorPago().subtract(vendaCab.getValorLiquido()));
 	}
 
+	// Listar de tipo cartao
+	public List<TipoCartao> getTipoCartao() {
+		return Arrays.asList(TipoCartao.values());
+	}
+
+	// Listar cartoes pelo tipo do cartao CR/CD
+	public void listarCartoes() {
+		AdmCartaoFilter filtroCartao = new AdmCartaoFilter();
+		listaDeCartoes.clear();
+		if (null != formaPagto.getTipoCartao()) {
+			filtroCartao.setStatus(true);
+			filtroCartao.setTipoCartao(formaPagto.getTipoCartao());
+			listaDeCartoes = this.admCartaoService.filtrados(filtroCartao);
+		}
+	}
+
+	public void novoPagamento() {
+		formaPagto = new FormaPagtoPDV();
+		parcs.clear();
+	}
+
+	// Listar parcela(s) referente ao cartao selecionado
+	public void listParcelas() {
+		if (null != formaPagto.getCartao()) {
+			parcs.clear();
+			for (int i = 0; i < formaPagto.getCartao().getParcela(); i++) {
+				parcs.put((i + 1) + " PARCELA", i);
+			}
+		}
+	}
+
+	public SelectItem[] listarParcelas() {
+		if (null != formaPagto.getCartao()) {
+			SelectItem[] itens = new SelectItem[formaPagto.getCartao().getParcela()];
+			for (int i = 1; i < formaPagto.getCartao().getParcela(); i++) {
+				itens[i++] = new SelectItem(i, i + " Parcela");
+			}
+			return itens;
+		} else {
+			return null;
+		}
+	}
+
 	/********** Getters e Setters **********/
 
 	public VendaCab getVendaCab() {
@@ -207,6 +270,38 @@ public class VendaPDVBean implements Serializable {
 
 	public void setListaDeItensVendidos(List<VendaDet> listaDeItensVendidos) {
 		this.listaDeItensVendidos = listaDeItensVendidos;
+	}
+
+	public FormaPagtoPDV getFormaPagto() {
+		return formaPagto;
+	}
+
+	public void setFormaPagto(FormaPagtoPDV formaPagto) {
+		this.formaPagto = formaPagto;
+	}
+
+	public List<FormaPagtoPDV> getListaDePagamentos() {
+		return listaDePagamentos;
+	}
+
+	public void setListaDePagamentos(List<FormaPagtoPDV> listaDePagamentos) {
+		this.listaDePagamentos = listaDePagamentos;
+	}
+
+	public List<AdmCartao> getListaDeCartoes() {
+		return listaDeCartoes;
+	}
+
+	public void setListaDeCartoes(List<AdmCartao> listaDeCartoes) {
+		this.listaDeCartoes = listaDeCartoes;
+	}
+
+	public Map<String, Integer> getParcs() {
+		return parcs;
+	}
+
+	public void setParcs(Map<String, Integer> parcs) {
+		this.parcs = parcs;
 	}
 
 }

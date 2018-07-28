@@ -357,12 +357,13 @@ h2, .h2 {
 											<p:resetInput target="dgPagtoDin" />
 										</p:commandLink>
 										<p:commandLink title="Pagamento em Cartão"
-											update="dgPagtoCart"
+											update="dgPagtoCart" action="#{vendaPDVBean.novoPagamento}"
 											oncomplete="PF('dialogPagtoCart').show()" process="@this">
 											<h:graphicImage library="images" name="card64px.png" />
 											<p:resetInput target="dgPagtoCart" />
 										</p:commandLink>
-										<p:commandLink title="Pagamento em Cheque" update="dgPagtoChqe"
+										<p:commandLink title="Pagamento em Cheque"
+											update="dgPagtoChqe"
 											oncomplete="PF('dialogPagtoChqe').show()" process="@this">
 											<h:graphicImage library="images" name="cheque51.png" />
 											<p:resetInput target="dgPagtoChqe" />
@@ -688,27 +689,42 @@ h2, .h2 {
 						<f:convertNumber type="currency" />
 					</p:inputText>
 
-					<p:outputLabel value="Tipo" />
-					<p:selectOneMenu autoWidth="false" style="width:98px;">
-						<f:selectItem itemLabel="CREDITO" itemValue="true" />
-						<f:selectItem itemLabel="DEBITO" itemValue="false" />
+					<p:outputLabel for="comboTipoCartao" value="Tipo" />
+					<p:selectOneMenu autoWidth="false" style="width:138px;"
+						value="#{vendaPDVBean.formaPagto.tipoCartao}" id="comboTipoCartao">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{vendaPDVBean.tipoCartao}" var="tpCart"
+							itemLabel="#{tpCart.descricao}" itemValue="#{tpCart}" />
+						<p:ajax event="change" process="@this" update="comboCartao"
+							listener="#{vendaPDVBean.listarCartoes}" />
 					</p:selectOneMenu>
 
-					<p:outputLabel value="Operadora" />
-					<p:selectOneMenu autoWidth="false" style="width:200px;">
-						<f:selectItem itemLabel="CI - VISA ELECTRON" itemValue="true" />
-						<f:selectItem itemLabel="RE - VISA CREDITO" itemValue="false" />
+					<p:outputLabel for="comboCartao" value="Cartão" />
+					<p:selectOneMenu autoWidth="false" style="width:200px;"
+						value="#{vendaPDVBean.formaPagto.cartao}" id="comboCartao"
+						converter="omnifaces.SelectItemsConverter" required="true"
+						requiredMessage="O campo 'CARTAO' é obrigatório.">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{vendaPDVBean.listaDeCartoes}" var="cart"
+							itemLabel="#{cart.nome}" itemValue="#{cart}" />
+						<p:ajax event="change" process="@this" update="comboParcela"
+							listener="#{vendaPDVBean.listParcelas()}" />
 					</p:selectOneMenu>
 
 
-					<p:outputLabel value="Parcela(s)" />
-					<p:selectOneMenu autoWidth="false" style="width:98px;">
-						<f:selectItem itemLabel="1 PARCELA" itemValue="true" />
-						<f:selectItem itemLabel="2 PARCELA" itemValue="false" />
+					<p:outputLabel for="comboParcela" value="Parcela(s)" />
+					<p:selectOneMenu id="comboParcela" autoWidth="false"
+						style="width:98px;" required="true"
+						value="#{vendaPDVBean.formaPagto.parcela}"
+						requiredMessage="O campo 'PARCELA' é obrigatório.">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{vendaPDVBean.parcs}" />
 					</p:selectOneMenu>
 
-					<p:outputLabel value="Autorização" />
-					<p:inputText size="12" />
+					<p:outputLabel for="txtAutorizacao" value="Autorização" />
+					<p:inputText id="txtAutorizacao" size="12" required="true"
+						value="#{vendaPDVBean.formaPagto.doc}"
+						requiredMessage="O campo 'AUTORIZAÇÃO' é obrigatório." />
 
 				</h:panelGrid>
 
@@ -840,14 +856,14 @@ h2, .h2 {
 					</p:inputText>
 
 					<p:outputLabel value="CPF/CNPJ" />
-					<p:inputText size="18"/>
+					<p:inputText size="18" />
 
 
 					<p:outputLabel value="Nome Titular" />
-					<p:inputText size="35"/>
-					
+					<p:inputText size="35" />
+
 					<p:outputLabel value="Nº Cheque" />
-					<p:inputText size="12"/>
+					<p:inputText size="12" />
 
 					<p:outputLabel value="Bom para" />
 					<p:calendar size="12" onfocus="mascaraDtCalendar('dtchqe')"
