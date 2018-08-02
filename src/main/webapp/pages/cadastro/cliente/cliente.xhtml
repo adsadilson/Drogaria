@@ -3,7 +3,9 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui">
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:o="http://omnifaces.org/ui">
 
 	<ui:define name="titulo">Pesquisa Cliente</ui:define>
 
@@ -33,6 +35,18 @@
 .rotulo60 {
 	width: 85px !important;
 }
+
+.rotulo160 {
+	width: 160px !important;
+}
+
+.rotulo300 {
+	width: 311px !important;
+}
+
+.rotulo400 {
+	width: 400px !important;
+}
 </style>
 
 		<f:metadata>
@@ -47,7 +61,8 @@
 
 			<p:focus for="txtPesquisar" />
 
-			<p:toolbar style="margin-top: 20px" styleClass="semPreenchimento">
+			<p:toolbar style="margin-top: 20px; margin-bottom:10px;"
+				styleClass="semPreenchimento">
 				<p:toolbarGroup>
 					<p:commandButton value="Novo" icon="fa fa-file-o"
 						update="dgCadastro" action="#{clienteBean.novo()}"
@@ -88,8 +103,9 @@
 				</p:toolbarGroup>
 			</p:toolbar>
 
+
 			<p:dataTable id="tblCliente" value="#{clienteBean.listaClientes}"
-				var="cliente" style="margin-top: 20px" lazy="true"
+				var="cliente" style="margin-top: 3px" lazy="true"
 				emptyMessage="Nenhum registro encontrado." rows="11"
 				paginator="true" paginatorAlwaysVisible="false"
 				paginatorPosition="bottom"
@@ -248,6 +264,9 @@
 					</p:tab>
 					<p:tab title="Endereço/Contato">
 						<ui:include src="aba_endereco.xhtml" />
+					</p:tab>
+					<p:tab title="Financeiro">
+						<ui:include src="aba_financeiro.xhtml" />
 					</p:tab>
 					<p:tab title="Obs">
 						<h:panelGroup layout="block" style="margin-top: 10px">

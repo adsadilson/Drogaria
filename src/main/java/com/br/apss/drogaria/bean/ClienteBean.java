@@ -37,6 +37,8 @@ public class ClienteBean implements Serializable {
 
 	private LazyDataModel<Pessoa> listaClientes;
 
+	private int qtdRegistro = 0;
+
 	@Inject
 	private PessoaService clienteService;
 
@@ -99,7 +101,6 @@ public class ClienteBean implements Serializable {
 				filtro.setCliente(true);
 
 				setRowCount(clienteService.quantidadeFiltrados(filtro));
-
 				return clienteService.filtrados(filtro);
 			}
 
@@ -175,6 +176,14 @@ public class ClienteBean implements Serializable {
 
 	public void setClienteSelecionado(Pessoa clienteSelecionado) {
 		this.clienteSelecionado = clienteSelecionado;
+	}
+
+	public int getQtdRegistro() {
+		return qtdRegistro;
+	}
+
+	public void setQtdRegistro(int qtdRegistro) {
+		this.qtdRegistro = qtdRegistro;
 	}
 
 }

@@ -6,11 +6,14 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,6 +30,8 @@ import com.br.apss.drogaria.model.filter.PessoaFilter;
 import com.br.apss.drogaria.service.AdmCartaoService;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.service.ProdutoService;
+import com.br.apss.drogaria.util.jsf.NegocioException;
+import com.br.apss.drogaria.validadors.ValidarCPFCNPJ;
 
 @Named
 @ViewScoped
@@ -211,30 +216,71 @@ public class VendaPDVBean implements Serializable {
 		}
 	}
 
+	// Iniciar o novo pagamento
 	public void novoPagamento() {
 		formaPagto = new FormaPagtoPDV();
 		parcs.clear();
 	}
 
-	// Listar parcela(s) referente ao cartao selecionado
-	public void listParcelas() {
-		if (null != formaPagto.getCartao()) {
-			parcs.clear();
-			for (int i = 0; i < formaPagto.getCartao().getParcela(); i++) {
-				parcs.put((i + 1) + " PARCELA", i);
-			}
+	// Adicionar forma de pagamento cartao
+	public void addCartao() {
+		System.out.println(formaPagto.getCartao());
+		System.out.println(formaPagto.getParcela() + 1);
+	}
+
+	// Consultar cpf ou cnpj do cheque
+	public void consultarCpfCnpj() {
+
+		if (!ValidarCPFCNPJ.validar(formaPagto.getCpfCnpj())) {
+			formaPagto.setNomeTitular("");
+			throw new NegocioException("CPF/CNPJ invalido!");
+		}
+
+		Pessoa clienteExistente = clienteService.porCpf(formaPagto.getCpfCnpj().trim());
+		if (clienteExistente != null) {
+			formaPagto.setNomeTitular(clienteExistente.getNome());
 		}
 	}
 
-	public SelectItem[] listarParcelas() {
+	// Listar parcela(s) referente ao cartao selecionado
+	public void listParcelas() {
 		if (null != formaPagto.getCartao()) {
-			SelectItem[] itens = new SelectItem[formaPagto.getCartao().getParcela()];
-			for (int i = 1; i < formaPagto.getCartao().getParcela(); i++) {
-				itens[i++] = new SelectItem(i, i + " Parcela");
+			Map<String, Integer> unsortMap = new HashMap<String, Integer>();
+			unsortMap.clear();
+			for (int i = 0; i < formaPagto.getCartao().getParcela(); i++) {
+				unsortMap.put((i + 1) + " PARCELA", i);
 			}
-			return itens;
-		} else {
-			return null;
+			parcs = sortByValue(unsortMap);
+			// printMap(parcs);
+		}
+	}
+
+	private static Map<String, Integer> sortByValue(Map<String, Integer> unsortMap) {
+
+		// 1. Converter Map em List of Map
+		List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
+
+		// 2. Sort list with Collections.sort(), provide a custom Comparator
+		// Try switch the o1 o2 position for a different order
+		Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+			public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+				return (o1.getValue()).compareTo(o2.getValue());
+			}
+		});
+
+		// 3. Loop the sorted list and put it into a new insertion order Map
+		// LinkedHashMap
+		Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+		for (Map.Entry<String, Integer> entry : list) {
+			sortedMap.put(entry.getKey(), entry.getValue());
+		}
+
+		return sortedMap;
+	}
+
+	public static <K, V> void printMap(Map<K, V> map) {
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
 		}
 	}
 

@@ -73,21 +73,29 @@ function mascaraMoeda() {
 	});
 }
 
-function setarConfirmacao(campo, event){
-	if (event.keyCode == 13){
-		PrimeFaces.ab({s:"btnAddItem",p:"btnAddItem panelGridItem",u:"panelGridItem tblItens txtTotalItem txtValorBruto"});
+function setarConfirmacao(campo, event) {
+	if (event.keyCode == 13) {
+		PrimeFaces.ab({
+			s : "btnAddItem",
+			p : "btnAddItem panelGridItem",
+			u : "panelGridItem tblItens txtTotalItem txtValorBruto"
+		});
 	}
-	if (isNaN(campo.value)){
+	if (isNaN(campo.value)) {
 		localStorage.setItem("confirmar", "false");
-	}else{
+	} else {
 		localStorage.setItem("confirmar", "true");
 	}
 }
 
-function confirmarProduto(){
+function confirmarProduto() {
 	var confirmar = localStorage.getItem("confirmar");
 	if (confirmar == 'true') {
-		PrimeFaces.ab({s:"btnAddItem",p:"btnAddItem panelGridItem",u:"panelGridItem tblItens txtTotalItem txtValorBruto"});
+		PrimeFaces.ab({
+			s : "btnAddItem",
+			p : "btnAddItem panelGridItem",
+			u : "panelGridItem tblItens txtTotalItem txtValorBruto"
+		});
 	}
 }
 
@@ -142,10 +150,33 @@ function setfocusButtom(id) {
 	document.getElementById(id).focus()
 }
 
-function clickedEnter(event){
+function clickedEnter(event) {
 	document.getElementById(event.id).onclick();
 }
 
 $(".naoaceitarenter").on("keypress", function(e) {
 	return e.keyCode != 13;
 });
+
+function maskCpfCnpj(obj){
+	$('#'+obj.id).inputmask('999.999.999-99[9]',{'placeholder': ' '}); 
+}
+
+
+function cpfCnpj(obj) {
+	valor = obj.value.replace(/\D/g, "");
+	if(valor.length >= 12){
+		$('#'+obj.id).inputmask('99.999.999/9999-99',{'placeholder': ' '});
+	}else{
+		$('#'+obj.id).inputmask('999.999.999-99[9]',{'placeholder': ' '});
+	}
+}
+
+function blurCpfCnpj(obj){
+	valor = obj.value.replace(/\D/g, "");
+	if (valor.length < 11){
+		$('#'+obj.id).val('');
+	} else if (valor.length > 11 && valor.length < 14){
+		$('#'+obj.id).val('');
+	}
+}

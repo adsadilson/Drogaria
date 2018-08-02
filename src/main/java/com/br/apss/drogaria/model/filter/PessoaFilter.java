@@ -17,6 +17,7 @@ public class PessoaFilter implements Serializable {
 	private Boolean cliente = false;
 	private Boolean fornecedor = false;
 	private Boolean funcionario = false;
+	private int qtdRegistros;
 
 	public String getNome() {
 		return nome;
@@ -104,6 +105,14 @@ public class PessoaFilter implements Serializable {
 
 	public void setFuncionario(Boolean funcionario) {
 		this.funcionario = funcionario;
+	}
+
+	public int getQtdRegistros() {
+		return qtdRegistros;
+	}
+
+	public void setQtdRegistros(int qtdRegistros) {
+		this.qtdRegistros = qtdRegistros;
 	}
 
 }

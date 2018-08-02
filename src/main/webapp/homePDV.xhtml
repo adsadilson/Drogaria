@@ -681,6 +681,7 @@ h2, .h2 {
 
 					<p:outputLabel value="Valor" style="height: 24x; font-size: 18px;" />
 					<p:inputText size="12" id="vlrCart"
+						value="#{vendaPDVBean.formaPagto.valor}"
 						style="color: red; text-align: right; height: 24x; font-size: 18px;"
 						validatorMessage="Informe um valor"
 						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
@@ -733,7 +734,7 @@ h2, .h2 {
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Confirma" icon="fa fa-check"
 							id="btnConfirmaCart" process="@this frm-pg-cart"
-							action="#{clienteBean.salvar()}"
+							action="#{vendaPDVBean.addCartao()}"
 							oncomplete="if(args.sucesso == true) PF('dialogPagtoCart').hide()" />
 					</p:toolbarGroup>
 				</p:toolbar>
@@ -836,7 +837,7 @@ h2, .h2 {
 
 
 		<p:dialog header="Forma de Pagto - Cheque(s)"
-			widgetVar="dialogPagtoChqe" modal="true" width="450" height="250"
+			widgetVar="dialogPagtoChqe" modal="true" width="460" height="250"
 			resizable="false" draggable="true" id="dgPagtoChqe" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
@@ -849,25 +850,47 @@ h2, .h2 {
 					<p:inputText size="12" id="vlrChqe"
 						style="color: red; text-align: right; height: 24x; font-size: 18px;"
 						validatorMessage="Informe um valor"
+						value="#{vendaPDVBean.formaPagto.valor}"
 						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
 						onfocus="formatoMoeda('vlrChqe')">
 						<f:validateDoubleRange minimum="0.01" />
 						<f:convertNumber type="currency" />
 					</p:inputText>
 
-					<p:outputLabel value="CPF/CNPJ" />
-					<p:inputText size="18" />
+					<p:outputLabel for="txtCpf" value="CPF/CNPJ" />
+
+					<ui:remove>
+						<p:inputText id="txtCpf"
+							value="#{vendaPDVBean.formaPagto.cpfCnpj}">
+							<p:ajax listener="#{vendaPDVBean.consultarCpfCnpj()}"
+								event="blur" process="@this" update="txtNomeTitular" />
+						</p:inputText>
+					</ui:remove>
+
+					<p:inputText id="txtCpf" onfocus="maskCpf(this)"
+						onblur="blurCpfCnpj(this)" onkeyup="cpfCnpj(this)"
+						value="#{vendaPDVBean.formaPagto.cpfCnpj}" required="true"
+						requiredMessage="O campo 'CPF/CNPJ' é obrigatório." size="18">
+						<p:ajax listener="#{vendaPDVBean.consultarCpfCnpj()}" event="blur"
+							process="@this" update="txtNomeTitular" />
+					</p:inputText>
 
 
-					<p:outputLabel value="Nome Titular" />
-					<p:inputText size="35" />
+					<p:outputLabel for="txtNomeTitular" value="Nome Titular" />
+					<p:inputText disabled="true"
+						value="#{vendaPDVBean.formaPagto.nomeTitular}" size="35"
+						id="txtNomeTitular" />
 
-					<p:outputLabel value="Nº Cheque" />
-					<p:inputText size="12" />
+					<p:outputLabel for="txtNumChq" value="Nº Cheque" />
+					<p:inputText id="txtNumChq" value="#{vendaPDVBean.formaPagto.doc}"
+						size="12" required="true"
+						requiredMessage="O campo 'Nº CHEQUE' é obrigatório." />
 
-					<p:outputLabel value="Bom para" />
-					<p:calendar size="12" onfocus="mascaraDtCalendar('dtchqe')"
-						id="dtchqe" locale="pt_BR" pattern="dd/MM/yyyy" />
+					<p:outputLabel for="dtchqe" value="Bom para" />
+					<p:calendar required="true"
+						requiredMessage="O campo 'BOM PARA' é obrigatório." size="12"
+						onfocus="mascaraDtCalendar('dtchqe')" id="dtchqe" locale="pt_BR"
+						pattern="dd/MM/yyyy" value="#{vendaPDVBean.formaPagto.vencimento}" />
 
 				</h:panelGrid>
 
@@ -876,7 +899,7 @@ h2, .h2 {
 					<p:toolbarGroup align="right" style="margin-right: 0px;">
 						<p:commandButton value="Confirma" icon="fa fa-check"
 							id="btnConfirmaChqe" process="@this frm-pg-chqe"
-							action="#{clienteBean.salvar()}"
+							action="#{clienteBean.salvar()}" update="frm-pg-chqe"
 							oncomplete="if(args.sucesso == true) PF('dialogPagtoChqe').hide()" />
 					</p:toolbarGroup>
 				</p:toolbar>
@@ -884,7 +907,8 @@ h2, .h2 {
 			</h:form>
 
 		</p:dialog>
-
+		<script>
+</script>
 
 	</ui:define>
 

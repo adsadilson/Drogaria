@@ -1,0 +1,71 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+	<p:panel styleClass="semPreenchimento">
+
+		<h:panelGrid columns="4"
+			columnClasses="rotulo300,campo180,campo180,campo165">
+
+			<p:outputLabel value="Última Compra" />
+
+			<p:inputText value="#{clienteBean.cliente.dataUltCompra}" size="12"
+				disabled="true" locale="pt_BR" pattern="dd/MM/yyyy"
+				style="text-align: center;" />
+
+			<p:outputLabel value="Vlr Últ. Compra" />
+
+			<p:inputNumber value="#{clienteBean.cliente.vlrUltimaCompra}"
+				disabled="true" decimalSeparator="," thousandSeparator="." size="12" />
+		</h:panelGrid>
+
+		<h:panelGrid columns="2" columnClasses="rotulo160,rotulo400">
+
+			<p:outputLabel value="Situação Serasa" />
+
+			<p:inputText value="#{clienteBean.cliente.situacaoSerasa}"
+				style="width:98%" maxlength="35" />
+
+			<p:outputLabel value="Limite de Crédito" />
+
+			<p:inputNumber value="#{clienteBean.cliente.limite}"
+				decimalSeparator="," thousandSeparator="." size="13" />
+
+			<p:outputLabel value="Banco" />
+
+			<p:inputText value="#{clienteBean.cliente.banco}" style="width:97%" />
+
+			<p:outputLabel value="Agência/Conta" />
+			<h:panelGroup>
+				<p:inputText value="#{clienteBean.cliente.agencia}" maxlength="25"
+					size="13" />
+				<p:inputText value="#{clienteBean.cliente.numConta}"
+					style="width:62%; margin-left:3px;" />
+			</h:panelGroup>
+
+			<p:outputLabel value="Permite Venda a Prazo" />
+			<h:panelGroup>
+				<p:selectBooleanCheckbox value="#{clienteBean.cliente.vendaAprazo}" />
+				<p:outputLabel value="Permite Pagto Com Cheque"
+					style="margin-left:125px; margin-right:30px;" />
+				<p:selectBooleanCheckbox value="#{clienteBean.cliente.pagtoCheque}" />
+			</h:panelGroup>
+
+			<p:outputLabel value="Bloquear" />
+			<p:selectOneRadio value="#{clienteBean.cliente.bloquearVenco}">
+				<f:selectItem itemLabel="Sim" itemValue="true" />
+				<f:selectItem itemLabel="Não" itemValue="false" />
+			</p:selectOneRadio>
+
+			<p:outputLabel value="Motivo Bloqueio" />
+			<p:inputText value="#{clienteBean.cliente.motivoBloqueio}"
+				style="width:98%" />
+
+		</h:panelGrid>
+
+
+	</p:panel>
+
+</ui:composition>

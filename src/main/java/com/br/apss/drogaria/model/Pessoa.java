@@ -66,6 +66,10 @@ public class Pessoa implements Serializable {
 	@Column(name = "nascimento", length = 10)
 	private Date nascimento;
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "data_ult_compra", length = 10)
+	private Date dataUltCompra;
+
 	@Column(name = "celular", length = 20)
 	private String celular;
 
@@ -90,6 +94,9 @@ public class Pessoa implements Serializable {
 
 	@Column(name = "dependente", length = 10)
 	private String dependente;
+
+	@Column(name = "situacao_serasa", length = 35)
+	private String situacaoSerasa;
 
 	@Column(name = "escolaridade", length = 80)
 	private String escolaridade;
@@ -206,7 +213,7 @@ public class Pessoa implements Serializable {
 	@Column(name = "tipo_conta", length = 80)
 	private String tipoConta;
 
-	@Column(name = "agencia", length = 10)
+	@Column(name = "agencia", length = 25)
 	private String agencia;
 
 	@Column(name = "dig_agencia", length = 5)
@@ -232,6 +239,9 @@ public class Pessoa implements Serializable {
 
 	@Column(name = "venda_aprazo", length = 1)
 	private Boolean vendaAprazo;
+
+	@Column(name = "pagto_cheque", length = 1)
+	private Boolean pagtoCheque;
 
 	@Column(name = "bloquear_vencto", length = 1)
 	private Boolean bloquearVenco;
@@ -498,6 +508,14 @@ public class Pessoa implements Serializable {
 		return telefone2;
 	}
 
+	public String getSituacaoSerasa() {
+		return situacaoSerasa;
+	}
+
+	public void setSituacaoSerasa(String situacaoSerasa) {
+		this.situacaoSerasa = situacaoSerasa == null ? null : situacaoSerasa.toUpperCase();
+	}
+
 	public void setTelefone2(String telefone2) {
 		this.telefone2 = telefone2;
 	}
@@ -516,6 +534,14 @@ public class Pessoa implements Serializable {
 
 	public void setCnae(String cnae) {
 		this.cnae = cnae == null ? null : cnae.toUpperCase();
+	}
+
+	public Boolean getPagtoCheque() {
+		return pagtoCheque;
+	}
+
+	public void setPagtoCheque(Boolean pagtoCheque) {
+		this.pagtoCheque = pagtoCheque;
 	}
 
 	public String getContato1() {
@@ -908,6 +934,14 @@ public class Pessoa implements Serializable {
 
 	public void setValidadeCnh(Date validadeCnh) {
 		this.validadeCnh = validadeCnh;
+	}
+
+	public Date getDataUltCompra() {
+		return dataUltCompra;
+	}
+
+	public void setDataUltCompra(Date dataUltCompra) {
+		this.dataUltCompra = dataUltCompra;
 	}
 
 	public boolean isInclusao() {
