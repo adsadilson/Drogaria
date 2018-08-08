@@ -101,8 +101,7 @@ public class ProdutoRepository implements Serializable {
 				criteria.add(Restrictions.eq("tipoProduto", filtro.getTipoProduto()));
 			}
 			if (filtro.getCategoria() != null) {
-				criteria.add(
-						Restrictions.eq("categoria", filtro.getCategoria()));
+				criteria.add(Restrictions.eq("categoria", filtro.getCategoria()));
 			}
 
 			if (filtro.getStatus() != null) {
@@ -149,7 +148,7 @@ public class ProdutoRepository implements Serializable {
 			return null;
 		}
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<Produto> buscarPorCodigoNome(String value) {
 

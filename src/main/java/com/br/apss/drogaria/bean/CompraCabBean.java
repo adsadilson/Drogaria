@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -384,6 +385,60 @@ public class CompraCabBean implements Serializable {
 
 	public List<TipoCobranca> getListaTipoCobrancas() {
 		return Arrays.asList(TipoCobranca.values());
+	}
+
+	public void lancarParcelas() {
+		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.parcela.getDataVencto())) {
+			int achou = -1;
+			for (int i = 0; i < this.listaParcelas.size(); i++) {
+				if (this.listaParcelas.get(i).getNumDoc().equals(this.parcela.getNumDoc())) {
+					achou = i;
+				}
+			}
+			if (achou < 0) {
+				validarValorDaParcela();
+				ContaAPagar contaAPagar = new ContaAPagar();
+				contaAPagar.setTipoCobranca(this.parcela.getTipoCobranca());
+				contaAPagar.setNumDoc(this.parcela.getNumDoc());
+				contaAPagar.setDataVencto(this.parcela.getDataVencto());
+				contaAPagar.setValor(this.getTotalAParcelar());
+				this.listaParcelas.add(contaAPagar);
+				recalcularParcelas();
+			} else {
+				Messages.addGlobalError("Parcela já cadastrada com esse documento!");
+				RequestContext requestContext = RequestContext.getCurrentInstance();
+				requestContext.addCallbackParam("sucesso", true);
+			}
+		} else {
+			Messages.addGlobalError("A data de vencimento da parcela esta maior que a data de emissão.");
+		}
+	}
+
+	public void recalcularParcelas() {
+		BigDecimal totalParcelas = BigDecimal.ZERO;
+		for (ContaAPagar cp : this.listaParcelas) {
+			totalParcelas = totalParcelas.add(cp.getValor());
+		}
+		this.parcela.setTotalGeralDeParcelas(totalParcelas);
+		this.setTotalAParcelar(this.compraCab.getValorItens().subtract(totalParcelas));
+	}
+
+	public void validarValorDaParcela() {
+		BigDecimal c = BigDecimal.ZERO;
+		BigDecimal p = this.compraCab.getValorItens();
+
+		for (ContaAPagar cp : this.listaParcelas) {
+			c = c.add(cp.getValor());
+		}
+
+		c = c.add(this.getTotalAParcelar());
+		if (p.compareTo(c) < 0) {
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			String valorformatado = nf.format(p);
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("A soma da(s) parcela(s) não dever ultrapassar o valor de: " + valorformatado);
+		}
+
 	}
 
 	public void gerarParcelas() {

@@ -23,7 +23,7 @@
 		<h:panelGrid id="panelGridPagto" columns="8">
 
 			<p:selectOneMenu id="comboTipoCobranca" autoWidth="false"
-				style="width:170px;" value="#{contaAPagarBean.parcela.tipoCobranca}"
+				style="width:110px;" value="#{contaAPagarBean.parcela.tipoCobranca}"
 				disabled="#{movimentacaoBean.movto.notInclusao}"
 				converter="omnifaces.SelectItemsConverter" required="true"
 				requiredMessage="Selecione tipo de cobrança">
@@ -33,31 +33,38 @@
 					itemValue="#{cob}" />
 			</p:selectOneMenu>
 
-			<p:outputLabel value="Parcela(s)"
+			<p:outputLabel for="txtNumDoc" value="Documento"
 				style="margin-left:8px; margin-right:2px;" />
-			<p:spinner size="1" min="1" max="100"
-				value="#{contaAPagarBean.parcela.numVezes}" />
+			<p:inputText id="txtNumDoc" size="10" required="true"
+				requiredMessage="Informe o número para o número"
+				value="#{contaAPagarBean.parcela.numDoc}">
+			</p:inputText>
 
-			<p:outputLabel value="Intervalo"
+			<p:outputLabel for="txtVenctoParc" value="Vencto"
 				style="margin-left:9px; margin-right:2px;" />
-			<p:spinner size="1" min="1" max="30"
-				value="#{contaAPagarBean.parcela.periodo}" />
+			<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
+				id="txtVenctoParc" styleClass="cssCalender"
+				mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
+				onfocus="mascaraDtCalendar('txtVenctoParc')"
+				style="margin-right:9px;"
+				value="#{contaAPagarBean.parcela.dataVencto}" required="true"
+				requiredMessage="Informe uma data para a vencimento">
+				<p:ajax process="@this" event="dateSelect" />
+			</p:calendar>
 
-			<p:outputLabel value="Dia(s)"
-				style="margin-left:1px; margin-right:9px;" />
 
 			<p:inputText id="txtVlrPag" required="true"
 				requiredMessage="Informe um valor" styleClass="total"
-				readonly="true" onfocus="formatoMoeda('txtVlrPag')"
+				readonly="false" onfocus="formatoMoeda('txtVlrPag')"
 				value="#{contaAPagarBean.totalAParcelar}" size="10">
 				<f:validateDoubleRange minimum="0.01" />
 				<f:convertNumber type="currency" />
 			</p:inputText>
 
-			<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
+			<p:commandButton icon="fa fa-download" title="Lançar Parcela"
 				disabled="#{contaAPagarBean.listaMovimentacoes.size() == 0}"
 				process="@this panelGridPagto" styleClass="total"
-				action="#{contaAPagarBean.gerarParcelas}"
+				action="#{contaAPagarBean.lancarParcelas}"
 				update="tblPagto panelGridPagto txtTotalPagto @(.total)"
 				id="salvarCommandButtonPagto" />
 		</h:panelGrid>
@@ -68,23 +75,34 @@
 			scrollHeight="160" value="#{contaAPagarBean.listaParcelas}" var="p">
 
 			<p:column style="width:35px; text-align:center;" headerText="Ação">
-				<p:commandButton icon="ui-icon-pencil" title="Editar"
-					styleClass="semPreenchimento"
-					oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
-					update=":dgEdicaoParcela" 
-					action="#{contaAPagarBean.abrirEdicao()}" >
-					<f:setPropertyActionListener target="#{contaAPagarBean.parcela}"
-						value="#{p}"  />
+				<p:commandButton title="Excluir" process="@this"
+					icon="ui-icon-trash" styleClass="semPreenchimento"
+					update="tblPagto panelGridPagto txtTotalPagto @(.total)"
+					action="#{contaAPagarBean.removerParcela()}">
+					<f:setPropertyActionListener value="#{p}"
+						target="#{contaAPagarBean.parcela}" />
 				</p:commandButton>
+				<ui:remove>
+					<p:commandButton icon="ui-icon-pencil" title="Editar"
+						styleClass="semPreenchimento"
+						oncomplete="PF('dialogEdicaoParcela').show()" process="@this"
+						update=":dgEdicaoParcela"
+						action="#{contaAPagarBean.abrirEdicao()}">
+						<f:setPropertyActionListener target="#{contaAPagarBean.parcela}"
+							value="#{p}" />
+					</p:commandButton>
+				</ui:remove>
 
 			</p:column>
 			<p:column style="width:35px; text-align:center;" headerText="Tipo">
 				<h:outputText value="#{p.tipoCobranca.sigla}" />
 			</p:column>
-			<p:column style="width:60px; text-align:center;"
-				headerText="Parcela(s)">
-				<h:outputText value="#{p.parcela}" />
-			</p:column>
+			<ui:remove>
+				<p:column style="width:60px; text-align:center;"
+					headerText="Parcela(s)">
+					<h:outputText value="#{p.parcela}" />
+				</p:column>
+			</ui:remove>
 			<p:column style="text-align:center; width:100px;"
 				headerText="Documento">
 				<h:outputText value="#{p.numDoc}" />

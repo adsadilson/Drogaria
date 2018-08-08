@@ -181,7 +181,7 @@ h2, .h2 {
 			closeOnEscape="true" appendTo="@(body)">
 
 			<h:form prependId="false" id="frmIniciarVenda"
-				onkeypress="if (event.keyCode == 13) { return true; }">
+				onkeypress="if (event.keyCode == 13) { return false; }">
 
 				<p:growl autoUpdate="true" />
 
@@ -190,28 +190,44 @@ h2, .h2 {
 
 					<p:tab title="Lista de Itens">
 
+						<p:hotkey bind="F4" update="txtPesq" process="@this"
+							actionListener="#{vendaPDVBean.hotkeyView()}" />
+
 						<h:panelGrid styleClass="semBorda" columns="4" id="panelGridItem"
 							style="margin-top:5px; margin-left:10px;">
 
-							<p:outputLabel for="txtProduto"
-								value="Código Barra ou Descrição do produto" />
+							<p:outputLabel value="Pesquisar produto por" />
 							<p:outputLabel for="txtQtde" value="Quantidade" />
 							<p:outputLabel value="Preço Unit." />
 							<p:outputLabel for="txtVlrTotal" value="Total R$" />
 
-							<p:autoComplete size="43" value="#{vendaPDVBean.produto}"
-								forceSelection="true" minQueryLength="3" required="true"
-								id="txtProduto" requiredMessage="Informe o produto"
-								completeMethod="#{vendaPDVBean.completarProduto}" var="produto"
-								itemLabel="#{produto.nome}" itemValue="#{produto}"
-								onkeyup="setarConfirmacao(this, event)">
+							<h:panelGroup id="txtPesq">
 
-								<p:ajax event="itemSelect"
-									oncomplete="setfocus('txtQtde'); confirmarProduto()"
-									update="txtVlrUnit txtVlrTotal"
-									listener="#{vendaPDVBean.setaProdutoPesquisado()}" />
+								<p:autoComplete size="43" value="#{vendaPDVBean.produto}"
+									forceSelection="true" minQueryLength="3" required="true"
+									id="txtProdutoPesq" requiredMessage="Informe o produto"
+									placeholder="DESCRIÇÃO"
+									rendered="#{!vendaPDVBean.flagPesquisar}"
+									completeMethod="#{vendaPDVBean.completarProduto}" var="produto"
+									itemLabel="#{produto.nome}" itemValue="#{produto}"
+									onkeyup="setarConfirmacao(this, event)">
 
-							</p:autoComplete>
+									<p:ajax event="itemSelect"
+										oncomplete="setfocus('txtQtde'); confirmarProduto()"
+										update="txtVlrUnit txtVlrTotal txtPesq"
+										listener="#{vendaPDVBean.setaProdutoPesquisado()}" />
+
+								</p:autoComplete>
+
+								<p:inputText size="43" placeholder="Código de Barra"
+									rendered="#{vendaPDVBean.flagPesquisar}"
+									value="#{vendaPDVBean.produto.codigoBarra}" required="true"
+									id="txtProdutoCod" requiredMessage="Informe o produto">
+									<p:ajax event="change" update="panelGridItem"
+										listener="#{vendaPDVBean.buscarCodigoBarra()}" />
+								</p:inputText>
+
+							</h:panelGroup>
 
 							<p:inputText id="txtQtde" required="true"
 								style="text-align: right;" onkeyup="somenteNumeros(this)"
@@ -256,7 +272,6 @@ h2, .h2 {
 									txtTotalItem panelGridResumoCalculo"
 									process="@this panelGridItem"
 									action="#{vendaPDVBean.addItem()}">
-									<p:focus for="txtProduto" />
 								</p:commandButton>
 
 							</h:panelGroup>
@@ -306,6 +321,14 @@ h2, .h2 {
 						</p:dataTable>
 
 						<p:toolbar styleClass="semPreenchimento" style="margin-top:26px;">
+
+							<p:toolbarGroup align="left">
+								<p:outputLabel styleClass="total"
+									value="Para pesquisar por descrição (F3)"
+									style="color:blue; height: 32px; font-size: 14px; margin-right:90px;">
+								</p:outputLabel>
+							</p:toolbarGroup>
+
 							<p:toolbarGroup align="right">
 								<p:outputLabel value="Total:"
 									style="font-size:20px; margin-right:15px; color:black" />

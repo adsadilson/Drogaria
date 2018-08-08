@@ -56,6 +56,8 @@ public class VendaPDVBean implements Serializable {
 
 	private Map<String, Integer> parcs = new HashMap<String, Integer>();
 
+	private boolean flagPesquisar = true;
+
 	@Inject
 	private ProdutoService produtoService;
 
@@ -73,6 +75,7 @@ public class VendaPDVBean implements Serializable {
 		listaDeItensVendidos.add(0, vendaDet);
 		vendaDet = new VendaDet();
 		produto = new Produto();
+		flagPesquisar = true;
 		calculoFechamento();
 	}
 
@@ -94,6 +97,10 @@ public class VendaPDVBean implements Serializable {
 			 */
 		}
 		calculoFechamento();
+	}
+
+	public void hotkeyView() {
+		flagPesquisar = false;
 	}
 
 	// Iniciar uma nova venda
@@ -131,6 +138,17 @@ public class VendaPDVBean implements Serializable {
 			vendaDet.setValorUnitario(produto.getVlrVenda());
 			calcSubTotal();
 		}
+	}
+
+	// Buscar Produto pelo codigo de barra
+	public void buscarCodigoBarra() {
+		if (null == produto) {
+			throw new NegocioException("Produto não localizado!");
+		}
+		produto = produtoService.porCodigoBarra(produto.getCodigoBarra());
+		vendaDet.setValorUnitario(produto.getVlrVenda());
+		calcSubTotal();
+		addItem();
 	}
 
 	// Calcular o sub-total com desconto ou acrescimo
@@ -348,6 +366,14 @@ public class VendaPDVBean implements Serializable {
 
 	public void setParcs(Map<String, Integer> parcs) {
 		this.parcs = parcs;
+	}
+
+	public boolean isFlagPesquisar() {
+		return flagPesquisar;
+	}
+
+	public void setFlagPesquisar(boolean flagPesquisar) {
+		this.flagPesquisar = flagPesquisar;
 	}
 
 }

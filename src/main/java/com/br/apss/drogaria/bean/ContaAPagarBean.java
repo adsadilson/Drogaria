@@ -341,11 +341,9 @@ public class ContaAPagarBean implements Serializable {
 		BigDecimal recalculo = BigDecimal.ZERO;
 		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.parcelaEditar.getDataVencto())) {
 			for (ContaAPagar pp : this.listaParcelas) {
-				if (pp.getParcela().equals(this.parcelaEditar.getParcela())) {
-					pp.setDataVencto(this.parcelaEditar.getDataVencto());
-					pp.setNumDoc(this.parcelaEditar.getNumDoc());
-					pp.setValor(this.parcelaEditar.getValor());
-				}
+				pp.setDataVencto(this.parcelaEditar.getDataVencto());
+				pp.setNumDoc(this.parcelaEditar.getNumDoc());
+				pp.setValor(this.parcelaEditar.getValor());
 				recalculo = recalculo.add(pp.getValor());
 			}
 			this.setTotalDasParcelas(recalculo);
@@ -776,6 +774,17 @@ public class ContaAPagarBean implements Serializable {
 		return pessoaService.listarFornecedore();
 	}
 
+	public void buscarCPF() {
+		Pessoa p = new Pessoa();
+		p = pessoaService.porId(this.cabContaApagar.getFornecedor().getId());
+		this.cabContaApagar.getFornecedor().setCpfCnpj(p.getCpfCnpj());
+	}
+
+	public void setarDocVencto() {
+		parcela.setNumDoc(cabContaApagar.getDocumento());
+		parcela.setDataVencto(somaDias(this.cabContaApagar.getDataDoc(), 30));
+	}
+
 	public void iniciarLancRateio() {
 		movimentacao = new Movimentacao();
 	}
@@ -874,6 +883,60 @@ public class ContaAPagarBean implements Serializable {
 		return data;
 	}
 
+	public void lancarParcelas() {
+		if (!validarDatas(this.cabContaApagar.getDataDoc(), this.parcela.getDataVencto())) {
+			int achou = -1;
+			for (int i = 0; i < this.listaParcelas.size(); i++) {
+				if (this.listaParcelas.get(i).getNumDoc().equals(this.parcela.getNumDoc())) {
+					achou = i;
+				}
+			}
+			if (achou < 0) {
+				validarValorDaParcela();
+				contaAPagar = new ContaAPagar();
+				contaAPagar.setTipoCobranca(this.parcela.getTipoCobranca());
+				contaAPagar.setNumDoc(this.parcela.getNumDoc());
+				contaAPagar.setDataVencto(this.parcela.getDataVencto());
+				contaAPagar.setValor(this.getTotalAParcelar());
+				this.listaParcelas.add(contaAPagar);
+				recalcularParcelas();
+			} else {
+				Messages.addGlobalError("Parcela já cadastrada com esse documento!");
+				RequestContext requestContext = RequestContext.getCurrentInstance();
+				requestContext.addCallbackParam("sucesso", true);
+			}
+		} else {
+			Messages.addGlobalError("A data de vencimento da parcela esta maior que a data de emissão.");
+		}
+	}
+
+	public void recalcularParcelas() {
+		BigDecimal totalParcelas = BigDecimal.ZERO;
+		for (ContaAPagar cp : this.listaParcelas) {
+			totalParcelas = totalParcelas.add(cp.getValor());
+		}
+		this.setTotalDasParcelas(totalParcelas);
+		this.setTotalAParcelar(this.movimentacao.getTotalRateio().subtract(totalParcelas));
+	}
+
+	public void validarValorDaParcela() {
+		BigDecimal c = BigDecimal.ZERO;
+		BigDecimal p = this.movimentacao.getTotalRateio();
+
+		for (ContaAPagar cp : this.listaParcelas) {
+			c = c.add(cp.getValor());
+		}
+
+		c = c.add(this.getTotalAParcelar());
+		if (p.compareTo(c) < 0) {
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			String valorformatado = nf.format(p);
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("A soma da(s) parcela(s) não dever ultrapassar o valor de: " + valorformatado);
+		}
+
+	}
+
 	public void gerarParcelas() {
 
 		BigDecimal qtde_parcela = new BigDecimal(this.parcela.getNumVezes());
@@ -921,6 +984,20 @@ public class ContaAPagarBean implements Serializable {
 				this.cabContaApagar.setValor(BigDecimal.ZERO);
 				this.setTotalDasParcelas(BigDecimal.ZERO);
 			}
+		}
+	}
+
+	public void removerParcela() {
+		int achou = -1;
+		for (int i = 0; i < this.listaParcelas.size(); i++) {
+			if (this.listaParcelas.get(i).getNumDoc().equals(parcela.getNumDoc())) {
+				achou = i;
+				break;
+			}
+		}
+		if (achou > -1) {
+			this.listaParcelas.remove(achou);
+			recalcularParcelas();
 		}
 	}
 

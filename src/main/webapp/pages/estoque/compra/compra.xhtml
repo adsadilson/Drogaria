@@ -320,8 +320,8 @@
 								onfocus="formatoMoeda('txtVlrProduto')" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax process="@this" update="groupDif txtVlrPag" event="blur"
-									listener="#{compraCabBean.calcDiferenca()}" />
+								<p:ajax process="@this" update="groupDif txtVlrPag"
+									event="change" listener="#{compraCabBean.calcDiferenca()}" />
 							</p:inputText>
 
 							<p:outputLabel for="txtVlrNota" value="Valor da Nota" />
@@ -337,9 +337,8 @@
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" update="groupDif txtVlrPag"
-										event="blur" listener="#{compraCabBean.calcDiferenca()}" />
+										event="change" listener="#{compraCabBean.calcDiferenca()}" />
 								</p:inputText>
-
 
 								<p:outputLabel value="Acr/Desc (+/-)"
 									style="margin-left:15px; margin-right:5px;" />
@@ -353,7 +352,6 @@
 								</p:outputLabel>
 							</h:panelGroup>
 
-
 						</h:panelGrid>
 
 					</p:tab>
@@ -363,8 +361,11 @@
 						<h:panelGrid styleClass="semBorda" columns="5" id="panelGridItem"
 							style="margin-top:5px; margin-left:10px;">
 
-							<p:outputLabel for="txtProduto"
-								value="Código Barra ou Descrição do produto" />
+							<p:selectOneRadio>
+								<f:selectItem itemLabel="Código de Barra" itemValue="true" />
+								<f:selectItem itemLabel="Descrição" itemValue="false" />
+							</p:selectOneRadio>
+
 							<p:outputLabel for="txtQtde" value="Qtde." />
 							<p:outputLabel value="Vlr Custo" />
 							<p:outputLabel for="txtVlrTotal" value="Total R$" />
@@ -424,10 +425,6 @@
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" maxFractionDigits="2" />
 								</p:inputText>
-
-								<p:commandButton icon="fa fa-cubes" size="10"
-									style="margin-left:5px;" disabled="true">
-								</p:commandButton>
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
@@ -518,7 +515,7 @@
 						<h:panelGrid id="panelGridPagto" columns="8"
 							style="margin-top:20px; margin-left:10px;">
 
-							<p:selectOneMenu autoWidth="false" style="width:215px;"
+							<p:selectOneMenu autoWidth="false" style="width:110px;"
 								value="#{compraCabBean.parcela.tipoCobranca}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo de cobrança">
@@ -528,34 +525,39 @@
 									itemValue="#{cob}" />
 							</p:selectOneMenu>
 
-							<p:outputLabel value="Parcela(s)"
+							<p:outputLabel for="txtNumDoc" value="Documento"
 								style="margin-left:8px; margin-right:2px;" />
-							<p:spinner size="1" min="1" max="100"
-								value="#{compraCabBean.parcela.numVezes}" />
+							<p:inputText id="txtNumDoc" size="10" required="true"
+								requiredMessage="Informe o número para o número"
+								value="#{compraCabBean.parcela.numVezes}">
+							</p:inputText>
 
-							<p:outputLabel value="Intervalo"
-								style="margin-left:4px; margin-right:2px;" />
-							<p:spinner size="1" min="1" max="30"
-								value="#{compraCabBean.parcela.periodo}" />
-
-							<p:outputLabel value="Dia(s)"
-								style="margin-left:4px; margin-right:9px;" />
+							<p:outputLabel for="txtVenctoParc" value="Vencimento"
+								style="margin-left:9px; margin-right:2px;" />
+							<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
+								id="txtVenctoParc" styleClass="cssCalender"
+								mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
+								onfocus="mascaraDtCalendar('txtVenctoParc')"
+								style="margin-right:9px;"
+								value="#{contaAPagarBean.parcela.dataVencto}" required="true"
+								requiredMessage="Informe uma data para a vencimento">
+								<p:ajax process="@this" event="dateSelect" />
+							</p:calendar>
 
 							<p:inputText id="txtVlrPag" required="true"
-								style="text-align: right;" requiredMessage="Informe um valor"
-								readonly="true" onfocus="formatoMoeda('txtVlrPag')"
-								value="#{compraCabBean.totalAParcelar}" size="12">
+								requiredMessage="Informe um valor" styleClass="total"
+								readonly="false" onfocus="formatoMoeda('txtVlrPag')"
+								value="#{compraCabBean.totalAParcelar}" size="10">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 							</p:inputText>
 
-							<p:commandButton icon="fa fa-cog" title="Gerar Parcela(s)"
+							<p:commandButton icon="fa fa-download" title="Lançar Parcela"
 								disabled="#{compraCabBean.listaDeItens.size() == 0}"
 								process="@this panelGridPagto"
-								action="#{compraCabBean.gerarParcelas}"
+								action="#{compraCabBean.lancarParcelas}"
 								update="tblPagto panelGridPagto totalGeralParcelas"
-								id="btnGerarParcela">
-							</p:commandButton>
+								id="btnGerarParcela" />
 
 						</h:panelGrid>
 
@@ -568,10 +570,7 @@
 							<p:column style="width:190px; " headerText="Tipo">
 								<h:outputText value="#{p.tipoCobranca.descricao}" />
 							</p:column>
-							<p:column style="width:60px; text-align:center;"
-								headerText="Parcela(s)">
-								<h:outputText value="#{p.parcela}" />
-							</p:column>
+
 							<p:column style="text-align:center; width:80px;"
 								headerText="Documento">
 								<h:outputText value="#{p.numDoc}" />

@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.service.ProdutoService;
 
-
 @FacesConverter(forClass = Produto.class)
 public class ProdutoConverter implements Converter {
 

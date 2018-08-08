@@ -48,7 +48,8 @@ public class Produto implements Serializable {
 	private TipoProduto tipoProduto;
 
 	@Column(name = "quantidade", precision = 12, scale = 2)
-	//@DecimalMin(value = "0.01", message = "O campo 'ESTOQUE' tem quer ser maior que 0")
+	// @DecimalMin(value = "0.01", message = "O campo 'ESTOQUE' tem quer ser maior
+	// que 0")
 	private BigDecimal quantidade = BigDecimal.ZERO;
 
 	@Column(name = "qtd_minima", precision = 12, scale = 2)
@@ -126,7 +127,7 @@ public class Produto implements Serializable {
 	}
 
 	public void setCodigoBarra(String codigoBarra) {
-		this.codigoBarra = codigoBarra;
+		this.codigoBarra = codigoBarra == null ? null : codigoBarra.toUpperCase();
 	}
 
 	public TipoProduto getTipoProduto() {
@@ -271,8 +272,8 @@ public class Produto implements Serializable {
 		BigDecimal novaQuantidade = this.getQuantidade().subtract(quantidade);
 
 		if (novaQuantidade.compareTo(BigDecimal.ZERO) < 0) {
-			throw new NegocioException("N�o h� disponibilidade no estoque de " + quantidade + " itens do produto "
-					+ this.getNome() + ".");
+			throw new NegocioException(
+					"N�o h� disponibilidade no estoque de " + quantidade + " itens do produto " + this.getNome() + ".");
 		}
 
 		this.setDtUltimaVenda(new Date());
