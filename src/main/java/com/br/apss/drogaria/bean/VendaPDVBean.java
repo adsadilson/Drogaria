@@ -104,7 +104,7 @@ public class VendaPDVBean implements Serializable {
 	}
 
 	// Iniciar uma nova venda
-	public void novo() {
+	public void iniciarNovaVenda() {
 		vendaCab = new VendaCab();
 		vendaDet = new VendaDet();
 		produto = new Produto();
@@ -142,9 +142,6 @@ public class VendaPDVBean implements Serializable {
 
 	// Buscar Produto pelo codigo de barra
 	public void buscarCodigoBarra() {
-		if (null == produto) {
-			throw new NegocioException("Produto não localizado!");
-		}
 		produto = produtoService.porCodigoBarra(produto.getCodigoBarra());
 		vendaDet.setValorUnitario(produto.getVlrVenda());
 		calcSubTotal();

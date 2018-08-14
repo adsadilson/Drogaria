@@ -133,21 +133,26 @@ function formatoMoedaS(id) {
 	});
 }
 
-function somenteNumeros(id) {
-	var er = /[^0-9,]/;
-	er.lastIndex = 0;
-	var campo = num;
-	if (er.test(campo.value)) {
-		campo.value = "";
+function somenteNumeros(num) {
+	var texto = num.value;
+	num.value = texto.replace(/[^0-9,]+/g, '');
+}
+
+function teste(campo, event) {
+	if (event.keyCode == 119) {
+		tipoPesquisa();
+	} else if (event.keyCode == 13) {
+		setarConfirmacao(campo[0], event)
 	}
 }
 
 function setfocus(id) {
-	document.getElementById(id).select()
+	document.getElementById(id).focus()
+	document.getElementById(id).select();
 }
 
 function setfocusButtom(id) {
-	document.getElementById(id).focus()
+	document.getElementById(id).select()
 }
 
 function clickedEnter(event) {
@@ -158,25 +163,30 @@ $(".naoaceitarenter").on("keypress", function(e) {
 	return e.keyCode != 13;
 });
 
-function maskCpfCnpj(obj){
-	$('#'+obj.id).inputmask('999.999.999-99[9]',{'placeholder': ' '}); 
+function maskCpfCnpj(obj) {
+	$('#' + obj.id).inputmask('999.999.999-99[9]', {
+		'placeholder' : ' '
+	});
 }
-
 
 function cpfCnpj(obj) {
 	valor = obj.value.replace(/\D/g, "");
-	if(valor.length >= 12){
-		$('#'+obj.id).inputmask('99.999.999/9999-99',{'placeholder': ' '});
-	}else{
-		$('#'+obj.id).inputmask('999.999.999-99[9]',{'placeholder': ' '});
+	if (valor.length >= 12) {
+		$('#' + obj.id).inputmask('99.999.999/9999-99', {
+			'placeholder' : ' '
+		});
+	} else {
+		$('#' + obj.id).inputmask('999.999.999-99[9]', {
+			'placeholder' : ' '
+		});
 	}
 }
 
-function blurCpfCnpj(obj){
+function blurCpfCnpj(obj) {
 	valor = obj.value.replace(/\D/g, "");
-	if (valor.length < 11){
-		$('#'+obj.id).val('');
-	} else if (valor.length > 11 && valor.length < 14){
-		$('#'+obj.id).val('');
+	if (valor.length < 11) {
+		$('#' + obj.id).val('');
+	} else if (valor.length > 11 && valor.length < 14) {
+		$('#' + obj.id).val('');
 	}
 }

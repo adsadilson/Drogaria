@@ -138,7 +138,7 @@ h2, .h2 {
 			<h:panelGrid width="100%">
 				<p:commandButton value="Iniciar Venda" styleClass="button"
 					icon="venda-icon" update="dgIniciarVenda"
-					action="#{vendaPDVBean.novo()}"
+					action="#{vendaPDVBean.iniciarNovaVenda()}"
 					oncomplete="PF('dialogIniciarVenda').show()" process="@this"
 					id="bntIniciarVenda">
 					<p:resetInput target="dgIniciarVenda" />
@@ -188,13 +188,23 @@ h2, .h2 {
 				<p:tabView prependId="false" onTabShow="setaFocoTab(index)"
 					style="width: 100%; height: 427px; margin-top:10px; ">
 
-					<p:tab title="Lista de Itens">
+					<p:tab title="Lista de Itens" id="lista_itens">
 
-						<p:hotkey bind="F4" update="txtPesq" process="@this"
+						<p:hotkey bind="F8" id="hotkey" update="txtPesq" process="@this"
 							actionListener="#{vendaPDVBean.hotkeyView()}" />
 
+
+						<p:remoteCommand name="tipoPesquisa" update="txtPesq"
+							process="@this" oncomplete="setfocus('txtProdutoPesq_input');"
+							actionListener="#{vendaPDVBean.hotkeyView()}" />
+
+
+						<p:remoteCommand name="tipoCodigo" update="frmIniciarVenda"
+							process="@this txtProdutoCod" 
+							actionListener="#{vendaPDVBean.buscarCodigoBarra()}" />
+
 						<h:panelGrid styleClass="semBorda" columns="4" id="panelGridItem"
-							style="margin-top:5px; margin-left:10px;">
+							style="margin-top:5px; margin-left:10px; ">
 
 							<p:outputLabel value="Pesquisar produto por" />
 							<p:outputLabel for="txtQtde" value="Quantidade" />
@@ -206,32 +216,29 @@ h2, .h2 {
 								<p:autoComplete size="43" value="#{vendaPDVBean.produto}"
 									forceSelection="true" minQueryLength="3" required="true"
 									id="txtProdutoPesq" requiredMessage="Informe o produto"
-									placeholder="DESCRIÇÃO"
+									placeholder="DESCRIÇÃO DO PRODUTO"
 									rendered="#{!vendaPDVBean.flagPesquisar}"
 									completeMethod="#{vendaPDVBean.completarProduto}" var="produto"
-									itemLabel="#{produto.nome}" itemValue="#{produto}"
-									onkeyup="setarConfirmacao(this, event)">
+									itemLabel="#{produto.nome}" itemValue="#{produto}">
 
-									<p:ajax event="itemSelect"
-										oncomplete="setfocus('txtQtde'); confirmarProduto()"
-										update="txtVlrUnit txtVlrTotal txtPesq"
+									<p:ajax event="itemSelect" oncomplete="setfocus('txtQtde');"
+										update="txtVlrUnit txtVlrTotal"
 										listener="#{vendaPDVBean.setaProdutoPesquisado()}" />
 
 								</p:autoComplete>
 
 								<p:inputText size="43" placeholder="Código de Barra"
 									rendered="#{vendaPDVBean.flagPesquisar}"
+									onkeydown="event.keyCode==13? tipoCodigo() : event.keyCode==119 ? tipoPesquisa() : false"
 									value="#{vendaPDVBean.produto.codigoBarra}" required="true"
 									id="txtProdutoCod" requiredMessage="Informe o produto">
-									<p:ajax event="change" update="panelGridItem"
-										listener="#{vendaPDVBean.buscarCodigoBarra()}" />
 								</p:inputText>
 
 							</h:panelGroup>
 
 							<p:inputText id="txtQtde" required="true"
 								style="text-align: right;" onkeyup="somenteNumeros(this)"
-								onkeypress="event.keyCode==13?setfocusButtom('txtVlrTotal'):''"
+								onkeypress="event.keyCode==13?setfocus('btnAddItem'): false"
 								validatorMessage="Informe uma quantidade"
 								converterMessage="Informe uma quantidade valida"
 								value="#{vendaPDVBean.vendaDet.quantidade}" size="9">
@@ -254,10 +261,10 @@ h2, .h2 {
 
 
 							<h:panelGroup>
-								<p:inputText id="txtVlrTotal" disabled="false"
+								<p:inputText id="txtVlrTotal" disabled="true"
 									style="text-align: right;"
 									validatorMessage="Informe um valor total"
-									onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+									onkeypress="event.keyCode==13?setfocus('btnAddItem'):''"
 									value="#{vendaPDVBean.vendaDet.valorTotal}" size="10"
 									onfocus="formatoMoeda('txtVlrTotal')">
 									<f:validateDoubleRange minimum="0.01" />
@@ -268,8 +275,10 @@ h2, .h2 {
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
+									onkeydown="event.keyCode == 13 ? setarConfirmacao(this, event) : false"
 									update="panelGridItem tblItens 
 									txtTotalItem panelGridResumoCalculo"
+									oncomplete="setfocus('txtProdutoCod')"
 									process="@this panelGridItem"
 									action="#{vendaPDVBean.addItem()}">
 								</p:commandButton>
@@ -324,7 +333,7 @@ h2, .h2 {
 
 							<p:toolbarGroup align="left">
 								<p:outputLabel styleClass="total"
-									value="Para pesquisar por descrição (F3)"
+									value="Para pesquisar por descrição (F8)"
 									style="color:blue; height: 32px; font-size: 14px; margin-right:90px;">
 								</p:outputLabel>
 							</p:toolbarGroup>
@@ -342,7 +351,7 @@ h2, .h2 {
 
 					</p:tab>
 
-					<p:tab title="Fechamento da Venda">
+					<p:tab title="Fechamento da Venda" id="fechamento_venda">
 
 						<p:panel styleClass="panelEspacamento0px">
 							<h:panelGrid>
@@ -930,8 +939,7 @@ h2, .h2 {
 			</h:form>
 
 		</p:dialog>
-		<script>
-</script>
+
 
 	</ui:define>
 
