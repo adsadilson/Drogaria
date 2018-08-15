@@ -180,8 +180,29 @@ h2, .h2 {
 			draggable="true" id="dgIniciarVenda" visible="false"
 			closeOnEscape="true" appendTo="@(body)">
 
+			<p:ajax event="close" oncomplete="PF('confirmacaoSair').show()"
+				process="@this" />
+
 			<h:form prependId="false" id="frmIniciarVenda"
 				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:confirmDialog appendTo="@(body)" header="Aviso"
+					widgetVar="confirmacaoSair" global="true" showEffect="fade"
+					hideEffect="fade">
+
+					<f:facet name="message">
+						<p
+							style="font-weight: bold; height: 20px; font-size: 20px; color: black;">
+							Existem uma venda em aberto,<br /> deseja manter para finalizar
+							em <br />outro momento?
+						</p>
+
+					</f:facet>
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
 
 				<p:growl autoUpdate="true" />
 
@@ -200,14 +221,18 @@ h2, .h2 {
 
 
 						<p:remoteCommand name="tipoCodigo" update="frmIniciarVenda"
-							process="@this txtProdutoCod" 
+							process="@this txtProdutoCod"
 							actionListener="#{vendaPDVBean.buscarCodigoBarra()}" />
+
+						<p:remoteCommand name="confirmaButton" update="frmIniciarVenda"
+							process="@this panelGridItem"
+							actionListener="#{vendaPDVBean.addItem()}" />
 
 						<h:panelGrid styleClass="semBorda" columns="4" id="panelGridItem"
 							style="margin-top:5px; margin-left:10px; ">
 
 							<p:outputLabel value="Pesquisar produto por" />
-							<p:outputLabel for="txtQtde" value="Quantidade" />
+							<p:outputLabel value="Quantidade" />
 							<p:outputLabel value="Preço Unit." />
 							<p:outputLabel for="txtVlrTotal" value="Total R$" />
 
@@ -221,7 +246,8 @@ h2, .h2 {
 									completeMethod="#{vendaPDVBean.completarProduto}" var="produto"
 									itemLabel="#{produto.nome}" itemValue="#{produto}">
 
-									<p:ajax event="itemSelect" oncomplete="setfocus('txtQtde');"
+									<p:ajax event="itemSelect"
+										oncomplete="setfocus('txtQtde_input');"
 										update="txtVlrUnit txtVlrTotal"
 										listener="#{vendaPDVBean.setaProdutoPesquisado()}" />
 
@@ -236,18 +262,14 @@ h2, .h2 {
 
 							</h:panelGroup>
 
-							<p:inputText id="txtQtde" required="true"
-								style="text-align: right;" onkeyup="somenteNumeros(this)"
+							<p:inputNumber id="txtQtde" inputStyle="text-align: right"
+								value="#{vendaPDVBean.vendaDet.quantidade}" size="9"
+								decimalSeparator="," thousandSeparator="."
 								onkeypress="event.keyCode==13?setfocus('btnAddItem'): false"
-								validatorMessage="Informe uma quantidade"
-								converterMessage="Informe uma quantidade valida"
-								value="#{vendaPDVBean.vendaDet.quantidade}" size="9">
-								<f:validateDoubleRange minimum="0.01" />
-								<f:convertNumber pattern="##,###,###,###.##"
-									minFractionDigits="2" />
-								<p:ajax event="change" process="@this" update="txtVlrTotal"
+								emptyValue="zero">
+								<p:ajax event="blur" process="@this" update="txtVlrTotal"
 									oncomplete="" listener="#{vendaPDVBean.calcSubTotal()}" />
-							</p:inputText>
+							</p:inputNumber>
 
 							<p:inputText id="txtVlrUnit" required="true"
 								style="text-align: right;"
@@ -275,11 +297,10 @@ h2, .h2 {
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
-									onkeydown="event.keyCode == 13 ? setarConfirmacao(this, event) : false"
+									onkeydown="event.keyCode == 13 ? confirmaButton() : false"
 									update="panelGridItem tblItens 
 									txtTotalItem panelGridResumoCalculo"
-									oncomplete="setfocus('txtProdutoCod')"
-									process="@this panelGridItem"
+									oncomplete="setfocus('txtProdutoCod')" process="@this"
 									action="#{vendaPDVBean.addItem()}">
 								</p:commandButton>
 
@@ -717,7 +738,7 @@ h2, .h2 {
 						style="color: red; text-align: right; height: 24x; font-size: 18px;"
 						validatorMessage="Informe um valor"
 						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
-						onfocus="formatoMoeda('vlrCart')">
+						onfocus="formatoMoeda('vlrCart'); this.selectionStart = this.selectionEnd = 500; this.select()">
 						<f:validateDoubleRange minimum="0.01" />
 						<f:convertNumber type="currency" />
 					</p:inputText>
@@ -842,14 +863,14 @@ h2, .h2 {
 					columnClasses="rotuloCart">
 
 					<p:outputLabel value="Valor" style="height: 32px; font-size: 20px;" />
-					<p:inputText size="12" id="vlrDin"
-						style="width:94%; height: 32px; font-size: 20px; color: red; text-align: right;"
-						validatorMessage="Informe um valor"
-						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
-						onfocus="formatoMoeda('vlrDin')">
-						<f:validateDoubleRange minimum="0.01" />
-						<f:convertNumber type="currency" />
-					</p:inputText>
+
+					<p:inputNumber size="12" id="vlrDin" required="true"
+						value="#{vendaPDVBean.formaPagto.valor}" onfocus="this.select()"
+						inputStyle="width:94%; height: 32px; font-size: 20px; color: red; text-align: right;"
+						validatorMessage="Informe um valor" symbol="R$ "
+						decimalSeparator="," thousandSeparator=".">
+					</p:inputNumber>
+
 
 				</h:panelGrid>
 
@@ -884,7 +905,7 @@ h2, .h2 {
 						validatorMessage="Informe um valor"
 						value="#{vendaPDVBean.formaPagto.valor}"
 						onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
-						onfocus="formatoMoeda('vlrChqe')">
+						onfocus="formatoMoeda('vlrChqe'); this.select()">
 						<f:validateDoubleRange minimum="0.01" />
 						<f:convertNumber type="currency" />
 					</p:inputText>

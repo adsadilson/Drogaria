@@ -145,7 +145,7 @@ public class ProdutoRepository implements Serializable {
 			return manager.createQuery("from Produto where codigoBarra = :codigoBarra", Produto.class)
 					.setParameter("codigoBarra", codigoBarra).getSingleResult();
 		} catch (NoResultException e) {
-			throw new NegocioException("Produto não localizado!");
+			throw new NegocioException("Código de barra não localizado!");
 		}
 	}
 

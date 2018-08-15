@@ -70,8 +70,12 @@ public class VendaPDVBean implements Serializable {
 	/********** Metodos **********/
 	// Adicionar item vendido
 	public void addItem() {
+		if (produto.getId() == null) {
+			throw new NegocioException("Produto não encontrado.");
+		}
 		vendaDet.setVendaCab(vendaCab);
 		vendaDet.setProduto(produto);
+		calcSubTotal();
 		listaDeItensVendidos.add(0, vendaDet);
 		vendaDet = new VendaDet();
 		produto = new Produto();
@@ -108,6 +112,7 @@ public class VendaPDVBean implements Serializable {
 		vendaCab = new VendaCab();
 		vendaDet = new VendaDet();
 		produto = new Produto();
+		listaDeItensVendidos.clear();
 	}
 
 	// Busca produto por codigo ou nome
@@ -160,11 +165,13 @@ public class VendaPDVBean implements Serializable {
 	// Calcular subTotal do item
 	public void calcSubTotal() {
 		BigDecimal result = BigDecimal.ZERO;
-		if (!vendaDet.getQuantidade().equals(null) && vendaDet.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
-			result = (vendaDet.getQuantidade().multiply(vendaDet.getValorUnitario()));
-			vendaDet.setValorTotal(result);
-			vendaDet.setValorUnitario(vendaDet.getValorTotal().divide(vendaDet.getQuantidade()));
+		if (vendaDet.getQuantidade().compareTo(BigDecimal.ZERO) <= 0) {
+			vendaDet.setQuantidade(new BigDecimal(1));
 		}
+		result = (vendaDet.getQuantidade().multiply(vendaDet.getValorUnitario()));
+		vendaDet.setValorTotal(result);
+		vendaDet.setValorUnitario(vendaDet.getValorTotal().divide(vendaDet.getQuantidade()));
+
 	}
 
 	// Calcular total dos itens vendidos

@@ -190,3 +190,5 @@ function blurCpfCnpj(obj) {
 		$('#' + obj.id).val('');
 	}
 }
+
+
