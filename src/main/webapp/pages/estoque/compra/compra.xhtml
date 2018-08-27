@@ -12,13 +12,13 @@
 
 		<script type="text/javascript">  
   
-	function setaFocoTab(tab){
+	function validarFocoTab(tab){
 		if (tab == 0){
 			
 		} else if (tab == 1){
 			document.getElementById("txtProduto_input").focus();
 		} else if (tab == 2){
-			
+			setaCampoDocVencto();
 		} 
 	}
 
@@ -62,23 +62,24 @@
 						<p:resetInput target="dgCompra" />
 					</p:commandButton>
 
-					<p:separator />
-
 					<p:commandButton icon="fa fa-filter" title="Filtrar Registro"
+						style="margin-left:5px;"
 						actionListener="#{compraCabBean.novoFiltro()}" update="frm-dialog"
 						oncomplete="PF('dialogFiltro').show()" process="@this">
 					</p:commandButton>
 
-					<p:outputLabel value="Documento"
-						style="margin-left:10px; margin-right:10px; color:black" />
+					<p:commandButton icon="fa fa-download" title="Exportar para XLS"
+						ajax="false" immediate="true">
+						<p:dataExporter type="xls" target="tblCompra" fileName="compras" />
+					</p:commandButton>
 
 					<p:inputText id="txtDoc" value="#{compraCabBean.filtro.doc}"
-						immediate="true">
+						style="margin-left:20px; margin-right:5px;" immediate="true"
+						size="30" placeholder="DIGITE O DOCUMENTO">
 					</p:inputText>
 
 					<p:commandButton id="txtPesquisa" icon="fa fa-search"
-						value="PESQUISA" style="margin-left:10px;" update="tblCompra"
-						process="@this txtDoc"
+						value="PESQUISA" update="tblCompra" process="@this txtDoc"
 						actionListener="#{compraCabBean.pesquisar()}">
 					</p:commandButton>
 
@@ -231,16 +232,22 @@
 
 
 		<p:dialog header="Entrada de Mercadoria" widgetVar="dialogCompra"
-			modal="true" width="830" height="435" resizable="false"
+			modal="true" width="830" height="450" resizable="false"
 			draggable="true" id="dgCompra" visible="false" closeOnEscape="true"
 			appendTo="@(body)">
 
 			<h:form prependId="false" id="frmEntrada"
-				onkeypress="if (event.keyCode == 13) { return true; }">
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+
+				<p:remoteCommand name="setaCampoDocVencto" update="panelGridPagto"
+					process="@this"
+					actionListener="#{compraCabBean.setarValoresDocVencto()}" />
+
 
 				<p:growl autoUpdate="true" />
 
-				<p:tabView prependId="false" onTabShow="setaFocoTab(index)"
+				<p:tabView prependId="false" onTabShow="validarFocoTab(index)"
 					style="width: 100%; height: 380px; margin-top:10px; ">
 
 					<p:tab title="Cabeçalho da Nota">
@@ -289,7 +296,7 @@
 								requiredMessage="Informe o documento"
 								value="#{compraCabBean.compraCab.documento}">
 								<p:ajax process="@this" update="panelGridCabNota" event="blur"
-									listener="#{compraCabBean.consultarNota()}" />
+									listener="#{compraCabBean.consultarLancNota()}" />
 							</p:inputText>
 
 							<p:outputLabel for="txtEmissao" value="Data Emissão" />
@@ -317,7 +324,7 @@
 								onkeypress="event.keyCode==13?setfocus('txtVlrNota'):''"
 								disabled="#{compraCabBean.listaDeItens.size() > 0}"
 								value="#{compraCabBean.compraCab.valorItens}"
-								onfocus="formatoMoeda('txtVlrProduto')" size="15">
+								onfocus="formatoMoeda('txtVlrProduto'); this.select()" size="15">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
 								<p:ajax process="@this" update="groupDif txtVlrPag"
@@ -333,7 +340,7 @@
 									onkeypress="event.keyCode==13?setfocus('txtVlrProduto'):''"
 									disabled="#{compraCabBean.listaDeItens.size() > 0}"
 									value="#{compraCabBean.compraCab.valorNota}"
-									onfocus="formatoMoeda('txtVlrNota')" size="15">
+									onfocus="formatoMoeda('txtVlrNota'); this.select()" size="15">
 									<f:validateDoubleRange minimum="0.01" />
 									<f:convertNumber type="currency" />
 									<p:ajax process="@this" update="groupDif txtVlrPag"
@@ -358,21 +365,25 @@
 
 					<p:tab title="Produtos">
 
+						<p:remoteCommand name="confirmaButton"
+							update="panelGridCabNota panelGridItem tblItens 
+									txtTotalItem  btnLancarParcela"
+							process="@this panelGridCabNota"
+							actionListener="#{compraCabBean.addItem()}" />
+
 						<h:panelGrid styleClass="semBorda" columns="5" id="panelGridItem"
 							style="margin-top:5px; margin-left:10px;">
 
-							<p:selectOneRadio>
-								<f:selectItem itemLabel="Código de Barra" itemValue="true" />
-								<f:selectItem itemLabel="Descrição" itemValue="false" />
-							</p:selectOneRadio>
-
+							<p:outputLabel value="Pesquisar por: " />
 							<p:outputLabel for="txtQtde" value="Qtde." />
 							<p:outputLabel value="Vlr Custo" />
 							<p:outputLabel for="txtVlrTotal" value="Total R$" />
 							<p:outputLabel value="Total (+/-)" />
 
-							<p:autoComplete size="37"
-								value="#{compraCabBean.compraDet.produto}" forceSelection="true"
+							<p:autoComplete size="34" inputStyle="text-transform: uppercase;"
+								value="#{compraCabBean.produto}"
+								rendered="#{!compraCabBean.pesPorCodBarra}"
+								placeholder="Descrição do produto" forceSelection="true"
 								minQueryLength="3" required="true" id="txtProduto"
 								requiredMessage="Informe o produto"
 								completeMethod="#{compraCabBean.completarProduto}" var="produto"
@@ -385,12 +396,12 @@
 								onkeypress="event.keyCode==13?setfocus('txtVlrTotal'):''"
 								validatorMessage="Informe uma quantidade"
 								converterMessage="Informe uma quantidade valida"
-								value="#{compraCabBean.compraDet.quantidade}" size="6">
+								value="#{compraCabBean.compraDet.quantidade}" size="7">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber pattern="##,###,###,###.##"
 									minFractionDigits="2" />
 								<p:ajax event="change" process="@this"
-									update="txtVlrUnit txtVlrTotalLiq" oncomplete=""
+									update="txtVlrUnit txtVlrTotalLiq"
 									listener="#{compraCabBean.calcValorCusto()}" />
 							</p:inputText>
 
@@ -398,7 +409,7 @@
 								style="text-align: right;"
 								requiredMessage="Informe um valor custo" disabled="true"
 								value="#{compraCabBean.compraDet.valorUnitario}"
-								onfocus="formatoMoeda('txtVlrUnit')" size="7">
+								onfocus="formatoMoeda('txtVlrUnit')" size="8">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" maxFractionDigits="4" />
 								<p:ajax process="@this" />
@@ -407,12 +418,12 @@
 							<p:inputText id="txtVlrTotal" required="true"
 								style="text-align: right;"
 								validatorMessage="Informe um valor total"
-								onkeypress="event.keyCode==13?setfocusButtom('btnAddItem'):''"
+								onkeypress="event.keyCode==13?setfocus('btnAddItem'):''"
 								value="#{compraCabBean.compraDet.valorTotal}"
 								onfocus="formatoMoeda('txtVlrTotal')" size="9">
 								<f:validateDoubleRange minimum="0.01" />
 								<f:convertNumber type="currency" />
-								<p:ajax event="change" process="@this"
+								<p:ajax event="blur" process="@this"
 									update="txtVlrUnit txtVlrTotalLiq"
 									listener="#{compraCabBean.calcValorCusto()}" />
 							</p:inputText>
@@ -428,11 +439,11 @@
 
 								<p:commandButton title="Adicionar" icon="fa fa-plus" size="10"
 									style="margin-left:5px;" id="btnAddItem"
-									update="panelGridCabNota panelGridItem tblItens 
-									txtTotalItem  btnGerarParcela"
+									update="tblItens panelGridItem txtTotalItem"
+									oncomplete="$(function(){PrimeFaces.focus('txtProduto_input');});"
+									onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 									process="@this panelGridCabNota panelGridItem"
 									action="#{compraCabBean.addItem()}">
-									<p:focus for="txtProduto" />
 								</p:commandButton>
 
 							</h:panelGroup>
@@ -445,7 +456,7 @@
 							style="margin-top: 1px; margin-left:10px; width:98%"
 							rowKey="#{obj.id}">
 
-							<p:column style="width: 310px">
+							<p:column style="width: 280px">
 								<h:outputText value="#{fn:substring(obj.produto.nome,0,37)}" />
 							</p:column>
 
@@ -474,7 +485,8 @@
 								</h:outputText>
 							</p:column>
 
-							<p:column headerText="" style="text-align: center; padding: 0;"
+							<p:column headerText=""
+								style="width: 80px; text-align: center; padding: 0;"
 								exportable="false">
 								<p:commandButton icon="ui-icon-pencil" title="Editar"
 									styleClass="semPreenchimento" update="edit"
@@ -486,7 +498,7 @@
 
 								<p:commandButton title="Excluir" process="@this"
 									update="panelGridCabNota panelGridItem tblItens txtTotalItem 
-									btnGerarParcela tblPagto totalGeralParcelas"
+									btnLancarParcela tblPagto totalGeralParcelas"
 									action="#{compraCabBean.removerItem()}" icon="ui-icon-trash"
 									styleClass="semPreenchimento">
 									<f:setPropertyActionListener value="#{obj}"
@@ -510,12 +522,12 @@
 
 					</p:tab>
 
-					<p:tab title="Fatura(s)">
+					<p:tab title="Fatura(s)" disabled="false">
 
 						<h:panelGrid id="panelGridPagto" columns="8"
 							style="margin-top:20px; margin-left:10px;">
 
-							<p:selectOneMenu autoWidth="false" style="width:110px;"
+							<p:selectOneMenu autoWidth="false" style="width:150px;"
 								value="#{compraCabBean.parcela.tipoCobranca}"
 								converter="omnifaces.SelectItemsConverter" required="true"
 								requiredMessage="Selecione tipo de cobrança">
@@ -523,28 +535,31 @@
 								<f:selectItems value="#{compraCabBean.listaTipoCobrancas}"
 									var="cob" itemLabel="#{cob.sigla} - #{cob.descricao}"
 									itemValue="#{cob}" />
+								<p:ajax event="change" process="@this"
+									oncomplete="$(function(){PrimeFaces.focus('txtNumDoc');});" />
 							</p:selectOneMenu>
 
-							<p:outputLabel for="txtNumDoc" value="Documento"
+							<p:outputLabel for="txtNumDoc" value="Doc."
 								style="margin-left:8px; margin-right:2px;" />
 							<p:inputText id="txtNumDoc" size="10" required="true"
 								requiredMessage="Informe o número para o número"
-								value="#{compraCabBean.parcela.numVezes}">
+								onkeypress="event.keyCode==13?setfocus('txtVenctoParc_input'):''"
+								value="#{compraCabBean.parcela.numDoc}">
 							</p:inputText>
 
 							<p:outputLabel for="txtVenctoParc" value="Vencimento"
 								style="margin-left:9px; margin-right:2px;" />
 							<p:calendar size="10" pattern="dd/MM/yyyy" locale="pt_BR"
 								id="txtVenctoParc" styleClass="cssCalender"
-								mindate="#{contaAPagarBean.cabContaApagar.dataDoc}"
+								mindate="#{compraCabBean.cabContaApagar.dataDoc}"
 								onfocus="mascaraDtCalendar('txtVenctoParc')"
 								style="margin-right:9px;"
-								value="#{contaAPagarBean.parcela.dataVencto}" required="true"
+								value="#{compraCabBean.parcela.dataVencto}" required="true"
 								requiredMessage="Informe uma data para a vencimento">
-								<p:ajax process="@this" event="dateSelect" />
 							</p:calendar>
 
 							<p:inputText id="txtVlrPag" required="true"
+								onkeypress="event.keyCode==13?setfocus('btnLancarParcela'):''"
 								requiredMessage="Informe um valor" styleClass="total"
 								readonly="false" onfocus="formatoMoeda('txtVlrPag')"
 								value="#{compraCabBean.totalAParcelar}" size="10">
@@ -555,9 +570,10 @@
 							<p:commandButton icon="fa fa-download" title="Lançar Parcela"
 								disabled="#{compraCabBean.listaDeItens.size() == 0}"
 								process="@this panelGridPagto"
+								onkeypress="if (event.keyCode == 13) { clickedEnter(this) }"
 								action="#{compraCabBean.lancarParcelas}"
 								update="tblPagto panelGridPagto totalGeralParcelas"
-								id="btnGerarParcela" />
+								id="btnLancarParcela" />
 
 						</h:panelGrid>
 
@@ -588,7 +604,7 @@
 								</h:outputText>
 							</p:column>
 							<p:column headerText="Ação"
-								style="text-align: center; padding: 0; width:65px;"
+								style="text-align: center; padding: 0; width:80px;"
 								exportable="false">
 								<p:commandButton icon="ui-icon-pencil" title="Editar"
 									styleClass="semPreenchimento" update="editParcela"
@@ -597,6 +613,15 @@
 									<f:setPropertyActionListener target="#{compraCabBean.parcela}"
 										value="#{p}" />
 								</p:commandButton>
+
+								<p:commandButton title="Excluir" process="@this"
+									update="tblPagto panelGridPagto totalGeralParcelas"
+									action="#{compraCabBean.removerParcela()}" icon="ui-icon-trash"
+									styleClass="semPreenchimento">
+									<f:setPropertyActionListener value="#{p}"
+										target="#{compraCabBean.parcela}" />
+								</p:commandButton>
+
 							</p:column>
 
 						</p:dataTable>
@@ -675,7 +700,7 @@
 					<p:inputText id="txtEdicaoVlrTotal" required="true"
 						style="text-align: right;"
 						validatorMessage="Informe um valor total"
-						onkeypress="event.keyCode==13?setfocusButtom('salvarCommandButtonItem'):''"
+						onkeypress="event.keyCode==13?setfocus('salvarCommandButtonItem'):''"
 						value="#{compraCabBean.compraDetSelecionado.valorTotal}"
 						onfocus="formatoMoeda('txtEdicaoVlrTotal')" size="11">
 						<f:validateDoubleRange minimum="0.01" />
@@ -704,7 +729,7 @@
 		<!-- DIALOG EDIÇÃO DE FATURA(S) -->
 		<p:dialog header="Edição de fatura(s)" widgetVar="dialogEdicaoParcela"
 			modal="true" resizable="false" draggable="true" id="dgEdicaoParcela"
-			closeOnEscape="true" width="300" height="200" appendTo="@(body)">
+			closeOnEscape="true" width="300" height="165" appendTo="@(body)">
 
 			<p:ajax event="close" update="" />
 
@@ -716,14 +741,10 @@
 				<h:panelGrid id="panelEdicaoFatura" columns="2"
 					style="margin-top:10px;" columnClasses="rotuloCabecalho">
 
-
-					<p:outputLabel value="Parcela" />
-					<p:inputText value="#{compraCabBean.parcelaEditar.parcela}"
-						disabled="true" size="11" />
-
-					<p:outputLabel value="Documento" />
+					<p:outputLabel for="txtEditDoc" value="Documento" />
 					<p:inputText value="#{compraCabBean.parcelaEditar.numDoc}"
-						size="11"
+						size="11" id="txtEditDoc" required="true"
+						requiredMessage="Informe o documento"
 						onkeypress="event.keyCode==13?setfocus('txtEdicaoVencimento'):''">
 					</p:inputText>
 
@@ -739,7 +760,7 @@
 					<p:outputLabel value="Valor" for="txtEdicaoVlrPag" />
 					<p:inputText id="txtEdicaoVlrPag" required="true"
 						requiredMessage="Informe um valor"
-						onkeypress="event.keyCode==13?setfocusButtom('salvarCommandButtonParcela'):''"
+						onkeypress="event.keyCode==13?setfocus('salvarCommandButtonParcela'):''"
 						onfocus="formatoMoeda('txtEdicaoVlrPag')"
 						value="#{compraCabBean.parcelaEditar.valor}" placeholder="VALOR"
 						size="11">

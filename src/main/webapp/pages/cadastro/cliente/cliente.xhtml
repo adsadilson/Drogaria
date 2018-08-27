@@ -95,6 +95,10 @@
 							target="#{clienteBean.filtro.origem}" />
 					</p:commandButton>
 
+					<p:commandButton icon="fa fa-print" value="Relatorio"
+					 ajax="false" onclick="this.form.target='_blank'"	action="#{clienteBean.gerarRelatorio()}">
+					</p:commandButton>
+
 					<p:defaultCommand target="btnPesquisar" />
 
 				</p:toolbarGroup>

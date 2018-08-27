@@ -60,6 +60,8 @@ public class CompraCabBean implements Serializable {
 
 	private CompraDet compraDet;
 
+	private Produto produto;
+
 	private CompraDet compraDetSelecionado;
 
 	private CompraCab compraCabSelecionado;
@@ -112,6 +114,16 @@ public class CompraCabBean implements Serializable {
 
 	private String edicao = "S";
 
+	private boolean pesPorCodBarra = false;
+
+	public boolean isPesPorCodBarra() {
+		return pesPorCodBarra;
+	}
+
+	public void setPesPorCodBarra(boolean pesPorCodBarra) {
+		this.pesPorCodBarra = pesPorCodBarra;
+	}
+
 	private boolean isToggle = false;
 
 	@PostConstruct
@@ -155,6 +167,7 @@ public class CompraCabBean implements Serializable {
 		this.parcela = new ContaAPagar();
 		this.listaDeItens = new ArrayList<CompraDet>();
 		this.listaParcelas = new ArrayList<ContaAPagar>();
+		this.produto = new Produto();
 	}
 
 	public void novoFiltro() {
@@ -250,14 +263,14 @@ public class CompraCabBean implements Serializable {
 		}
 	}
 
-	public void consultarNota() {
-		if (StringUtils.isNotBlank(this.compraCab.getDocumento())) {
-			CompraCab cab = compraCabService.porDocumento(this.compraCab.getDocumento());
-			if (null != cab) {
-				if (cab.getFornecedor().equals(this.compraCab.getFornecedor())
-						&& cab.getDocumento().equals(this.compraCab.getDocumento())
-						&& extrairData(cab.getDataEmissao()).equals(extrairData(this.compraCab.getDataEmissao()))) {
-					Messages.addGlobalInfo("Nota já lançanda para esse fornecedor por favor verifique!");
+	public void consultarLancNota() {
+		if (null == this.compraCab.getId()) {
+			if (StringUtils.isNotBlank(this.compraCab.getDocumento()) && this.compraCab.getFornecedor() != null) {
+				CompraCab cab = compraCabService.consultarNota(this.compraCab.getDocumento(),
+						this.compraCab.getFornecedor());
+				if (null != cab) {
+					throw new NegocioException("Nota de documento " + cab.getDocumento()
+							+ ", já lançanda para esse fornecedor por favor verifique!");
 				}
 			}
 		}
@@ -271,6 +284,12 @@ public class CompraCabBean implements Serializable {
 		return null;
 	}
 
+	// Buscar Produto pelo codigo de barra
+	public void buscarCodigoBarra() {
+		produto = produtoService.porCodigoBarra(produto.getCodigoBarra());
+		produto.setCodigoBarra(produto.getNome());
+	}
+
 	public void limparCampo() {
 		if (null == this.compraDet.getProduto()) {
 			this.compraDet = new CompraDet();
@@ -278,10 +297,16 @@ public class CompraCabBean implements Serializable {
 	}
 
 	public void addItem() {
+		if (produto.getId() == null || (compraDet.getQuantidade().compareTo(BigDecimal.ZERO) < 0)
+				|| compraDet.getValorTotal().compareTo(BigDecimal.ZERO) < 0) {
+			throw new NegocioException("Produto incompleto para o lançamento por favor verificar");
+		}
 		this.compraDet.setCompraCab(this.compraCab);
+		this.compraDet.setProduto(produto);
 		this.compraDet.setVinculo(this.compraCab.getVinculo());
 		this.listaDeItens.add(0, this.compraDet);
 		this.compraDet = new CompraDet();
+		this.produto = new Produto();
 		this.compraDet.setTotalDeItensGeral(calcularTotalItens());
 	}
 
@@ -321,7 +346,15 @@ public class CompraCabBean implements Serializable {
 		if (!validarDatas(this.compraCab.getDataEntrada(), this.parcelaEditar.getDataVencto())) {
 
 			for (ContaAPagar pp : this.listaParcelas) {
-				if (pp.getParcela().equals(this.parcelaEditar.getParcela())) {
+				if (pp.getNumDoc().equals(this.parcela.getNumDoc())) {
+
+					for (int i = 0; i < this.listaParcelas.size(); i++) {
+						if (listaParcelas.get(i).getNumDoc().equals(this.parcelaEditar.getNumDoc())) {
+							FacesContext.getCurrentInstance().validationFailed();
+							throw new NegocioException("Fatura já cadastrada com esse documento!");
+						}
+					}
+
 					pp.setDataVencto(this.parcelaEditar.getDataVencto());
 					pp.setNumDoc(this.parcelaEditar.getNumDoc());
 					pp.setValor(this.parcelaEditar.getValor());
@@ -335,7 +368,24 @@ public class CompraCabBean implements Serializable {
 		}
 	}
 
+	public void removerParcela() {
+		int achou = -1;
+		for (int i = 0; i < this.listaParcelas.size(); i++) {
+			if (this.listaParcelas.get(i).getNumDoc().equals(this.parcela.getNumDoc())) {
+				achou = i;
+			}
+		}
+		if (achou > -1) {
+			this.listaParcelas.remove(achou);
+			recalcularParcelas();
+			this.parcela.setTotalGeralDeParcelas(recalcularParcela());
+		}
+	}
+
 	public void salvar() {
+
+		consultarLancNota();
+
 		if (recalcularParcela().compareTo(BigDecimal.ZERO) == 0) {
 			throw new NegocioException("Lançamento incompleto por favor verifique!");
 		}
@@ -349,8 +399,18 @@ public class CompraCabBean implements Serializable {
 		}
 
 		this.compraCab.setItens(this.listaDeItens);
+
 		compraCabService.salvar(this.compraCab);
+
+		this.cabContaApagar.setDataDoc(this.compraCab.getDataEntrada());
+		this.cabContaApagar.setDataLanc(this.compraCab.getDataEntrada());
+		this.cabContaApagar.setDocumento(this.compraCab.getDocumento());
+		this.cabContaApagar.setValor(this.compraCab.getValorNota());
+		this.cabContaApagar.setFornecedor(this.compraCab.getFornecedor());
+		this.cabContaApagar.setUsuario(this.compraCab.getUsuario());
+		this.cabContaApagar.setVinculo(this.compraCab.getVinculo());
 		this.cabContaApagar.setListaContaAPagars(this.listaParcelas);
+		this.cabContaApagar.setDataVencto(this.listaParcelas.get(0).getDataVencto());
 		cabContaApagarService.salvar(this.cabContaApagar);
 
 		RequestContext request = RequestContext.getCurrentInstance();
@@ -400,17 +460,27 @@ public class CompraCabBean implements Serializable {
 				ContaAPagar contaAPagar = new ContaAPagar();
 				contaAPagar.setTipoCobranca(this.parcela.getTipoCobranca());
 				contaAPagar.setNumDoc(this.parcela.getNumDoc());
+				contaAPagar.setDataDoc(this.compraCab.getDataEntrada());
 				contaAPagar.setDataVencto(this.parcela.getDataVencto());
 				contaAPagar.setValor(this.getTotalAParcelar());
+				contaAPagar.setValorApagar(this.getTotalAParcelar());
+				contaAPagar.setAgrupadorMovimentacao(this.compraCab.getVinculo());
+				contaAPagar.setUsuario(this.compraCab.getUsuario());
+				contaAPagar.setFornecedor(this.compraCab.getFornecedor());
 				this.listaParcelas.add(contaAPagar);
 				recalcularParcelas();
 			} else {
-				Messages.addGlobalError("Parcela já cadastrada com esse documento!");
-				RequestContext requestContext = RequestContext.getCurrentInstance();
-				requestContext.addCallbackParam("sucesso", true);
+				Messages.addGlobalError("Fatura já cadastrada com esse documento!");
 			}
 		} else {
 			Messages.addGlobalError("A data de vencimento da parcela esta maior que a data de emissão.");
+		}
+	}
+
+	public void setarValoresDocVencto() {
+		if (this.compraCab.getDataEntrada() != null && StringUtils.isNotBlank(this.compraCab.getDocumento())) {
+			this.parcela.setNumDoc(this.compraCab.getDocumento());
+			this.parcela.setDataVencto(somaDias(this.compraCab.getDataEntrada(), 30));
 		}
 	}
 
@@ -420,7 +490,7 @@ public class CompraCabBean implements Serializable {
 			totalParcelas = totalParcelas.add(cp.getValor());
 		}
 		this.parcela.setTotalGeralDeParcelas(totalParcelas);
-		this.setTotalAParcelar(this.compraCab.getValorItens().subtract(totalParcelas));
+		this.setTotalAParcelar(this.compraCab.getValorNota().subtract(totalParcelas));
 	}
 
 	public void validarValorDaParcela() {
@@ -483,6 +553,7 @@ public class CompraCabBean implements Serializable {
 		return cal.getTime();
 	}
 
+	@SuppressWarnings("unused")
 	private Date extrairData(Date data) {
 		DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 		try {
@@ -666,6 +737,14 @@ public class CompraCabBean implements Serializable {
 
 	public void setPagtoService(PagamentoService pagtoService) {
 		this.pagtoService = pagtoService;
+	}
+
+	public Produto getProduto() {
+		return produto;
+	}
+
+	public void setProduto(Produto produto) {
+		this.produto = produto;
 	}
 
 }

@@ -2,6 +2,7 @@ package com.br.apss.drogaria.bean;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import com.br.apss.drogaria.enums.Sexo;
 import com.br.apss.drogaria.enums.TipoPessoa;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.filter.PessoaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -42,6 +44,9 @@ public class ClienteBean implements Serializable {
 	@Inject
 	private PessoaService clienteService;
 
+	@Inject
+	private Relatorio relat;
+
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
@@ -49,6 +54,13 @@ public class ClienteBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+	}
+
+	public void gerarRelatorio() {
+		List<Pessoa> list = clienteService.listarClientes();
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Clientes");
+		relat.gerarRelatorio("/relatorios/reportCliente.jrxml", "listaDeClientes", par, list);
 	}
 
 	public void salvar() {

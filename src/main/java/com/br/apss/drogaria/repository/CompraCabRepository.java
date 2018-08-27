@@ -17,6 +17,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.br.apss.drogaria.model.CompraCab;
 import com.br.apss.drogaria.model.ContaAPagar;
+import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.filter.CompraCabFilter;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -53,9 +54,9 @@ public class CompraCabRepository implements Serializable {
 			manager.createNativeQuery("delete from cab_conta_apagar_conta_apagar where conta_apagar_id = :id")
 					.setParameter("id", cp.getId()).executeUpdate();
 		}
-		
+
 		manager.createNativeQuery("delete from cab_conta_apagar where vinculo = :vinculo")
-		.setParameter("vinculo", obj.getVinculo()).executeUpdate();
+				.setParameter("vinculo", obj.getVinculo()).executeUpdate();
 
 		manager.createNativeQuery("delete from conta_apagar where movimentacao_vinculo = :vinculo")
 				.setParameter("vinculo", obj.getVinculo()).executeUpdate();
@@ -66,10 +67,12 @@ public class CompraCabRepository implements Serializable {
 		return manager.find(CompraCab.class, id);
 	}
 
-	public CompraCab porDocumento(String documento) {
+	public CompraCab consultarNota(String documento, Pessoa fornecedor) {
 		try {
-			return manager.createQuery("from CompraCab where documento = :documento", CompraCab.class)
-					.setParameter("documento", documento).getSingleResult();
+			return manager
+					.createQuery("from CompraCab where documento = :documento and fornecedor = :fornecedor",
+							CompraCab.class)
+					.setParameter("documento", documento).setParameter("fornecedor", fornecedor).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -112,7 +115,6 @@ public class CompraCabRepository implements Serializable {
 			criteria.add(Restrictions.ilike("documento", filtro.getDoc(), MatchMode.ANYWHERE));
 		}
 
-
 		if (filtro.getEmissaoIni() != null) {
 			criteria.add(Restrictions.ge("dataEmissao", filtro.getEmissaoIni()));
 		}
@@ -120,7 +122,7 @@ public class CompraCabRepository implements Serializable {
 		if (filtro.getEmissaoFim() != null) {
 			criteria.add(Restrictions.le("dataEmissao", filtro.getEmissaoFim()));
 		}
-		
+
 		if (filtro.getEntradaIni() != null) {
 			criteria.add(Restrictions.ge("dataEntrada", filtro.getEntradaIni()));
 		}
@@ -140,7 +142,7 @@ public class CompraCabRepository implements Serializable {
 		if (filtro.getValorNT2() != null) {
 			criteria.add(Restrictions.le("valorNota", filtro.getValorNT2()));
 		}
-		
+
 		if (filtro.getValorP1() != null) {
 			criteria.add(Restrictions.ge("valorItens", filtro.getValorP1()));
 		}
