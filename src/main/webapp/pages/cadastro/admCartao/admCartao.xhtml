@@ -54,6 +54,13 @@
 							fileName="admCartaos" />
 					</p:commandButton>
 
+
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Admin de Cartões"
+							onclick="PF('dialogAdmCartao').show()" icon="fa fa-print"
+							action="#{admCartaoBean.novoFiltro}" update="fmRelatAdmCartao" />
+					</p:menuButton>
+
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
 					</span>
@@ -325,6 +332,53 @@
 							update="tblAdmCartao panelFiltro" />
 					</p:toolbarGroup>
 				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+
+		<p:dialog header="Relatório - Adm de Cartão" widgetVar="dialogAdmCartao" modal="true"
+			width="325" height="160" resizable="false" draggable="true"
+			id="dgAdmCartao" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatAdmCartao" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid columns="2" columnClasses="rotulo60" style="margin-top: 10px;">
+
+					<p:outputLabel value="Operadora" />
+					<p:inputText style="width:98%" maxlength="80"
+						value="#{admCartaoBean.filtro.operadora}" />
+
+					<p:outputLabel value="Tipo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{admCartaoBean.filtro.tipoCartao}">
+						<f:selectItem itemLabel="Selecione..." />
+						<f:selectItems value="#{admCartaoBean.tipoCartao}" var="tipo"
+							itemValue="#{tipo}" itemLabel="#{tipo.descricao}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{admCartaoBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right:8px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatAdmCartao"
+							actionListener="#{admCartaoBean.gerarRelatAdmCartao()}"
+							ajax="false" onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
 			</h:form>
 		</p:dialog>
 

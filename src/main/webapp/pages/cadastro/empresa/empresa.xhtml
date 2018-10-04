@@ -1,0 +1,112 @@
+<ui:composition template="/WEB-INF/template/layout.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:o="http://omnifaces.org/ui">
+
+	<ui:define name="titulo">Pesquisa Empresa</ui:define>
+
+	<ui:define name="corpo">
+
+		<style>
+.rotulo100 {
+	width: 85px !important;
+}
+
+.rotuloInfFone {
+	width: 100px !important;
+}
+
+.campo {
+	width: 250px;
+}
+
+.campo415 {
+	width: 445px !important;
+}
+
+.campo180 {
+	width: 180px !important;
+}
+
+.rotulo60 {
+	width: 85px !important;
+}
+
+.rotulo160 {
+	width: 160px !important;
+}
+
+.rotulo300 {
+	width: 311px !important;
+}
+
+.rotulo400 {
+	width: 400px !important;
+}
+</style>
+
+		<f:metadata>
+			<o:viewAction action="#{empresaBean.inicializar}"  />
+			<f:param name="teste" value="" />
+		</f:metadata>
+
+		<h:form prependId="false" enctype="multipart/form-data">
+
+			<h1>Cadastro Empresa</h1>
+
+			<p:growl id="growl" autoUpdate="true" showDetail="3000" />
+
+			<p:toolbar style="margin-top: 20px; margin-bottom:10px;"
+				styleClass="semPreenchimento">
+				<p:toolbarGroup>
+					<p:commandButton value="Editar" icon="fa fa-pencil">
+
+					</p:commandButton>
+
+					<p:commandButton value="Salvar" icon="fa fa-save" id="btnSalvar"
+						style="margin-left:5px;" process="@this @form"
+						action="#{empresaBean.salvar()}" update="growl @form" />
+
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:button style="margin-right:9px;" value="Fechar"
+						icon="fa fa-power-off" outcome="/home" />
+				</p:toolbarGroup>
+			</p:toolbar>
+
+			<p:tabView id="tabMenu" prependId="false"
+				style="width: 99%; height: 380px; ">
+				<p:tab title="Principal" id="abaPrincipal">
+					<ui:include src="aba_principal.xhtml" />
+				</p:tab>
+				<p:tab title="Endereço/Contato">
+					<ui:include src="aba_endereco.xhtml" />
+				</p:tab>
+				<p:tab title="Logo">
+					<h:panelGrid>
+						<p:panel style="height:200px; width:250px;" >
+							<p:graphicImage value="#{imagem.foto}" id="pnLogo" style="height:180px; width:230px;">
+							</p:graphicImage>
+						</p:panel>
+						<p:fileUpload mode="advanced" label="Escolher" auto="true"
+							allowTypes="/(\.|\/)(gif|jpe?g|png)$/" update="pnLogo"
+							invalidFileMessage="Formato de arquivo inválido."
+							fileUploadListener="#{empresaBean.fileUploadListener}" />
+					</h:panelGrid>
+				</p:tab>
+
+				<p:tab title="Obs">
+					<h:panelGroup layout="block" style="margin-top: 10px">
+						<p:inputTextarea rows="16" style="width: 98%"
+							value="#{empresaBean.empresa.obs}" />
+					</h:panelGroup>
+				</p:tab>
+			</p:tabView>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

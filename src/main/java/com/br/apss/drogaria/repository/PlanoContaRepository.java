@@ -117,12 +117,10 @@ public class PlanoContaRepository implements Serializable {
 
 		/*
 		 * if (filtro.getPlanoContaPai() != null) {
-		 * criteria.add(Restrictions.eq("contaPai", filtro.getPlanoContaPai()));
-		 * }
+		 * criteria.add(Restrictions.eq("contaPai", filtro.getPlanoContaPai())); }
 		 * 
-		 * if (filtro.getPlanoConta() != null) {
-		 * criteria.add(Restrictions.eq("id", filtro.getPlanoConta().getId()));
-		 * }
+		 * if (filtro.getPlanoConta() != null) { criteria.add(Restrictions.eq("id",
+		 * filtro.getPlanoConta().getId())); }
 		 */
 
 		return criteria;
@@ -131,6 +129,16 @@ public class PlanoContaRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<PlanoConta> filtrados(PlanoContaFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
+
+		if (filtro.getCampoOrdenacao() != null) {
+
+			if (filtro.isAscendente()) {
+				criteria.addOrder(Order.asc(filtro.getCampoOrdenacao()));
+			} else {
+				criteria.addOrder(Order.desc(filtro.getCampoOrdenacao()));
+			}
+		}
+
 		return criteria.addOrder(Order.asc("mascara")).list();
 	}
 

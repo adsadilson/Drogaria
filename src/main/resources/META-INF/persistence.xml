@@ -14,8 +14,13 @@
 			<property name="javax.persistence.jdbc.user" value="postgres" />
 			<property name="javax.persistence.jdbc.password" value="postgres" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
-
-			<property name="hibernate.hbm2ddl.auto" value="update" />
+			
+			<!-- validate: validar o schema, não faz mudanças no banco de dados.
+			update: faz update o schema.
+			create: cria o schema, destruindo dados anteriores.
+			create-drop: drop o schema quando ao terminar a sessão. -->
+			
+			<!-- <property name="hibernate.hbm2ddl.auto" value="validate" /> -->
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
 			

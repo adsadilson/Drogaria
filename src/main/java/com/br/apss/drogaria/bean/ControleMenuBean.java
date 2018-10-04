@@ -1,8 +1,11 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -12,6 +15,7 @@ import org.omnifaces.util.Messages;
 
 import com.br.apss.drogaria.model.ControleMenu;
 import com.br.apss.drogaria.model.filter.ControleMenuFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -30,6 +34,11 @@ public class ControleMenuBean implements Serializable {
 	private List<ControleMenu> menus = new ArrayList<ControleMenu>();
 
 	@Inject
+	private Relatorio relat;
+
+	private List<ControleMenu> list = null;
+
+	@Inject
 	private ControleMenuService menuService;
 
 	public void inicializar() {
@@ -37,6 +46,17 @@ public class ControleMenuBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+	}
+
+	public void gerarRelatControleMenu() throws IOException {
+		list = menuService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Controle de Menu");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", false);
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportControleMenu.jrxml";
+		relat.gerarRelatorio(caminho, "Lista de Controle de Menu", par, list);
 	}
 
 	public void salvar() {
@@ -104,6 +124,14 @@ public class ControleMenuBean implements Serializable {
 
 	public void setControleMenuSelecionado(ControleMenu menuSelecionado) {
 		this.menuSelecionado = menuSelecionado;
+	}
+
+	public List<ControleMenu> getList() {
+		return list;
+	}
+
+	public void setList(List<ControleMenu> list) {
+		this.list = list;
 	}
 
 }

@@ -10,6 +10,7 @@ public class UnidadeMedidaFilter implements Serializable {
 	private String descricao;
 	private String origem;
 	private Boolean status;
+	private Boolean tipoAnalitico = false;
 	private int primeiroRegistro;
 	private int quantidadeRegistros;
 	private String campoOrdenacao;
@@ -77,6 +78,14 @@ public class UnidadeMedidaFilter implements Serializable {
 
 	public void setAscendente(boolean ascendente) {
 		this.ascendente = ascendente;
+	}
+
+	public Boolean getTipoAnalitico() {
+		return tipoAnalitico;
+	}
+
+	public void setTipoAnalitico(Boolean tipoAnalitico) {
+		this.tipoAnalitico = tipoAnalitico;
 	}
 
 }

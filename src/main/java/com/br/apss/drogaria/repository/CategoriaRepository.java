@@ -82,6 +82,16 @@ public class CategoriaRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<Categoria> filtrados(CategoriaFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
+
+		if (null != filtro && filtro.getCampoOrdenacao() != null) {
+
+			if (filtro.isAscendente()) {
+				criteria.addOrder(Order.asc(filtro.getCampoOrdenacao()));
+			} else {
+				criteria.addOrder(Order.desc(filtro.getCampoOrdenacao()));
+			}
+		}
+
 		return criteria.addOrder(Order.asc("nome")).list();
 	}
 

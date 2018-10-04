@@ -52,6 +52,13 @@
 						<p:dataExporter type="xls" target="tblSubCategoria"
 							fileName="subCategorias" />
 					</p:commandButton>
+					
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="SubCategoria"
+							onclick="PF('dialogSubCategoriaProduto').show()" icon="fa fa-print"
+							action="#{subCategoriaBean.novoFiltro}"
+							update="fmRelatSubCategoriaProduto" />
+					</p:menuButton>
 
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
@@ -237,6 +244,59 @@
 							update="tblSubCategoria panelFiltro" />
 					</p:toolbarGroup>
 				</p:toolbar>
+			</h:form>
+		</p:dialog>
+		
+		
+		<p:dialog header="Relatório - SubCategoria de Produto"
+			widgetVar="dialogSubCategoriaProduto" modal="true" width="325"
+			height="150" resizable="false" draggable="true"
+			id="dgSubCategoriaProduto" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatSubCategoriaProduto" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid columns="2" columnClasses="rotulo"
+					style="margin-top: 10px;">
+					
+					<p:outputLabel value="Categoria" />
+					<p:selectOneMenu autoWidth="true" style="width:160px;" filter="true"
+						filterMatchMode="contains"
+						value="#{subCategoriaBean.filtro.categoria}"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{subCategoriaBean.categorias}" var="cat"
+							itemLabel="#{cat.nome}" itemValue="#{cat}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;"
+						value="#{subCategoriaBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;"
+						value="#{subCategoriaBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatSubCategoriaProduto"
+							actionListener="#{subCategoriaBean.gerarRelatSubCategoriaProduto()}"
+							ajax="false" onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
 			</h:form>
 		</p:dialog>
 

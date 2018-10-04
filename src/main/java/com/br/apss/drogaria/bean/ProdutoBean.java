@@ -1,10 +1,12 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import com.br.apss.drogaria.model.Produto;
 import com.br.apss.drogaria.model.SubCategoria;
 import com.br.apss.drogaria.model.UnidadeMedida;
 import com.br.apss.drogaria.model.filter.ProdutoFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.CategoriaService;
 import com.br.apss.drogaria.service.ProdutoService;
 import com.br.apss.drogaria.service.SubCategoriaService;
@@ -48,6 +51,11 @@ public class ProdutoBean implements Serializable {
 	private List<UnidadeMedida> listaUnidadeMedidas = new ArrayList<UnidadeMedida>();
 
 	private List<Categoria> listaCategorias = new ArrayList<Categoria>();
+
+	@Inject
+	private Relatorio relat;
+
+	private List<Produto> list = null;
 
 	@Inject
 	private ProdutoService produtoService;
@@ -100,6 +108,17 @@ public class ProdutoBean implements Serializable {
 	public void novoFiltro() {
 		this.filtro = new ProdutoFilter();
 		carregarListaCategorias();
+	}
+
+	public void gerarRelatProduto() throws IOException {
+		list = produtoService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Produto");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", false);
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportProduto.jrxml";
+		relat.gerarRelatorio(caminho, "Lista de Produto", par, list);
 	}
 
 	public void pesquisar() {
@@ -258,6 +277,14 @@ public class ProdutoBean implements Serializable {
 
 	public void setListaCategorias(List<Categoria> listaCategorias) {
 		this.listaCategorias = listaCategorias;
+	}
+
+	public List<Produto> getList() {
+		return list;
+	}
+
+	public void setList(List<Produto> list) {
+		this.list = list;
 	}
 
 }

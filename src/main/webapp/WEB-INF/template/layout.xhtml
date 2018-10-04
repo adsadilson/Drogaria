@@ -8,7 +8,7 @@
 
 <h:head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title><ui:insert name="titulo">Sistema de Drogaria</ui:insert></title>
+	<title><ui:insert name="titulo">Sistema de Gerenciamento de Estoque</ui:insert></title>
 	<h:outputStylesheet library="css" name="sistema.css" />
 	<h:outputScript library="js" name="locale.js" />
 	<h:outputScript library="js" name="jquery.maskMoney.js" />
@@ -72,6 +72,8 @@
 								<p:menuitem value="Cidades" />
 								<p:menuitem value="Configuração E-mail" />
 							</ui:remove>
+							<p:menuitem value="Empresa"
+								outcome="/pages/cadastro/empresa/empresa" />
 							<p:menuitem value="Plano de Contas"
 								outcome="/pages/cadastro/planoConta/planoConta" />
 							<p:menuitem value="Admin de Cartão"
@@ -79,6 +81,17 @@
 							<p:menuitem value="Configuração Menu"
 								outcome="/pages/cadastro/controleMenu/controleMenu" />
 						</p:submenu>
+						<ui:remove>
+							<p:submenu label="Relatórios">
+								<p:submenu label="Clientes">
+									<p:menuitem value="Cliente" onclick="PF('dialogRelat').show()" />
+									<p:menuitem value="Cliente por Estado"
+										outcome="/pages/cadastro/controleMenu/controleMenu" />
+									<p:menuitem value="Cliente por Genero"
+										outcome="/pages/cadastro/controleMenu/controleMenu" />
+								</p:submenu>
+							</p:submenu>
+						</ui:remove>
 					</p:submenu>
 					<p:submenu label="Financeiro">
 						<p:menuitem value="Movto de Contas"
@@ -112,6 +125,20 @@
 
 	<div id="conteudo" style="height: 510px;">
 		<ui:insert name="corpo" />
+
+		<p:dialog header="Relatório de Cliente" widgetVar="dialogRelat"
+			modal="true" width="321" height="154" resizable="false"
+			draggable="true" id="dgRelatcliente" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form>
+				<p:outputLabel value="Nome" />
+				<p:inputText id="txtFilterDescricao"
+					value="#{clienteBean.filtro.nome}" style="width:98%;" />
+			</h:form>
+
+		</p:dialog>
+
 	</div>
 
 	<p:separator style="margin-top: 20px" />

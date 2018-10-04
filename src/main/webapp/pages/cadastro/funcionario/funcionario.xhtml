@@ -65,6 +65,26 @@
 							fileName="funcionarios" />
 					</p:commandButton>
 
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Funcinários"
+							onclick="PF('dialogRelatFun').show()" icon="fa fa-print"
+							action="#{funcionarioBean.novoFiltro}"
+							update="frmRelatFuncionario" />
+						<p:menuitem value="Ficha do Fun."
+							onclick="PF('dialogRelatFun').show()" icon="fa fa-print"
+							action="#{funcionarioBean.tipoRelat}"
+							actionListener="#{funcionarioBean.novoFiltro}"
+							update="frmRelatFuncionario" />
+						<ui:remove>
+							<p:menuitem value="Fun. Bloqueados" icon="fa fa-print"
+								onclick="PF('dialogRelatFunBloqueado').show()"
+								action="#{funcionarioBean.novoFiltro}"
+								update="frmRelatFuncionarioBloqueado">
+							</p:menuitem>
+						</ui:remove>
+					</p:menuButton>
+
+
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
 					</span>
@@ -325,6 +345,113 @@
 							action="#{funcionarioBean.pesquisar}"
 							oncomplete="PF('dialogFiltro').hide()"
 							update="tblFuncionario panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+
+		<p:dialog header="Relatório - funcionarios" widgetVar="dialogRelatFun"
+			modal="true" width="370" height="210" resizable="false"
+			draggable="true" id="dgRelatFun" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="frmRelatFuncionario" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:remoteCommand name="ireport"
+					action="#{funcionarioBean.gerarRelatFun()}" />
+
+				<h:panelGrid columns="2" id="pnRelat" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText value="#{funcionarioBean.filtro.nome}"
+						style="width:250px;" />
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText value="#{funcionarioBean.filtro.cpf}"
+						style="width:96%;" />
+
+					<p:outputLabel value="Código" />
+					<h:panelGroup>
+						<p:inputText onkeyup="somenteNumeros(this)"
+							value="#{funcionarioBean.filtro.numeroDe}" style="width:106px;" />
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:inputText onkeyup="somenteNumeros(this)"
+							value="#{funcionarioBean.filtro.numeroAte}" style="width:107px;" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{funcionarioBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{funcionarioBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this frmRelatFuncionario"
+							actionListener="#{funcionarioBean.gerarRelatFun()}" ajax="false"
+							onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+
+		<p:dialog header="Relatório - Funcionarios Bloqueados"
+			widgetVar="dialogRelatFunBloqueado" modal="true" width="370"
+			height="170" resizable="false" draggable="true"
+			id="dgRelatFunBloqueado" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="frmRelatFuncionarioBloqueado" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid style="margin-top:10px;" columns="2"
+					id="pnRelatBloqueado" columnClasses="rotulo60">
+
+					<p:outputLabel value="Motivo" />
+					<p:inputText value="#{funcionarioBean.filtro.motivo}"
+						style="width:250px;" />
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{funcionarioBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{funcionarioBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this frmRelatFuncionarioBloqueado"
+							actionListener="#{funcionarioBean.gerarRelatFunBloqueado()}"
+							ajax="false" onclick="this.form.target='_blank'" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>

@@ -1,8 +1,11 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -14,6 +17,7 @@ import org.primefaces.context.RequestContext;
 import com.br.apss.drogaria.model.Categoria;
 import com.br.apss.drogaria.model.SubCategoria;
 import com.br.apss.drogaria.model.filter.SubCategoriaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.CategoriaService;
 import com.br.apss.drogaria.service.SubCategoriaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -33,8 +37,13 @@ public class SubCategoriaBean implements Serializable {
 	private List<SubCategoria> listaSubCategorias = new ArrayList<SubCategoria>();
 
 	@Inject
+	private Relatorio relat;
+
+	private List<SubCategoria> list = null;
+
+	@Inject
 	private SubCategoriaService subCategoriaService;
-	
+
 	@Inject
 	private CategoriaService categoriaService;
 
@@ -45,6 +54,16 @@ public class SubCategoriaBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+	}
+
+	public void gerarRelatSubCategoriaProduto() throws IOException {
+		list = subCategoriaService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de SubCategoria de Produto");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportSubCategoriaProduto.jrxml";
+		relat.gerarRelatorio(caminho, "Lista de SubCategoria de Produto", par, list);
 	}
 
 	public void salvar() {
@@ -86,11 +105,10 @@ public class SubCategoriaBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
-	
-	public List<Categoria> getCategorias(){
+
+	public List<Categoria> getCategorias() {
 		return categoriaService.filtrados(null);
 	}
-	
 
 	/******************** Getters e Setters ***************************/
 
@@ -124,6 +142,14 @@ public class SubCategoriaBean implements Serializable {
 
 	public void setSubCategoriaSelecionado(SubCategoria subCategoriaSelecionado) {
 		this.subCategoriaSelecionado = subCategoriaSelecionado;
+	}
+
+	public List<SubCategoria> getList() {
+		return list;
+	}
+
+	public void setList(List<SubCategoria> list) {
+		this.list = list;
 	}
 
 }

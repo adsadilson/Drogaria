@@ -11,6 +11,7 @@ public class AdmCartaoFilter {
 	private TipoCartao tipoCartao;
 	private Boolean status;
 	private String origem;
+	private String campoOrdenacao = "nome";
 
 	public String getNome() {
 		return nome;
@@ -62,6 +63,14 @@ public class AdmCartaoFilter {
 
 	public void setTipoCartao(TipoCartao tipoCartao) {
 		this.tipoCartao = tipoCartao;
+	}
+
+	public String getCampoOrdenacao() {
+		return campoOrdenacao;
+	}
+
+	public void setCampoOrdenacao(String campoOrdenacao) {
+		this.campoOrdenacao = campoOrdenacao;
 	}
 
 }

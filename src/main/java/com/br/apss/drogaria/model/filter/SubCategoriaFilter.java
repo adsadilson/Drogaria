@@ -11,6 +11,8 @@ public class SubCategoriaFilter implements Serializable {
 	private String nome;
 	private String origem;
 	private Boolean status;
+	private String campoOrdenacao = "nome";
+	private boolean ascendente = true;
 
 	private Categoria categoria;
 
@@ -47,6 +49,22 @@ public class SubCategoriaFilter implements Serializable {
 
 	public void setCategoria(Categoria categoria) {
 		this.categoria = categoria;
+	}
+
+	public String getCampoOrdenacao() {
+		return campoOrdenacao;
+	}
+
+	public void setCampoOrdenacao(String campoOrdenacao) {
+		this.campoOrdenacao = campoOrdenacao;
+	}
+
+	public boolean isAscendente() {
+		return ascendente;
+	}
+
+	public void setAscendente(boolean ascendente) {
+		this.ascendente = ascendente;
 	}
 
 }

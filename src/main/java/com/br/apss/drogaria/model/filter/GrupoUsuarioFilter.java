@@ -9,6 +9,8 @@ public class GrupoUsuarioFilter implements Serializable {
 	private String nome;
 	private Boolean status;
 	private String origem;
+	private String campoOrdenacao = "nome";
+	private boolean ascendente = true;
 
 	public String getNome() {
 		return nome;
@@ -35,6 +37,22 @@ public class GrupoUsuarioFilter implements Serializable {
 
 	public String getOrigem() {
 		return origem;
+	}
+
+	public String getCampoOrdenacao() {
+		return campoOrdenacao;
+	}
+
+	public void setCampoOrdenacao(String campoOrdenacao) {
+		this.campoOrdenacao = campoOrdenacao;
+	}
+
+	public boolean isAscendente() {
+		return ascendente;
+	}
+
+	public void setAscendente(boolean ascendente) {
+		this.ascendente = ascendente;
 	}
 
 }

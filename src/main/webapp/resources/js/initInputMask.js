@@ -133,9 +133,14 @@ function formatoMoedaS(id) {
 	});
 }
 
-function somenteNumeros(num) {
+function somenteNumerosVirgula(num) {
 	var texto = num.value;
 	num.value = texto.replace(/[^0-9,]+/g, '');
+}
+
+function somenteNumeros(num) {
+	var texto = num.value;
+	num.value = texto.replace(/[^0-9]+/g, '');
 }
 
 function teste(campo, event) {

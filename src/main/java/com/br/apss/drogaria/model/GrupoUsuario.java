@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "grupo_usuario")
@@ -37,6 +38,9 @@ public class GrupoUsuario implements Serializable {
 
 	@OneToMany(mappedBy = "grupoUsuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<Permissao> permissoes = new ArrayList<Permissao>();
+
+	@Transient
+	private String nomeControle;
 
 	public Long getId() {
 		return id;
@@ -80,6 +84,14 @@ public class GrupoUsuario implements Serializable {
 
 	public boolean isInclusao() {
 		return this.getId() == null;
+	}
+
+	public String getNomeControle() {
+		return nomeControle;
+	}
+
+	public void setNomeControle(String nomeControle) {
+		this.nomeControle = nomeControle;
 	}
 
 	@Override

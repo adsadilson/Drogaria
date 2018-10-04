@@ -71,6 +71,13 @@
 						ajax="false" immediate="true">
 						<p:dataExporter type="xls" target="tblProduto" fileName="produtos" />
 					</p:commandButton>
+					
+						<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Produto"
+							onclick="PF('dialogProduto').show()" icon="fa fa-print"
+							action="#{produtoBean.novoFiltro}"
+							update="fmRelatProduto" />
+					</p:menuButton>
 
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
@@ -471,6 +478,60 @@
 				</p:toolbar>
 			</h:form>
 		</p:dialog>
+		
+		
+		<p:dialog header="Relatório - Produto"
+			widgetVar="dialogProduto" modal="true" width="325"
+			height="150" resizable="false" draggable="true"
+			id="dgProduto" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatProduto" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid columns="2" columnClasses="rotulo"
+					style="margin-top: 10px;">
+					
+					<p:outputLabel value="Categoria" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;" filter="true"
+						filterMatchMode="contains"
+						value="#{produtoBean.filtro.categoria}"
+						converter="omnifaces.SelectItemsConverter">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{subCategoriaBean.categorias}" var="cat"
+							itemLabel="#{cat.nome}" itemValue="#{cat}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;"
+						value="#{produtoBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;"
+						value="#{produtoBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatProduto"
+							actionListener="#{produtoBean.gerarRelatProduto()}"
+							ajax="false" onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
+			</h:form>
+		</p:dialog>
+		
 
 	</ui:define>
 </ui:composition>

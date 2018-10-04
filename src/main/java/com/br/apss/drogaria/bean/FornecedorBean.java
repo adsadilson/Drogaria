@@ -1,7 +1,9 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import com.br.apss.drogaria.enums.Sexo;
 import com.br.apss.drogaria.enums.TipoPessoa;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.filter.PessoaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -36,6 +39,11 @@ public class FornecedorBean implements Serializable {
 	private PessoaFilter filtro = new PessoaFilter();
 
 	private LazyDataModel<Pessoa> listaFornecedors;
+
+	private List<Pessoa> list = null;
+
+	@Inject
+	private Relatorio relat;
 
 	@Inject
 	private PessoaService fornecedorService;
@@ -74,6 +82,47 @@ public class FornecedorBean implements Serializable {
 
 	public void novoFiltro() {
 		this.filtro = new PessoaFilter();
+	}
+
+	public void tipoRelat() {
+		this.filtro.setTipoAnalitico(true);
+	}
+
+	public void gerarRelatFor() throws IOException {
+		filtro.setFornecedor(true);
+		list = fornecedorService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Fornecedores");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", filtro.getTipoAnalitico());
+		par.put("par_numDe", filtro.getNumeroDe() + " ate " + filtro.getNumeroAte());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+
+		String caminho = "/relatorios/reportCliente.jrxml";
+
+		if (filtro.getTipoAnalitico()) {
+			caminho = "/relatorios/reportFichaFornecedor.jrxml";
+			par.put("par_nome_relat", "Ficha de Fornecedor(es)");
+		}
+
+		relat.gerarRelatorio(caminho, "Lista De Fornecedor", par, list);
+	}
+
+	public void gerarRelatForBloqueado() throws IOException {
+		filtro.setBloqueado(true);
+		filtro.setFornecedor(true);
+		list = fornecedorService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Fornecedores Bloqueados");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", filtro.getTipoAnalitico());
+		par.put("par_numDe", filtro.getNumeroDe() + " ate " + filtro.getNumeroAte());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportCliBloqueado.jrxml";
+		if (filtro.getTipoAnalitico()) {
+			caminho = "/relatorios/reportCliAnalitico.jrxml";
+		}
+		relat.gerarRelatorio(caminho, "Lista De Fornecedores Bloqueados", par, list);
 	}
 
 	public void pesquisar() {
@@ -118,20 +167,20 @@ public class FornecedorBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
-	
-	public List<TipoPessoa> getlistaTipoPessoas(){
+
+	public List<TipoPessoa> getlistaTipoPessoas() {
 		return Arrays.asList(TipoPessoa.values());
 	}
-	
-	public List<Sexo> getlistaSexos(){
+
+	public List<Sexo> getlistaSexos() {
 		return Arrays.asList(Sexo.values());
 	}
-	
-	public List<EstadoCivil> getlistaEstadoCivis(){
+
+	public List<EstadoCivil> getlistaEstadoCivis() {
 		return Arrays.asList(EstadoCivil.values());
 	}
-	
-	public List<Estado> getlistaEstados(){
+
+	public List<Estado> getlistaEstados() {
 		return Arrays.asList(Estado.values());
 	}
 
@@ -167,6 +216,14 @@ public class FornecedorBean implements Serializable {
 
 	public void setFornecedorSelecionado(Pessoa fornecedorSelecionado) {
 		this.fornecedorSelecionado = fornecedorSelecionado;
+	}
+
+	public List<Pessoa> getList() {
+		return list;
+	}
+
+	public void setList(List<Pessoa> list) {
+		this.list = list;
 	}
 
 }

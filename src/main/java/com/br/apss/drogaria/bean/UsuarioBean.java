@@ -1,8 +1,11 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -15,6 +18,7 @@ import org.primefaces.context.RequestContext;
 import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Usuario;
 import com.br.apss.drogaria.model.filter.UsuarioFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.GrupoUsuarioService;
 import com.br.apss.drogaria.service.UsuarioService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -40,6 +44,11 @@ public class UsuarioBean implements Serializable {
 	private GrupoUsuario grupoSelecionado = new GrupoUsuario();
 
 	@Inject
+	private Relatorio relat;
+
+	private List<Usuario> list = null;
+
+	@Inject
 	private GrupoUsuarioService grupoUsuarioService;
 
 	@Inject
@@ -55,6 +64,16 @@ public class UsuarioBean implements Serializable {
 		}
 		pesquisar();
 		this.listaGrupos = grupoUsuarioService.listarTodos();
+	}
+
+	public void gerarRelatUser() throws IOException {
+		list = usuarioService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Usuários");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportUsuario.jrxml";
+		relat.gerarRelatorio(caminho, "Lista De Usuários", par, list);
 	}
 
 	public void salvar() {
@@ -200,6 +219,14 @@ public class UsuarioBean implements Serializable {
 
 	public void setGrupoUsuario(GrupoUsuario grupoUsuario) {
 		this.grupoUsuario = grupoUsuario;
+	}
+
+	public List<Usuario> getList() {
+		return list;
+	}
+
+	public void setList(List<Usuario> list) {
+		this.list = list;
 	}
 
 }

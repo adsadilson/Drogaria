@@ -13,6 +13,8 @@ public class PlanoContaFilter {
 	private PlanoConta planoContaPai;
 	private PlanoConta planoConta;
 	private TipoRelatorio categoria;
+	private String campoOrdenacao = "mascara";
+	private boolean ascendente = true;
 
 	public String getNome() {
 		return nome;
@@ -72,6 +74,22 @@ public class PlanoContaFilter {
 
 	public void setPlanoConta(PlanoConta planoConta) {
 		this.planoConta = planoConta;
+	}
+
+	public String getCampoOrdenacao() {
+		return campoOrdenacao;
+	}
+
+	public void setCampoOrdenacao(String campoOrdenacao) {
+		this.campoOrdenacao = campoOrdenacao;
+	}
+
+	public boolean isAscendente() {
+		return ascendente;
+	}
+
+	public void setAscendente(boolean ascendente) {
+		this.ascendente = ascendente;
 	}
 
 }

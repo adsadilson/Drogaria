@@ -53,6 +53,25 @@
 							fileName="fornecedors" />
 					</p:commandButton>
 
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Fornecedores"
+							onclick="PF('dialogRelatFor').show()" icon="fa fa-print"
+							action="#{fornecedorBean.novoFiltro}" update="frmRelatFornecedor" />
+						<p:menuitem value="Ficha do Forn."
+							onclick="PF('dialogRelatFor').show()" icon="fa fa-print"
+							action="#{fornecedorBean.tipoRelat}"
+							actionListener="#{fornecedorBean.novoFiltro}"
+							update="frmRelatFornecedor" />
+						<ui:remove>
+							<p:menuitem value="Forn. Bloqueados" icon="fa fa-print"
+								onclick="PF('dialogRelatForBloqueado').show()"
+								action="#{fornecedorBean.novoFiltro}"
+								update="frmRelatFornecedorBloqueado">
+							</p:menuitem>
+						</ui:remove>
+					</p:menuButton>
+
+
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
 					</span>
@@ -301,48 +320,155 @@
 				</p:toolbar>
 			</h:form>
 		</p:dialog>
-		
+
 		<p:dialog header="Filtro" widgetVar="dialogFiltro" modal="true"
-				width="321" height="154" resizable="false" draggable="true"
-				id="dgFiltro" visible="false" closeOnEscape="true"
-				appendTo="@(body)">
+			width="321" height="154" resizable="false" draggable="true"
+			id="dgFiltro" visible="false" closeOnEscape="true" appendTo="@(body)">
 
-				<h:form>
+			<h:form>
 
-					<p:focus for="txtFilterDescricao" />
+				<p:focus for="txtFilterDescricao" />
 
-					<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
+				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
 
-						<p:outputLabel value="Nome" />
-						<p:inputText id="txtFilterDescricao"
-							value="#{fornecedorBean.filtro.nome}" style="width:98%;" />
+					<p:outputLabel value="Nome" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{fornecedorBean.filtro.nome}" style="width:98%;" />
 
-						<p:outputLabel value="CPF/CNPJ" />
-						<p:inputText id="txtFilterCPF" value="#{fornecedorBean.filtro.cpf}"
-							style="width:98%;" />
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText id="txtFilterCPF" value="#{fornecedorBean.filtro.cpf}"
+						style="width:98%;" />
 
-						<p:outputLabel value="Ativo" />
-						<p:selectOneMenu autoWidth="false" style="width:88%;"
-							value="#{fornecedorBean.filtro.status}">
-							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-							<f:selectItem itemLabel="ATIVO" itemValue="true" />
-							<f:selectItem itemLabel="INATIVO" itemValue="false" />
-						</p:selectOneMenu>
+					<p:outputLabel value="Ativo" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{fornecedorBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
 
-					</h:panelGrid>
+				</h:panelGrid>
 
-					<p:toolbar style="margin-top: 5px; margin-button:5px"
-						styleClass="semPreenchimento">
-						<p:toolbarGroup align="right" style="margin-right: 0px;">
-							<p:commandButton value="Pesquisar" icon="fa fa-search"
-								id="btnPesquisarFiltro" process="@this panelFiltro"
-								action="#{fornecedorBean.pesquisar}"
-								oncomplete="PF('dialogFiltro').hide()"
-								update="tblFornecedor panelFiltro" />
-						</p:toolbarGroup>
-					</p:toolbar>
-				</h:form>
-			</p:dialog>
+				<p:toolbar style="margin-top: 5px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Pesquisar" icon="fa fa-search"
+							id="btnPesquisarFiltro" process="@this panelFiltro"
+							action="#{fornecedorBean.pesquisar}"
+							oncomplete="PF('dialogFiltro').hide()"
+							update="tblFornecedor panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+
+
+		<p:dialog header="Relatório - fornecedores" widgetVar="dialogRelatFor"
+			modal="true" width="370" height="210" resizable="false"
+			draggable="true" id="dgRelatFor" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="frmRelatFornecedor" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:remoteCommand name="ireport"
+					action="#{fornecedorBean.gerarRelatFor()}" />
+
+				<h:panelGrid columns="2" id="pnRelat" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText value="#{fornecedorBean.filtro.nome}"
+						style="width:250px;" />
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText value="#{fornecedorBean.filtro.cpf}"
+						style="width:96%;" />
+
+					<p:outputLabel value="Código" />
+					<h:panelGroup>
+						<p:inputText onkeyup="somenteNumeros(this)"
+							value="#{fornecedorBean.filtro.numeroDe}" style="width:106px;" />
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:inputText onkeyup="somenteNumeros(this)"
+							value="#{fornecedorBean.filtro.numeroAte}" style="width:107px;" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{fornecedorBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{fornecedorBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this frmRelatFornecedor"
+							actionListener="#{fornecedorBean.gerarRelatFor()}" ajax="false"
+							onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+
+		<p:dialog header="Relatório - Fornecedores Bloqueados"
+			widgetVar="dialogRelatForBloqueado" modal="true" width="370"
+			height="170" resizable="false" draggable="true"
+			id="dgRelatForBloqueado" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="frmRelatFornecedorBloqueado" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid style="margin-top:10px;" columns="2"
+					id="pnRelatBloqueado" columnClasses="rotulo60">
+
+					<p:outputLabel value="Motivo" />
+					<p:inputText value="#{fornecedorBean.filtro.motivo}"
+						style="width:250px;" />
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{fornecedorBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{fornecedorBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this frmRelatFornecedorBloqueado"
+							actionListener="#{fornecedorBean.gerarRelatForBloqueado()}"
+							ajax="false" onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
 
 	</ui:define>
 </ui:composition>

@@ -1,8 +1,11 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -14,6 +17,7 @@ import com.br.apss.drogaria.model.ControleMenu;
 import com.br.apss.drogaria.model.GrupoUsuario;
 import com.br.apss.drogaria.model.Permissao;
 import com.br.apss.drogaria.model.filter.GrupoUsuarioFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.ControleMenuService;
 import com.br.apss.drogaria.service.GrupoUsuarioService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -37,11 +41,15 @@ public class GrupoUsuarioBean implements Serializable {
 	private List<ControleMenu> controleMenus = new ArrayList<ControleMenu>();
 
 	@Inject
+	private Relatorio relat;
+
+	private List<GrupoUsuario> list = null;
+
+	@Inject
 	private GrupoUsuarioService grupoUsuarioService;
 
 	@Inject
 	private ControleMenuService controleMenuService;
-
 
 	public void inicializar() {
 		if (this.grupoUsuario == null) {
@@ -53,6 +61,17 @@ public class GrupoUsuarioBean implements Serializable {
 
 	public List<ControleMenu> getFuncoes() {
 		return controleMenuService.listarTodos();
+	}
+
+	public void gerarRelatGrupoUser() throws IOException {
+		list = grupoUsuarioService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Grupo Usuários");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", false);
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportGrupoUsuario.jrxml";
+		relat.gerarRelatorio(caminho, "Lista De Grupo Usuários", par, list);
 	}
 
 	public void salvar() {
@@ -68,12 +87,11 @@ public class GrupoUsuarioBean implements Serializable {
 		novo();
 		pesquisar();
 	}
-	
+
 	public void teste() {
 		grupoUsuarioService.salvar(grupoUsuario);
 		pesquisar();
 	}
-
 
 	public void novo() {
 		grupoUsuario = new GrupoUsuario();
@@ -102,7 +120,7 @@ public class GrupoUsuarioBean implements Serializable {
 			p.setVisualizar(false);
 			p.setControleMenu(cm);
 			this.permissoes.add(p);
-			
+
 		}
 	}
 
@@ -115,28 +133,28 @@ public class GrupoUsuarioBean implements Serializable {
 	}
 
 	public void preparEdicao() {
-		//listar as controle menu
+		// listar as controle menu
 		this.controleMenus = controleMenuService.listarTodos();
-				
-		//listar as permissões do usuario
+
+		// listar as permissões do usuario
 		this.grupoUsuario = grupoUsuarioService.porId(this.grupoUsuarioSelecionado.getId());
-		
-		//verificar se o usuario possui todas as permissões
+
+		// verificar se o usuario possui todas as permissões
 		for (ControleMenu controleMenu : controleMenus) {
 			boolean possui = false;
 			permissoes = grupoUsuario.getPermissoes();
-			
+
 			for (Permissao permissao : permissoes) {
-				if(controleMenu.equals(permissao.getControleMenu())){
+				if (controleMenu.equals(permissao.getControleMenu())) {
 					possui = true;
 					break;
 				}
 			}
-			if(!possui){
+			if (!possui) {
 				Permissao p = new Permissao();
 				p.setGrupoUsuario(this.grupoUsuario);
 				p.setControleMenu(controleMenu);
-				
+
 				permissoes.add(p);
 			}
 		}
@@ -194,6 +212,14 @@ public class GrupoUsuarioBean implements Serializable {
 
 	public void setControleMenus(List<ControleMenu> controleMenus) {
 		this.controleMenus = controleMenus;
+	}
+
+	public List<GrupoUsuario> getList() {
+		return list;
+	}
+
+	public void setList(List<GrupoUsuario> list) {
+		this.list = list;
 	}
 
 }

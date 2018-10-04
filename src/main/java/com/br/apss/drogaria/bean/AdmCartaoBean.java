@@ -1,9 +1,12 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -20,6 +23,7 @@ import com.br.apss.drogaria.model.AdmCartao;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.filter.AdmCartaoFilter;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.AdmCartaoService;
 import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
@@ -39,6 +43,11 @@ public class AdmCartaoBean implements Serializable {
 	private List<AdmCartao> listaAdmCartaos = new ArrayList<AdmCartao>();
 
 	@Inject
+	private Relatorio relat;
+
+	private List<AdmCartao> list = null;
+
+	@Inject
 	private AdmCartaoService admCartaoService;
 
 	@Inject
@@ -51,6 +60,17 @@ public class AdmCartaoBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+	}
+
+	public void gerarRelatAdmCartao() throws IOException {
+		list = admCartaoService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Adm de Cartões");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", false);
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportAdmCartao.jrxml";
+		relat.gerarRelatorio(caminho, "Lista de Adm de Cartões", par, list);
 	}
 
 	public void salvar() {
@@ -151,6 +171,14 @@ public class AdmCartaoBean implements Serializable {
 
 	public void setAdmCartaoSelecionado(AdmCartao admCartaoSelecionado) {
 		this.admCartaoSelecionado = admCartaoSelecionado;
+	}
+
+	public List<AdmCartao> getList() {
+		return list;
+	}
+
+	public void setList(List<AdmCartao> list) {
+		this.list = list;
 	}
 
 }

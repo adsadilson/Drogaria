@@ -1,7 +1,9 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import com.br.apss.drogaria.enums.Sexo;
 import com.br.apss.drogaria.enums.TipoPessoa;
 import com.br.apss.drogaria.model.Pessoa;
 import com.br.apss.drogaria.model.filter.PessoaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.PessoaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -36,6 +39,11 @@ public class FuncionarioBean implements Serializable {
 	private PessoaFilter filtro = new PessoaFilter();
 
 	private LazyDataModel<Pessoa> listaFuncionarios;
+
+	@Inject
+	private Relatorio relat;
+
+	private List<Pessoa> list = null;
 
 	@Inject
 	private PessoaService funcionarioService;
@@ -74,6 +82,47 @@ public class FuncionarioBean implements Serializable {
 
 	public void novoFiltro() {
 		this.filtro = new PessoaFilter();
+	}
+
+	public void tipoRelat() {
+		this.filtro.setTipoAnalitico(true);
+	}
+
+	public void gerarRelatFun() throws IOException {
+		filtro.setFuncionario(true);
+		list = funcionarioService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Funcionários");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", filtro.getTipoAnalitico());
+		par.put("par_numDe", filtro.getNumeroDe() + " ate " + filtro.getNumeroAte());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+
+		String caminho = "/relatorios/reportCliente.jrxml";
+
+		if (filtro.getTipoAnalitico()) {
+			caminho = "/relatorios/reportFichaFuncionario.jrxml";
+			par.put("par_nome_relat", "Ficha de Funcionário(s)");
+		}
+
+		relat.gerarRelatorio(caminho, "Lista De Funcionários", par, list);
+	}
+
+	public void gerarRelatFunBloqueado() throws IOException {
+		filtro.setBloqueado(true);
+		filtro.setFuncionario(true);
+		list = funcionarioService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Funcionários Bloqueados");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", filtro.getTipoAnalitico());
+		par.put("par_numDe", filtro.getNumeroDe() + " ate " + filtro.getNumeroAte());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportFunBloqueado.jrxml";
+		if (filtro.getTipoAnalitico()) {
+			caminho = "/relatorios/reportFunAnalitico.jrxml";
+		}
+		relat.gerarRelatorio(caminho, "Lista De Funcionários Bloqueados", par, list);
 	}
 
 	public void pesquisar() {
@@ -168,6 +217,14 @@ public class FuncionarioBean implements Serializable {
 
 	public void setFuncionarioSelecionado(Pessoa funcionarioSelecionado) {
 		this.funcionarioSelecionado = funcionarioSelecionado;
+	}
+
+	public List<Pessoa> getList() {
+		return list;
+	}
+
+	public void setList(List<Pessoa> list) {
+		this.list = list;
 	}
 
 }

@@ -53,6 +53,13 @@
 							fileName="categorias" />
 					</p:commandButton>
 
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Categoria"
+							onclick="PF('dialogCategoriaProduto').show()" icon="fa fa-print"
+							action="#{categoriaBean.novoFiltro}"
+							update="fmRelatCategoriaProduto" />
+					</p:menuButton>
+
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
 					</span>
@@ -129,8 +136,7 @@
 				<f:facet name="message">
 					<h:outputText value="Tem certeza que deseja excluir o registro:" />
 					<br />
-					<h:outputText
-						value="#{categoriaBean.categoriaSelecionado.nome} ?" />
+					<h:outputText value="#{categoriaBean.categoriaSelecionado.nome} ?" />
 				</f:facet>
 				<p:button value="Não"
 					onclick="PF('confirmacaoExclusao').hide(); return false;" />
@@ -155,13 +161,11 @@
 
 					<p:outputLabel value="Nome" for="descricao" />
 					<p:inputText id="descricao" style="width:96%" maxlength="80"
-						required="true"
-						requiredMessage="O campo 'NOME' é obrigatório."
+						required="true" requiredMessage="O campo 'NOME' é obrigatório."
 						value="#{categoriaBean.categoria.nome}" />
 
 					<p:outputLabel value="Ativo" />
-					<p:selectBooleanCheckbox
-						value="#{categoriaBean.categoria.status}" />
+					<p:selectBooleanCheckbox value="#{categoriaBean.categoria.status}" />
 
 				</h:panelGrid>
 
@@ -189,16 +193,16 @@
 				<h:panelGrid columns="2" id="panelFiltro" columnClasses="rotulo60">
 
 					<p:outputLabel value="Nome" />
-					<p:inputText id="txtFilterDescricao" value="#{categoriaBean.filtro.nome}"
-						style="width:98%;" />
+					<p:inputText id="txtFilterDescricao"
+						value="#{categoriaBean.filtro.nome}" style="width:98%;" />
 
 					<p:outputLabel value="Ativo" />
 					<p:selectOneMenu autoWidth="false" style="width:88%;"
-							value="#{categoriaBean.filtro.status}">
-							<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
-							<f:selectItem itemLabel="ATIVO" itemValue="true" />
-							<f:selectItem itemLabel="INATIVO" itemValue="false" />
-						</p:selectOneMenu>
+						value="#{categoriaBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
 
 				</h:panelGrid>
 
@@ -212,6 +216,48 @@
 							update="tblCategoria panelFiltro" />
 					</p:toolbarGroup>
 				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Relatório - Categoria de Produto"
+			widgetVar="dialogCategoriaProduto" modal="true" width="325"
+			height="135" resizable="false" draggable="true"
+			id="dgCategoriaProduto" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatCategoriaProduto" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid columns="2" columnClasses="rotulo"
+					style="margin-top: 10px;">
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;"
+						value="#{categoriaBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:160px;"
+						value="#{categoriaBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatCategoriaProduto"
+							actionListener="#{categoriaBean.gerarRelatCategoriaProduto()}"
+							ajax="false" onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+
 			</h:form>
 		</p:dialog>
 

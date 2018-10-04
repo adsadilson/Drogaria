@@ -83,7 +83,7 @@ public class SubCategoriaRepository implements Serializable {
 			if (StringUtils.isNotBlank(filtro.getNome())) {
 				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
 			}
-			
+
 			if (filtro.getCategoria() != null) {
 				criteria.add(Restrictions.eq("categoria", filtro.getCategoria()));
 			}
@@ -104,6 +104,16 @@ public class SubCategoriaRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<SubCategoria> filtrados(SubCategoriaFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
+
+		if (filtro.getCampoOrdenacao() != null) {
+
+			if (filtro.isAscendente()) {
+				criteria.addOrder(Order.asc(filtro.getCampoOrdenacao()));
+			} else {
+				criteria.addOrder(Order.desc(filtro.getCampoOrdenacao()));
+			}
+		}
+
 		return criteria.addOrder(Order.asc("nome")).list();
 	}
 

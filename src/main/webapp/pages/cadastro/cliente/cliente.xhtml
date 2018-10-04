@@ -79,6 +79,29 @@
 						<p:dataExporter type="xls" target="tblCliente" fileName="clientes" />
 					</p:commandButton>
 
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Clientes" onclick="PF('dialogRelatCli').show()"
+							icon="fa fa-print" action="#{clienteBean.novoFiltro}"
+							update="fmRelatcliente" />
+						<p:menuitem value="Ficha dos Clientes"
+							onclick="PF('dialogRelatCli').show()" icon="fa fa-print"
+							action="#{clienteBean.tipoRelat}"
+							actionListener="#{clienteBean.novoFiltro}"
+							update="fmRelatcliente" />
+						<p:menuitem value="Clientes Bloqueados" icon="fa fa-print"
+							onclick="PF('dialogRelatCliBloqueado').show()"
+							action="#{clienteBean.novoFiltro}"
+							update="fmRelatclienteBloqueado">
+						</p:menuitem>
+						<ui:remove>
+							<p:menuitem value="Clientes em Atraso" icon="fa fa-print" />
+							<p:menuitem value="Clientes s/Movtação" icon="fa fa-print" />
+							<p:separator />
+							<p:menuitem value="Clientes por Estado" icon="fa fa-print" />
+							<p:menuitem value="Clientes por Genero" icon="fa fa-print" />
+						</ui:remove>
+					</p:menuButton>
+
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
 					</span>
@@ -95,9 +118,12 @@
 							target="#{clienteBean.filtro.origem}" />
 					</p:commandButton>
 
-					<p:commandButton icon="fa fa-print" value="Relatorio"
-					 ajax="false" onclick="this.form.target='_blank'"	action="#{clienteBean.gerarRelatorio()}">
-					</p:commandButton>
+					<ui:remove>
+						<p:commandButton icon="fa fa-print" value="Relatorio" ajax="false"
+							onclick="this.form.target='_blank'"
+							action="#{clienteBean.gerarRelatCli()}">
+						</p:commandButton>
+					</ui:remove>
 
 					<p:defaultCommand target="btnPesquisar" />
 
@@ -262,7 +288,8 @@
 
 			<h:form prependId="false" id="frm-cadastro">
 
-				<p:tabView prependId="false" style="width: 99%; height: 320px; ">
+				<p:tabView id="tabView1" prependId="false"
+					style="width: 99%; height: 320px;">
 					<p:tab title="Principal">
 						<ui:include src="aba_principal.xhtml" />
 					</p:tab>
@@ -273,10 +300,13 @@
 						<ui:include src="aba_financeiro.xhtml" />
 					</p:tab>
 					<p:tab title="Obs">
-						<h:panelGroup layout="block" style="margin-top: 10px">
-							<p:inputTextarea rows="16" style="width: 98%"
+						<h:panelGrid layout="block" style="margin-top: 10px; width: 100%">
+							<p:inputTextarea rows="14" style="width: 98%" cols="90"
+								counter="display" maxlength="900"
+								counterTemplate="Restam {0} caracteres." autoResize="false"
 								value="#{clienteBean.cliente.obs}" />
-						</h:panelGroup>
+								<h:outputText id="display" />
+						</h:panelGrid>
 					</p:tab>
 				</p:tabView>
 
@@ -331,6 +361,128 @@
 							action="#{clienteBean.pesquisar}"
 							oncomplete="PF('dialogFiltro').hide()"
 							update="tblCliente panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+
+		<p:dialog header="Relatório - Clientes" widgetVar="dialogRelatCli"
+			modal="true" width="370" height="210" resizable="false"
+			draggable="true" id="dgRelatcli" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatcliente" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<p:remoteCommand name="ireport"
+					action="#{clienteBean.gerarRelatCli()}" />
+
+				<h:panelGrid columns="2" id="pnRelat" columnClasses="rotulo60">
+
+					<p:outputLabel value="Nome" />
+					<p:inputText value="#{clienteBean.filtro.nome}"
+						style="width:250px;" />
+
+					<p:outputLabel value="CPF/CNPJ" />
+					<p:inputText value="#{clienteBean.filtro.cpf}" style="width:96%;" />
+
+					<p:outputLabel value="Código" />
+					<h:panelGroup>
+						<p:inputText onkeyup="somenteNumeros(this)"
+							value="#{clienteBean.filtro.numeroDe}" style="width:106px;" />
+						<p:outputLabel value="a"
+							style="margin-left:8px; margin-right:8px;" />
+						<p:inputText onkeyup="somenteNumeros(this)"
+							value="#{clienteBean.filtro.numeroAte}" style="width:107px;" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{clienteBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<ui:remove>
+						<p:outputLabel value="Tipo" />
+						<p:selectOneMenu autoWidth="false" style="width:88%;"
+							value="#{clienteBean.filtro.tipoAnalitico}">
+							<f:selectItem itemLabel="SINTETICO" itemValue="false" />
+							<f:selectItem itemLabel="ANALITICO" itemValue="true" />
+						</p:selectOneMenu>
+					</ui:remove>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{clienteBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatcliente"
+							actionListener="#{clienteBean.gerarRelatCli()}" ajax="false"
+							onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+			<script>
+				function teste(){
+					window.open('','_blank');
+					ireport();
+					PF('dialogRelatCli').hide()
+				}
+			</script>
+		</p:dialog>
+
+
+		<p:dialog header="Relatório - Clientes Bloqueados"
+			widgetVar="dialogRelatCliBloqueado" modal="true" width="370"
+			height="170" resizable="false" draggable="true"
+			id="dgRelatcliBloqueado" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatclienteBloqueado" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid style="margin-top:10px;" columns="2"
+					id="pnRelatBloqueado" columnClasses="rotulo60">
+
+					<p:outputLabel value="Motivo" />
+					<p:inputText value="#{clienteBean.filtro.motivo}"
+						style="width:250px;" />
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{clienteBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{clienteBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatclienteBloqueado"
+							actionListener="#{clienteBean.gerarRelatCliBloqueado()}"
+							ajax="false" onclick="this.form.target='_blank'" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>

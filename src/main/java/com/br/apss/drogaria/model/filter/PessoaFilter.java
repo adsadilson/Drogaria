@@ -12,12 +12,17 @@ public class PessoaFilter implements Serializable {
 	private String origem;
 	private int primeiroRegistro;
 	private int quantidadeRegistros;
-	private String campoOrdenacao;
-	private boolean ascendente;
+	private Long numeroDe;
+	private Long numeroAte;
+	private String campoOrdenacao = "nome";
+	private boolean ascendente = true;
+	private Boolean tipoAnalitico = false;
 	private Boolean cliente = false;
 	private Boolean fornecedor = false;
 	private Boolean funcionario = false;
 	private int qtdRegistros;
+	private Boolean bloqueado = false;
+	private String motivo;
 
 	public String getNome() {
 		return nome;
@@ -113,6 +118,46 @@ public class PessoaFilter implements Serializable {
 
 	public void setQtdRegistros(int qtdRegistros) {
 		this.qtdRegistros = qtdRegistros;
+	}
+
+	public Long getNumeroDe() {
+		return numeroDe;
+	}
+
+	public void setNumeroDe(Long numeroDe) {
+		this.numeroDe = numeroDe;
+	}
+
+	public Long getNumeroAte() {
+		return numeroAte;
+	}
+
+	public void setNumeroAte(Long numeroAte) {
+		this.numeroAte = numeroAte;
+	}
+
+	public Boolean getTipoAnalitico() {
+		return tipoAnalitico;
+	}
+
+	public void setTipoAnalitico(Boolean tipoAnalitico) {
+		this.tipoAnalitico = tipoAnalitico;
+	}
+
+	public Boolean getBloqueado() {
+		return bloqueado;
+	}
+
+	public void setBloqueado(Boolean bloqueado) {
+		this.bloqueado = bloqueado;
+	}
+
+	public String getMotivo() {
+		return motivo;
+	}
+
+	public void setMotivo(String motivo) {
+		this.motivo = motivo;
 	}
 
 }

@@ -19,10 +19,16 @@
 		<url-pattern>*.xhtml</url-pattern>
 	</servlet-mapping>
 
-	<!-- Configuração do tema primefaces cupertino humanity-->
+	<!-- Configuração do tema primefaces cupertino humanity -->
 	<context-param>
 		<param-name>primefaces.THEME</param-name>
 		<param-value>humanity</param-value>
+	</context-param>
+
+	<!-- Definição de Mecanismo de uploader auto|native|commons -->
+	<context-param>
+		<param-name>primefaces.UPLOADER</param-name>
+		<param-value>native</param-value>
 	</context-param>
 
 	<!-- Configuração para utilização dos icons -->
@@ -35,7 +41,7 @@
 	<listener>
 		<listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
 	</listener>
-	
+
 	<listener>
 		<listener-class>com.br.apss.drogaria.util.jpa.HibernateContexto</listener-class>
 	</listener>
@@ -49,13 +55,13 @@
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
-	
+
 	<!-- Pegar a data padrao do brasil -->
 	<context-param>
-	  <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
-	  <param-value>true</param-value>
+		<param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+		<param-value>true</param-value>
 	</context-param>
-	
+
 
 
 

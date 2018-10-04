@@ -32,12 +32,18 @@
 					rendered='#{clienteBean.cliente.tipoPessoa=="F"}'
 					mask="999.999.999-99" value="#{clienteBean.cliente.cpfCnpj}"
 					required="true" requiredMessage="O campo 'CPF' é obrigatório."
-					style="width: 155px;" />
+					style="width: 155px;">
+					<p:ajax event="blur"
+						listener="#{clienteBean.consultarClientePorCpfMsm()}" />
+				</p:inputMask>
 				<p:inputMask id="textCnpj"
 					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
 					mask="99.999.999/9999-99" value="#{clienteBean.cliente.cpfCnpj}"
 					required="true" requiredMessage="O campo 'CNPJ' é obrigatório."
-					style="width: 155px;" />
+					style="width: 155px;">
+					<p:ajax event="blur"
+						listener="#{clienteBean.consultarClientePorCpfMsm()}" />
+				</p:inputMask>
 			</h:panelGroup>
 		</h:panelGrid>
 
@@ -116,7 +122,7 @@
 					value="#{clienteBean.cliente.conjuge}" />
 				<p:inputText style="width:96%" maxlength="80"
 					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
-					value="#{clienteBean.cliente.conjuge}" />
+					value="#{clienteBean.cliente.cnae}" />
 			</h:panelGroup>
 
 		</h:panelGrid>
@@ -134,7 +140,7 @@
 					placeholder="Nome da mãe" value="#{clienteBean.cliente.mae}" />
 				<p:inputText style="width:96%" maxlength="80"
 					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
-					placeholder="contato1" value="#{clienteBean.cliente.mae}" />
+					placeholder="contato1" value="#{clienteBean.cliente.contato1}" />
 			</h:panelGroup>
 			<p:spacer />
 			<h:panelGroup id="txtFiliacao2">
@@ -143,7 +149,7 @@
 					placeholder="Nome da pai" value="#{clienteBean.cliente.pai}" />
 				<p:inputText style="width:96%" maxlength="80"
 					rendered='#{clienteBean.cliente.tipoPessoa=="J"}'
-					placeholder="contato2" value="#{clienteBean.cliente.mae}" />
+					placeholder="contato2" value="#{clienteBean.cliente.contato2}" />
 
 			</h:panelGroup>
 

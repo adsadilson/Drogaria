@@ -1,6 +1,7 @@
 package com.br.apss.drogaria.service;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,8 +19,11 @@ public class PessoaService implements Serializable {
 	private PessoaRepository dao;
 
 	@Transacional
-	public void salvar(Pessoa obj) {
-		dao.salvar(obj);
+	public Pessoa salvar(Pessoa obj) {
+		if (obj.getId() == null) {
+			obj.setDataCadastro(new Date());
+		}
+		return dao.salvar(obj);
 	}
 
 	@Transacional
@@ -37,6 +41,10 @@ public class PessoaService implements Serializable {
 
 	public List<Pessoa> listarFornecedore() {
 		return dao.listarFornecedores();
+	}
+
+	public List<Pessoa> listarEmpresa() {
+		return dao.listarEmpresas();
 	}
 
 	public List<Pessoa> listarClientes() {

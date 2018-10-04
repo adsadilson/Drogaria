@@ -15,6 +15,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.br.apss.drogaria.enums.Estado;
 import com.br.apss.drogaria.enums.EstadoCivil;
@@ -143,8 +144,14 @@ public class Pessoa implements Serializable {
 	@Column(name = "fornecedor", length = 1)
 	private Boolean fornecedor = false;
 
+	@Column(name = "empresa", length = 1)
+	private Boolean empresa = false;
+
 	@Column(name = "obs", columnDefinition = "text")
 	private String obs;
+
+	@Column(name = "foto", columnDefinition = "text")
+	private String foto;
 
 	@Column(name = "conjuge", length = 80)
 	private String conjuge;
@@ -163,7 +170,7 @@ public class Pessoa implements Serializable {
 	private Date dataEmissao;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "vidade_cnh", length = 10)
+	@Column(name = "validade_cnh", length = 10)
 	private Date validadeCnh;
 
 	@Column(name = "orgao_emissor", length = 25)
@@ -244,7 +251,7 @@ public class Pessoa implements Serializable {
 	private Boolean pagtoCheque;
 
 	@Column(name = "bloquear_vencto", length = 1)
-	private Boolean bloquearVenco;
+	private Boolean bloquearVenco = false;
 
 	@Column(name = "motivo_bloqueio", length = 40)
 	private String motivoBloqueio;
@@ -275,6 +282,10 @@ public class Pessoa implements Serializable {
 	private Date emissaoCtps;
 
 	@Temporal(TemporalType.DATE)
+	@Column(name = "data_cadastro", length = 10)
+	private Date dataCadastro;
+
+	@Temporal(TemporalType.DATE)
 	@Column(name = "admissao", length = 10)
 	private Date admissao;
 
@@ -287,6 +298,9 @@ public class Pessoa implements Serializable {
 
 	@Column(name = "trabalha", length = 1)
 	private Boolean trabalha;
+
+	@Transient
+	private String caminhoLogo;
 
 	public Long getId() {
 		return id;
@@ -461,7 +475,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setObs(String obs) {
-		this.obs = obs;
+		this.obs = obs == null ? null : obs.toUpperCase();
 	}
 
 	public String getRgInsc() {
@@ -648,6 +662,14 @@ public class Pessoa implements Serializable {
 		this.empNumero = empNumero;
 	}
 
+	public String getFoto() {
+		return foto;
+	}
+
+	public void setFoto(String foto) {
+		this.foto = foto;
+	}
+
 	public String getEmpComplemento() {
 		return empComplemento;
 	}
@@ -685,7 +707,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setBanco(String banco) {
-		this.banco = banco;
+		this.banco = banco == null ? null : banco.toUpperCase();
 	}
 
 	public String getTipoConta() {
@@ -837,7 +859,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setUfCtps(String ufCtps) {
-		this.ufCtps = ufCtps;
+		this.ufCtps = ufCtps == null ? null : ufCtps.toUpperCase();
 	}
 
 	public Date getEmissaoCtps() {
@@ -885,7 +907,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setApelido(String apelido) {
-		this.apelido = apelido;
+		this.apelido = apelido == null ? null : apelido.toUpperCase();
 	}
 
 	public boolean isFilho() {
@@ -909,7 +931,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setEscolaridade(String escolaridade) {
-		this.escolaridade = escolaridade;
+		this.escolaridade = escolaridade == null ? null : escolaridade.toUpperCase();
 	}
 
 	public boolean isCnh() {
@@ -925,7 +947,7 @@ public class Pessoa implements Serializable {
 	}
 
 	public void setCatCnh(String catCnh) {
-		this.catCnh = catCnh;
+		this.catCnh = catCnh == null ? null : catCnh.toUpperCase();
 	}
 
 	public Date getValidadeCnh() {
@@ -942,6 +964,30 @@ public class Pessoa implements Serializable {
 
 	public void setDataUltCompra(Date dataUltCompra) {
 		this.dataUltCompra = dataUltCompra;
+	}
+
+	public Boolean getEmpresa() {
+		return empresa;
+	}
+
+	public void setEmpresa(Boolean empresa) {
+		this.empresa = empresa;
+	}
+
+	public String getCaminhoLogo() {
+		return caminhoLogo;
+	}
+
+	public void setCaminhoLogo(String caminhoLogo) {
+		this.caminhoLogo = caminhoLogo;
+	}
+
+	public Date getDataCadastro() {
+		return dataCadastro;
+	}
+
+	public void setDataCadastro(Date dataCadastro) {
+		this.dataCadastro = dataCadastro;
 	}
 
 	public boolean isInclusao() {

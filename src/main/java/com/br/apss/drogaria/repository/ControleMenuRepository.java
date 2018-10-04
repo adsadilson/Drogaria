@@ -37,7 +37,7 @@ public class ControleMenuRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Controle de Menu n�o pode ser excluído.");
+			throw new NegocioException("Controle de Menu n�o pode ser excluído.");
 		}
 	}
 
@@ -78,6 +78,15 @@ public class ControleMenuRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<ControleMenu> filtrados(ControleMenuFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
+
+		if (filtro.getCampoOrdenacao() != null) {
+			if (filtro.isAscendente()) {
+				criteria.addOrder(Order.asc(filtro.getCampoOrdenacao()));
+			} else {
+				criteria.addOrder(Order.desc(filtro.getCampoOrdenacao()));
+			}
+		}
+
 		return criteria.addOrder(Order.asc("funcao")).list();
 	}
 

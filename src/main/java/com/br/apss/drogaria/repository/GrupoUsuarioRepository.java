@@ -78,11 +78,11 @@ public class GrupoUsuarioRepository implements Serializable {
 	@SuppressWarnings("unchecked")
 	public List<GrupoUsuario> filtrados(GrupoUsuarioFilter filtro) {
 		Criteria criteria = criarCriteriaParaFiltro(filtro);
-		
+
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
 		}
-		
+
 		if (filtro.getStatus() != null) {
 			if (filtro.getStatus()) {
 				criteria.add(Restrictions.eq("status", true));
@@ -91,7 +91,16 @@ public class GrupoUsuarioRepository implements Serializable {
 			}
 
 		}
-		
+
+		if (filtro.getCampoOrdenacao() != null) {
+
+			if (filtro.isAscendente()) {
+				criteria.addOrder(Order.asc(filtro.getCampoOrdenacao()));
+			} else {
+				criteria.addOrder(Order.desc(filtro.getCampoOrdenacao()));
+			}
+		}
+
 		return criteria.addOrder(Order.asc("nome")).list();
 	}
 

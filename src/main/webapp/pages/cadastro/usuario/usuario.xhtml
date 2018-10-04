@@ -1,3 +1,4 @@
+
 <ui:composition template="/WEB-INF/template/layout.xhtml"
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
@@ -47,6 +48,13 @@
 						ajax="false" immediate="true">
 						<p:dataExporter type="xls" target="tblUsuario" fileName="usuarios" />
 					</p:commandButton>
+
+
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Usuários"
+							onclick="PF('dialogRelatUser').show()" icon="fa fa-print"
+							action="#{usuarioBean.novoFiltro}" update="fmRelatUsuario" />
+					</p:menuButton>
 
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
@@ -292,6 +300,46 @@
 			</h:form>
 
 		</p:dialog>
+
+		<p:dialog header="Relatório - Usuários" widgetVar="dialogRelatUser"
+			modal="true" width="365" height="120" resizable="false"
+			draggable="true" id="dgRelatUser" visible="false"
+			closeOnEscape="true" appendTo="@(body)">
+
+			<h:form id="fmRelatUsuario" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid columns="2" id="pnRelat" columnClasses="rotulo60">
+				
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:222px;"
+						value="#{usuarioBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{usuarioBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="NOME" itemValue="nome" />
+						<f:selectItem itemLabel="CODIGO" itemValue="id" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatUsuario"
+							actionListener="#{usuarioBean.gerarRelatUser()}" ajax="false"
+							onclick="this.form.target='_blank'" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
 
 	</ui:define>
 </ui:composition>

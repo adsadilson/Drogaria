@@ -1,9 +1,12 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -16,6 +19,7 @@ import com.br.apss.drogaria.enums.TipoConta;
 import com.br.apss.drogaria.enums.TipoRelatorio;
 import com.br.apss.drogaria.model.PlanoConta;
 import com.br.apss.drogaria.model.filter.PlanoContaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.PlanoContaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -38,6 +42,11 @@ public class PlanoContaBean implements Serializable {
 	private boolean clonarSimNao = false;
 
 	@Inject
+	private Relatorio relat;
+
+	private List<PlanoConta> list = null;
+
+	@Inject
 	private PlanoContaService planoContaService;
 
 	/******************** Metodos ***********************/
@@ -47,6 +56,17 @@ public class PlanoContaBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+	}
+
+	public void gerarRelatPlanoConta() throws IOException {
+		list = planoContaService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de plano de Contas");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", false);
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportPlanoConta.jrxml";
+		relat.gerarRelatorio(caminho, "Lista De Plano de Contas", par, list);
 	}
 
 	public void salvar() {
@@ -162,6 +182,14 @@ public class PlanoContaBean implements Serializable {
 
 	public void setFiltro(PlanoContaFilter filtro) {
 		this.filtro = filtro;
+	}
+
+	public List<PlanoConta> getList() {
+		return list;
+	}
+
+	public void setList(List<PlanoConta> list) {
+		this.list = list;
 	}
 
 }

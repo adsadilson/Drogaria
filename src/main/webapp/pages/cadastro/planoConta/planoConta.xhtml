@@ -59,6 +59,12 @@
 							fileName="planoContas" />
 					</p:commandButton>
 
+					<p:menuButton value="Relatórios" style="margin-left:5px;">
+						<p:menuitem value="Plano de Contas"
+							onclick="PF('dialogRelatPlanoConta').show()" icon="fa fa-print"
+							action="#{planoContaBean.novoFiltro}" update="fmRelatPlanoConta" />
+					</p:menuButton>
+
 					<span class="ui-separator"> <span
 						class="ui-icon ui-icon-grip-dotted-vertical" />
 					</span>
@@ -303,6 +309,55 @@
 							action="#{planoContaBean.pesquisar}"
 							oncomplete="PF('dialogFiltro').hide()"
 							update="tblPlanoConta panelFiltro" />
+					</p:toolbarGroup>
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Relatório - Plano de Conta"
+			widgetVar="dialogRelatPlanoConta" modal="true" width="365"
+			height="150" resizable="false" draggable="true"
+			id="dgRelatPlanoConta" visible="false" closeOnEscape="true"
+			appendTo="@(body)">
+
+			<h:form id="fmRelatPlanoConta" prependId="false"
+				onkeypress="if (event.keyCode == 13) { return false; }">
+
+				<h:panelGrid columns="2" id="pnRelat" columnClasses="rotulo60"
+					style="margin-top: 10px;">
+
+					<p:outputLabel value="Tipo" />
+					<p:selectOneMenu style="width:88%;"
+						value="#{planoContaBean.filtro.tipo}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItems value="#{planoContaBean.tipoContas}" var="tp"
+							itemLabel="#{tp.sigla} - #{tp.descricao} " itemValue="#{tp}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Status" />
+					<p:selectOneMenu autoWidth="false" style="width:210px;"
+						value="#{planoContaBean.filtro.status}">
+						<f:selectItem itemLabel="Selecione..." itemValue="#{null}" />
+						<f:selectItem itemLabel="ATIVO" itemValue="true" />
+						<f:selectItem itemLabel="INATIVO" itemValue="false" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ordenação" />
+					<p:selectOneMenu autoWidth="false" style="width:88%;"
+						value="#{planoContaBean.filtro.campoOrdenacao}">
+						<f:selectItem itemLabel="MASCARA" itemValue="mascara" />
+						<f:selectItem itemLabel="DESCRIÇÃO" itemValue="nome" />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+
+				<p:toolbar style="margin-top: 10px; margin-button:5px"
+					styleClass="semPreenchimento">
+					<p:toolbarGroup align="right" style="margin-right: 0px;">
+						<p:commandButton value="Confirmar" icon="fa fa-check"
+							process="@this fmRelatPlanoConta"
+							actionListener="#{planoContaBean.gerarRelatPlanoConta()}"
+							ajax="false" onclick="this.form.target='_blank'" />
 					</p:toolbarGroup>
 				</p:toolbar>
 			</h:form>

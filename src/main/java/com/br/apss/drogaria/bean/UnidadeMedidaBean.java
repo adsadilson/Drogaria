@@ -1,9 +1,12 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -15,6 +18,7 @@ import org.primefaces.context.RequestContext;
 import com.br.apss.drogaria.enums.Status;
 import com.br.apss.drogaria.model.UnidadeMedida;
 import com.br.apss.drogaria.model.filter.UnidadeMedidaFilter;
+import com.br.apss.drogaria.relatorio.Relatorio;
 import com.br.apss.drogaria.service.UnidadeMedidaService;
 import com.br.apss.drogaria.util.jsf.NegocioException;
 
@@ -33,6 +37,11 @@ public class UnidadeMedidaBean implements Serializable {
 	private List<UnidadeMedida> listaUnidadeMedidas = new ArrayList<UnidadeMedida>();
 
 	@Inject
+	private Relatorio relat;
+
+	private List<UnidadeMedida> list = null;
+
+	@Inject
 	private UnidadeMedidaService unidadeMedidaService;
 
 	/******************** Metodos ***********************/
@@ -42,6 +51,17 @@ public class UnidadeMedidaBean implements Serializable {
 			novo();
 		}
 		pesquisar();
+	}
+
+	public void gerarRelatUnidadeMedida() throws IOException {
+		list = unidadeMedidaService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Unidade de Medida");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", false);
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportUnidadeProduto.jrxml";
+		relat.gerarRelatorio(caminho, "Lista de Unidade de Medida", par, list);
 	}
 
 	public void salvar() {
@@ -83,8 +103,8 @@ public class UnidadeMedidaBean implements Serializable {
 		Messages.addGlobalInfo("Registro excluido com sucesso.");
 		pesquisar();
 	}
-	
-	public List<Status> getStatus(){
+
+	public List<Status> getStatus() {
 		return Arrays.asList(Status.values());
 	}
 
@@ -120,6 +140,14 @@ public class UnidadeMedidaBean implements Serializable {
 
 	public void setUnidadeMedidaSelecionado(UnidadeMedida unidadeMedidaSelecionado) {
 		this.unidadeMedidaSelecionado = unidadeMedidaSelecionado;
+	}
+
+	public List<UnidadeMedida> getList() {
+		return list;
+	}
+
+	public void setList(List<UnidadeMedida> list) {
+		this.list = list;
 	}
 
 }

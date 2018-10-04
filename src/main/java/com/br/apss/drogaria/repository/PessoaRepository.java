@@ -38,7 +38,7 @@ public class PessoaRepository implements Serializable {
 			manager.flush();
 
 		} catch (Exception e) {
-			throw new NegocioException("Pessoa n�o pode ser exclu�da");
+			throw new NegocioException("Pessoa não pode ser exclu�da");
 		}
 	}
 
@@ -52,6 +52,11 @@ public class PessoaRepository implements Serializable {
 
 	public List<Pessoa> listarFornecedores() {
 		return manager.createQuery("from Pessoa where fornecedor=true and status=true order by nome", Pessoa.class)
+				.getResultList();
+	}
+
+	public List<Pessoa> listarEmpresas() {
+		return manager.createQuery("from Pessoa where empresa=true and status=true order by nome", Pessoa.class)
 				.getResultList();
 	}
 
@@ -108,8 +113,24 @@ public class PessoaRepository implements Serializable {
 				criteria.add(Restrictions.ilike("nome", filtro.getNome(), MatchMode.ANYWHERE));
 			}
 
+			if (StringUtils.isNotBlank(filtro.getMotivo())) {
+				criteria.add(Restrictions.ilike("motivoBloqueio", filtro.getMotivo(), MatchMode.ANYWHERE));
+			}
+
 			if (StringUtils.isNotBlank(filtro.getCpf())) {
 				criteria.add(Restrictions.ilike("cpfCnpj", filtro.getCpf(), MatchMode.ANYWHERE));
+			}
+
+			if (filtro.getNumeroDe() != null) {
+				criteria.add(Restrictions.ge("id", filtro.getNumeroDe()));
+			}
+
+			if (filtro.getNumeroAte() != null) {
+				criteria.add(Restrictions.le("id", filtro.getNumeroAte()));
+			}
+
+			if (filtro.getBloqueado()) {
+				criteria.add(Restrictions.eq("bloquearVenco", true));
 			}
 
 			if (filtro.getStatus() != null) {

@@ -1,11 +1,13 @@
 package com.br.apss.drogaria.bean;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -47,6 +49,8 @@ public class ClienteBean implements Serializable {
 	@Inject
 	private Relatorio relat;
 
+	private List<Pessoa> list = null;
+
 	/******************** Metodos ***********************/
 
 	public void inicializar() {
@@ -56,11 +60,49 @@ public class ClienteBean implements Serializable {
 		pesquisar();
 	}
 
-	public void gerarRelatorio() {
-		List<Pessoa> list = clienteService.listarClientes();
+	public void validarRelatorio() {
+		list = clienteService.filtrados(filtro);
+		if (list.size() <= 0) {
+			FacesContext.getCurrentInstance().validationFailed();
+			throw new NegocioException("Nenhum registro encontrado para geração do relatório.");
+		}
+	}
+
+	public void gerarRelatCli() throws IOException {
+		filtro.setCliente(true);
+		list = clienteService.filtrados(filtro);
 		Map<String, Object> par = new HashMap<>();
 		par.put("par_nome_relat", "Lista de Clientes");
-		relat.gerarRelatorio("/relatorios/reportCliente.jrxml", "listaDeClientes", par, list);
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", filtro.getTipoAnalitico());
+		par.put("par_numDe", filtro.getNumeroDe() + " ate " + filtro.getNumeroAte());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+
+		String caminho = "/relatorios/reportCliente.jrxml";
+
+		if (filtro.getTipoAnalitico()) {
+			caminho = "/relatorios/iReportPessoaAnalitico.jrxml";
+			par.put("par_nome_relat", "Ficha de Cliente(s)");
+		}
+
+		relat.gerarRelatorio(caminho, "Lista De Clientes", par, list);
+	}
+
+	public void gerarRelatCliBloqueado() throws IOException {
+		filtro.setBloqueado(true);
+		filtro.setCliente(true);
+		list = clienteService.filtrados(filtro);
+		Map<String, Object> par = new HashMap<>();
+		par.put("par_nome_relat", "Lista de Clientes Bloqueados");
+		par.put("par_situacao", filtro.getStatus());
+		par.put("par_tipo", filtro.getTipoAnalitico());
+		par.put("par_numDe", filtro.getNumeroDe() + " ate " + filtro.getNumeroAte());
+		par.put("par_ordenacao", filtro.getCampoOrdenacao());
+		String caminho = "/relatorios/reportCliBloqueado.jrxml";
+		if (filtro.getTipoAnalitico()) {
+			caminho = "/relatorios/reportCliAnalitico.jrxml";
+		}
+		relat.gerarRelatorio(caminho, "Lista De Clientes Bloqueados", par, list);
 	}
 
 	public void salvar() {
@@ -84,6 +126,14 @@ public class ClienteBean implements Serializable {
 		}
 	}
 
+	public void consultarClientePorCpfMsm() {
+		Pessoa clienteExistente = clienteService.porCpf(cliente.getCpfCnpj());
+		if (clienteExistente != null) {
+			cliente = clienteExistente;
+			throw new NegocioException("Já existe um Cliente com esse cpf ou cnpj informado.");
+		}
+	}
+
 	public void editar() {
 		this.cliente = clienteService.porId(this.clienteSelecionado.getId());
 	}
@@ -95,6 +145,10 @@ public class ClienteBean implements Serializable {
 
 	public void novoFiltro() {
 		this.filtro = new PessoaFilter();
+	}
+
+	public void tipoRelat() {
+		this.filtro.setTipoAnalitico(true);
 	}
 
 	public void pesquisar() {
